@@ -1,0 +1,80 @@
+﻿@model List<DWB.Models.TblRoomMaster>
+ <div align="right">
+    <a href="btnCreateDiet" class="btn btn-primary px-4 open-modal"
+           data-url="@Url.Action("RoomCreate", "Master")"
+           data-bs-toggle="modal"
+           data-bs-target="#editModal">
+            <i class="bi bi-plus-lg me-2"></i>Room Master
+        </a>
+    </div>
+ <table id="RoomTable" class="table table-striped table-responsive table-sm">
+        @if (TempData["RoomSuccess"] != null)
+        {
+        <br />
+        <div class="alert alert-success border-0 bg-success alert-dismissible fade show" id="alertMessage">
+            <div class="text-white align-content-center">@TempData["RoomSuccess"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["RoomError"] != null)
+        {
+        <br />
+        <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show" id="alertMessage">
+                <div class="text-white align-content-center">@TempData["RoomError"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <thead>
+            <tr>
+                <th>Sr. No.</th>
+                <th>Floor</th>
+                <th>Room</th>
+                <th>Actions</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+    <tbody>
+@if(Model != null && Model.Any())
+    {  
+       @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@Model[i].TblFloorMaster.VchFloor</td>
+                    <td>@Model[i].IntRoomNo</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary me-1 open-modal"
+                           data-bs-toggle="modal"
+                           data-bs-target="#editModal"
+                           data-url="@Url.Action("RoomEdit", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                            Update
+                        </a>
+                        <a class="btn btn-sm btn-danger me-1"
+                           href="@Url.Action("RoomDelete", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })"
+                           onclick="return confirm('Are you sure you want to delete this record?');">
+                            Delete
+                        </a>
+                        @if (Model[i].BitIsDeactivated == false)
+                        {
+                            <a class="btn btn-sm btn-warning me-1"
+                               href="@Url.Action("RoomDeactivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                Deactivate?
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-inverse-warning me-1"
+                               href="@Url.Action("RoomActivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                Activate?
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }  
+         }
+        else
+        {
+            <tr>Empty</tr>
+        }
+     </tbody>        
+</table>

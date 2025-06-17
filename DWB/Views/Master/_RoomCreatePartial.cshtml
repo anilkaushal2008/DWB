@@ -1,0 +1,36 @@
+﻿@model DWB.Models.TblRoomMaster
+
+<div class="modal-header bg-primary">
+    <h5 class="modal-title">@(Model?.IntId > 0 ? "Edit Room" : "Create Room")</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form id="roomForm" asp-action="@(Model?.IntId > 0 ? "RoomEdit" : "RoomCreate")" asp-controller="Master" method="post">
+            <div class="modal-body">
+                @if (Model?.IntId > 0)
+                {
+                    <input type="hidden" asp-for="IntId" />
+                    <input type="hidden" asp-for="IntUnitCode" />
+                }
+                <div class="mb-3">
+                    <label class="form-label">Select Floor:</label>
+                    <select asp-for="FkIntFloorId" class="form-select" asp-items="ViewBag.FloorList">
+                        <option value="">-- Select Floor --</option>
+                    </select>
+                    <span asp-validation-for="FkIntFloorId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Room No.:</label>
+                    <input asp-for="IntRoomNo" required class="form-control" placeholder="Enter room number" />
+                    <span asp-validation-for="IntRoomNo" class="text-danger"></span>
+                </div>                
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>

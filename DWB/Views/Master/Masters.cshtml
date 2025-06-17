@@ -1,0 +1,216 @@
+﻿@using DWB.Models;
+@model DWB.Models.MasterTabView
+<main class="main-wrapper">
+  <div class="main-content">
+	<div class="row cols-12">
+			<div class="col">
+				<h6 class="mb-0 text-uppercase">ALL MASTERS PANNEL</h6>
+				<hr>
+				<div class="card">
+					<div class="card-body">
+						<ul class="nav nav-pills mb-3" role="tablist">
+							<li class="nav-item" role="presentation">
+								<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "DietTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-diet" role="tab" aria-selected="true">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											@* <i class="bi bi-house-door me-1 fs-6"></i> *@
+										</div>
+										<div class="tab-title">Diet Master</div>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item" role="presentation">
+								<a class="nav-link  @(TempData["ActiveTab"]?.ToString() == "FloorTab" ? "active" : "")" data-bs-toggle="pill"
+								   href="#primary-pills-floor" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "FloorTab" ? "true" : "false")">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											@* <i class="bi bi-person me-1 fs-6"></i> *@
+										</div>
+										<div class="tab-title">Floor Master</div>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item" role="presentation">
+								<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-room"
+								   role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "true" : "false")">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											@* <i class='bi bi-headset me-1 fs-6'></i> *@
+										</div>
+										<div class="tab-title">Room Master</div>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item" role="presentation">
+								<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-role"
+								   role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "true" : "false")">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											@* <i class='bi bi-headset me-1 fs-6'></i> *@
+										</div>
+										<div class="tab-title">Role Master</div>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item" role="presentation">
+								<a class="nav-link" data-bs-toggle="pill" href="#primary-pills-staff" role="tab" aria-selected="false">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											@* <i class='bi bi-headset me-1 fs-6'></i> *@
+										</div>
+										<div class="tab-title">Staff Master</div>
+									</div>
+								</a>
+							</li>
+						</ul>
+						<div class="tab-content" id="pills-tabContent">
+							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "DietTab" ? "active" : "")"  id="primary-pills-diet" role="tabpanel">
+								@await Html.PartialAsync("_DietMasters", Model.Diets)
+						  </div>
+							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "FloorTab" ? "active" : "")" id="primary-pills-floor" role="tabpanel">
+								 @await Html.PartialAsync("_FloorMaster", Model.Floors)
+							</div>
+							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "active" : "")" id="primary-pills-room" role="tabpanel">
+								@await Html.PartialAsync("_RoomMasters", Model.Rooms)
+							</div>
+							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "active" : "")" id="primary-pills-role" role="tabpanel">
+								@await Html.PartialAsync("_RoleMaster", Model.RoleMas)
+							</div>
+							@* <div class="tab-pane fade" id="primary-pills-staff" role="tabpanel">
+								staff
+						</div> *@
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</main>
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div id="modal-content-placeholder"></div>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+	<script>
+		// $(document).on('click', '.open-modal', function (e) {
+		// 	e.preventDefault();
+		// 	var url = $(this).data('url');
+		// 	$.get(url, function (data) {
+		// 		$('#modal-content-placeholder').html(data);
+		// 	});
+		// });
+		//btn btnCreateDiet name for all same name to create new button action
+		$(document).on("click", "#btnCreateDiet, .open-modal", function (e) {
+				e.preventDefault();
+				var url = $(this).data("url");
+
+				$.get(url, function (data) {
+					$("#modal-content-placeholder").html(data);
+					$("#editModal").modal("show");
+
+					// parse validation
+					$.validator.unobtrusive.parse("#dietForm");
+				});
+			});
+
+			// Handle form submission diet master
+			$(document).on("submit", "#dietForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+			//Handle form submission floor master
+			$(document).on("submit", "#floorForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+			//Handle form submission Room master
+			$(document).on("submit", "#roomForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+			//submission Role master
+			$(document).on("submit", "#roleForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+	</script>
+	
+}
+

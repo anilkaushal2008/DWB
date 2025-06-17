@@ -1,0 +1,39 @@
+﻿@model DWB.Models.TblDietMaster
+<div class="modal-header bg-primary">
+    <h5 class="modal-title">@(Model?.IntId > 0 ? "Edit Diet" : "Create Diet")</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="card">
+    <div class="card-body">
+<form id="dietForm" asp-action="@(Model?.IntId > 0 ? "DietEdit" : "DietCreate")" asp-controller="Master" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    @if (Model?.IntId > 0)
+    {
+        <input type="hidden" asp-for="IntId" />
+        <input type="hidden" asp-for="IntUnitCode" />
+    }
+    <div class="mb-3">
+        <label>Diet Code:</label>
+        <input asp-for="VchDietCode" class="form-control" placeholder="Enter diet code" />
+        <span asp-validation-for="VchDietCode" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Diet Name:</label>
+        <input asp-for="VchDietName" class="form-control" placeholder="Enter diet name" />
+        <span asp-validation-for="VchDietName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Description:</label>
+        <input asp-for="VchDescript" class="form-control" placeholder="Enter diet description" />
+        <span asp-validation-for="VchDescript" class="text-danger"></span>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>
+</div>
+</div>

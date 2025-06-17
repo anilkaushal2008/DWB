@@ -1,0 +1,81 @@
+﻿@model List<DWB.Models.TblDietMaster>
+
+@if(Model != null && Model.Any())
+{
+    <div align="right">
+        <a id="btnCreateDiet" href="#" class="btn btn-primary px-4 open-modal"
+           data-url="@Url.Action("DietCreate", "Master")"
+           data-bs-toggle="modal"
+           data-bs-target="#editModal">
+            <i class="bi bi-plus-lg me-2"></i>Add Diet
+        </a>
+    </div>
+    <table id="dietTable" class="table table-striped table-responsive table-sm">
+        @if (TempData["DietSuccess"] != null)
+        {<br />
+            <div class="alert alert-success border-0 bg-success alert-dismissible fade show">
+                <div class="text-white align-content-center">@TempData["DietSuccess"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>           
+        }
+        @if (TempData["DietError"] != null)
+        {
+          <br />
+            <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show">
+                <div class="text-white align-content-center">@TempData["DietError"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>           
+        }
+        <thead>
+        <tr>
+            <th>Sr. No.</th>
+            <th>Diet Code</th>
+            <th>Diet Name</th>
+            <th>Actions</th>
+            <!-- Add more columns as needed -->
+        </tr>
+    </thead>
+    <tbody>        
+        @for(int i = 0; i < Model.Count; i++)
+        {
+            <tr>
+                <td>@(i + 1)</td>
+                <td>@Model[i].VchDietCode</td>
+                <td>@Model[i].VchDescript</td>
+                <td>
+                        <a href="#" class="btn btn-sm btn-primary me-1 open-modal"
+                           data-bs-toggle="modal"
+                           data-bs-target="#editModal"
+                           data-url="@Url.Action("DietEdit", "Master", new { id = Model[i].IntId, code=Model[i].IntUnitCode })">
+                            Edit
+                        </a>
+                        <a class="btn btn-sm btn-danger me-1"
+                            href="@Url.Action("DietDelete", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })"
+                            onclick="return confirm('Are you sure you want to delete this record?');">Delete
+                        </a>
+                        @if (Model[i].BitIsDeactivated == false)
+                        {
+                            <a class="btn btn-sm btn-warning me-1"
+                               href="@Url.Action("DietDeactivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                            Deactivate?
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-inverse-warning me-1"
+                               href="@Url.Action("DietActivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                Activate?
+                            </a>
+                        }
+                    </td>
+            </tr>
+        }        
+    </tbody>
+    </table>
+}
+else
+{
+  <a>Empty</a>
+}
+
+

@@ -1,0 +1,78 @@
+﻿@model List<DWB.Models.TblRoleMas>
+<div align="right">
+    <a href="btnCreateDiet" class="btn btn-primary px-4 open-modal"
+       data-url="@Url.Action("RoleCreate", "Master")"
+       data-bs-toggle="modal"
+       data-bs-target="#editModal">
+        <i class="bi bi-plus-lg me-2"></i>Role Master
+    </a>
+</div>
+<table id="RoleTable" class="table table-striped table-responsive table-sm">
+    @if (TempData["RoleSuccess"] != null)
+    {
+        <br />
+        <div class="alert alert-success border-0 bg-success alert-dismissible fade show" id="alertMessage">
+            <div class="text-white align-content-center">@TempData["RoleSuccess"]</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["RoleError"] != null)
+    {
+        <br />
+        <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show" id="alertMessage">
+            <div class="text-white align-content-center">@TempData["RoleError"]</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <thead>
+        <tr>
+            <th>Sr. No.</th>
+            <th>Role</th>            
+            <th>Actions</th>
+            <!-- Add more columns as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>                    
+                    <td>@Model[i].VchRole</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary me-1 open-modal"
+                           data-bs-toggle="modal"
+                           data-bs-target="#editModal"
+                           data-url="@Url.Action("RoleEdit", "Master", new { id = Model[i].IntId })">
+                            Edit
+                        </a>
+                        <a class="btn btn-sm btn-danger me-1"
+                           href="@Url.Action("RoleDelete", "Master", new { id = Model[i].IntId})"
+                           onclick="return confirm('Are you sure you want to delete this record?');">
+                            Delete
+                        </a>
+                        @if (Model[i].BitIsActive == true)
+                        {
+                            <a class="btn btn-sm btn-warning me-1"
+                               href="@Url.Action("RoleDeactivate", "Master", new { id = Model[i].IntId})">
+                                Deactivate?
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-inverse-warning me-1"
+                               href="@Url.Action("RoleActivate", "Master", new { id = Model[i].IntId})">
+                                Activate?
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>Empty</tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,85 @@
+﻿@model List<DWB.Models.TblFloorMaster>
+
+@if (Model != null && Model.Any())
+{
+    <div align="right">
+        <a href="btnCreateDiet" class="btn btn-primary px-4 open-modal"
+           data-url="@Url.Action("FloorCreate", "Master")"
+           data-bs-toggle="modal"
+           data-bs-target="#editModal">
+            <i class="bi bi-plus-lg me-2"></i>Floor Master
+        </a>
+    </div>
+    <table id="FloorTable" class="table table-striped table-responsive table-sm">
+        @if (TempData["FloorSuccess"] != null)
+        {
+            <br />
+            <div class="alert alert-success border-0 bg-success alert-dismissible fade show">
+                <div class="text-white align-content-center">@TempData["FloorSuccess"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["FloorError"] != null)
+        {
+            <br />
+            <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show">
+                <div class="text-white align-content-center">@TempData["FloorError"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <thead>
+            <tr>
+                <th>Sr. No.</th>
+                <th>Floor</th>                
+                <th>Actions</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@Model[i].VchFloor</td>                   
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary me-1 open-modal"
+                           data-bs-toggle="modal"
+                           data-bs-target="#editModal"
+                           data-url="@Url.Action("FloorEdit", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                            Edit
+                        </a>
+                        <a class="btn btn-sm btn-danger me-1"
+                           href="@Url.Action("FloorDelete", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })"
+                           onclick="return confirm('Are you sure you want to delete this record?');">
+                            Delete
+                        </a>
+                        @if (Model[i].BitIsDeactivated == false)
+                        {
+                            <a class="btn btn-sm btn-warning me-1"
+                               href="@Url.Action("FloorDeactivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                Deactivate?
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-inverse-warning me-1"
+                               href="@Url.Action("FloorActivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                Activate?
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <a>Empty</a>
+}
+<script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+         $(document).ready(function () {
+        $('#FloorTable').DataTable();
+    });
+</script>

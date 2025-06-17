@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\gulp-tasks\**" />
+    <Compile Remove="wwwroot\src\**" />
+    <Compile Remove="wwwroot\theme-assets\**" />
+    <Content Remove="wwwroot\gulp-tasks\**" />
+    <Content Remove="wwwroot\src\**" />
+    <Content Remove="wwwroot\theme-assets\**" />
+    <EmbeddedResource Remove="wwwroot\gulp-tasks\**" />
+    <EmbeddedResource Remove="wwwroot\src\**" />
+    <EmbeddedResource Remove="wwwroot\theme-assets\**" />
+    <None Remove="wwwroot\gulp-tasks\**" />
+    <None Remove="wwwroot\src\**" />
+    <None Remove="wwwroot\theme-assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="efpt.config.json.user" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="8.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.jQuery.Unobtrusive.Validation" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>
