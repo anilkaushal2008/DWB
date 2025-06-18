@@ -15,6 +15,10 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[IndusCompanies]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblDietMaster]",
          "ObjectType": 0
       },
@@ -28,6 +32,14 @@
       },
       {
          "Name": "[dbo].[tblRoomMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblUserCompany]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblUsers]",
          "ObjectType": 0
       }
    ],

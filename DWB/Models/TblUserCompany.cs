@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace DWB.Models;
 
-public partial class TblRoleMas
+public partial class TblUserCompany
 {
     public int IntId { get; set; }
 
-    public string VchRole { get; set; }
+    public int FkUseriId { get; set; }
+
+    public int FkIntCompanyId { get; set; }
 
     public DateTime? DtCreated { get; set; }
 
@@ -23,7 +25,7 @@ public partial class TblRoleMas
 
     public string VchIpUpdated { get; set; }
 
-    public bool BitIsActive { get; set; }
+    public virtual IndusCompanies FkIntCompany { get; set; }
 
-    public virtual ICollection<TblUsers> TblUsers { get; set; } = new List<TblUsers>();
+    public virtual TblUsers FkUseri { get; set; }
 }

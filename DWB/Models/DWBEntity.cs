@@ -13,6 +13,8 @@ public partial class DWBEntity : DbContext
     {
     }
 
+    public virtual DbSet<IndusCompanies> IndusCompanies { get; set; }
+
     public virtual DbSet<TblDietMaster> TblDietMaster { get; set; }
 
     public virtual DbSet<TblFloorMaster> TblFloorMaster { get; set; }
@@ -21,8 +23,150 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblRoomMaster> TblRoomMaster { get; set; }
 
+    public virtual DbSet<TblUserCompany> TblUserCompany { get; set; }
+
+    public virtual DbSet<TblUsers> TblUsers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<IndusCompanies>(entity =>
+        {
+            entity.HasKey(e => e.IntPk);
+
+            entity.Property(e => e.IntPk)
+                .ValueGeneratedNever()
+                .HasColumnName("intPK");
+            entity.Property(e => e.Add1)
+                .HasMaxLength(250)
+                .HasColumnName("add1");
+            entity.Property(e => e.Add2)
+                .HasMaxLength(80)
+                .HasColumnName("add2");
+            entity.Property(e => e.Add3)
+                .HasMaxLength(80)
+                .HasColumnName("add3");
+            entity.Property(e => e.Add4)
+                .HasMaxLength(80)
+                .HasColumnName("add4");
+            entity.Property(e => e.Bdate)
+                .HasColumnType("smalldatetime")
+                .HasColumnName("bdate");
+            entity.Property(e => e.Brep)
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasColumnName("brep");
+            entity.Property(e => e.CompanyType)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasColumnName("company_type");
+            entity.Property(e => e.CorpId)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("corp_id");
+            entity.Property(e => e.Country)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("country");
+            entity.Property(e => e.Cperson)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("cperson");
+            entity.Property(e => e.Cphone)
+                .HasMaxLength(40)
+                .IsUnicode(false)
+                .HasColumnName("cphone");
+            entity.Property(e => e.Descript)
+                .HasMaxLength(80)
+                .HasColumnName("descript");
+            entity.Property(e => e.Descript1)
+                .HasMaxLength(80)
+                .HasColumnName("DESCRIPT1");
+            entity.Property(e => e.Drep)
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasColumnName("drep");
+            entity.Property(e => e.Email)
+                .HasMaxLength(50)
+                .HasColumnName("email");
+            entity.Property(e => e.Fdate)
+                .HasColumnType("smalldatetime")
+                .HasColumnName("fdate");
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.IsActive)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("isActive");
+            entity.Property(e => e.Istnum)
+                .HasMaxLength(80)
+                .HasColumnName("istnum");
+            entity.Property(e => e.Itnum)
+                .HasMaxLength(80)
+                .HasColumnName("itnum");
+            entity.Property(e => e.Location).HasMaxLength(50);
+            entity.Property(e => e.Lstnum).HasMaxLength(80);
+            entity.Property(e => e.Mnt)
+                .HasMaxLength(30)
+                .HasColumnName("mnt");
+            entity.Property(e => e.Phone1)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("phone1");
+            entity.Property(e => e.Phone2)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("phone2");
+            entity.Property(e => e.Pwd)
+                .HasMaxLength(25)
+                .HasColumnName("pwd");
+            entity.Property(e => e.Security)
+                .HasMaxLength(1)
+                .HasColumnName("security");
+            entity.Property(e => e.SesCode).HasColumnName("ses_code");
+            entity.Property(e => e.SsName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("ss_name");
+            entity.Property(e => e.State)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("state");
+            entity.Property(e => e.Suser)
+                .HasMaxLength(25)
+                .HasColumnName("suser");
+            entity.Property(e => e.Tdate)
+                .HasColumnType("smalldatetime")
+                .HasColumnName("tdate");
+            entity.Property(e => e.UhidpreFix)
+                .HasMaxLength(20)
+                .HasColumnName("UHIDPreFix");
+            entity.Property(e => e.VchGstapiuserName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchGSTAPIUserName");
+            entity.Property(e => e.VchGstcompAddress)
+                .HasMaxLength(500)
+                .IsUnicode(false)
+                .HasColumnName("vchGSTCompAddress");
+            entity.Property(e => e.VchGstcompName)
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .HasColumnName("vchGSTCompName");
+            entity.Property(e => e.VchGstcompPin).HasColumnName("vchGSTCompPIN");
+            entity.Property(e => e.VchGstcompState)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchGSTCompState");
+            entity.Property(e => e.VchGstnumber)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchGSTNumber");
+            entity.Property(e => e.VchGststateCode)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("vchGSTStateCode");
+        });
+
         modelBuilder.Entity<TblDietMaster>(entity =>
         {
             entity.HasKey(e => new { e.IntId, e.IntUnitCode });
@@ -181,6 +325,108 @@ public partial class DWBEntity : DbContext
                 .HasForeignKey(d => new { d.FkIntFloorId, d.IntUnitCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblRoomMaster_tblFloorMaster");
+        });
+
+        modelBuilder.Entity<TblUserCompany>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblUserCompany");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkIntCompanyId).HasColumnName("fk_intCompanyID");
+            entity.Property(e => e.FkUseriId).HasColumnName("fk_UseriId");
+            entity.Property(e => e.VchCreatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchIpUpdated)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchIpUpdated");
+            entity.Property(e => e.VchIpUsed)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchIpUsed");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+
+            entity.HasOne(d => d.FkIntCompany).WithMany(p => p.TblUserCompany)
+                .HasForeignKey(d => d.FkIntCompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblUserCompany_IndusCompanies");
+
+            entity.HasOne(d => d.FkUseri).WithMany(p => p.TblUserCompany)
+                .HasForeignKey(d => d.FkUseriId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblUserCompany_tblUsers");
+        });
+
+        modelBuilder.Entity<TblUsers>(entity =>
+        {
+            entity.HasKey(e => e.IntUserId);
+
+            entity.ToTable("tblUsers");
+
+            entity.Property(e => e.IntUserId).HasColumnName("intUserId");
+            entity.Property(e => e.BitIsDeActived).HasColumnName("bitIsDeActived");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkRoleId).HasColumnName("fk_RoleId");
+            entity.Property(e => e.HpasswordHash)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("HPasswordHash");
+            entity.Property(e => e.VchCreatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchEmail)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchEmail");
+            entity.Property(e => e.VchFullName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("vchFullName");
+            entity.Property(e => e.VchIpUpdated)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchIpUpdated");
+            entity.Property(e => e.VchIpUsed)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchIpUsed");
+            entity.Property(e => e.VchMobile)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchMobile");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+            entity.Property(e => e.VchUsername)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUsername");
+
+            entity.HasOne(d => d.FkRole).WithMany(p => p.TblUsers)
+                .HasForeignKey(d => d.FkRoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblUsers_tblRoleMas");
         });
 
         OnModelCreatingPartial(modelBuilder);

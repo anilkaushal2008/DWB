@@ -1,0 +1,167 @@
+﻿@using DWB.Models;
+@model DWB.Models.MasterUserTab
+<main class="main-wrapper">
+	<div class="main-content">
+		<div class="row cols-12">
+			<div class="col">
+				<h6 class="mb-0 text-uppercase">ALL USER MASTERS</h6>
+				<hr>
+				<div class="card">
+					<div class="card-body">
+						<ul class="nav nav-pills mb-3" role="tablist">
+							<li class="nav-item" role="presentation">
+								<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "UserTab" ? "active" : "")" data-bs-toggle="pill"
+								   href="#primary-pills-usermaster" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "UserTab" ? "true" : "false")">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											<i class="fadeIn animated bx bx-user"></i>
+										</div>
+										<div class="tab-title">User Master</div>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item" role="presentation">
+								<a class="nav-link  @(TempData["ActiveTab"]?.ToString() == "CompanyTab" ? "active" : "")" data-bs-toggle="pill"
+								   href="#primary-pills-companymaster" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "CompanyTab" ? "true" : "false")">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											<i class="bi bi-"></i>
+										</div>
+										<div class="tab-title">Company Master</div>
+									</div>
+								</a>
+							</li>							
+						<div class="tab-content" id="pills-tabContent">
+						    <div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "UserTab" ? "active" : "")" id="primary-pills-usermaster" role="tabpanel">
+								@await Html.PartialAsync("_AllUser", Model.AllUsers)
+							</div>
+							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "CompanyTab" ? "active" : "")" id="primary-pills-companymaster" role="tabpanel">
+								@*@await Html.PartialAsync("_Master", Model.UsersCompany) *@
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+<div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="newModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-body">
+				<div id="modal-content-placeholder"></div>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+	<script type="text/javascript">			
+		$(document).on("click", "#btnCreateNew, .open-modal", function (e) {
+				e.preventDefault();
+				var url = $(this).data("url");
+
+				$.get(url, function (data) {
+					$("#modal-content-placeholder").html(data);
+					$("#newModal").modal("show");
+
+					// parse validation
+					$.validator.unobtrusive.parse("#dietForm");
+				});
+			});
+
+			// Handle form submission diet master
+			$(document).on("submit", "#dietForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+			//Handle form submission floor master
+			$(document).on("submit", "#floorForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+			//Handle form submission Room master
+			$(document).on("submit", "#roomForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+			//submission Role master
+			$(document).on("submit", "#roleForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#dietForm");
+						}
+					}
+				});
+			});
+	</script>
+
+}
+
