@@ -1,1 +1,90 @@
-﻿UserTab
+﻿@model DWB.Models.CreateUserViewModel
+<style>
+    .required-label::after {
+        content: " *";
+        color: red;
+    }
+</style>
+<div class="modal-header bg-primary">
+    <h5 class="modal-title">@(Model?.IntUserId > 0 ? "Edit User" : "Create User")</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="card">
+    <div class="card-body">
+        <form id="userForm" asp-action="@(Model?.IntUserId > 0 ? "UserEdit" : "NewUser")" asp-controller="UserMaster" method="post">
+            <div class="modal-body">
+                @if (Model?.IntUserId > 0)
+                {
+                    <input type="hidden" asp-for="IntUserId" />
+                }
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label asp-for="VchUsername" class="required-label"></label>
+                        <input asp-for="VchUsername" class="form-control" placeholder="Enter user name" />
+                        <span asp-validation-for="VchUsername" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label asp-for="HpasswordHash" class="required-label">Password</label>
+                        <input asp-for="HpasswordHash" class="form-control" type="password" placeholder="Enter password" />
+                        <span asp-validation-for="HpasswordHash" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label asp-for="VchFullName" class="required-label"></label>
+                        <input asp-for="VchFullName" class="form-control" placeholder="Enter full name" />
+                        <span asp-validation-for="VchFullName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label asp-for="VchEmail" class="required-label"></label>
+                        <input asp-for="VchEmail" class="form-control"  placeholder="Enter email address"/>
+                        <span asp-validation-for="VchEmail" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label asp-for="VchMobile" class="required-label"></label>
+                        <input asp-for="VchMobile" class="form-control" placeholder="Enter mobile number" />
+                        <span asp-validation-for="VchMobile" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label asp-for="FkRoleId" class="required-label">Select Role</label>
+                        <select asp-for="FkRoleId" asp-items="ViewBag.RoleList" class="form-control"></select>
+                        <span asp-validation-for="FkRoleId" class="text-danger"></span>
+                    </div>
+                </div>            
+                <hr />
+                <div class="form-group">
+                    <label class="required-label" style="font-weight:bold" >Select Applicable Branches for User Access</label>
+                    <hr />
+                    @* <label class="required-label" style="font-weight:bold">Assign Branches</label> *@
+                    <div class="row">
+                        @if (ViewBag.BranchList != null)
+                        {
+                            foreach (var branch in (IEnumerable<SelectListItem>)ViewBag.BranchList)
+                            {
+                                <div class="col-md-6 form-check">
+                                    <input type="checkbox"
+                                           class="form-check-input"
+                                           name="SelectedCompanyIds"
+                                           value="@branch.Value"
+                                           @(Model?.SelectedCompanyIds?.Contains(Convert.ToInt32(branch.Value)) == true ? "checked" : "") />
+                                    <label class="form-check-label">@branch.Text</label>
+                                </div>
+                            }
+                        }
+                        <span asp-validation-for="SelectedCompanyIds" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+

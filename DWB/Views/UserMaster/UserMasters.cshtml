@@ -30,7 +30,9 @@
 										<div class="tab-title">Company Master</div>
 									</div>
 								</a>
-							</li>							
+							</li>	
+					   </ul>  
+
 						<div class="tab-content" id="pills-tabContent">
 						    <div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "UserTab" ? "active" : "")" id="primary-pills-usermaster" role="tabpanel">
 								@await Html.PartialAsync("_AllUser", Model.AllUsers)
@@ -69,12 +71,12 @@
 					$("#newModal").modal("show");
 
 					// parse validation
-					$.validator.unobtrusive.parse("#dietForm");
+					$.validator.unobtrusive.parse("#userForm");
 				});
 			});
 
 			// Handle form submission diet master
-			$(document).on("submit", "#dietForm", function (e) {
+			$(document).on("submit", "#userForm", function (e) {
 				e.preventDefault();
 				var form = $(this);
 
@@ -86,77 +88,11 @@
 					data: form.serialize(),
 					success: function (result) {
 						if (result.success) {
-							$("#editModal").modal("hide");
+							$("#newModal").modal("hide");
 							location.reload(); // reload table
 						} else {
 							$("#modal-content-placeholder").html(result);
-							$.validator.unobtrusive.parse("#dietForm");
-						}
-					}
-				});
-			});
-			//Handle form submission floor master
-			$(document).on("submit", "#floorForm", function (e) {
-				e.preventDefault();
-				var form = $(this);
-
-				if (!form.valid()) return;
-
-				$.ajax({
-					url: form.attr("action"),
-					method: "POST",
-					data: form.serialize(),
-					success: function (result) {
-						if (result.success) {
-							$("#editModal").modal("hide");
-							location.reload(); // reload table
-						} else {
-							$("#modal-content-placeholder").html(result);
-							$.validator.unobtrusive.parse("#dietForm");
-						}
-					}
-				});
-			});
-			//Handle form submission Room master
-			$(document).on("submit", "#roomForm", function (e) {
-				e.preventDefault();
-				var form = $(this);
-
-				if (!form.valid()) return;
-
-				$.ajax({
-					url: form.attr("action"),
-					method: "POST",
-					data: form.serialize(),
-					success: function (result) {
-						if (result.success) {
-							$("#editModal").modal("hide");
-							location.reload(); // reload table
-						} else {
-							$("#modal-content-placeholder").html(result);
-							$.validator.unobtrusive.parse("#dietForm");
-						}
-					}
-				});
-			});
-			//submission Role master
-			$(document).on("submit", "#roleForm", function (e) {
-				e.preventDefault();
-				var form = $(this);
-
-				if (!form.valid()) return;
-
-				$.ajax({
-					url: form.attr("action"),
-					method: "POST",
-					data: form.serialize(),
-					success: function (result) {
-						if (result.success) {
-							$("#editModal").modal("hide");
-							location.reload(); // reload table
-						} else {
-							$("#modal-content-placeholder").html(result);
-							$.validator.unobtrusive.parse("#dietForm");
+							$.validator.unobtrusive.parse("#userForm");
 						}
 					}
 				});

@@ -1,15 +1,13 @@
 ﻿@model List<DWB.Models.TblUsers>
-@if (Model != null && Model.Any())
-{
-    <div align="right">
+ <div align="right">
         <a id="btnCreateNew" href="#" class="btn btn-primary px-4 open-modal"
-           data-url="@Url.Action("DietCreate", "Master")"
+       data-url="@Url.Action("NewUser", "UserMaster")"
            data-bs-toggle="modal"
            data-bs-target="#newModal">
-            <i class="bx bx-user-plus"></i>User Create
+        <i class="fadeIn animated bx bx-user-plus"></i>Create new user
         </a>
     </div>
-    <table id="dietTable" class="table table-striped table-responsive table-sm">
+    <table id="userTable" class="table table-striped table-responsive table-sm">
         @if (TempData["userSuccess"] != null)
         {
             <br />
@@ -36,8 +34,10 @@
                 <!--Add more columns as needed-->
             </tr>
         </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Count; i++)
+<tbody>
+ @if (Model != null && Model.Any())
+       {
+        for (int i = 0; i < Model.Count; i++)
             {
                 <tr>
                     <td>@(i + 1)</td>
@@ -87,12 +87,15 @@
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
-}
+           
+         }      
 else
 {
-    <a>Empty</a>
+                <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show">
+                <div class="text-white align-content-center">@TempData["EmptyUser"]</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
 }
-
+    </tbody>
+</table>     
 
