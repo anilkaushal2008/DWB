@@ -73,15 +73,15 @@
                         @if (Model[i].BitIsDeActived == false)
                         {
                             <a class="btn btn-sm btn-warning me-1"
-                               href="@Url.Action("UserActivate", "UserMaster", new { id = Model[i].IntUserId })">
-                                Activate?
+                               href="@Url.Action("UserDeactivate", "UserMaster", new { id = Model[i].IntUserId })">
+                                Deactivate?
                             </a>
                         }
                         else
                         {
                             <a class="btn btn-sm btn-inverse-warning me-1"
-                               href="@Url.Action("UserDeActivate", "UserMaster", new { id = Model[i].IntUserId })">
-                                Deactivate?
+                               href="@Url.Action("UserActivate", "UserMaster", new { id = Model[i].IntUserId })">
+                                Activate?
                             </a>
                         }
                     </td>

@@ -48,7 +48,8 @@ namespace DWB.Controllers
             {
                 ViewBag.RoleList = new SelectList(getRole, "IntId", "VchRole");
             }
-            else {    
+            else
+            {
                 var emptyList = new List<SelectListItem>
                 {
                     new SelectListItem { Value = "0", Text = "No roles available" }
@@ -90,7 +91,12 @@ namespace DWB.Controllers
                 ModelState.AddModelError("VchUsername", "User already existing ");
                 ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole");
                 ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
-                return PartialView("_PartialCreateUser", model);               
+                return PartialView("_PartialCreateUser", model);
+            }
+            //check password
+            if (string.IsNullOrWhiteSpace(model.HpasswordHash))
+            {
+                ModelState.AddModelError("HpasswordHash", "Password is required");
             }
             if (!ModelState.IsValid)
             {
@@ -130,35 +136,144 @@ namespace DWB.Controllers
                 };
                 _context.TblUserCompany.Add(assignment);
                 await _context.SaveChangesAsync();
-            }            
+            }
             TempData["ActiveTab"] = "UserTab";
             TempData["userSuccess"] = "User created and saved successfully.";
             // Return success (optional: redirect or return JSON)
-            return Json(new { success = true});
+            return Json(new { success = true });
         }
-        
+
 
         // GET: UserMasterController/Edit/5
-        public ActionResult EditUser(int id)
+        public async Task<IActionResult> UserEdit(int id)
         {
-            return View();
+            var user = await _context.TblUsers
+                .Include(u => u.TblUserCompany)
+                .FirstOrDefaultAsync(u => u.IntUserId == id);
+
+            if (user == null)
+            {
+                var msg = "User not found contact to aministrator!";
+                TempData["ActiveTab"] = "UserTab";
+                ModelState.AddModelError("VchUsername", msg.ToString());
+                return PartialView("_PartialCreateUser");
+            }
+
+            var model = new CreateUserViewModel
+            {
+                IntUserId = user.IntUserId,
+                VchUsername = user.VchUsername,
+                HpasswordHash = user.HpasswordHash,
+                VchFullName = user.VchFullName,
+                VchEmail = user.VchEmail,
+                VchMobile = user.VchMobile,
+                FkRoleId = user.FkRoleId,
+                SelectedCompanyIds = user.TblUserCompany.Select(uc => uc.FkIntCompanyId).ToList()
+            };
+            ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole", model.FkRoleId);
+            ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
+            return PartialView("_PartialCreateUser", model);
         }
 
         // POST: UserMasterController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditUser(int id, IFormCollection collection)
+        public IActionResult UserEdit(CreateUserViewModel model)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                // Repopulate dropdowns before returning the view
+                ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole", model.FkRoleId);
+                ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
+                return PartialView("_PartialCreateUser", model);
             }
-            catch
-            {
-                return View();
-            }
-        }     
 
-        
+            var existingUser = _context.TblUsers
+                .Include(u => u.TblUserCompany)
+                .FirstOrDefault(u => u.IntUserId == model.IntUserId);
+
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+
+            // Update basic properties
+            existingUser.VchUsername = model.VchUsername;
+            existingUser.VchFullName = model.VchFullName;
+            existingUser.VchEmail = model.VchEmail;
+            existingUser.VchMobile = model.VchMobile;
+            existingUser.FkRoleId = model.FkRoleId;
+            existingUser.DtUpdated = DateTime.Now;
+            existingUser.VchUpdatedBy = User.Identity?.Name ?? "system";
+            existingUser.VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString();
+            // Optional: update password if needed (you may check if model.HpasswordHash is not empty)
+            if (!string.IsNullOrEmpty(model.HpasswordHash))
+            {
+                existingUser.HpasswordHash = model.HpasswordHash; // Hash if needed
+            }
+            // Update branch/company mapping
+            // First, remove all existing mappings
+            var userCompanies = _context.TblUserCompany.Where(x => x.FkUseriId == model.IntUserId).ToList();
+            _context.TblUserCompany.RemoveRange(userCompanies);
+            // Then, add selected companies again
+            if (model.SelectedCompanyIds != null)
+            {
+                foreach (var companyId in model.SelectedCompanyIds)
+                {
+                    _context.TblUserCompany.Add(new TblUserCompany
+                    {
+                        FkUseriId = model.IntUserId,
+                        FkIntCompanyId = companyId,
+                        DtUpdated = DateTime.Now,
+                        VchUpdatedBy = User.Identity?.Name ?? "system",
+                        VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString()
+                    });
+                }
+            }
+
+            _context.SaveChanges();
+            TempData["ActiveTab"] = "UserTab";
+            TempData["userSuccess"] = "User updated successfully.";
+            // Return success (optional: redirect or return JSON)
+            return Json(new { success = true });
+        }
+
+        public IActionResult UserDeactivate(int id, int code)
+        {
+            var GetUser = _context.TblUsers.Find(id);
+            if (GetUser != null)
+            {
+                GetUser.BitIsDeActived = true;
+                _context.SaveChanges();
+                TempData["ActiveTab"] = "UserTab";
+                TempData["userSuccess"] = "User Deactivated successfully.";
+                return RedirectToAction("UserMasters");
+            }
+            else
+            {
+                TempData["ActiveTab"] = "UserTab";
+                TempData["userError"] = "User not found or already deactivated.";
+                return RedirectToAction("UserMasters");
+            }
+        }
+        public IActionResult UserActivate(int id)
+        {
+            var GetUser = _context.TblUsers.Find(id);
+            if (GetUser != null)
+            {
+                GetUser.BitIsDeActived = false;
+                _context.SaveChanges();
+                TempData["ActiveTab"] = "UserTab";
+                TempData["userSuccess"] = "User Activated successfully.";
+                return RedirectToAction("UserMasters");
+            }
+            else
+            {
+                TempData["ActiveTab"] = "UserTab";
+                TempData["userError"] = "User not found or already activated.";
+                return RedirectToAction("UserMasters");
+            }
+        }
     }
 }
+

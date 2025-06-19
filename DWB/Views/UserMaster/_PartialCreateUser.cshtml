@@ -20,13 +20,27 @@
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label asp-for="VchUsername" class="required-label"></label>
-                        <input asp-for="VchUsername" class="form-control" placeholder="Enter user name" />
+                        @* <input asp-for="VchUsername" class="form-control" placeholder="Enter user name" /> *@
+                        <input asp-for="VchUsername" class="form-control @(Model.IntUserId > 0 ? "bg-light" : "")"
+                               placeholder="Enter user name"  readonly="@(Model.IntUserId > 0 ? "readonly" : "")" />
                         <span asp-validation-for="VchUsername" class="text-danger"></span>
                     </div>
                     <div class="col-md-6 form-group">
-                        <label asp-for="HpasswordHash" class="required-label">Password</label>
+                        @* <label asp-for="HpasswordHash" class="required-label">Password</label>
                         <input asp-for="HpasswordHash" class="form-control" type="password" placeholder="Enter password" />
-                        <span asp-validation-for="HpasswordHash" class="text-danger"></span>
+                        <span asp-validation-for="HpasswordHash" class="text-danger"></span> *@
+                       @if (Model.IntUserId > 0)
+                       {
+                        <label asp-for="HpasswordHash" class="form-label">New Password)</label>
+                        <input asp-for="HpasswordHash" class="form-control" type="password" value="@Model.HpasswordHash" />                          
+                        }
+                        else
+                        {
+                            <label asp-for="HpasswordHash" class="required-label">Password</label>
+                            <input asp-for="HpasswordHash" class="form-control" type="password" placeholder="Enter password" />
+                            <span asp-validation-for="HpasswordHash" class="text-danger"></span>
+                        }
+
                     </div>
                 </div>
 
