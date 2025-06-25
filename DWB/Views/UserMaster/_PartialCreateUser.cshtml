@@ -20,9 +20,15 @@
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label asp-for="VchUsername" class="required-label"></label>
-                        @* <input asp-for="VchUsername" class="form-control" placeholder="Enter user name" /> *@
-                        <input asp-for="VchUsername" class="form-control @(Model.IntUserId > 0 ? "bg-light" : "")"
-                               placeholder="Enter user name"  readonly="@(Model.IntUserId > 0 ? "readonly" : "")" />
+                      @if(Model.IntUserId > 0)
+                        {                        
+                        @*<input asp-for="VchUsername" class="form-control" placeholder="Enter user name" />*@
+                         <input asp-for="VchUsername" class="form-control" readonly="readonly" placeholder="Enter user name"/>
+                        }
+                        else
+                        {
+                            <input asp-for="VchUsername" class="form-control" placeholder="Enter user name" />                           
+                        }
                         <span asp-validation-for="VchUsername" class="text-danger"></span>
                     </div>
                     <div class="col-md-6 form-group">
@@ -40,10 +46,8 @@
                             <input asp-for="HpasswordHash" class="form-control" type="password" placeholder="Enter password" />
                             <span asp-validation-for="HpasswordHash" class="text-danger"></span>
                         }
-
-                    </div>
-                </div>
-
+                    </div>         
+                 </div> 
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label asp-for="VchFullName" class="required-label"></label>

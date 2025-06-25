@@ -1,13 +1,14 @@
 ﻿@model List<DWB.Models.TblUsers>
- <div align="right">
+<div align="right">    
         <a id="btnCreateNew" href="#" class="btn btn-primary px-4 open-modal"
        data-url="@Url.Action("NewUser", "UserMaster")"
            data-bs-toggle="modal"
            data-bs-target="#newModal">
-        <i class="fadeIn animated bx bx-user-plus"></i>Create new user
+        <i class="bi bi-plus-lg me-2"></i>Add user
         </a>
     </div>
-    <table id="userTable" class="table table-striped table-responsive table-sm">
+<table id="userTable" class="table table-responsive table-striped table-bordered" style="width:100%;font-size:90%">
+            @*<table id="userTable" class="table table-striped table-responsive table-sm"> *@
         @if (TempData["userSuccess"] != null)
         {
             <br />
@@ -24,7 +25,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-        <thead>
+        <thead class="bg-primary" style="font-weight:bolder">
             <tr>
                 <th>Sr. No.</th>
                 <th>Full name</th>
@@ -63,7 +64,7 @@
                            data-bs-toggle="modal"
                            data-bs-target="#newModal"
                            data-url="@Url.Action("UserEdit", "UserMaster", new { id = Model[i].IntUserId })">
-                            Update
+                            Edit
                         </a>
                        @*  <a class="btn btn-sm btn-danger me-1"
                            href="@Url.Action("DietDelete", "Master", new { id = Model[i].IntUserId })"
@@ -86,8 +87,7 @@
                         }
                     </td>
                 </tr>
-            }
-           
+             }           
          }      
 else
 {
@@ -97,5 +97,5 @@ else
                 </div>
 }
     </tbody>
-</table>     
+</table>
 

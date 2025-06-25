@@ -1,0 +1,37 @@
+﻿@model RolePermissionViewModel
+@if (Model.Permissions.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Module</th>
+                <th>Sub Module</th>
+                <th>View</th>
+                <th>Add</th>
+                <th>Edit</th>
+                <th>Delete</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Permissions.Count; i++)
+            {
+                <tr>
+                    @Html.HiddenFor(m => m.Permissions[i].fkIntRoleId)
+                    @Html.HiddenFor(m => m.Permissions[i].PermissionId)
+                    <td>@Html.TextBoxFor(m => m.Permissions[i].Module, new { @class = "form-control",@readonly="readonly" })</td>
+                    <td>@Html.TextBoxFor(m => m.Permissions[i].SubModule, new { @class = "form-control", @readonly = "readonly" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitView)</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitAdd)</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitEdit)</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitDelete)</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitStatus)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No permissions assigned. Please add new permissions.</div>
+}

@@ -1,4 +1,5 @@
-﻿namespace DWB.Models
+﻿using System.Collections.Generic;
+namespace DWB.Models
 {
     public class MasterTabView
     {       
@@ -6,6 +7,7 @@
             public IEnumerable<TblFloorMaster> Floors { get; set; }
             public IEnumerable<TblRoomMaster> Rooms { get; set; }
             public IEnumerable<TblRoleMas> RoleMas { get; set; }
-            // Add other tab data as needed
+         
+
     }
 }

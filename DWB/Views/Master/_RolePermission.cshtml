@@ -1,0 +1,30 @@
+﻿@model RolePermissionViewModel
+
+@if (TempData["PermSuccess"] != null)
+{
+    <br />
+    <div class="alert alert-success border-0 bg-success alert-dismissible fade show" id="alertMessage">
+        <div class="text-white align-content-center">@TempData["PermSuccess"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["PermError"] != null)
+{
+    <br />
+    <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show" id="alertMessage">
+        <div class="text-white align-content-center">@TempData["PermError"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<form id="rolePermissionForm" asp-action="SaveRolePermissions" asp-controller="Master" formaction="POST">    
+    <div class="form-group">
+        <label for="RoleId">Select Role</label>
+        @Html.DropDownListFor(m => m.RoleId, ViewBag.RoleList as List<SelectListItem>, "-- Select Role --", new { @class = "form-control", onchange = "loadPermissions(this.value)" })
+        @Html.HiddenFor(m => m.RoleId)
+        </div>
+    <div id="permissionContainer">
+
+    </div> 
+    <br />
+   <button type="submit" class="btn btn-primary">Save Permissions</button>
+</form>

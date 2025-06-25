@@ -17,8 +17,8 @@
     <link rel="stylesheet" type="text/css" href="~/assets/plugins/metismenu/mm-vertical.css">
     <link rel="stylesheet" type="text/css" href="~/assets/plugins/simplebar/css/simplebar.css">
   <!--bootstrap css-->
-    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="~/assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet">   
+    <link href="~/assets/plugins/datatable/css/datatables.bootstrap5.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
   <!--main css-->
@@ -308,8 +308,8 @@
          @*  <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" data-bs-auto-close="outside"
             data-bs-toggle="" href="javascript:;"> *@
            @*  <i class="material-icons-outlined">notifications</i> *@
-           @*  <span class="badge-notify">5</span> *@
-          </a>
+                    @*  <span class="badge-notify">5</span>  </a>*@
+       
           <div class="dropdown-menu dropdown-notify dropdown-menu-end shadow">
             <@* div class="px-3 py-1 d-flex align-items-center justify-content-between border-bottom"> *@
             @*   <h5 class="notiy-title mb-0">Notifications</h5> *@
@@ -417,8 +417,11 @@
                             <a href="@Url.Action("Masters","Master")"><i class="material-icons-outlined"></i>Masters</a>
                             @* <a href="@Url.Action("Masters","Master")"><i class="material-icons-outlined">arrow_right</i>Masters</a> *@
                         </li>
+                        @* <li>
+                            <a href="@Url.Action("PermissionMaster", "UserMaster")"><i class="material-icons-outlined"></i>Permission Master</a>
+                        </li> *@
                         <li>
-                            <a href="@Url.Action("UserMasters", "UserMaster")"><i class="material-icons-outlined"></i>Consultant Masters</a>
+                            <a href="@Url.Action("UserMasters", "UserMaster")"><i class="material-icons-outlined"></i>User Master</a>
                         </li>
                     </ul>
                 </li>
@@ -832,9 +835,14 @@
     <!--plugins-->
     <script src="~/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
     <script src="~/assets/plugins/metismenu/metisMenu.min.js"></script>
+    <script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/assets/plugins/apexchart/apexcharts.min.js"></script>
     <script src="~/assets/plugins/simplebar/js/simplebar.min.js"></script>
     <script src="~/assets/plugins/peity/jquery.peity.min.js"></script>
+    <!--plugins-->
+ 
+ 
     <script>
         $(".data-attributes span").peity("donut")
     </script>

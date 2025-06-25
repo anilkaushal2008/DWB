@@ -53,12 +53,23 @@
 								</a>
 							</li>
 							<li class="nav-item" role="presentation">
+								<a class="nav-link  @(TempData["ActiveTab"]?.ToString() == "PermTab" ? "active" : "")" data-bs-toggle="pill"
+								   href="#primary-pills-PermTab" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "PermTab" ? "true" : "false")">
+									<div class="d-flex align-items-center">
+										<div class="tab-icon">
+											<i class="bi bi-"></i>
+										</div>
+										<div class="tab-title">Permission Master</div>
+									</div>
+								</a>
+							</li>
+							<li class="nav-item" role="presentation">
 								<a class="nav-link" data-bs-toggle="pill" href="#primary-pills-staff" role="tab" aria-selected="false">
 									<div class="d-flex align-items-center">
 										<div class="tab-icon">
 											@* <i class='bi bi-headset me-1 fs-6'></i> *@
 										</div>
-										<div class="tab-title">Staff Master</div>
+										@* <div class="tab-title">Staff Master</div> *@
 									</div>
 								</a>
 							</li>
@@ -76,9 +87,10 @@
 							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "active" : "")" id="primary-pills-role" role="tabpanel">
 								@await Html.PartialAsync("_RoleMaster", Model.RoleMas)
 							</div>
-							@* <div class="tab-pane fade" id="primary-pills-staff" role="tabpanel">
-								staff
-						</div> *@
+							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "PermTab" ? "active" : "")" id="primary-pills-PermTab" role="tabpanel">
+								@*@await Html.PartialAsync("_AllPermissions",Model.RolePermission)*@
+								@Html.Partial("_RolePermission", new DWB.Models.RolePermissionViewModel())
+							</div>
 					</div>
 				</div>
 			</div>
@@ -210,6 +222,33 @@
 					}
 				});
 			});
+
+		//Get Permissions
+			function loadPermissions(roleId) {
+			$.get('/Master/LoadRolePermission', { roleId: roleId }, function (html) {
+				$('#permissionContainer').html(html);
+			});
+		}
+	    //Permission post method
+		$('#createPermissionForm').submit(function (e) {
+			e.preventDefault();
+			var form = $(this);
+			$.ajax({
+				url: '/Permission/CreatePermission',
+				type: 'POST',
+				data: form.serialize(),
+				success: function (res) {
+					if (res.success) {
+						$('#editModal').modal('hide');
+						alert("Permission added successfully.");
+						location.reload(); // or refresh permissions dynamically
+					} else {
+						$('#modal-content-placeholder').html(res); // re-render form with validation
+						$.validator.unobtrusive.parse("#createPermissionForm");
+					}
+				}
+			});
+		});
 	</script>
 	
 }

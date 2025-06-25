@@ -13,18 +13,18 @@ namespace DWB.Controllers
         {
             _context = dWBEntity;
         }
-        // GET: UserMasterController tab
         public ActionResult UserMasters()
-        {
-            //by deafult tab opened
-            if (!TempData.ContainsKey("UserTab"))
+        {    
+            if (!TempData.ContainsKey("ActiveTab"))
             {
                 TempData["ActiveTab"] = "UserTab"; // Default first tab
             }
+            //_AllUsers();
             _AllUsers();
             return View();
         }
 
+        #region User Master Tab
         // GET: UserMasterController/AllUsers
         public IActionResult _AllUsers()
         {
@@ -256,6 +256,7 @@ namespace DWB.Controllers
                 return RedirectToAction("UserMasters");
             }
         }
+
         public IActionResult UserActivate(int id)
         {
             var GetUser = _context.TblUsers.Find(id);
@@ -274,6 +275,8 @@ namespace DWB.Controllers
                 return RedirectToAction("UserMasters");
             }
         }
+        
+        #endregion
     }
 }
 
