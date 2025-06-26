@@ -1,17 +1,37 @@
 //using DWB.Data;
 using DWB.Models;
+using DWB.GroupModels;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var connection = builder.Configuration.GetConnectionString("DWBDATA");
 builder.Services.AddDbContext<DWBEntity>(options =>
     options.UseSqlServer(connection));
+var connection2 = builder.Configuration.GetConnectionString("GROUPDATA");
+builder.Services.AddDbContext<GroupEntity>(options =>
+    options.UseSqlServer(connection2));
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation(); var app = builder.Build();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation(); 
+
+
+
+//Enable Cookie-based Authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Home/Index"; // Redirect if not logged in
+        options.AccessDeniedPath = "/Home/AccessDenied"; // Redirect if access denied
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    });
+
+var app = builder.Build();
+app.UseDeveloperExceptionPage();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -21,14 +41,17 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Dashboard}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

@@ -21,11 +21,11 @@
                     @Html.HiddenFor(m => m.Permissions[i].PermissionId)
                     <td>@Html.TextBoxFor(m => m.Permissions[i].Module, new { @class = "form-control",@readonly="readonly" })</td>
                     <td>@Html.TextBoxFor(m => m.Permissions[i].SubModule, new { @class = "form-control", @readonly = "readonly" })</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitView)</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitAdd)</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitEdit)</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitDelete)</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitStatus)</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitView, new { @class = "form-check form-check-input" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitAdd, new { @class = "form-check form-check-input" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitEdit, new { @class = "form-check form-check-input" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitDelete, new { @class = "form-check form-check-input" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitStatus, new { @class = "form-check form-check-input" })</td>
                 </tr>
             }
         </tbody>

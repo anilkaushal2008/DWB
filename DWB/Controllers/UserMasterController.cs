@@ -1,8 +1,10 @@
 ﻿using DWB.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using DWB.Utility;
 
 namespace DWB.Controllers
 {
@@ -105,11 +107,13 @@ namespace DWB.Controllers
                 ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
                 return PartialView("_PartialCreateUser", model);
             }
+            //Convert password to hash
+             var HasedPassword = PasswordHelper.ConvertHashPassword(model.HpasswordHash);
             // Create user entity
             var user = new TblUsers
             {
-                VchUsername = model.VchUsername,
-                HpasswordHash = model.HpasswordHash, //You may hash this
+                VchUsername = model.VchUsername,                         
+                HpasswordHash = HasedPassword, //You may hash this
                 VchFullName = model.VchFullName,
                 VchEmail = model.VchEmail,
                 VchMobile = model.VchMobile,
@@ -209,7 +213,7 @@ namespace DWB.Controllers
             // Optional: update password if needed (you may check if model.HpasswordHash is not empty)
             if (!string.IsNullOrEmpty(model.HpasswordHash))
             {
-                existingUser.HpasswordHash = model.HpasswordHash; // Hash if needed
+                existingUser.HpasswordHash = PasswordHelper.ConvertHashPassword(model.HpasswordHash); // Hash if needed
             }
             // Update branch/company mapping
             // First, remove all existing mappings
