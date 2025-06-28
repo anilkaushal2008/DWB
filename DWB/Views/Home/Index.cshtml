@@ -53,12 +53,12 @@
                 <div class="col-12 col-xl-5 col-xxl-4 auth-cover-right align-items-center justify-content-center border-top border-4 border-primary border-gradient-1">
                     <div class="card rounded-0 m-3 mb-0 border-0 shadow-none bg-none">
                         <div class="card-body p-sm-5">
-                            <img src="assets/images/FinalII.png" class="mb-4" width="145" alt="">
+                            <img src="~/assets/images/FinalII.png" class="mb-4" width="150" alt="">
                             <h4 class="fw-bold">Doctor’s Hub – Indus Healthcare</h4>
                             <p class="mb-0">Enter your credentials to login your account</p>
 
                             <div class="row g-3 my-4">
-                              @*   <div class="col-12 col-lg-6">
+                              @*<div class="col-12 col-lg-6">
                                     <a class="btn btn-light py-2 font-text1 fw-bold d-flex align-items-center justify-content-center w-100" href="https://www.google.com" target="_blank"><img src="assets/images/apps/05.png" width="20" class="me-2" alt="">Google</a>
                                 </div>
                                 <div class="col col-lg-6">
@@ -75,19 +75,27 @@
                             <div class="form-body mt-4">
                                 <form class="row g-3" asp-action="Index" asp-controller="Home" method="post" class="row g-3">
                                     <div class="col-12">
-                                        <label for="selectCompany" class="form-label">Select Company</label>                                        
+                                       @*  <label for="selectCompany" class="form-label">Select Company</label>                                        
                                         @Html.DropDownListFor(model => model.fk_intPK, (SelectList)ViewBag.Company, "Select Company", new { @class = "form-control" })
+                                        <span asp-validation-for="fk_intPK" class="text-danger"></span> *@
+                                        <label for="fk_intPK" class="form-label">Select Company</label>
+                                        <select asp-for="fk_intPK" asp-items="ViewBag.Company" class="form-control">
+                                            <option value="">-- Select Company --</option>
+                                        </select>
+                                        <span asp-validation-for="fk_intPK" class="text-danger"></span>
                                     </div>
                                     <div class="col-12">
                                         <label for="username" class="form-label">Username</label>
-                                        <input type="text" asp-for="Username" class="form-control" id="username" required="required" placeholder="Enter user name">
+                                        <input type="text" asp-for="Username" class="form-control" id="username" placeholder="Enter user name">
+                                        <span asp-validation-for="Username" class="text-danger"></span>
                                     </div>
                                     <div class="col-12">
                                         <label for="password" class="form-label">Password</label>
                                         <div class="input-group" id="show_hide_password">
-                                            <input type="password" asp-for="Password" class="form-control" id="password" value="" required="required" placeholder="Enter Password">
+                                            <input type="password" asp-for="Password" class="form-control" id="password" value="" placeholder="Enter Password">
                                             <a href="javascript:;" class="input-group-text bg-transparent"><i class="bi bi-eye-slash-fill"></i></a>
                                         </div>
+                                        <span asp-validation-for="Password" class="text-danger"></span>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check form-switch">
@@ -96,7 +104,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 text-end">
-                                        <a href="@Url.Action("ForgotPassword","Home")">Forgot Password ?</a>
+                                       @*  <a href="@Url.Action("ForgotPassword","Home")">Forgot Password ?</a> *@
                                     </div>
                                     <div class="col-12">
                                         <div class="d-grid">
@@ -114,7 +122,6 @@
                                     </div>
                                 </form>
                             </div>
-
                         </div>
                     </div>
                 </div>

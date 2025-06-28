@@ -7,14 +7,20 @@ namespace DWB.Utility
         public static string ConvertHashPassword(string plainPassword)
         {
             var hasher = new PasswordHasher<object>();
-            return hasher.HashPassword(null, plainPassword);
+            return hasher.HashPassword("", plainPassword);
         }
-
         public static bool VerifyPassword(string hashedPassword, string plainPassword)
         {
             var hasher = new PasswordHasher<object>();
-            var result = hasher.VerifyHashedPassword(null, hashedPassword, plainPassword);
+            var result = hasher.VerifyHashedPassword("", hashedPassword, plainPassword);
             return result == PasswordVerificationResult.Success;
+        }
+        public static bool VerifyPassword(string hashedPassword, string plainPassword, out bool needsRehash)
+        {
+            var hasher = new PasswordHasher<object>();
+            var result = hasher.VerifyHashedPassword("", hashedPassword, plainPassword);
+            needsRehash = result == PasswordVerificationResult.SuccessRehashNeeded;
+            return result == PasswordVerificationResult.Success || needsRehash;
         }
     }
 }

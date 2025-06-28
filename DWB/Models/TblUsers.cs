@@ -8,7 +8,7 @@ namespace DWB.Models;
 
 public partial class TblUsers
 {
-    internal PasswordHasher<TblUsers> passwordHasher;
+    internal PasswordHasher<TblUsers> passwordHasher =new PasswordHasher<TblUsers>();
 
     public int IntUserId { get; set; }
 

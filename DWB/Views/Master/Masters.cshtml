@@ -87,10 +87,9 @@
 							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "active" : "")" id="primary-pills-role" role="tabpanel">
 								@await Html.PartialAsync("_RoleMaster", Model.RoleMas)
 							</div>
-							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "PermTab" ? "active" : "")" id="primary-pills-PermTab" role="tabpanel">
-								@*@await Html.PartialAsync("_AllPermissions",Model.RolePermission)*@
-								@Html.Partial("_RolePermission", new DWB.Models.RolePermissionViewModel())
-							</div>
+                            <div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "PermTab" ? "active" : "")" id="primary-pills-PermTab" role="tabpanel">  
+                                <partial name="_RolePermission" model="new DWB.Models.RolePermissionViewModel()" />  
+                            </div>
 					</div>
 				</div>
 			</div>

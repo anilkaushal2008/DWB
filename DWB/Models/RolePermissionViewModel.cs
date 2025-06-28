@@ -6,9 +6,9 @@ namespace DWB.Models
     {
         public int RoleId { get; set; }
 
-        public string RoleName { get; set; }
+        public string? RoleName { get; set; }
 
-        public List<SelectListItem> Roles { get; set; }
+        public List<SelectListItem> Roles { get; set; } = new List<SelectListItem>();
 
         public List<PermissionItem> Permissions { get; set; } = new List<PermissionItem>();
     }
