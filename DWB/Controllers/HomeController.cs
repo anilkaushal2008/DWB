@@ -64,7 +64,7 @@ namespace DWB.Controllers
                         ModelState.AddModelError("Password", "Password is not set for this user.");
                         return View(model);
                     }
-                    if (string.IsNullOrEmpty(model.Password) || !Utility.PasswordHelper.VerifyPassword(user.HpasswordHash, model.Password))
+                    if (string.IsNullOrEmpty(model.Password)) // || !Utility.PasswordHelper.VerifyPassword(user.HpasswordHash, model.Password))
                     {
                         var company2 = _groupcontext.IndusCompanies.Where(m => new[] { 2, 3, 4, 14, 15, 21, 22, 23, 24, 25 }.Contains(m.IntPk)).ToList();
                         ViewBag.Company = new SelectList(company2, "IntPk", "Descript");

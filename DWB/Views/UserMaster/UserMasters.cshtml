@@ -1,6 +1,6 @@
 ﻿@using DWB.Models;
 @model DWB.Models.MasterUserTab
-<link href="~/assets/plugins/datatable/css/datatables.bootstrap5.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
 <main class="main-wrapper">
 	<div class="main-content">
 		<div class="row cols-12">
@@ -58,21 +58,28 @@
 	</div>
 </div>
 @section Scripts {
+
 	<script src="/assets/js/dashboard2.js"></script>
 	<script src="/assets/js/main.js"></script>
-
-	<script src="/assets/plugins/datatable/js/datatables.bootstrap5.min.js"></script>
-	<script src="/assets/plugins/datatable/js/jquery.datatables.min.js"></script>
+	<script src="~/assets/js/jquery.min.js"></script>
+	<!--bootstrap js-->
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
-	<script type="text/javascript">
-		$(document).ready(function () {
-				$('#userTable').DataTable({
-				});
-			});
-
+	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>	
+	<script type="text/javascript">		
+	   $(document).ready(function () {
+	       $('#usersTable').DataTable({
+	                pageLength: 50,
+	                lengthChange: true,
+	                ordering: true,
+	                language: {
+	                    searchPlaceholder: "Search users..."
+	                }
+	            });
+	       });
 		$(document).on("click", "#btnCreateNew, .open-modal", function (e) {
 				e.preventDefault();
 				var url = $(this).data("url");
