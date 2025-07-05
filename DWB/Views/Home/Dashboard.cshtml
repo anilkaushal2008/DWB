@@ -37,6 +37,8 @@
         </div>
         <!--end breadcrumb-->
         <div class="row row-cols-1 row-cols-xl-3">
+            @if((User.IsInRole("Admin"))||(User.IsInRole("Consultant")))
+            {
             <div class="col">
             <div class="card rounded-4">
                 <div class="card-body">
@@ -59,8 +61,9 @@
                     </div>
 
                 </div>
-            </div>
+            </div>            
         </div>
+        }
             <div class="col">
             <div class="card rounded-4">
                 <div class="card-body">
@@ -224,5 +227,16 @@
                 </div>
             </div>
         </div> *@<!--end row-->
+        @* For password update *@
+    <div class="modal fade" id="passwordUpdate" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="modal-content-placeholder"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 <!--end main wrapper-->
+

@@ -1,10 +1,11 @@
 ﻿using DWB.Models;
+using DWB.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DWB.Utility;
 
 namespace DWB.Controllers
 {
@@ -15,6 +16,7 @@ namespace DWB.Controllers
         {
             _context = dWBEntity;
         }
+        [Authorize(Roles = "Admin")]
         public ActionResult UserMasters()
         {    
             if (!TempData.ContainsKey("ActiveTab"))
@@ -28,6 +30,7 @@ namespace DWB.Controllers
 
         #region User Master Tab
         // GET: UserMasterController/AllUsers
+        [Authorize(Roles = "Admin")]
         public IActionResult _AllUsers()
         {
             var model = new MasterUserTab
@@ -41,6 +44,8 @@ namespace DWB.Controllers
             }
             return View(model);
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult NewUser()
         {
@@ -74,6 +79,7 @@ namespace DWB.Controllers
             return PartialView("_PartialCreateUser", new CreateUserViewModel());
         }
 
+        [Authorize(Roles = "Admin")]
         //POST: UserMasterController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -148,12 +154,15 @@ namespace DWB.Controllers
         }
 
 
+        [Authorize(Roles = "Admin")]
         // GET: UserMasterController/Edit/5
-        public async Task<IActionResult> UserEdit(int id)
+        public IActionResult UserEdit(int id)
         {
-            var user = await _context.TblUsers
-                .Include(u => u.TblUserCompany)
-                .FirstOrDefaultAsync(u => u.IntUserId == id);
+            //var user = await _context.TblUsers
+            //    .Include(u => u.TblUserCompany)
+            //    .FirstOrDefaultAsync(u => u.IntUserId == id);
+            var user = _context.TblUsers
+                .Include(u => u.TblUserCompany).Where(u => u.IntUserId == id).FirstOrDefault();
 
             if (user == null)
             {
@@ -162,7 +171,6 @@ namespace DWB.Controllers
                 ModelState.AddModelError("VchUsername", msg.ToString());
                 return PartialView("_PartialCreateUser");
             }
-
             var model = new CreateUserViewModel
             {
                 IntUserId = user.IntUserId,
@@ -178,68 +186,71 @@ namespace DWB.Controllers
             ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
             return PartialView("_PartialCreateUser", model);
         }
-
-        // POST: UserMasterController/Edit/5
+       
         [HttpPost]
+        [Authorize(Roles = "Admin")]             
         [ValidateAntiForgeryToken]
         public IActionResult UserEdit(CreateUserViewModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                // Repopulate dropdowns before returning the view
-                ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole", model.FkRoleId);
-                ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
-                return PartialView("_PartialCreateUser", model);
-            }
-
-            var existingUser = _context.TblUsers
-                .Include(u => u.TblUserCompany)
-                .FirstOrDefault(u => u.IntUserId == model.IntUserId);
-
-            if (existingUser == null)
-            {
-                return NotFound();
-            }
-
-            // Update basic properties
-            existingUser.VchUsername = model.VchUsername;
-            existingUser.VchFullName = model.VchFullName;
-            existingUser.VchEmail = model.VchEmail;
-            existingUser.VchMobile = model.VchMobile;
-            existingUser.FkRoleId = model.FkRoleId;
-            existingUser.DtUpdated = DateTime.Now;
-            existingUser.VchUpdatedBy = User.Identity?.Name ?? "system";
-            existingUser.VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString();
-            // Optional: update password if needed (you may check if model.HpasswordHash is not empty)
-            if (!string.IsNullOrEmpty(model.HpasswordHash))
-            {
-                existingUser.HpasswordHash = PasswordHelper.ConvertHashPassword(model.HpasswordHash); // Hash if needed
-            }
-            // Update branch/company mapping
-            // First, remove all existing mappings
-            var userCompanies = _context.TblUserCompany.Where(x => x.FkUseriId == model.IntUserId).ToList();
-            _context.TblUserCompany.RemoveRange(userCompanies);
-            // Then, add selected companies again
-            if (model.SelectedCompanyIds != null)
-            {
-                foreach (var companyId in model.SelectedCompanyIds)
+                if (!ModelState.IsValid)
                 {
-                    _context.TblUserCompany.Add(new TblUserCompany
-                    {
-                        FkUseriId = model.IntUserId,
-                        FkIntCompanyId = companyId,
-                        DtUpdated = DateTime.Now,
-                        VchUpdatedBy = User.Identity?.Name ?? "system",
-                        VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString()
-                    });
+                    // Repopulate dropdowns before returning the view
+                    ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole", model.FkRoleId);
+                    ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
+                    return PartialView("_PartialCreateUser", model);
                 }
+                var existingUser = _context.TblUsers
+                    .Include(u => u.TblUserCompany)
+                    .FirstOrDefault(u => u.IntUserId == model.IntUserId);
+                if (existingUser == null)
+                {
+                    return NotFound();
+                }
+                // Update basic properties
+                existingUser.VchUsername = model.VchUsername;
+                existingUser.VchFullName = model.VchFullName;
+                existingUser.VchEmail = model.VchEmail;
+                existingUser.VchMobile = model.VchMobile;
+                existingUser.FkRoleId = model.FkRoleId;
+                existingUser.DtUpdated = DateTime.Now;
+                existingUser.VchUpdatedBy = User.Identity?.Name ?? "system";
+                existingUser.VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString();
+                // Optional: update password if needed (you may check if model.HpasswordHash is not empty)
+                if (!string.IsNullOrEmpty(model.HpasswordHash))
+                {
+                    existingUser.HpasswordHash = PasswordHelper.ConvertHashPassword(model.HpasswordHash); // Hash if needed
+                }
+                // Update branch/company mapping
+                // First, remove all existing mappings
+                var userCompanies = _context.TblUserCompany.Where(x => x.FkUseriId == model.IntUserId).ToList();
+                _context.TblUserCompany.RemoveRange(userCompanies);
+                // Then, add selected companies again
+                if (model.SelectedCompanyIds != null)
+                {
+                    foreach (var companyId in model.SelectedCompanyIds)
+                    {
+                        _context.TblUserCompany.Add(new TblUserCompany
+                        {
+                            FkUseriId = model.IntUserId,
+                            FkIntCompanyId = companyId,
+                            DtUpdated = DateTime.Now,
+                            VchUpdatedBy = User.Identity?.Name ?? "system",
+                            VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString()
+                        });
+                    }
+                }
+                _context.SaveChanges();
+                TempData["ActiveTab"] = "UserTab";
+                TempData["userSuccess"] = "User updated successfully.";
+                //Return success (optional: redirect or return JSON)
+                return Json(new { success = true });
             }
-
-            _context.SaveChanges();
-            TempData["ActiveTab"] = "UserTab";
-            TempData["userSuccess"] = "User updated successfully.";
-            // Return success (optional: redirect or return JSON)
-            return Json(new { success = true });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Server error: " + ex.Message });
+            }
         }
 
         public IActionResult UserDeactivate(int id, int code)

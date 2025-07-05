@@ -3,6 +3,7 @@ using DWB.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -84,7 +85,8 @@ namespace DWB.Controllers
                         p.BitView,
                         p.BitAdd,
                         p.BitEdit,
-                        p.BitDelete
+                        p.BitDelete,
+                        p.BitStatus
                     }).ToList();
                 //Get all company which is mapped to current user
                 var companies = _context.TblUserCompany.Where(x => x.FkUseriId == user.IntUserId)
@@ -101,10 +103,24 @@ namespace DWB.Controllers
                     new Claim("AllCompanyIds", companyIdList),
                     new Claim(ClaimTypes.Role, roleName)
                 };
+                //add permissions claims
+                foreach (var permission in permissions)
+                {
+                    if (permission.BitView)
+                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:View:{permission.BitView}"));
+                    if (permission.BitAdd)
+                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Add:{permission.BitAdd}"));
+                    if (permission.BitEdit)
+                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Edit:{permission.BitEdit}"));
+                    if (permission.BitDelete)
+                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Delete:{permission.BitDelete}"));
+                    if (permission.BitStatus)
+                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Delete:{permission.BitStatus}"));
+                }
                 //set identity and principal  
                 var newIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var newPrincipal = new ClaimsPrincipal(newIdentity);
-                // Sign in  
+                //Sign in  
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, newPrincipal, new AuthenticationProperties
                 {
                     IsPersistent = true,
@@ -118,25 +134,61 @@ namespace DWB.Controllers
             ViewBag.Company = new SelectList(company, "IntPk", "Descript");
             return View(model);
         }
+        [Authorize(Roles ="Admin, Nursing, Billing")]
         public IActionResult Dashboard()
         {
             return View();
         }
 
-        public IActionResult UpdatePassword()
+        [HttpGet]
+        public IActionResult ChangePassword()
         {
-            return View();
+
+            return PartialView("_ChangePasswordPartial", new ChangePasswordViewModel());
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return PartialView("_ChangePasswordPartial", model);
+
+            // Get logged-in username from claims
+            var username = User.Identity?.Name;
+            var user = await _context.TblUsers.FirstOrDefaultAsync(u => u.VchUsername == username);
+
+            if (user == null)
+                return BadRequest("User not found.");
+
+            // Validate current password
+            if (!Utility.PasswordHelper.VerifyPassword(user.HpasswordHash, model.CurrentPassword))
+            {
+                ModelState.AddModelError("CurrentPassword", "Incorrect current password.");
+                return PartialView("_ChangePasswordPartial", model);
+            }
+            //Hash new password
+            string newHashedPassword = Utility.PasswordHelper.ConvertHashPassword(model.NewPassword);
+            // Update password in DB
+            user.HpasswordHash = newHashedPassword;
+            _context.TblUsers.Update(user);
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Password changed successfully." });
+        }
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
        
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home"); // Or wherever your login page is
+        }
 
 
 
-       
+
     }
 }

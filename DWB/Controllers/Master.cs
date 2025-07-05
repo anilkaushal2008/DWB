@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using System;
 using System.Data;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DWB.Controllers
 {
@@ -19,6 +21,8 @@ namespace DWB.Controllers
             _context = dWBEntity;
         }
 
+
+        [Authorize(Roles="Admin")]
         //GET: All Masters
         public ActionResult Masters()
         {
@@ -40,6 +44,7 @@ namespace DWB.Controllers
         }
 
         #region Diet master
+        [Authorize(Roles = "Admin")]
         public IActionResult _DietMasters()
         {
             //tab model       
@@ -63,12 +68,15 @@ namespace DWB.Controllers
                 return View();
             }
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult DietCreate()
         {
             return PartialView("_DietCreatePartial", new TblDietMaster());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DietCreate(TblDietMaster model)
@@ -90,17 +98,19 @@ namespace DWB.Controllers
             return Json(new { success = true });
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult DietEdit(int id, int code)
         {
             var diet = _context.TblDietMaster.Find(id, code);
             return PartialView("_DietCreatePartial", diet);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DietEdit(TblDietMaster model)
         {
-            if (_context.TblDietMaster.Any(d => d.VchDietCode == model.VchDietCode && d.IntId != model.IntId))
+                if (_context.TblDietMaster.Any(d => d.VchDietCode == model.VchDietCode && d.IntId != model.IntId))
             {
                 ModelState.AddModelError("VchDietCode", "This diet code is already used.");
             }
@@ -121,6 +131,8 @@ namespace DWB.Controllers
             //return RedirectToAction("Masters");
             return Json(new { success = true });
         }
+
+        [Authorize(Roles = "Admin")]
         public IActionResult DietDelete(int id, int code)
         {
             var diet = _context.TblDietMaster.Find(id, code);
@@ -134,6 +146,8 @@ namespace DWB.Controllers
             }
             return RedirectToAction("Masters");
         }
+
+        [Authorize(Roles = "Admin")]
         public IActionResult DietDeactivate(int id, int code)
         {
             var diet = _context.TblDietMaster.Find(id, code);
@@ -147,6 +161,8 @@ namespace DWB.Controllers
             }
             return RedirectToAction("Masters");
         }
+
+        [Authorize(Roles = "Admin")]
         public IActionResult DietActivate(int id, int code)
         {
             var diet = _context.TblDietMaster.Find(id, code);

@@ -11,7 +11,8 @@
 </div>
 <div class="card">
     <div class="card-body">
-        <form id="userForm" asp-action="@(Model?.IntUserId > 0 ? "UserEdit" : "NewUser")" asp-controller="UserMaster" method="post">
+        <form id="userForm" asp-action="@(Model.IntUserId > 0 ? "UserEdit" : "NewUser")" asp-controller="UserMaster" method="post">
+            @Html.AntiForgeryToken()
             <div class="modal-body">
                 @if (Model?.IntUserId > 0)
                 {
@@ -21,8 +22,7 @@
                     <div class="col-md-6 form-group">
                         <label asp-for="VchUsername" class="required-label"></label>
                       @if(Model.IntUserId > 0)
-                        {                        
-                        @*<input asp-for="VchUsername" class="form-control" placeholder="Enter user name" />*@
+                        {
                          <input asp-for="VchUsername" class="form-control" readonly="readonly" placeholder="Enter user name"/>
                         }
                         else
@@ -85,7 +85,7 @@
                             {
                                 <div class="col-md-6 form-check">
                                     <input type="checkbox"
-                                           class="form-check-input"
+                                           class="form-check-input" @*for form checkbox class =form-check form-check-input *@
                                            name="SelectedCompanyIds"
                                            value="@branch.Value"
                                            @(Model?.SelectedCompanyIds?.Contains(Convert.ToInt32(branch.Value)) == true ? "checked" : "") />

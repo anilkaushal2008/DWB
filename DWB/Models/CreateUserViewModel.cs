@@ -8,40 +8,37 @@ namespace DWB.Models
     public class CreateUserViewModel
     {
         public int IntUserId { get; set; }
+
         [Display(Name ="User name")]
         [Required(ErrorMessage = "Username is required")]
         [MaxLength(50, ErrorMessage = "Username cannot exceed 50 characters")]
         [RegularExpression(@"^\S+$", ErrorMessage = "Username cannot contain spaces")]
-        public string? VchUsername { get; set; }
+        public string VchUsername { get; set; }
 
         [Display(Name ="Password")]
         [Required(ErrorMessage = "Password is required")]
-        public string? HpasswordHash { get; set; }
+        public string HpasswordHash { get; set; }
 
         [Display(Name ="Full name")]
         [Required(ErrorMessage ="Full name required")]
-        public string? VchFullName { get; set; }
+        public string VchFullName { get; set; }
 
         [Required(ErrorMessage ="Email address required")]
         [Display(Name ="Email")]
-        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
-            ErrorMessage = "Email format is not valid")]
-        public string? VchEmail { get; set; }
+        //[RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",ErrorMessage = "Email format is not valid")]
+        public string VchEmail { get; set; }
 
         [Required(ErrorMessage ="Mobile number required")]
         [Display(Name ="Mobile number")]
-
         [RegularExpression(@"^[6-9]\d{9}$", ErrorMessage = "Invalid mobile number")]
-        public string? VchMobile { get; set; }
+        public string VchMobile { get; set; }
 
-        [Required(ErrorMessage ="Role is required")]
+        [Required(ErrorMessage ="Select role")]
         public int FkRoleId { get; set; }     
 
         //user defined attributes call for validation from attributes folder
-        [Required(ErrorMessage = "At least one company must be selected")]
-        [MinSelectedItems(1, ErrorMessage = "At least one company must be selected.")]
-        public List<int> SelectedCompanyIds { get; set; } = new List<int>();
-
+        [Required(ErrorMessage = "At least one company must be selected")]       
+        public List<int> SelectedCompanyIds { get; set; }
         //public List<SelectListItem> CompanyList { get; set; }
     }
    
