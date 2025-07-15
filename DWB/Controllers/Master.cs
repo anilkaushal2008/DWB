@@ -558,6 +558,8 @@ namespace DWB.Controllers
                 ("Master", "Permissions"),
                 ("User", "User Master"),
                 ("User", "User Test"),
+                ("Nursing", "Assessment"),
+                ("Doctor", "Assessment")
                 //Add more as per your modules
             };
                 var permissions = new List<PermissionItem>();

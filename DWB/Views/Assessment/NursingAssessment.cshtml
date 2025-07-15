@@ -1,0 +1,68 @@
+﻿@model List<DWB.APIModel.SP_OPD>
+@{
+    ViewData["Title"] = "Nursing Assessment";
+}
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<main class="main-wrapper">
+    <div class="main-content">
+        <div class="row cols-12">
+            <div class="col">
+<h3 class="mb-3">Nursing Assessment - Today's Patients</h3>
+  <table id="nursingTable" class="table table-responsive table-striped table-bordered" style="width:100%;font-size:90%">
+    <thead class="bg-primary" style="font-weight:bolder">
+        <tr>
+            <th>OPD No</th>
+            <th>Patient Name</th>
+            <th>OPD Date</th>
+            <th>Consultant</th>
+            <th>Action</th>           
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.opdno</td>
+                <td>@p.pname</td>
+                <td>@p.jdate.ToString("dd/MM/yyyy")</td>
+                <td>@p.descript</td>
+                <td><a class="btn btn-primary btn-sm" href="@Url.Action("","",new{uhid=p.opdno})">Fill</a></td>
+            </tr>          
+        }
+                       
+    </tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+@section scripts {
+   <script src="/assets/js/dashboard1.js"></script>
+   <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+    @*  <script src="/assets/js/main.js"></script> 
+     <script src="~/assets/js/jquery.min.js"></script>
+        <script src="/assets/js/dashboard2.js"></script>
+    <!--bootstrap js-->
+        <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>*@
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> 
+    <script type="text/javascript">
+        $(document).ready(function () {
+          $('#nursingTable').DataTable({
+                   pageLength: 50,
+                   lengthChange: true,
+                   ordering: true,
+                   language: {
+                       searchPlaceholder: "Search patient..."
+                   }
+               });
+          // setInterval(function () {
+          //       location.reload();
+          //   }, 10000); // 10000ms = 10s
+                  
+        });
+    </script>
+} 

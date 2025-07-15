@@ -8,7 +8,17 @@ using Microsoft.Extensions.Options;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
+//for session
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddDistributedMemoryCache(); // Required for storing session in memory
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Session timeout
+    options.Cookie.HttpOnly = true; // Secure
+    options.Cookie.IsEssential = true; // GDPR
+});
 
+//connections
 var connection = builder.Configuration.GetConnectionString("DWBDATA");
 builder.Services.AddDbContext<DWBEntity>(options =>
     options.UseSqlServer(connection));
@@ -17,7 +27,7 @@ builder.Services.AddDbContext<GroupEntity>(options =>
     options.UseSqlServer(connection2));
 
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation(); 
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 
 
@@ -40,6 +50,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseSession();
+
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
@@ -52,5 +64,5 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Dashboard}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 app.Run();

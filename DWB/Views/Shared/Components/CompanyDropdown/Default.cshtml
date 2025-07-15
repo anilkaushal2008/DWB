@@ -1,0 +1,14 @@
+﻿@model List<DWB.Components.CompanyDto>  
+<form asp-controller="Home" asp-action="ChangeCompany" method="post" id="companyForm">  
+    <select id="CompanyId" name="CompanyId" class="form-select pe-5" onchange="document.getElementById('companyForm').submit();">
+        @foreach (var company in Model)  
+        {  
+            <option value="@company.CompId" selected="@(company.IsSelected ? "selected" : null)">  
+                @company.CompName  
+            </option>  
+        }  
+        <span class="position-absolute top-50 end-0 translate-middle-y pe-2">
+            <i class="bi bi-caret-down-fill"></i>  @* Bootstrap icon, or use Font Awesome *@
+        </span>
+    </select>  
+</form>

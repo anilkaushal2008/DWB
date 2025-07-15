@@ -10,7 +10,6 @@
   <!-- loader-->
     <link href="~/assets/css/pace.min.css" rel="stylesheet">
     <script src="~/assets/js/pace.min.js"></script>
-
   <!--plugins-->
     <link href="~/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="~/assets/plugins/metismenu/metisMenu.min.css">
@@ -50,124 +49,66 @@
           <span class="material-icons-outlined position-absolute me-3 translate-middle-y end-0 top-50 search-close">close</span>
           <div class="search-popup p-3">
             <div class="card rounded-4 overflow-hidden">             
-              <div class="card-body search-content"> 
-
+              <div class="card-body search-content">
+              </div>                
               </div>
-                
-              </div>
-              <div class="card-footer text-center bg-transparent">
-              
+              <div class="card-footer text-center bg-transparent">              
               </div>
             </div>
           </div>
-        </div>
+      </div>
    
-      <ul class="navbar-nav gap-1 nav-right-links align-items-center">
+    <ul class="navbar-nav gap-1 nav-right-links align-items-center">
         <li class="nav-item d-lg-none mobile-search-btn">
-          <a class="nav-link" href="javascript:;"><i class="material-icons-outlined">search</i></a>
+        <a class="nav-link" href="javascript:;">
+         <i class="material-icons-outlined">search</i></a>
         </li>
-       <li class="nav-item dropdown position-static  d-md-flex d-none">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-bs-auto-close="outside"
-          data-bs-toggle="dropdown" href="javascript:;"><i class="material-icons-outlined">done_all</i></a>
-          <div class="dropdown-menu dropdown-menu-end mega-menu shadow-lg p-4 p-lg-5">
-            <div class="mega-menu-widgets">
-             <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4 g-lg-5">
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <div class="mega-menu-icon flex-shrink-0 bg-danger">
-                          <i class="material-icons-outlined">question_answer</i>
-                        </div>
-                        <div class="mega-menu-content">
-                           <h5>Marketing</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="assets/images/megaIcons/02.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Website</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="assets/images/megaIcons/03.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                            <h5>Subscribers</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="assets/images/megaIcons/01.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Hubspot</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="assets/images/megaIcons/11.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Templates</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="assets/images/megaIcons/13.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Ebooks</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-               
-             </div><!--end row-->
-            </div>
-          </div>
-        </li>
+        <!--change unit drop dowan -->
+                @* <li class="dropdown">
+                  COMPANY</li> *@
+         <li class="dropdown dropdown-item">
+                    
+                  @await Component.InvokeAsync("CompanyDropdown")
+
+         </li>
+
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-bs-auto-close="outside"
             data-bs-toggle="dropdown" href="javascript:;"><i class="material-icons-outlined">apps</i></a>
           <div class="dropdown-menu dropdown-menu-end dropdown-apps shadow-lg p-3">
             <div class="border rounded-4 overflow-hidden">
+              <div class="row row-cols-3 g-0 border-bottom">
+                                <div class="col border-end">
+                                    <div class="app-wrapper d-flex flex-column gap-2 text-center">
+                                        <div class="app-icon">
+                                            <img src="~/assets/images/LogoI2.png" width="36" alt="">
+                                        </div>
+                                        <div class="app-name">
+                                            <a class="mb-0" href="http://crm.indusafrica.org" target="_blank">CRM</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col border-end">
+                                    <div class="app-wrapper d-flex flex-column gap-2 text-center">
+                                        <div class="app-icon">
+                                            <img src="~/assets/images/LogoI2.png" width="36" alt="">
+                                        </div>
+                                        <div class="app-name">
+                                            <a href="http://hrms.indusafrica.org" target="_blank" class="mb-0">HRMS</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="app-wrapper d-flex flex-column gap-2 text-center">
+                                        <div class="app-icon">
+                                            <img src="~/assets/images/apps/12.png" width="36" alt="">
+                                        </div>
+                                        <div class="app-name">
+                                            <p class="mb-0">Photo</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!--end row-->
               <div class="row row-cols-3 g-0 border-bottom">
                 <div class="col border-end">
                   <div class="app-wrapper d-flex flex-column gap-2 text-center">
@@ -200,7 +141,6 @@
                   </div>
                 </div>
               </div><!--end row-->
-
               <div class="row row-cols-3 g-0 border-bottom">
                 <div class="col border-end">
                   <div class="app-wrapper d-flex flex-column gap-2 text-center">
@@ -233,7 +173,6 @@
                   </div>
                 </div>
               </div><!--end row-->
-
               <div class="row row-cols-3 g-0 border-bottom">
                 <div class="col border-end">
                   <div class="app-wrapper d-flex flex-column gap-2 text-center">
@@ -265,53 +204,18 @@
                     </div>
                   </div>
                 </div>
-              </div><!--end row-->
-
-              <div class="row row-cols-3 g-0">
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="~/assets/images/LogoI2.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <a class="mb-0" href="http://crm.indusafrica.org" target="_blank">CRM</a>
-                    </div>
-                  </div>
-                </div>
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                        <img src="~/assets/images/LogoI2.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <a href="http://hrms.indusafrica.org" target="_blank" class="mb-0">HRMS</a>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                        <img src="~/assets/images/apps/12.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Photo</p>
-                    </div>
-                  </div>
-                </div>
-              </div><!--end row-->
+              </div><!--end row-->             
             </div>
           </div>
         </li>
-
         <li class="nav-item dropdown">
          @*<a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" data-bs-auto-close="outside"
             data-bs-toggle="" href="javascript:;"> *@
-           @*  <i class="material-icons-outlined">notifications</i> *@
-                    @*  <span class="badge-notify">5</span>  </a>*@
-       
+           @*<i class="material-icons-outlined">notifications</i> *@
+                    @*<span class="badge-notify">5</span></a>*@       
           <div class="dropdown-menu dropdown-notify dropdown-menu-end shadow">
-            <@* div class="px-3 py-1 d-flex align-items-center justify-content-between border-bottom"> *@
-            @*   <h5 class="notiy-title mb-0">Notifications</h5> *@
+                        @*< div class="px-3 py-1 d-flex align-items-center justify-content-between border-bottom"> *@
+            @* <h5 class="notiy-title mb-0">Notifications</h5> *@
               <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle dropdown-toggle-nocaret option" type="button"
                   data-bs-toggle="dropdown" aria-expanded="false">
@@ -330,12 +234,7 @@
         
          
         </li>
-        <li class="nav-item d-md-flex d-none">
-          @* <a class="nav-link position-relative" data-bs-toggle="offcanvas" href="#offcanvasCart"><i
-              class="material-icons-outlined">shopping_cart</i>
-            <span class="badge-notify">8</span>
-          </a> *@
-        </li>
+       
         <li class="nav-item dropdown">
           <a href="javascrpt:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
              <img src="https://placehold.co/110x110/png" class="rounded-circle p-1 border" width="45" height="45" alt="">
@@ -345,32 +244,31 @@
               <div class="text-center">
                 <img src="~/assets/images/gallery/welcome-back-3.png" class="rounded-circle p-1 shadow mb-3" width="90" height="90"
                   alt="">
-                                <h5 class="user-name mb-0 fw-bold">@(User.Identity.IsAuthenticated ? "Hello " + User.Identity.Name : "Please log in")   </h5>
+              <h5 class="user-name mb-0 fw-bold">@(User.Identity.IsAuthenticated ? "Hello " + User.Identity.Name : "Please log in")   </h5>
               </div>
             </a>
             <hr class="dropdown-divider">
-         @*    <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
+           @*<a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
               class="material-icons-outlined">person_outline</i>Profile</a> *@
                         <a class="dropdown-item d-flex align-items-center gap-2 py-2"
                            href="javascript:void(0);"
                            id="openChangePassword">
                             <i class="material-icons-outlined">person_outline</i> Change Password
                         </a>
-            @* <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">local_bar</i>Setting</a> *@
+           @*<a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
+              class="material-icons-outlined">local_bar</i>Setting</a>*@
            @*<a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
               class="material-icons-outlined">dashboard</i>Dashboard</a>
             <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
               class="material-icons-outlined">account_balance</i>Earning</a>
-              <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                class="material-icons-outlined">cloud_download</i>Downloads</a> *@
-            <hr class="dropdown-divider">
-                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("Logout","Home")">
-                            <i class="material-icons-outlined">power_settings_new</i>Logout</a>
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
+                class="material-icons-outlined">cloud_download</i>Downloads</a>*@
+          <hr class="dropdown-divider">
+              <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("Logout","Home")">
+               <i class="material-icons-outlined">power_settings_new</i>Logout</a>
           </div>
         </li>
-      </ul>
-
+    </ul>
     </nav>
   </header>
     <!--start sidebar-->
@@ -394,19 +292,12 @@
                     <hr class="table-group-divider">
                     @* <a href="javascript:;" class="has-arrow"> *@
                         <div class="parent-icon">
-                        <a class=" breadcrumb-title" href="@Url.Action("","")">
+                        <a class=" breadcrumb-title" href="@Url.Action("Dashboard","Home")">
                             <i class="material-icons-outlined">home</i>&nbsp;
-                            Dashboard</a>
-                    </div>
-                 @*    </a> *@
-                 @*    <ul>
-                        <li>
-                            <a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
-                        </li>
-                        <li>
-                            <a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
-                        </li>
-                    </ul> *@
+                            <div class="menu-title"> Dashboard
+                                </div>
+                        </a>
+                    </div>              
                 </li>
                 @if (User.IsInRole("Admin"))
                 {
@@ -418,25 +309,22 @@
                             </div>
                             <div class="menu-title">Admin Panel</div>
                         </a>
-                        <ul>
-                            
+                        <ul>                            
                             <li>
                                 <a href="@Url.Action("Masters","Master")"><i class="material-icons-outlined"></i>Masters</a>
-                                @* <a href="@Url.Action("Masters","Master")"><i class="material-icons-outlined">arrow_right</i>Masters</a> *@
+                                @*<a href="@Url.Action("Masters","Master")"><i class="material-icons-outlined">arrow_right</i>Masters</a>*@
                             </li>
                              
-                            @* <li>
+                            @*<li>
                             <a href="@Url.Action("PermissionMaster", "UserMaster")"><i class="material-icons-outlined"></i>Permission Master</a>
-                        </li> *@
+                            </li>*@
                             <li>
                                 <a href="@Url.Action("UserMasters", "UserMaster")"><i class="material-icons-outlined"></i>User Master</a>
-                            </li>
-                        
+                            </li>                        
                         </ul>
                     </li>
                 }
                 <li>
-
                     <a class="has-arrow" href="javascript:;">
                         <div class="parent-icon">
                             <i class="material-icons-outlined">apps</i>
@@ -447,7 +335,7 @@
                     @if (User.IsInRole("Admin") || User.IsInRole("Nursing"))
                         {
                             <li>
-                              <a href="@Url.Action("", "")">
+                                <a href="@Url.Action("Nursingassessment", "Assessment")">
                                   <i class="material-icons-outlined">arrow_right</i>
                                   Nursing assessment
                               </a>
@@ -495,7 +383,200 @@
                         </li>                       
                     </ul>
                 </li>
-                @*  <li>
+               
+             
+               
+           
+          
+             
+            
+            </ul>
+            <!--end navigation-->
+        </div>
+    </aside>
+    <!--end sidebar-->
+    <!--start overlay-->
+    <div class="overlay btn-toggle"></div>
+    <main class="page-content">
+        @RenderBody()
+    </main>
+    <!--end overlay-->
+    <!--start footer-->
+    <footer class="page-footer">
+        <p class="mb-0">Copyright © 2025. All right reserved.</p>
+    </footer>
+    <!--end footer-->
+    <!--start cart-->
+    
+    <!--end cart-->
+
+    <!--start switcher-->
+    <button class="btn btn-grd btn-grd-primary position-fixed bottom-0 end-0 m-3 d-flex align-items-center gap-2" type="button"
+            data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop">
+        <i class="material-icons-outlined">tune</i>Customize
+    </button>
+
+    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="staticBackdrop">
+        <div class="offcanvas-header border-bottom h-70">
+            <div class="">
+                <h5 class="mb-0">Theme Customizer</h5>
+                <p class="mb-0">Customize your theme</p>
+            </div>
+            <a href="javascript:;" class="primaery-menu-close" data-bs-dismiss="offcanvas">
+                <i class="material-icons-outlined">close</i>
+            </a>
+        </div>
+        <div class="offcanvas-body">
+            <div>
+                <p>Theme variation</p>
+
+                <div class="row g-3">
+                    <div class="col-12 col-xl-6">
+                        <input type="radio" class="btn-check" name="theme-options" id="BlueTheme" checked>
+                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4" for="BlueTheme">
+                            <span class="material-icons-outlined">contactless</span>
+                            <span>Blue</span>
+                        </label>
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        <input type="radio" class="btn-check" name="theme-options" id="LightTheme">
+                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
+                               for="LightTheme">
+                            <span class="material-icons-outlined">light_mode</span>
+                            <span>Light</span>
+                        </label>
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        <input type="radio" class="btn-check" name="theme-options" id="DarkTheme">
+                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
+                               for="DarkTheme">
+                            <span class="material-icons-outlined">dark_mode</span>
+                            <span>Dark</span>
+                        </label>
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        <input type="radio" class="btn-check" name="theme-options" id="SemiDarkTheme">
+                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
+                               for="SemiDarkTheme">
+                            <span class="material-icons-outlined">contrast</span>
+                            <span>Semi Dark</span>
+                        </label>
+                    </div>
+                    <div class="col-12 col-xl-6">
+                        <input type="radio" class="btn-check" name="theme-options" id="BoderedTheme">
+                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
+                               for="BoderedTheme">
+                            <span class="material-icons-outlined">border_style</span>
+                            <span>Bordered</span>
+                        </label>
+                    </div>
+                </div><!--end row-->
+
+            </div>
+        </div>
+    </div>
+    <!--start switcher-->
+@*  <script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script> *@
+    <!--bootstrap js-->
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+
+    <!--plugins-->
+    <script src="~/assets/js/jquery.min.js"></script>
+    <!--plugins-->
+    <script src="~/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+    <script src="~/assets/plugins/metismenu/metisMenu.min.js"></script>
+    <script src="~/assets/plugins/apexchart/apexcharts.min.js"></script>
+    <script src="~/assets/plugins/simplebar/js/simplebar.min.js"></script>
+    <script src="~/assets/plugins/peity/jquery.peity.min.js"></script>
+    <!--validation-->
+    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+ 
+ 
+    <script>
+        $(".data-attributes span").peity("donut")
+    </script>
+    <script>
+        //setZoom(90); // Adjust the percentage as needed
+    </script>
+    <script src="~/assets/js/dashboard2.js"></script>
+    <script src="~/assets/js/main.js"></script>
+    @RenderSection("Scripts", required: false)
+    @* change password script *@
+    <script type="text/javascript">
+            $(document).ready(function () {
+            $('#openChangePassword').on('click', function () {
+                $.get('@Url.Action("ChangePassword", "Home")', function (html) {
+                    $('#changePasswordModalContent').html(html);
+                    $.validator.unobtrusive.parse('#ChangePassword');
+                    $('#changePasswordModal').modal('show');
+                });
+            });
+        });
+       
+
+        $(document).on("submit", "#ChangePassword", function (e) {
+            e.preventDefault();
+            var form = $(this);
+            if (!form.valid()) return;
+
+            $.ajax({
+                url: form.attr("action"),
+                method: "POST",
+                data: form.serialize(),
+                success: function (res) {
+                    if (res.success) {                       
+                        $('#changePasswordModal').modal('hide');
+                         alert(res.message);
+                          window.location.href = '/Home/Logout'
+                    } else {
+                        //$('#modal-content-placeholder').html(res);  
+                         $('#changePasswordModalContent').html(res);
+                        $.validator.unobtrusive.parse('#ChangePassword');
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong.");
+                }
+            });
+        });
+    </script>
+    @* change password modal *@
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title">
+                        <i class="material-icons-outlined me-2">lock</i> Change Password
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4" id="changePasswordModalContent">
+                    <div id="modal-content-placeholder"></div>
+                    <!-- AJAX partial view will load here -->
+                    <div class="text-center py-5 text-muted">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2">Loading form...</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light rounded-bottom-4 d-none">
+                    <!-- Optionally insert buttons via JS or inside partial -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
+
+@*   <li>
                     <a class="has-arrow" href="javascript:;">
                         <div class="parent-icon">
                             <i class="material-icons-outlined">card_giftcard</i>
@@ -754,196 +835,3 @@
                         <div class="menu-title">Pricing</div>
                     </a>
                 </li> *@
-             
-               
-           
-          
-             
-            
-            </ul>
-            <!--end navigation-->
-        </div>
-    </aside>
-    <!--end sidebar-->
-    <!--start overlay-->
-    <div class="overlay btn-toggle"></div>
-    <main class="page-content">
-        @RenderBody()
-    </main>
-    <!--end overlay-->
-    <!--start footer-->
-    <footer class="page-footer">
-        <p class="mb-0">Copyright © 2025. All right reserved.</p>
-    </footer>
-    <!--end footer-->
-    <!--start cart-->
-    
-    <!--end cart-->
-
-    <!--start switcher-->
-    <button class="btn btn-grd btn-grd-primary position-fixed bottom-0 end-0 m-3 d-flex align-items-center gap-2" type="button"
-            data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop">
-        <i class="material-icons-outlined">tune</i>Customize
-    </button>
-
-    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="staticBackdrop">
-        <div class="offcanvas-header border-bottom h-70">
-            <div class="">
-                <h5 class="mb-0">Theme Customizer</h5>
-                <p class="mb-0">Customize your theme</p>
-            </div>
-            <a href="javascript:;" class="primaery-menu-close" data-bs-dismiss="offcanvas">
-                <i class="material-icons-outlined">close</i>
-            </a>
-        </div>
-        <div class="offcanvas-body">
-            <div>
-                <p>Theme variation</p>
-
-                <div class="row g-3">
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="BlueTheme" checked>
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4" for="BlueTheme">
-                            <span class="material-icons-outlined">contactless</span>
-                            <span>Blue</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="LightTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="LightTheme">
-                            <span class="material-icons-outlined">light_mode</span>
-                            <span>Light</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="DarkTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="DarkTheme">
-                            <span class="material-icons-outlined">dark_mode</span>
-                            <span>Dark</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="SemiDarkTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="SemiDarkTheme">
-                            <span class="material-icons-outlined">contrast</span>
-                            <span>Semi Dark</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="BoderedTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="BoderedTheme">
-                            <span class="material-icons-outlined">border_style</span>
-                            <span>Bordered</span>
-                        </label>
-                    </div>
-                </div><!--end row-->
-
-            </div>
-        </div>
-    </div>
-    <!--start switcher-->
-@*     <script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
-    <script src="~/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script> *@
-    <!--bootstrap js-->
-    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
-
-    <!--plugins-->
-    <script src="~/assets/js/jquery.min.js"></script>
-    <!--plugins-->
-    <script src="~/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
-    <script src="~/assets/plugins/metismenu/metisMenu.min.js"></script>
-    <script src="~/assets/plugins/apexchart/apexcharts.min.js"></script>
-    <script src="~/assets/plugins/simplebar/js/simplebar.min.js"></script>
-    <script src="~/assets/plugins/peity/jquery.peity.min.js"></script>
-    <!--validation-->
-    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
- 
- 
-    <script>
-        $(".data-attributes span").peity("donut")
-    </script>
-    <script>
-        //setZoom(90); // Adjust the percentage as needed
-    </script>
-    <script src="~/assets/js/dashboard2.js"></script>
-    <script src="~/assets/js/main.js"></script>
-    @RenderSection("Scripts", required: false)
-    @* change password script *@
-    <script type="text/javascript">
-            $(document).ready(function () {
-            $('#openChangePassword').on('click', function () {
-                $.get('@Url.Action("ChangePassword", "Home")', function (html) {
-                    $('#changePasswordModalContent').html(html);
-                    $.validator.unobtrusive.parse('#ChangePassword');
-                    $('#changePasswordModal').modal('show');
-                });
-            });
-        });
-       
-
-        $(document).on("submit", "#ChangePassword", function (e) {
-            e.preventDefault();
-            var form = $(this);
-            if (!form.valid()) return;
-
-            $.ajax({
-                url: form.attr("action"),
-                method: "POST",
-                data: form.serialize(),
-                success: function (res) {
-                    if (res.success) {                       
-                        $('#changePasswordModal').modal('hide');
-                         alert(res.message);
-                          window.location.href = '/Home/Logout'
-                    } else {
-                        //$('#modal-content-placeholder').html(res);  
-                         $('#changePasswordModalContent').html(res);
-                        $.validator.unobtrusive.parse('#ChangePassword');
-                    }
-                },
-                error: function () {
-                    alert("Something went wrong.");
-                }
-            });
-        });
-    </script>
-    @* change password modal *@
-    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-
-                <div class="modal-header bg-primary text-white rounded-top-4">
-                    <h5 class="modal-title">
-                        <i class="material-icons-outlined me-2">lock</i> Change Password
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body p-4" id="changePasswordModalContent">
-                    <div id="modal-content-placeholder"></div>
-                    <!-- AJAX partial view will load here -->
-                    <div class="text-center py-5 text-muted">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <div class="mt-2">Loading form...</div>
-                    </div>
-                </div>
-
-                <div class="modal-footer bg-light rounded-bottom-4 d-none">
-                    <!-- Optionally insert buttons via JS or inside partial -->
-                </div>
-
-            </div>
-        </div>
-    </div>
-  </body>
-
-</html>
-

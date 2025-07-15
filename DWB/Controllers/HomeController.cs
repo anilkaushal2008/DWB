@@ -1,4 +1,4 @@
-using DWB.GroupModels;
+﻿using DWB.GroupModels;
 using DWB.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.ComponentModel.Design;
+using System.Linq;
 using System.Security.Claims;
 
 
@@ -42,6 +44,16 @@ namespace DWB.Controllers
             {
                 //selected compay id
                 string intcode = model.fk_intPK.ToString();
+                HttpContext.Session.SetString("SelectedCompanyId", model.fk_intPK.ToString());
+                //get selected company from group context
+                var selectedCompany = _groupcontext.IndusCompanies.FirstOrDefault(m => m.IntPk == model.fk_intPK);
+                if (selectedCompany == null)
+                {
+                    var company1 = _groupcontext.IndusCompanies.Where(m => new[] { 2, 3, 4, 14, 15, 21, 22, 23, 24, 25 }.Contains(m.IntPk)).ToList();
+                    ViewBag.Company = new SelectList(company1, "IntPk", "Descript");
+                    ModelState.AddModelError("fk_intPK", "Invalid company selection.");
+                    return View(model);
+                }
                 //check user name
                 var user = (from u in _context.TblUsers
                             join c in _context.TblUserCompany on u.IntUserId equals c.FkUseriId
@@ -89,18 +101,29 @@ namespace DWB.Controllers
                         p.BitStatus
                     }).ToList();
                 //Get all company which is mapped to current user
-                var companies = _context.TblUserCompany.Where(x => x.FkUseriId == user.IntUserId)
-                    .Select(x => x.FkIntCompany)
-                    .Distinct()
-                    .ToList();
-                string companyIdList = string.Join(",", companies);
-                //set all claims in identity
+                var UserCompanies = (from uc in _context.TblUserCompany                 
+                where uc.FkUseriId == user.IntUserId
+                select uc.FkIntCompanyId).ToList();
+                //get all user assigned companies
+                string companyIdList = string.Join(",", UserCompanies);
+
+                //string companyIdList = string.Join(",", UserCompanies);
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.VchUsername),
+                    //user id
                     new Claim("UserId", user.IntUserId.ToString()),
+                    //set Unit intPK
                     new Claim("UnitId", intcode),
+                    //set unit HMS code
+                    new Claim("HMScode", selectedCompany.Id.ToString()), 
+                    //set loggedin company name
+                    new Claim("CompName",selectedCompany.Descript),
+                    //set unit base API                   
+                    new Claim("BaseAPI", selectedCompany.VchDwbApi.ToString()??"null"),                   
+                    //All User assigned companies
                     new Claim("AllCompanyIds", companyIdList),
+                    //set role
                     new Claim(ClaimTypes.Role, roleName)
                 };
                 //add permissions claims
@@ -115,7 +138,7 @@ namespace DWB.Controllers
                     if (permission.BitDelete)
                         claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Delete:{permission.BitDelete}"));
                     if (permission.BitStatus)
-                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Delete:{permission.BitStatus}"));
+                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Status:{permission.BitStatus}"));
                 }
                 //set identity and principal  
                 var newIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -126,6 +149,34 @@ namespace DWB.Controllers
                     IsPersistent = true,
                     ExpiresUtc = DateTime.UtcNow.AddHours(1)
                 });
+                #region for dropdown
+                ////get selected company
+                //int selectedCompanyId = selectedCompany.IntPk;
+                //HttpContext.Session.SetString("SelectedCompanyId", selectedCompanyId.ToString());
+                ////if valid give option to change company according to user assigned company
+                //var CompUserCompanies = _context.TblUserCompany
+                // .Where(x => x.FkUseriId == user.IntUserId)
+                // .ToList();
+
+                //// get allowed company IDs (int list)
+                //var allowedCompanyIds = CompUserCompanies
+                //    .Select(x => x.FkIntCompanyId) // or FkIntCompany if that's the correct name
+                //    .Distinct()
+                //    .ToList();
+
+                //// now get company dropdown from IndusCompanies or wherever the full company details are
+                //var companyDropdown = _context.IndusCompanies
+                //    .Where(c => allowedCompanyIds.Contains(c.IntPk)) // ✅ match int with int
+                //    .Select(c => new SelectListItem
+                //    {
+                //        Value = c.IntPk.ToString(),
+                //        Text = c.Descript//,
+                //        //Selected=Convert.ToBoolean(selectedCompanyId)
+                //    }).ToList();
+                //
+                //ViewBag.CompanyList =companyDropdown;
+                #endregion
+
                 //If valid, redirect to the dashboard or another page
                 return RedirectToAction("Dashboard");
             }
@@ -187,8 +238,59 @@ namespace DWB.Controllers
             return RedirectToAction("Index", "Home"); // Or wherever your login page is
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ChangeCompany(int CompanyId)
+        {
+            HttpContext.Session.SetString("SelectedCompanyId", CompanyId.ToString());
+            //Fetch company details  
+            var selectedCompany = await _groupcontext.IndusCompanies.FindAsync(CompanyId);
+            if (selectedCompany == null)
+            {
+                return BadRequest("Invalid company");
+            }
+            else
+            {
+                //Fetch new values  
+                string intcode = selectedCompany.IntPk.ToString(); // Ensure intcode is defined here  
+                string hmsCode = selectedCompany.Id.ToString();
+                string compName = selectedCompany.Descript;
+                string baseApi = selectedCompany.VchDwbApi;
 
+                //Get current claims and identity  
+                var identity = User.Identity as ClaimsIdentity;
+                if (identity == null)
+                {
+                    return BadRequest("User identity is not valid.");
+                }
+                var claims = identity.Claims.ToList();
 
+                //Remove old company-related claims  
+                claims.RemoveAll(c =>
+                    c.Type == "UnitId" ||
+                    c.Type == "HMScode" ||
+                    c.Type == "CompName" ||
+                    c.Type == "BaseAPI"
+                );
 
+                //Add updated claims  
+                claims.Add(new Claim("UnitId", intcode));
+                claims.Add(new Claim("HMScode", hmsCode));
+                claims.Add(new Claim("CompName", compName));
+                if(baseApi != null)
+                    claims.Add(new Claim("BaseAPI", baseApi));
+
+                //Re-sign in with updated claims  
+                var newIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var newPrincipal = new ClaimsPrincipal(newIdentity);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, newPrincipal, new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.UtcNow.AddHours(1)
+                });
+
+                // Redirect to the referring page  
+                return Redirect(Request.Headers["Referer"].ToString());
+            }
+        }
     }
 }

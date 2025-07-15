@@ -7,7 +7,7 @@
         <!--breadcrumb-->
         <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
             <div class="breadcrumb-title">Welcome @User.Identity.Name</div>
-     @*        <div class="ps-3">
+          @*<div class="ps-3">
                 <nav aria-label="breadcrumb">
                      <ol class="breadcrumb mb-0 p-0">
                         <li class="breadcrumb-item">
@@ -16,7 +16,7 @@
                         <li class="breadcrumb-item active" aria-current="page">eCommerce</li>
                     </ol> 
                 </nav>
-            </div> *@
+            </div>*@
             @*Use for session changes according to company*@
             <div class="ms-auto">
                 <div class="btn-group">
@@ -37,7 +37,7 @@
         </div>
         <!--end breadcrumb-->
         <div class="row row-cols-1 row-cols-xl-3">
-            @if((User.IsInRole("Admin"))||(User.IsInRole("Consultant")))
+            @if((User.IsInRole("Admin"))||(User.IsInRole("Consultant"))||(User.IsInRole("Nursing")))
             {
             <div class="col">
             <div class="card rounded-4">
@@ -49,7 +49,7 @@
                     </div>
                     <p class="mb-0">Today's OPD patients</p>
                         <div class="mt-3">
-                        <button class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Details</button>
+                        <a href="@Url.Action("Nursingassessment","Assessment")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Details</a>
                        </div>
                         <div class="mt-4">
                         <p class="mb-2 d-flex align-items-center justify-content-between">
@@ -88,7 +88,7 @@
                 </div>
             </div>
           </div>
-            <div class="col">
+          <div class="col">
                 <div class="card rounded-4">
                     <div class="card-body">
                         <div class="d-flex align-items-center gap-3 mb-2">
@@ -108,17 +108,13 @@
                                 <div class="progress-bar bg-grd-purple" style="width: 65%"></div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
          </div>
     </div>
-
-
-
     <!--end row will use for month pending assessment month wise and year wise patient count.-->
-       @*  <div class="row">
+       @* <div class="row">
             <div class="col-12 col-xl-4">
                 <div class="card w-100 rounded-4">
                     <div class="card-body">
@@ -227,7 +223,7 @@
                 </div>
             </div>
         </div> *@<!--end row-->
-        @* For password update *@
+    @* For password update *@
     <div class="modal fade" id="passwordUpdate" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">

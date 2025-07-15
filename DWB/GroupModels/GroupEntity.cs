@@ -19,7 +19,7 @@ public partial class GroupEntity : DbContext
     {
         modelBuilder.Entity<IndusCompanies>(entity =>
         {
-            entity.HasKey(e => e.IntPk).HasName("PK_IndusCompanies_1");
+            entity.HasKey(e => e.IntPk);
 
             entity.Property(e => e.IntPk).HasColumnName("intPK");
             entity.Property(e => e.Add1)
@@ -128,10 +128,14 @@ public partial class GroupEntity : DbContext
             entity.Property(e => e.UhidpreFix)
                 .HasMaxLength(20)
                 .HasColumnName("UHIDPreFix");
-            entity.Property(e => e.Vchgstnumber)
+            entity.Property(e => e.VchDwbApi)
+                .HasMaxLength(254)
+                .IsUnicode(false)
+                .HasColumnName("vchDwbApi");
+            entity.Property(e => e.VchGstnumber)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("vchgstnumber");
+                .HasColumnName("vchGSTNumber");
         });
 
         OnModelCreatingPartial(modelBuilder);

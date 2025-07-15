@@ -1,12 +1,12 @@
 ﻿{
    "CodeGenerationMode": 4,
-   "ContextClassName": "GroupEntity",
+   "ContextClassName": "DWBEntity",
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": null,
-   "OutputPath": "GroupModels",
+   "OutputPath": "Models",
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "DWB",
    "Schemas": null,
@@ -16,6 +16,38 @@
    "Tables": [
       {
          "Name": "[dbo].[IndusCompanies]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblDietMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblFloorMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblNSAssessment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblPermissionMas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblRoleMas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblRoomMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblUserCompany]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblUsers]",
          "ObjectType": 0
       }
    ],

@@ -77,5 +77,7 @@ public partial class IndusCompanies
 
     public int? HeadOffice { get; set; }
 
-    public string Vchgstnumber { get; set; }
+    public string VchGstnumber { get; set; }
+
+    public string VchDwbApi { get; set; }
 }

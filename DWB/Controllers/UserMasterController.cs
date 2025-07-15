@@ -18,7 +18,7 @@ namespace DWB.Controllers
         }
         [Authorize(Roles = "Admin")]
         public ActionResult UserMasters()
-        {    
+        {
             if (!TempData.ContainsKey("ActiveTab"))
             {
                 TempData["ActiveTab"] = "UserTab"; // Default first tab
@@ -114,11 +114,11 @@ namespace DWB.Controllers
                 return PartialView("_PartialCreateUser", model);
             }
             //Convert password to hash
-             var HasedPassword = PasswordHelper.ConvertHashPassword(model.HpasswordHash);
+            var HasedPassword = PasswordHelper.ConvertHashPassword(model.HpasswordHash);
             // Create user entity
             var user = new TblUsers
             {
-                VchUsername = model.VchUsername,                         
+                VchUsername = model.VchUsername,
                 HpasswordHash = HasedPassword, //You may hash this
                 VchFullName = model.VchFullName,
                 VchEmail = model.VchEmail,
@@ -186,9 +186,9 @@ namespace DWB.Controllers
             ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
             return PartialView("_PartialCreateUser", model);
         }
-       
+
         [HttpPost]
-        [Authorize(Roles = "Admin")]             
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public IActionResult UserEdit(CreateUserViewModel model)
         {
@@ -290,8 +290,7 @@ namespace DWB.Controllers
                 return RedirectToAction("UserMasters");
             }
         }
-        
+
         #endregion
     }
 }
-

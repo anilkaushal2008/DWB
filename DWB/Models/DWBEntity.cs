@@ -19,6 +19,8 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblFloorMaster> TblFloorMaster { get; set; }
 
+    public virtual DbSet<TblNsassessment> TblNsassessment { get; set; }
+
     public virtual DbSet<TblPermissionMas> TblPermissionMas { get; set; }
 
     public virtual DbSet<TblRoleMas> TblRoleMas { get; set; }
@@ -250,6 +252,82 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.VchUpdatedBy)
                 .HasMaxLength(100)
                 .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblNsassessment>(entity =>
+        {
+            entity.HasKey(e => e.IntAssessmentId);
+
+            entity.ToTable("tblNSAssessment");
+
+            entity.Property(e => e.IntAssessmentId)
+                .ValueGeneratedNever()
+                .HasColumnName("intAssessmentId");
+            entity.Property(e => e.BitIsAssigned).HasColumnName("bitIsAssigned");
+            entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
+            entity.Property(e => e.DecHeight)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("decHeight");
+            entity.Property(e => e.DecOxygenFlowRate)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("decOxygenFlowRate");
+            entity.Property(e => e.DecRespiratoryRate)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("decRespiratoryRate");
+            entity.Property(e => e.DecSpO2)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("decSpO2");
+            entity.Property(e => e.DecTemperature).HasColumnName("decTemperature");
+            entity.Property(e => e.DecWeight)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("decWeight");
+            entity.Property(e => e.DtCreated)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtEndTime)
+                .HasDefaultValueSql("((0))")
+                .HasColumnType("datetime")
+                .HasColumnName("dtEndTime");
+            entity.Property(e => e.DtStartTime)
+                .HasColumnType("datetime")
+                .HasColumnName("dtStartTime");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.VchBloodPressure)
+                .IsRequired()
+                .HasColumnName("vchBloodPressure");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchIpUpdated)
+                .HasMaxLength(20)
+                .HasColumnName("vchIpUpdated");
+            entity.Property(e => e.VchIpUsed)
+                .HasMaxLength(20)
+                .HasColumnName("vchIpUsed");
+            entity.Property(e => e.VchNurseNotes)
+                .IsRequired()
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("vchNurseNotes");
+            entity.Property(e => e.VchPulse)
+                .IsRequired()
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("vchPulse");
+            entity.Property(e => e.VchTat)
+                .HasComputedColumnSql("(CONVERT([time],[dtEndTime]-[dtStartTime]))", false)
+                .HasColumnName("vchTAT");
+            entity.Property(e => e.VchUhidNo)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("vchUhidNo");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
                 .HasColumnName("vchUpdatedBy");
         });
 
