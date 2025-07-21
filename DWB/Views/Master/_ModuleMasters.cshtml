@@ -1,43 +1,45 @@
-﻿@model List<DWB.Models.TblRoleMas>
+﻿@model List<DWB.Models.TblModules>
 @{
     @* check add edit permission *@
-    var hasAddNewRole = User.HasClaim("Permission", "All Masters:Role Master:Add:True");
-    var hasEditRole = User.HasClaim("Permission", "All Masters:Role Master:Edit:True");
-    var hasDeleteRole = User.HasClaim("Permission", "All Masters:Role Master:Delete:True");
-    var hasStatusRole = User.HasClaim("Permission", "All Masters:Role Master:Status:True");
+    var hasAddNewModule = User.HasClaim("Permission", "All Masters:Module Master:Add:True");
+    var hasEditModule = User.HasClaim("Permission", "All Masters:Module Master:Edit:True");
+    var hasDeleteModule = User.HasClaim("Permission", "All Masters:Module Master:Delete:True");
+    var hasStatusModule = User.HasClaim("Permission", "All Masters:Module Master:Status:True");
 }
-@if(hasAddNewRole){
+@if(hasAddNewModule){
 <div align="right">
     <a href="btnCreateDiet" class="btn btn-primary px-4 open-modal"
-       data-url="@Url.Action("RoleCreate", "Master")"
+       data-url="@Url.Action("ModuleCreate", "Master")"
        data-bs-toggle="modal"
        data-bs-target="#editModal">
-        <i class="bi bi-plus-lg me-2"></i>Role Master
+        <i class="bi bi-plus-lg me-2"></i>New Module
     </a>
 </div>
 }
 <table id="RoleTable" class="table table-striped table-responsive table-sm">
-    @if (TempData["RoleSuccess"] != null)
+    @if (TempData["ModuleSuccess"] != null)
     {
         <br />
         <div class="alert alert-success border-0 bg-success alert-dismissible fade show" id="alertMessage">
-            <div class="text-white align-content-center">@TempData["RoleSuccess"]</div>
+            <div class="text-white align-content-center">@TempData["ModuleSuccess"]</div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    @if (TempData["RoleError"] != null)
+    @if (TempData["ModuleError"] != null)
     {
         <br />
         <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show" id="alertMessage">
-            <div class="text-white align-content-center">@TempData["RoleError"]</div>
+            <div class="text-white align-content-center">@TempData["ModuleError"]</div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     <thead>
         <tr>
             <th>Sr. No.</th>
-            <th>Role</th>            
-            <th>Actions</th>
+            <th>Mas Module</th>
+            <th>Module</th>
+            <th>Sub Module</th>
+            <th>Action</th>
             <!-- Add more columns as needed -->
         </tr>
     </thead>
@@ -47,38 +49,40 @@
             @for (int i = 0; i < Model.Count; i++)
             {
                 <tr>
-                    <td>@(i + 1)</td>                    
-                    <td>@Model[i].VchRole</td>
+                    <td>@(i + 1)</td>
+                    <td>@Model[i].VchMasterModule</td>
+                    <td>@Model[i].VchModule</td>
+                    <td>@Model[i].VchSubModule</td>
                     <td>
-                        @if(hasEditRole){
+                        @if(hasEditModule){
                         <a href="#" class="btn btn-sm btn-primary me-1 open-modal"
                            data-bs-toggle="modal"
                            data-bs-target="#editModal"
-                           data-url="@Url.Action("RoleEdit", "Master", new { id = Model[i].IntId })">
+                           data-url="@Url.Action("ModuleEdit", "Master", new { id = Model[i].IntId })">
                             Edit
                         </a>
                         }
-                        @if (hasDeleteRole)
+                        @if (hasDeleteModule)
                         {
                             <a class="btn btn-sm btn-danger me-1"
-                            href="@Url.Action("RoleDelete", "Master", new { id = Model[i].IntId})"
+                            href="@Url.Action("ModuleDelete", "Master", new { id = Model[i].IntId })"
                             onclick="return confirm('Are you sure you want to delete this record?');">
                                 Delete
                             </a>
                         }
-                        @if (hasStatusRole)
+                        @if (hasStatusModule)
                         {
-                            @if (Model[i].BitIsActive == true)
+                            @if (Model[i].BitDeactivated == false)
                             {
                                 <a class="btn btn-sm btn-warning me-1"
-                                href="@Url.Action("RoleDeactivate", "Master", new { id = Model[i].IntId})">
+                                href="@Url.Action("ModuleDeactivate", "Master", new { id = Model[i].IntId })">
                                     Deactivate?
                                 </a>
                             }
                             else
                             {
                                 <a class="btn btn-sm btn-inverse-warning me-1"
-                                href="@Url.Action("RoleActivate", "Master", new { id = Model[i].IntId})">
+                                href="@Url.Action("ModuleActivate", "Master", new { id = Model[i].IntId })">
                                     Activate?
                                 </a>
                             }

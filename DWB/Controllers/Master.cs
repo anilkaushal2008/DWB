@@ -9,6 +9,7 @@ using System;
 using System.Data;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace DWB.Controllers
 {
@@ -22,7 +23,7 @@ namespace DWB.Controllers
         }
 
 
-        [Authorize(Roles="Admin")]
+        [Authorize(Roles = "Admin,Nursing")]
         //GET: All Masters
         public ActionResult Masters()
         {
@@ -33,13 +34,13 @@ namespace DWB.Controllers
                 TempData["ActiveTab"] = "DietTab"; // Default first tab
             }
             ViewBag.RoleList = _context.TblRoleMas
-       .Where(r => r.BitIsActive)
-       .Select(r => new SelectListItem
-       {
-           Value = r.IntId.ToString(),
-           Text = r.VchRole
-       }).ToList();
-            _DietMasters();          
+            .Where(r => r.BitIsActive)
+            .Select(r => new SelectListItem
+            {
+                Value = r.IntId.ToString(),
+                Text = r.VchRole
+            }).ToList();
+            _DietMasters();
             return View();
         }
 
@@ -57,6 +58,7 @@ namespace DWB.Controllers
                     Floors = _context.TblFloorMaster.OrderBy(m => m.VchFloor).ToList(),
                     Rooms = _context.TblRoomMaster.OrderBy(d => d.FkIntFloorId).ToList(),
                     //AllPermissions = _context.TblPermissionMas.ToList(),
+                    ModuleMas = _context.TblModules.OrderBy(d => d.VchMasterModule).ToList(),
                     RoleMas = _context.TblRoleMas.OrderBy(d => d.VchRole).ToList()
                 };
                    
@@ -412,6 +414,123 @@ namespace DWB.Controllers
         }
         #endregion
 
+        #region Module Master
+        public IActionResult _ModuleMaster()
+        {
+            var modulesList = _context.TblModules.ToList();
+            if (modulesList.Count() != 0)
+            {
+                return View();
+            }
+            else
+            {
+                TempData["ModuleError"] = "0 Record found in database!";
+                return View();
+            }
+        }
+        [HttpGet]
+        public IActionResult ModuleCreate()
+        {
+            return PartialView("_ModuleCreatePartial", new TblModules());
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ModuleCreate(TblModules model)
+        {
+            if (_context.TblModules.Any(d => d.VchSubModule == model.VchSubModule))
+            {
+                ModelState.AddModelError("VchSubModule", model.VchSubModule + " sub module is already in use.");
+            }
+            if (!ModelState.IsValid)
+            {
+                TempData["ActiveTab"] = "ModuleTab";
+                return PartialView("_ModuleCreatePartial", model);
+            }
+
+            //have eneter from session
+            //model.IntUnitCode = 15;
+            model.VchCreatedBy = User.Identity.Name.ToString();
+            model.DtCreated = DateTime.Now;
+            _context.TblModules.Add(model);
+            _context.SaveChanges();
+            TempData["ModuleSuccess"] = "Module created successfully.";
+            //Control tansfer to current tab
+            TempData["ActiveTab"] = "ModuleTab";
+            return Json(new { success = true });
+        }
+
+        public IActionResult ModuleEdit(int id, int code)
+        {
+            var Module = _context.TblModules.Find(id);
+            return PartialView("_ModuleCreatePartial", Module);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ModuleEdit(TblModules model)
+        {
+            if (_context.TblModules.Any(d => d.VchSubModule == model.VchSubModule && d.IntId != model.IntId))
+            {
+                ModelState.AddModelError("VchSubModule", "Sub module name is already in use.");
+            }
+            if (!ModelState.IsValid)
+            {
+                TempData["ActiveTab"] = "ModuleTab";
+                return PartialView("_ModuleCreatePartial", model);
+            }
+            var dbModel = _context.TblModules.FirstOrDefault(x => x.IntId == model.IntId);
+            if (dbModel == null)
+                return NotFound();
+            dbModel.VchMasterModule = model.VchMasterModule;
+            dbModel.VchModule= model.VchModule;
+            dbModel.VchSubModule = model.VchSubModule;
+            _context.Update(dbModel);
+            _context.SaveChanges();
+            TempData["ActiveTab"] = "ModuleTab";
+            TempData["ModuleSuccess"] = "Module updated successfully.";
+            return Json(new { success = true });
+        }
+        public IActionResult ModuleDelete(int id)
+        {
+            var getModule = _context.TblModules.Find(id);
+            if (getModule != null)
+            {
+                _context.TblModules.Remove(getModule);
+                _context.SaveChanges();
+                TempData["ActiveTab"] = "ModuleTab";
+                TempData["ModuleSuccess"] = "Module deleted successfully.";
+                return RedirectToAction("Masters");
+            }
+            return RedirectToAction("Masters");
+        }
+        public IActionResult ModuleDeactivate(int id)
+        {
+            var getModule= _context.TblModules.Find(id);
+            if (getModule != null)
+            {
+                getModule.BitDeactivated = true;
+                _context.SaveChanges();
+                TempData["ActiveTab"] = "ModuleTab";
+                TempData["ModuleSuccess"] = "Module Deactivated successfully.";
+                return RedirectToAction("Masters");
+            }
+            return RedirectToAction("Masters");
+        }
+        public IActionResult ModuleActivate(int id)
+        {
+            var getModule = _context.TblModules.Find(id);
+            if (getModule != null)
+            {
+                getModule.BitDeactivated = false;
+                _context.SaveChanges();
+                TempData["ActiveTab"] = "ModuleTab";
+                TempData["ModuleSuccess"] = "Module Activated successfully.";
+                return RedirectToAction("Masters");
+            }
+            return RedirectToAction("Masters");
+        }
+        #endregion
+
         #region Role Master
         public IActionResult _RoleMaster()
         {
@@ -526,83 +645,37 @@ namespace DWB.Controllers
         }
         #endregion
 
-        #region Permission Master Tab (Mapping with Role)
+        #region Permission Master Tab (Mapping Role with modules and assign Permission)
         // Load Partial View
-        public IActionResult LoadRolePermission(int? roleId)
+        public IActionResult LoadRolePermission(int? roleId=0)
         {
             var model = new RolePermissionViewModel
             {
-               RoleId=roleId??0
-            };
-
-            ViewBag.RoleList = _context.TblRoleMas.Where(r => r.BitIsActive)
+                RoleId = Convert.ToInt32(roleId),
+                Roles = _context.TblRoleMas
                 .Select(r => new SelectListItem
                 {
                     Value = r.IntId.ToString(),
                     Text = r.VchRole
-                }).ToList();
+                }).ToList(),
 
-            if (roleId.HasValue)
-            {
-                var existingPermissions = _context.TblPermissionMas
-                    .Where(p => p.FkRoleId == roleId)
-                    .ToList();
-
-                // Load default permissions to assign
-                var defaultModules = new List<(string Module, string SubModule)>
-                 {
-                ("Master", "Diet"),
-                ("Master", "Floor"),
-                ("Master", "Room"),
-                ("Master", "Role"),
-                ("Master", "Permissions"),
-                ("User", "User Master"),
-                ("User", "User Test"),
-                ("Nursing", "Assessment"),
-                ("Doctor", "Assessment")
-                //Add more as per your modules
-            };
-                var permissions = new List<PermissionItem>();
-                foreach (var (module, subModule) in defaultModules)
+                Permissions = _context.TblModules
+                .Where(m => m.BitDeactivated == false)
+                .Select(m => new RoleModulePermissionItem
                 {
-                    var match = existingPermissions
-                        .FirstOrDefault(p => p.VchModule == module && p.VchSubModule == subModule);
-                    
-                    if (match != null)
-                    {
-                        // Existing permission: pre-fill data
-                        permissions.Add(new PermissionItem
-                        {
-                            PermissionId = match.IntPermissionId,
-                            Module = match.VchModule,
-                            SubModule = match.VchSubModule,
-                            BitView = match.BitView,
-                            BitAdd = match.BitAdd,
-                            BitEdit = match.BitEdit,
-                            BitDelete = match.BitDelete,
-                            BitStatus = match.BitStatus
-                        });
-                    }
-                    else
-                    {
-                        // New unassigned permission: blank checkboxes
-                        permissions.Add(new PermissionItem
-                        {
-                            
-                            PermissionId = 0,
-                            Module = module,
-                            SubModule = subModule,
-                            BitView = false,
-                            BitAdd = false,
-                            BitEdit = false,
-                            BitDelete = false,
-                            BitStatus = false
-                        });
-                    }
-                }                
-                model.Permissions = permissions;
-            }
-            
+                    ModuleId = m.IntId,
+                    MasterModule = m.VchMasterModule,
+                    Module = m.VchModule,
+                    SubModule = m.VchSubModule,
+
+                    CanView = _context.TblRoleModuleMap.Any(p => p.FkRoleId == roleId && p.FkModuleId == m.IntId && p.BitView),
+                    CanAdd = _context.TblRoleModuleMap.Any(p => p.FkRoleId == roleId && p.FkModuleId == m.IntId && p.BitAdd),
+                    CanEdit = _context.TblRoleModuleMap.Any(p => p.FkRoleId == roleId && p.FkModuleId == m.IntId && p.BitEdit),
+                    CanDelete = _context.TblRoleModuleMap.Any(p => p.FkRoleId == roleId && p.FkModuleId == m.IntId && p.BitDelete),
+                    Status = _context.TblRoleModuleMap.Any(p => p.FkRoleId == roleId && p.FkModuleId == m.IntId && p.BitStatus)
+                }).ToList()
+            };
+
             //TempData["ActiveTab"] = "PermTab";
             return PartialView("_RolePermissionPartial", model);
         }
@@ -610,39 +683,38 @@ namespace DWB.Controllers
         [HttpPost]
         public IActionResult SaveRolePermissions(RolePermissionViewModel model)
         {
-            // Step 1: Remove old permissions for the selected role
-            var oldPermissions = _context.TblPermissionMas
-                .Where(p => p.FkRoleId == model.RoleId)
-                .ToList();
+            //Remove Existing
+            var existing = _context.TblRoleModuleMap.Where(p => p.FkRoleId == model.RoleId);
+            _context.TblRoleModuleMap.RemoveRange(existing);
+            _context.SaveChanges();
 
-            if (oldPermissions.Any())
-            {
-                _context.TblPermissionMas.RemoveRange(oldPermissions);
-            }
 
-            // Step 2: Add new permissions from the submitted model
+            // Add new
             foreach (var item in model.Permissions)
             {
-                var newPermission = new TblPermissionMas
+                if (item.CanAdd || item.CanView || item.CanEdit || item.CanDelete)
                 {
-                    FkRoleId = model.RoleId,
-                    VchModule = item.Module,
-                    VchSubModule = item.SubModule,
-                    BitView = item.BitView,
-                    BitAdd = item.BitAdd,
-                    BitEdit = item.BitEdit,
-                    BitDelete = item.BitDelete,
-                    BitStatus = item.BitStatus,
-                    DtCreated = DateTime.Now,
-                    VchCreatedBy = User.Identity?.Name ?? "System", // Optional
-                    VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                    BitIsDeactivated = false
-                };
+                    var perm = new TblRoleModuleMap
+                    {
+                        FkRoleId = model.RoleId,
+                        FkModuleId = item.ModuleId,
+                        BitAdd = item.CanAdd,
+                        BitView = item.CanView,
+                        BitEdit = item.CanEdit,
+                        BitDelete = item.CanDelete,
+                        BitStatus=item.Status,
+                        DtCreated = DateTime.Now,
+                        VchCreatedBy = User.Identity?.Name ?? "System",
+                        VchIpUsed= HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                        BitIsDeactivated = false
 
-                _context.TblPermissionMas.Add(newPermission);
+                    };
+
+                    _context.TblRoleModuleMap.Add(perm);
+                }
             }
             _context.SaveChanges();
-            TempData["PermSuccess"] = "Permissions saved successfully!";
+            TempData["PermSuccess"] = "Mapping saved successfully!";
             TempData["ActiveTab"] = "PermTab";
             return RedirectToAction("Masters"); // Or return a success response for AJAX
         }

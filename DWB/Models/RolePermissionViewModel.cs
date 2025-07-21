@@ -5,11 +5,11 @@ namespace DWB.Models
     public class RolePermissionViewModel
     {
         public int RoleId { get; set; }
-
         public string? RoleName { get; set; }
+        public int ModuleId { get; set; }
 
         public List<SelectListItem> Roles { get; set; } = new List<SelectListItem>();
 
-        public List<PermissionItem> Permissions { get; set; } = new List<PermissionItem>();
+        public List<RoleModulePermissionItem> Permissions { get; set; } = new List<RoleModulePermissionItem>();
     }
 }

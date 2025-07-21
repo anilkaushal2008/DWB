@@ -7,5 +7,6 @@ namespace DWB.Models
         public IEnumerable<TblFloorMaster> Floors { get; set; } = new List<TblFloorMaster>();
         public IEnumerable<TblRoomMaster> Rooms { get; set; } = new List<TblRoomMaster>();
         public IEnumerable<TblRoleMas> RoleMas { get; set; } = new List<TblRoleMas>();
+        public IEnumerable<TblModules> ModuleMas { get; set; } = new List<TblModules>();
     }
 }

@@ -88,12 +88,13 @@ namespace DWB.Controllers
                 var role = _context.TblRoleMas.FirstOrDefault(r => r.IntId == user.FkRoleId);
                 var roleName = role?.VchRole ?? "User";
                 //get all permissions
-                var permissions = _context.TblPermissionMas
+                var permissions = _context.TblRoleModuleMap
                     .Where(p => p.FkRoleId == user.FkRoleId && !p.BitIsDeactivated)
                     .Select(p => new
                     {
-                        p.VchModule,
-                        p.VchSubModule,
+                        p.FkModule.VchMasterModule,
+                        p.FkModule.VchModule,
+                        p.FkModule.VchSubModule,
                         p.BitView,
                         p.BitAdd,
                         p.BitEdit,
@@ -231,7 +232,6 @@ namespace DWB.Controllers
             return View();
         }
 
-       
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

@@ -3,11 +3,14 @@
     ViewData["Title"] = "Nursing Assessment";
 }
 <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
-<main class="main-wrapper">
-    <div class="main-content">
-        <div class="row cols-12">
+<main class="main-wrapper">   
+    <div class="main-content">      
+            <div class="row cols-12">
             <div class="col">
-<h3 class="mb-3">Nursing Assessment - Today's Patients</h3>
+<h4 class="mb-4">Nursing Assessment - Today's Patients</h4>
+<hr />
+<div class="card">
+ <div class="card-body">
   <table id="nursingTable" class="table table-responsive table-striped table-bordered" style="width:100%;font-size:90%">
     <thead class="bg-primary" style="font-weight:bolder">
         <tr>
@@ -19,7 +22,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var p in Model)
+    @foreach (var p in Model)
         {
             <tr>
                 <td>@p.opdno</td>
@@ -28,10 +31,11 @@
                 <td>@p.descript</td>
                 <td><a class="btn btn-primary btn-sm" href="@Url.Action("","",new{uhid=p.opdno})">Fill</a></td>
             </tr>          
-        }
-                       
+        }                       
     </tbody>
 </table>
+</div>
+</div>
 </div>
 </div>
 </div>

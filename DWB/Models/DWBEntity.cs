@@ -19,11 +19,13 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblFloorMaster> TblFloorMaster { get; set; }
 
+    public virtual DbSet<TblModules> TblModules { get; set; }
+
     public virtual DbSet<TblNsassessment> TblNsassessment { get; set; }
 
-    public virtual DbSet<TblPermissionMas> TblPermissionMas { get; set; }
-
     public virtual DbSet<TblRoleMas> TblRoleMas { get; set; }
+
+    public virtual DbSet<TblRoleModuleMap> TblRoleModuleMap { get; set; }
 
     public virtual DbSet<TblRoomMaster> TblRoomMaster { get; set; }
 
@@ -255,6 +257,46 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchUpdatedBy");
         });
 
+        modelBuilder.Entity<TblModules>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblModules");
+
+            entity.Property(e => e.IntId).HasColumnName("intId");
+            entity.Property(e => e.BitDeactivated).HasColumnName("bitDeactivated");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchMasterModule)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchMasterModule");
+            entity.Property(e => e.VchModule)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchModule");
+            entity.Property(e => e.VchSubModule)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchSubModule");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+        });
+
         modelBuilder.Entity<TblNsassessment>(entity =>
         {
             entity.HasKey(e => e.IntAssessmentId);
@@ -331,62 +373,6 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchUpdatedBy");
         });
 
-        modelBuilder.Entity<TblPermissionMas>(entity =>
-        {
-            entity.HasKey(e => e.IntPermissionId);
-
-            entity.ToTable("tblPermissionMas");
-
-            entity.Property(e => e.IntPermissionId).HasColumnName("intPermissionId");
-            entity.Property(e => e.BitAdd).HasColumnName("bitAdd");
-            entity.Property(e => e.BitDelete).HasColumnName("bitDelete");
-            entity.Property(e => e.BitEdit).HasColumnName("bitEdit");
-            entity.Property(e => e.BitIsDeactivated).HasColumnName("bitIsDeactivated");
-            entity.Property(e => e.BitStatus).HasColumnName("bitStatus");
-            entity.Property(e => e.BitView).HasColumnName("bitView");
-            entity.Property(e => e.DtCreated)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime")
-                .HasColumnName("dtCreated");
-            entity.Property(e => e.DtUpdated)
-                .HasColumnType("datetime")
-                .HasColumnName("dtUpdated");
-            entity.Property(e => e.FkRoleId).HasColumnName("fkRoleId");
-            entity.Property(e => e.VchCreatedBy)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("vchCreatedBy");
-            entity.Property(e => e.VchIpUpdated)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("vchIpUpdated");
-            entity.Property(e => e.VchIpUsed)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("vchIpUsed");
-            entity.Property(e => e.VchModule)
-                .IsRequired()
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("vchModule");
-            entity.Property(e => e.VchSubModule)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("vchSubModule");
-            entity.Property(e => e.VchUpdatedBy)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("vchUpdatedBy");
-
-            entity.HasOne(d => d.FkRole).WithMany(p => p.TblPermissionMas)
-                .HasForeignKey(d => d.FkRoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_tblPermissionMas_tblRoleMas");
-        });
-
         modelBuilder.Entity<TblRoleMas>(entity =>
         {
             entity.HasKey(e => e.IntId);
@@ -418,6 +404,58 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.VchUpdatedBy)
                 .HasMaxLength(50)
                 .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblRoleModuleMap>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblRoleModuleMap");
+
+            entity.Property(e => e.IntId).HasColumnName("intId");
+            entity.Property(e => e.BitAdd).HasColumnName("bitAdd");
+            entity.Property(e => e.BitDelete).HasColumnName("bitDelete");
+            entity.Property(e => e.BitEdit).HasColumnName("bitEdit");
+            entity.Property(e => e.BitIsDeactivated).HasColumnName("bitIsDeactivated");
+            entity.Property(e => e.BitStatus).HasColumnName("bitStatus");
+            entity.Property(e => e.BitView).HasColumnName("bitView");
+            entity.Property(e => e.DtCreated)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkModuleId).HasColumnName("fk_ModuleId");
+            entity.Property(e => e.FkRoleId).HasColumnName("fk_RoleId");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchIpUpdated)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchIpUpdated");
+            entity.Property(e => e.VchIpUsed)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchIpUsed");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+
+            entity.HasOne(d => d.FkModule).WithMany(p => p.TblRoleModuleMap)
+                .HasForeignKey(d => d.FkModuleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblRoleModuleMap_tblModules");
+
+            entity.HasOne(d => d.FkRole).WithMany(p => p.TblRoleModuleMap)
+                .HasForeignKey(d => d.FkRoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblRoleModuleMap_tblRoleMas");
         });
 
         modelBuilder.Entity<TblRoomMaster>(entity =>

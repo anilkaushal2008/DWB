@@ -27,15 +27,19 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[tblModules]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblNSAssessment]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tblPermissionMas]",
+         "Name": "[dbo].[tblRoleMas]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tblRoleMas]",
+         "Name": "[dbo].[tblRoleModuleMap]",
          "ObjectType": 0
       },
       {

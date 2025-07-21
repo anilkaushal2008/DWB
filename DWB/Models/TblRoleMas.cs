@@ -25,7 +25,7 @@ public partial class TblRoleMas
 
     public bool BitIsActive { get; set; }
 
-    public virtual ICollection<TblPermissionMas> TblPermissionMas { get; set; } = new List<TblPermissionMas>();
+    public virtual ICollection<TblRoleModuleMap> TblRoleModuleMap { get; set; } = new List<TblRoleModuleMap>();
 
     public virtual ICollection<TblUsers> TblUsers { get; set; } = new List<TblUsers>();
 }

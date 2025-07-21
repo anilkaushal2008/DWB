@@ -1,7 +1,14 @@
 ﻿@model List<DWB.Models.TblFloorMaster>
-
+@{
+    @* check add edit permission *@
+    var hasAddNewFloor = User.HasClaim("Permission", "All Masters:Floor Master:Add:True");
+    var hasEditFloor = User.HasClaim("Permission", "All Masters:Floor Master:Edit:True");
+    var hasDeleteFloor = User.HasClaim("Permission", "All Masters:Floor Master:Delete:True");
+    var hasStatusFloor = User.HasClaim("Permission", "All Masters:Floor Master:Status:True");
+}
 @if (Model != null && Model.Any())
 {
+    if(hasAddNewFloor){
     <div align="right">
         <a href="btnCreateDiet" class="btn btn-primary px-4 open-modal"
            data-url="@Url.Action("FloorCreate", "Master")"
@@ -10,6 +17,7 @@
             <i class="bi bi-plus-lg me-2"></i>Floor Master
         </a>
     </div>
+    }
     <table id="FloorTable" class="table table-striped table-responsive table-sm">
         @if (TempData["FloorSuccess"] != null)
         {
@@ -42,30 +50,38 @@
                     <td>@(i + 1)</td>
                     <td>@Model[i].VchFloor</td>                   
                     <td>
+                        @if(hasEditFloor){
                         <a href="#" class="btn btn-sm btn-primary me-1 open-modal"
                            data-bs-toggle="modal"
                            data-bs-target="#editModal"
                            data-url="@Url.Action("FloorEdit", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
                             Edit
                         </a>
-                        <a class="btn btn-sm btn-danger me-1"
-                           href="@Url.Action("FloorDelete", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })"
-                           onclick="return confirm('Are you sure you want to delete this record?');">
-                            Delete
-                        </a>
-                        @if (Model[i].BitIsDeactivated == false)
+                        }
+                        @if (hasDeleteFloor)
                         {
-                            <a class="btn btn-sm btn-warning me-1"
-                               href="@Url.Action("FloorDeactivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
-                                Deactivate?
+                            <a class="btn btn-sm btn-danger me-1"
+                            href="@Url.Action("FloorDelete", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })"
+                            onclick="return confirm('Are you sure you want to delete this record?');">
+                                Delete
                             </a>
                         }
-                        else
+                        @if (hasStatusFloor)
                         {
-                            <a class="btn btn-sm btn-inverse-warning me-1"
-                               href="@Url.Action("FloorActivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
-                                Activate?
-                            </a>
+                            @if (Model[i].BitIsDeactivated == false)
+                            {
+                                <a class="btn btn-sm btn-warning me-1"
+                                href="@Url.Action("FloorDeactivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                    Deactivate?
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-inverse-warning me-1"
+                                href="@Url.Action("FloorActivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                    Activate?
+                                </a>
+                            }
                         }
                     </td>
                 </tr>

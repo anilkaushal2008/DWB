@@ -87,7 +87,7 @@ namespace DWB.Components
     public class CompanyDto
     {
         public int CompId { get; set; }
-        public string CompName { get; set; }
+        public string CompName { get; set; } = string.Empty;
 
         public bool IsSelected { get; set; }
     }

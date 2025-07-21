@@ -1,4 +1,12 @@
 ﻿@model List<DWB.Models.TblRoomMaster>
+@{
+    @* check add edit permission *@
+    var hasAddNewRoom = User.HasClaim("Permission", "All Masters:Room Master:Add:True");
+    var hasEditRoom = User.HasClaim("Permission", "All Masters:Room Master:Edit:True");
+    var hasDeleteRoom = User.HasClaim("Permission", "All Masters:Room Master:Delete:True");
+    var hasStatusRoom = User.HasClaim("Permission", "All Masters:Room Master:Status:True");
+}
+@if(hasAddNewRoom){
  <div align="right">
     <a href="btnCreateDiet" class="btn btn-primary px-4 open-modal"
            data-url="@Url.Action("RoomCreate", "Master")"
@@ -7,6 +15,7 @@
             <i class="bi bi-plus-lg me-2"></i>Room Master
         </a>
     </div>
+}
  <table id="RoomTable" class="table table-striped table-responsive table-sm">
         @if (TempData["RoomSuccess"] != null)
         {
@@ -43,30 +52,38 @@
                     <td>@Model[i].TblFloorMaster.VchFloor</td>
                     <td>@Model[i].IntRoomNo</td>
                     <td>
+                        @if(hasEditRoom){
                         <a href="#" class="btn btn-sm btn-primary me-1 open-modal"
                            data-bs-toggle="modal"
                            data-bs-target="#editModal"
                            data-url="@Url.Action("RoomEdit", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
                             Update
                         </a>
-                        <a class="btn btn-sm btn-danger me-1"
-                           href="@Url.Action("RoomDelete", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })"
-                           onclick="return confirm('Are you sure you want to delete this record?');">
-                            Delete
-                        </a>
-                        @if (Model[i].BitIsDeactivated == false)
+                        }
+                        @if (hasDeleteRoom)
                         {
-                            <a class="btn btn-sm btn-warning me-1"
-                               href="@Url.Action("RoomDeactivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
-                                Deactivate?
+                            <a class="btn btn-sm btn-danger me-1"
+                            href="@Url.Action("RoomDelete", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })"
+                            onclick="return confirm('Are you sure you want to delete this record?');">
+                                Delete
                             </a>
                         }
-                        else
+                        @if (hasStatusRoom)
                         {
-                            <a class="btn btn-sm btn-inverse-warning me-1"
-                               href="@Url.Action("RoomActivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
-                                Activate?
-                            </a>
+                            @if (Model[i].BitIsDeactivated == false)
+                            {
+                                <a class="btn btn-sm btn-warning me-1"
+                                href="@Url.Action("RoomDeactivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                    Deactivate?
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-inverse-warning me-1"
+                                href="@Url.Action("RoomActivate", "Master", new { id = Model[i].IntId, code = Model[i].IntUnitCode })">
+                                    Activate?
+                                </a>
+                            }
                         }
                     </td>
                 </tr>

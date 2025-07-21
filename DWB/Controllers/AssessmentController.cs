@@ -14,8 +14,7 @@ namespace DWB.Controllers
         {
             _configuration = configuration;
         }
-
-        //GET: AssessmentController
+        //GET:AssessmentController
         public async Task<IActionResult> NursingAssessment()
         {
             List<SP_OPD> patients = new List<SP_OPD>();
@@ -42,7 +41,7 @@ namespace DWB.Controllers
             return View(patients);
         }
 
-        // Other methods remain unchanged...
+        //Other methods remain unchanged...
 
     }
 }

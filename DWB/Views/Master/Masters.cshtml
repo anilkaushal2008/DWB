@@ -2,68 +2,108 @@
 @model DWB.Models.MasterTabView
 <link href="~/assets/plugins/datatable/css/datatables.bootstrap5.min.css" rel="stylesheet" />
 <main class="main-wrapper">
-  <div class="main-content">
-	<div class="row cols-12">
+	<div class="main-content">
+		<div class="row cols-12">
 			<div class="col">
-				<h6 class="mb-0 text-uppercase">ALL MASTERS PANNEL</h6>
+				<h4 class="mb-4">All Masters Pannel</h4>				
 				<hr>
 				<div class="card">
 					<div class="card-body">
+						@*Check all master view permission*@
+						@{
+							var canViewDiet = User.HasClaim("Permission", "All Masters:Diet Master:View:True");
+							var canViewFloor = User.HasClaim("Permission", "All Masters:Floor Master:View:True");
+							var canViewRoom = User.HasClaim("Permission", "All Masters:Room Master:View:True");
+							var canViewModule = User.HasClaim("Permission", "All Masters:Module Master:View:True");
+							var canViewRole = User.HasClaim("Permission", "All Masters:Role Master:View:True");
+							var canViewPermission = User.HasClaim("Permission", "All Masters:Permission Master:View:True");						
+
+						}
+
 						<ul class="nav nav-pills mb-3" role="tablist">
-							<li class="nav-item" role="presentation">
-								<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "DietTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-diet" role="tab" aria-selected="true">
-									<div class="d-flex align-items-center">
-										<div class="tab-icon">
-											@* <i class="bi bi-house-door me-1 fs-6"></i> *@
+							@if (canViewDiet)
+							{
+								<li class="nav-item" role="presentation">
+									<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "DietTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-diet" role="tab" aria-selected="true">
+										<div class="d-flex align-items-center">
+											<div class="tab-icon">
+												@* <i class="bi bi-house-door me-1 fs-6"></i> *@
+											</div>
+											<div class="tab-title">Diet Master</div>
 										</div>
-										<div class="tab-title">Diet Master</div>
-									</div>
-								</a>
-							</li>
-							<li class="nav-item" role="presentation">
-								<a class="nav-link  @(TempData["ActiveTab"]?.ToString() == "FloorTab" ? "active" : "")" data-bs-toggle="pill"
-								   href="#primary-pills-floor" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "FloorTab" ? "true" : "false")">
-									<div class="d-flex align-items-center">
-										<div class="tab-icon">
-											@* <i class="bi bi-person me-1 fs-6"></i> *@
+									</a>
+								</li>
+							}
+							@if (canViewFloor)
+							{
+								<li class="nav-item" role="presentation">
+									<a class="nav-link  @(TempData["ActiveTab"]?.ToString() == "FloorTab" ? "active" : "")" data-bs-toggle="pill"
+									href="#primary-pills-floor" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "FloorTab" ? "true" : "false")">
+										<div class="d-flex align-items-center">
+											<div class="tab-icon">
+												@* <i class="bi bi-person me-1 fs-6"></i> *@
+											</div>
+											<div class="tab-title">Floor Master</div>
 										</div>
-										<div class="tab-title">Floor Master</div>
-									</div>
-								</a>
-							</li>
-							<li class="nav-item" role="presentation">
-								<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-room"
-								   role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "true" : "false")">
-									<div class="d-flex align-items-center">
-										<div class="tab-icon">
-											@* <i class='bi bi-headset me-1 fs-6'></i> *@
+									</a>
+								</li>
+							}
+							@if (canViewRoom)
+							{
+								<li class="nav-item" role="presentation">
+									<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-room"
+									role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "true" : "false")">
+										<div class="d-flex align-items-center">
+											<div class="tab-icon">
+												@* <i class='bi bi-headset me-1 fs-6'></i> *@
+											</div>
+											<div class="tab-title">Room Master</div>
 										</div>
-										<div class="tab-title">Room Master</div>
-									</div>
-								</a>
-							</li>
-							<li class="nav-item" role="presentation">
-								<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-role"
-								   role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "true" : "false")">
-									<div class="d-flex align-items-center">
-										<div class="tab-icon">
-											@* <i class='bi bi-headset me-1 fs-6'></i> *@
+									</a>
+								</li>
+							}
+							@if (canViewModule)
+							{
+								<li class="nav-item" role="presentation">
+									<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "ModuleTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-module"
+									role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "ModuleTab" ? "true" : "false")">
+										<div class="d-flex align-items-center">
+											<div class="tab-icon">
+												@* <i class='bi bi-headset me-1 fs-6'></i> *@
+											</div>
+											<div class="tab-title">Module Master</div>
 										</div>
-										<div class="tab-title">Role Master</div>
-									</div>
-								</a>
-							</li>
-							<li class="nav-item" role="presentation">
-								<a class="nav-link  @(TempData["ActiveTab"]?.ToString() == "PermTab" ? "active" : "")" data-bs-toggle="pill"
-								   href="#primary-pills-PermTab" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "PermTab" ? "true" : "false")">
-									<div class="d-flex align-items-center">
-										<div class="tab-icon">
-											<i class="bi bi-"></i>
+									</a>
+								</li>
+							}
+							@if (canViewRole)
+							{
+								<li class="nav-item" role="presentation">
+									<a class="nav-link @(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "active" : "")" data-bs-toggle="pill" href="#primary-pills-role"
+									role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "true" : "false")">
+										<div class="d-flex align-items-center">
+											<div class="tab-icon">
+												@* <i class='bi bi-headset me-1 fs-6'></i> *@
+											</div>
+											<div class="tab-title">Role Master</div>
 										</div>
-										<div class="tab-title">Permission Master</div>
-									</div>
-								</a>
-							</li>
+									</a>
+								</li>
+							}
+							@if (canViewPermission)
+							{
+								<li class="nav-item" role="presentation">
+									<a class="nav-link  @(TempData["ActiveTab"]?.ToString() == "PermTab" ? "active" : "")" data-bs-toggle="pill"
+									href="#primary-pills-PermTab" role="tab" aria-selected="@(TempData["ActiveTab"]?.ToString() == "PermTab" ? "true" : "false")">
+										<div class="d-flex align-items-center">
+											<div class="tab-icon">
+												<i class="bi bi-"></i>
+											</div>
+											<div class="tab-title">Permission Master</div>
+										</div>
+									</a>
+								</li>
+							}
 							<li class="nav-item" role="presentation">
 								<a class="nav-link" data-bs-toggle="pill" href="#primary-pills-staff" role="tab" aria-selected="false">
 									<div class="d-flex align-items-center">
@@ -84,6 +124,9 @@
 							</div>
 							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "RoomTab" ? "active" : "")" id="primary-pills-room" role="tabpanel">
 								@await Html.PartialAsync("_RoomMasters", Model.Rooms)
+							</div>
+							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "ModuleTab" ? "active" : "")" id="primary-pills-module" role="tabpanel">
+								@await Html.PartialAsync("_ModuleMasters", Model.ModuleMas)
 							</div>
 							<div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "RoleTab" ? "active" : "")" id="primary-pills-role" role="tabpanel">
 								@await Html.PartialAsync("_RoleMaster", Model.RoleMas)
@@ -108,19 +151,22 @@
 	</div>
 </div>
 @section Scripts {
+	@* <script src="~/assets/js/dashboard1.js"></script>	
+    <script src="~/assets/js/dashboard2.js"></script>
+     *@<!--bootstrap js-->
+	 <script src="~/assets/js/bootstrap.bundle.min.js"></script> 
 	<!--start switcher-->
-	<script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
-	<script src="~/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
-	<!--bootstrap js-->
-	<script src="~/assets/js/bootstrap.bundle.min.js"></script>
+	@* <script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script> *@
+	@* <script src="~/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script> *@
+	
 
 	<!--plugins-->
-	<script src="~/assets/js/jquery.min.js"></script>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
-	<script>	  
+	@* <script src="~/assets/js/jquery.min.js"></script> *@
+    @* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	*@<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>	
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+ 	<script type="text/javascript">	  
 		//btn btnCreateDiet name for all same name to create new button action
 		$(document).on("click", "#btnCreateDiet, .open-modal", function (e) {
 				e.preventDefault();
@@ -196,7 +242,7 @@
 							location.reload(); // reload table
 						} else {
 							$("#modal-content-placeholder").html(result);
-							$.validator.unobtrusive.parse("#dietForm");
+							$.validator.unobtrusive.parse("#roomForm");
 						}
 					}
 				});
@@ -218,14 +264,37 @@
 							location.reload(); // reload table
 						} else {
 							$("#modal-content-placeholder").html(result);
-							$.validator.unobtrusive.parse("#dietForm");
+							$.validator.unobtrusive.parse("#roleForm");
 						}
 					}
 				});
 			});
+			//on submit module master
+			$(document).on("submit", "#moduleForm", function (e) {
+				e.preventDefault();
+				var form = $(this);
+
+				if (!form.valid()) return;
+
+				$.ajax({
+					url: form.attr("action"),
+					method: "POST",
+					data: form.serialize(),
+					success: function (result) {
+						if (result.success) {
+							$("#editModal").modal("hide");
+							location.reload(); // reload table
+						} else {
+							$("#modal-content-placeholder").html(result);
+							$.validator.unobtrusive.parse("#moduleForm");
+						}
+					}
+				});
+			});
+			
 
 		//Get Permissions
-			function loadPermissions(roleId) {
+	    function loadPermissions(roleId) {
 			$.get('/Master/LoadRolePermission', { roleId: roleId }, function (html) {
 				$('#permissionContainer').html(html);
 			});
@@ -250,6 +319,17 @@
 				}
 			});
 		});
+
+		//Role module mapping jquery
+	    //All row wise check all option
+		// document.querySelectorAll('.check-row-all').forEach(function (rowCheckBox) {
+		// 	rowCheckBox.addEventListener('change', function () {
+		// 		const rowIndex = this.getAttribute('data-row');
+		// 		const rowCheckboxes = document.querySelectorAll(`.rowCheck-${rowIndex}`);
+		// 		rowCheckboxes.forEach(cb => cb.checked = this.checked);
+		// 	});
+		// });
+
 	</script>
 	
 }

@@ -1,5 +1,11 @@
 ﻿@model RolePermissionViewModel
-
+@{
+    @* check add edit permission *@
+    var hasAddNewPer = User.HasClaim("Permission", "All Masters:Permission Master:Add:True");
+    var hasEditPer = User.HasClaim("Permission", "All Masters:Permission Master:Edit:True");
+    var hasDeletePer = User.HasClaim("Permission", "All Masters:Permission Master:Delete:True");
+    var hasStatusPer = User.HasClaim("Permission", "All Masters:Permission Master:Status:True");
+}
 @if (TempData["PermSuccess"] != null)
 {
     <br />
@@ -26,5 +32,8 @@
 
     </div> 
     <br />
-   <button type="submit" class="btn btn-primary">Save Permissions</button>
-</form>
+    @if (hasEditPer)
+    {
+        <button type="submit" class="btn btn-primary">Save Permissions</button>
+    }
+    </form>

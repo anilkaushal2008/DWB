@@ -1,9 +1,10 @@
 ﻿@model RolePermissionViewModel
 @if (Model.Permissions.Any())
 {
-    <table class="table table-bordered">
-        <thead>
+    <table class="table table-bordered" style="width:100%;font-size:90%">
+        <thead class="bg-primary">
             <tr>
+                <th>Master Module</th>
                 <th>Module</th>
                 <th>Sub Module</th>
                 <th>View</th>
@@ -11,21 +12,29 @@
                 <th>Edit</th>
                 <th>Delete</th>
                 <th>Status</th>
+                <th>All</th>
             </tr>
         </thead>
         <tbody>
+           <div align="center" class="">
+                <label for="checkAllMaster">Check/Uncheck All</label>
+             <input type="checkbox" id="checkAllMaster" class="form-check form-check-input" />
+           </div>
             @for (int i = 0; i < Model.Permissions.Count; i++)
             {
                 <tr>
-                    @Html.HiddenFor(m => m.Permissions[i].fkIntRoleId)
-                    @Html.HiddenFor(m => m.Permissions[i].PermissionId)
+                    @Html.HiddenFor(m => m.Permissions[i].ModuleId)
+                    <td>@Html.TextBoxFor(m => m.Permissions[i].MasterModule, new { @class = "form-control", @readonly = "readonly" })</td>
                     <td>@Html.TextBoxFor(m => m.Permissions[i].Module, new { @class = "form-control",@readonly="readonly" })</td>
                     <td>@Html.TextBoxFor(m => m.Permissions[i].SubModule, new { @class = "form-control", @readonly = "readonly" })</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitView, new { @class = "form-check form-check-input" })</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitAdd, new { @class = "form-check form-check-input" })</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitEdit, new { @class = "form-check form-check-input" })</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitDelete, new { @class = "form-check form-check-input" })</td>
-                    <td>@Html.CheckBoxFor(m => m.Permissions[i].BitStatus, new { @class = "form-check form-check-input" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].CanView, new { @class = $"form-check form-check-input rowCheck-{i}" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].CanAdd, new { @class = $"form-check form-check-input rowCheck-{i}" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].CanEdit, new { @class = $"form-check form-check-input rowCheck-{i}" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].CanDelete, new { @class = $"form-check form-check-input rowCheck-{i}" })</td>
+                    <td>@Html.CheckBoxFor(m => m.Permissions[i].Status, new { @class = $"form-check form-check-input rowCheck-{i}" })</td>
+                    <td>
+                        <input type="checkbox" class="form-check form-check-input check-row-all" data-row="@i" />
+                    </td>
                 </tr>
             }
         </tbody>
@@ -35,3 +44,17 @@ else
 {
     <div class="alert alert-info">No permissions assigned. Please add new permissions.</div>
 }
+<script>
+     document.getElementById("checkAllMaster").addEventListener("change", function () {
+        const allCheckboxes = document.querySelectorAll("input.form-check-input:not(#checkAllMaster)");
+        allCheckboxes.forEach(cb => cb.checked = this.checked);
+    });
+    // Handle each row's "check all" toggle
+    document.querySelectorAll('.check-row-all').forEach(function (rowCheckBox) {
+        rowCheckBox.addEventListener('change', function () {
+            const rowIndex = this.getAttribute('data-row');
+            const rowCheckboxes = document.querySelectorAll(`.rowCheck-${rowIndex}`);
+            rowCheckboxes.forEach(cb => cb.checked = this.checked);
+        });
+    });
+</script>

@@ -16,14 +16,13 @@ namespace DWB.Controllers
         {
             _context = dWBEntity;
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Nursing")]
         public ActionResult UserMasters()
         {
             if (!TempData.ContainsKey("ActiveTab"))
             {
                 TempData["ActiveTab"] = "UserTab"; // Default first tab
-            }
-            //_AllUsers();
+            }          
             _AllUsers();
             return View();
         }

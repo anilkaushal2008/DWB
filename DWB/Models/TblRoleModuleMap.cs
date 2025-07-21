@@ -5,15 +5,13 @@ using System.Collections.Generic;
 
 namespace DWB.Models;
 
-public partial class TblPermissionMas
+public partial class TblRoleModuleMap
 {
-    public int IntPermissionId { get; set; }
+    public int IntId { get; set; }
 
     public int FkRoleId { get; set; }
 
-    public string VchModule { get; set; }
-
-    public string VchSubModule { get; set; }
+    public int FkModuleId { get; set; }
 
     public bool BitView { get; set; }
 
@@ -38,6 +36,8 @@ public partial class TblPermissionMas
     public string VchIpUpdated { get; set; }
 
     public bool BitIsDeactivated { get; set; }
+
+    public virtual TblModules FkModule { get; set; }
 
     public virtual TblRoleMas FkRole { get; set; }
 }
