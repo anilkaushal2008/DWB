@@ -15,20 +15,35 @@ namespace DWB.Controllers
             _configuration = configuration;
         }
         //GET:AssessmentController
-        public async Task<IActionResult> NursingAssessment()
+        public async Task<IActionResult> NursingAssessment(string dateRange)
         {
             List<SP_OPD> patients = new List<SP_OPD>();
-            //string CategoryUrl = _configuration.GetSection("DBAPI").GetSection("OPDAPI").Value ?? string.Empty;
-            //set today date patient view
-            int code= Convert.ToInt32(User.FindFirst("HMScode")?.Value);
-            string BaseAPI=(User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n","").Replace("\r","").Trim();
-            string today = DateTime.Now.ToString("dd-MM-yyyy");
-            //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=null
-            string fURL = BaseAPI+"opd?&sdate="+today+"&edate="+today+"&code="+code+"&uhidno=null";
+            //Get branch ihms code
+            int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            //Get Deafult OPD API
+            string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
+            string finalURL = string.Empty;
+            if (dateRange != null)
+            {
+                var dates = dateRange.Split(" - ");
+                DateTime Sdate = DateTime.ParseExact(dates[0], "dd/MM/yyyy", null);
+                DateTime Edate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null);
+                string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
+                string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
+                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";                
+            }
+            else
+            {
+                //set today date patient view               
+                string today = DateTime.Now.ToString("dd-MM-yyyy");
+                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=null
+                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=null";
+                
+            }
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(fURL);
-                var response = await client.GetAsync(fURL);
+                client.BaseAddress = new Uri(finalURL);
+                var response = await client.GetAsync(finalURL);
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = await response.Content.ReadAsStringAsync();
