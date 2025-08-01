@@ -187,8 +187,27 @@ namespace DWB.Controllers
             return View(model);
         }
         [Authorize(Roles ="Admin, Nursing, Billing")]
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
+            //Get Opd Count //api format Base+opdCount?code=1
+            string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
+            //get current ihms code
+            int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            var finalURL = BaseAPI + "opdCount?code=" + code;
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(finalURL);
+                var response = await client.GetAsync(finalURL);
+                if (response.IsSuccessStatusCode)
+                {
+                    string result = await response.Content.ReadAsStringAsync();
+                    ViewBag.OPDCount = result;
+                }
+                else
+                {
+                    ViewBag.OPDCount = "Error: " + response.StatusCode;
+                }
+            }
             return View();
         }
 

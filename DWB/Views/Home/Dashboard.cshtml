@@ -37,14 +37,14 @@
         </div>
         <!--end breadcrumb-->
         <div class="row row-cols-1 row-cols-xl-3">
-            @if((User.IsInRole("Admin"))||(User.IsInRole("Consultant"))||(User.IsInRole("Nursing")))
+            @if ((User.IsInRole("Admin")) || (User.IsInRole("Consultant")) || (User.IsInRole("Nursing")))
             {
             <div class="col">
             <div class="card rounded-4">
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <div class="">
-                            <h4 class="mb-0">Count</h4>
+                            <h4 class="mb-0">@ViewBag.OPDCount</h4>
                         </div>                       
                     </div>
                     <p class="mb-0">Today's OPD patients</p>
@@ -53,17 +53,44 @@
                        </div>
                         <div class="mt-4">
                         <p class="mb-2 d-flex align-items-center justify-content-between">
-                            #AssdCount<span class="">#total2day</span>
+                           #AssdCount<span class="">@ViewBag.OPDCount</span>
                         </p>
                         <div class="progress w-100" style="height: 6px;">
                             <div class="progress-bar bg-grd-purple" style="width: 65%"></div>
                         </div>
                     </div>
-
                 </div>
             </div>            
         </div>
         }
+        @* columon for consultant *@
+            @if ((User.IsInRole("Admin")) || (User.IsInRole("Consultant")))
+            {
+                <div class="col">
+                    <div class="card rounded-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="">
+                                    <h4 class="mb-0">@ViewBag.OPDCount</h4>
+                                </div>
+                            </div>
+                            <p class="mb-0">Today's OPD patients</p>
+                            <div class="mt-3">
+                                <a href="@Url.Action("Nursingassessment", "Assessment")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Details</a>
+                            </div>
+                            <div class="mt-4">
+                                <p class="mb-2 d-flex align-items-center justify-content-between">
+                                    #AssdCount<span class="">@ViewBag.OPDCount</span>
+                                </p>
+                                <div class="progress w-100" style="height: 6px;">
+                                    <div class="progress-bar bg-grd-purple" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        @* Consultant end columon *@
             <div class="col">
             <div class="card rounded-4">
                 <div class="card-body">

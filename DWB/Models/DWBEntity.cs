@@ -303,11 +303,23 @@ public partial class DWBEntity : DbContext
 
             entity.ToTable("tblNSAssessment");
 
-            entity.Property(e => e.IntAssessmentId)
-                .ValueGeneratedNever()
-                .HasColumnName("intAssessmentId");
+            entity.Property(e => e.IntAssessmentId).HasColumnName("intAssessmentId");
+            entity.Property(e => e.BitAsthma).HasColumnName("bitAsthma");
+            entity.Property(e => e.BitCholesterol).HasColumnName("bitCholesterol");
+            entity.Property(e => e.BitDiabetes).HasColumnName("bitDiabetes");
+            entity.Property(e => e.BitFallRisk).HasColumnName("bitFallRisk");
+            entity.Property(e => e.BitHeartDisease).HasColumnName("bitHeartDisease");
+            entity.Property(e => e.BitHospitalization).HasColumnName("bitHospitalization");
+            entity.Property(e => e.BitHypertension).HasColumnName("bitHypertension");
+            entity.Property(e => e.BitIsAlcoholic).HasColumnName("bitIsAlcoholic");
+            entity.Property(e => e.BitIsAllergical).HasColumnName("bitIsAllergical");
             entity.Property(e => e.BitIsAssigned).HasColumnName("bitIsAssigned");
             entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
+            entity.Property(e => e.BitIsDoctorCompleted).HasColumnName("bitIsDoctorCompleted");
+            entity.Property(e => e.BitIsSmoking).HasColumnName("bitIsSmoking");
+            entity.Property(e => e.BitSendToDoctor).HasColumnName("bitSendToDoctor");
+            entity.Property(e => e.BitSurgery).HasColumnName("bitSurgery");
+            entity.Property(e => e.BitTuberculosis).HasColumnName("bitTuberculosis");
             entity.Property(e => e.DecHeight)
                 .HasColumnType("decimal(18, 2)")
                 .HasColumnName("decHeight");
@@ -338,6 +350,13 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.DtUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
+            entity.Property(e => e.IntCode).HasColumnName("intCode");
+            entity.Property(e => e.IntIhmsvisit).HasColumnName("intIHMSVisit");
+            entity.Property(e => e.IntYr).HasColumnName("intYR");
+            entity.Property(e => e.VchAllergicalDrugs)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchAllergicalDrugs");
             entity.Property(e => e.VchBloodPressure)
                 .IsRequired()
                 .HasColumnName("vchBloodPressure");
@@ -345,20 +364,74 @@ public partial class DWBEntity : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchFallRiskRemarks)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchFallRiskRemarks");
+            entity.Property(e => e.VchFamilySupport)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchFamilySupport");
+            entity.Property(e => e.VchHmsage)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchHMSAge");
+            entity.Property(e => e.VchHmscategory)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchHMSCategory");
+            entity.Property(e => e.VchHmsconsultant)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchHMSConsultant");
+            entity.Property(e => e.VchHmsdtEntry)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchHMSdtEntry");
+            entity.Property(e => e.VchHmsname)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchHMSName");
+            entity.Property(e => e.VchIhmintime)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchIHMintime");
             entity.Property(e => e.VchIpUpdated)
                 .HasMaxLength(20)
                 .HasColumnName("vchIpUpdated");
             entity.Property(e => e.VchIpUsed)
                 .HasMaxLength(20)
                 .HasColumnName("vchIpUsed");
+            entity.Property(e => e.VchLmpForFemale)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchLMP_ForFemale");
             entity.Property(e => e.VchNurseNotes)
                 .IsRequired()
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("vchNurseNotes");
+            entity.Property(e => e.VchOccupation)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchOccupation");
+            entity.Property(e => e.VchOtherHistory)
+                .IsRequired()
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("vchOtherHistory");
+            entity.Property(e => e.VchPsychologicalStatus)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchPsychologicalStatus");
             entity.Property(e => e.VchPulse)
                 .IsRequired()
                 .HasDefaultValueSql("((0))")
                 .HasColumnName("vchPulse");
+            entity.Property(e => e.VchSocialEconomicStatus)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchSocialEconomicStatus");
             entity.Property(e => e.VchTat)
                 .HasComputedColumnSql("(CONVERT([time],[dtEndTime]-[dtStartTime]))", false)
                 .HasColumnName("vchTAT");
