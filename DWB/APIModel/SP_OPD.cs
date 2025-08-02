@@ -17,7 +17,9 @@ namespace DWB.APIModel
         public int visit { get; set; }
         public string Pcategory { get; set; } = string.Empty;
         public int CompCode { get; set; }
-        public DateTime dtEntry { get; set; }       
+        public DateTime dtEntry { get; set; }
+        public Boolean bitTempNSAssComplete { get; set; } = false;
+        public Boolean bitTempDOcAssComplete { get; set; } = false;
 
     }
 }

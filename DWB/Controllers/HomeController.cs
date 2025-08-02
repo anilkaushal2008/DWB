@@ -1,5 +1,6 @@
 ﻿using DWB.GroupModels;
 using DWB.Models;
+using FluentAssertions.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -208,6 +209,10 @@ namespace DWB.Controllers
                     ViewBag.OPDCount = "Error: " + response.StatusCode;
                 }
             }
+            //get Today Nursing assessment completed count
+            var aajkidate = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
+            var nursAssessmentCount = _context.TblNsassessment.Count(m => m.BitIsCompleted && m.VchHmsdtEntry == aajkidate);
+            ViewBag.NSAssessment = nursAssessmentCount.ToString();
             return View();
         }
 

@@ -10,19 +10,23 @@
                 <div class="card">
                     <div class="card-body">                      
                         <form asp-action="NAssessmentCreate" asp-controller="Assessment" method="post">
-                            <input type="hidden" asp-for="DtStartTime" />
+                            <input type="hidden" asp-for="DtStartTime" />                                                
                             <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
                                 <h5 class="mb-3 border-bottom pb-2 text-secondary">👤 Patient Details</h5>
                                 <div class="row g-3">
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label asp-for="VchUhidNo" class="form-label fw-bold">UHID No</label>
                                         <input asp-for="VchUhidNo" class="form-control bg-gradient" readonly />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label asp-for="IntIhmsvisit" class="form-label fw-bold">Visit No</label>
+                                        <input asp-for="IntIhmsvisit" class="form-control bg-gradient" readonly />
                                     </div>
                                     <div class="col-md-3">
                                         <label asp-for="VchHmsname" class="form-label fw-bold">Name</label>
                                         <input asp-for="VchHmsname" class="form-control bg-gradient" readonly />
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-1">
                                         <label asp-for="VchHmsage" class="form-label fw-bold">Age</label>
                                         <input asp-for="VchHmsage" class="form-control bg-gradient" readonly />
                                     </div>
@@ -169,7 +173,10 @@
                             </div>
 
                             <div class="text-center">
-                                <button type="submit" class="btn btn-success px-4 py-2 rounded-pill">✅ Submit Assessment</button>
+                                <button type="submit" class="btn btn-grd btn-grd-warning px-4 py-2 rounded-pill"                                        
+                               style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">
+                                    ✅ Submit Assessment
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -178,17 +185,8 @@
         </div>
     </div>
 </main>
-@section Scripts {
-   
-    <script>       
-        //  function toggleVisibility(toggleId, targetId) {
-        //     const toggle = document.getElementById(toggleId);
-        //     const target = document.getElementById(targetId);
-        //     toggle.addEventListener("change", function () {
-        //         target.style.display = this.checked ? "block" : "none";
-        //     });
-        //     target.style.display = toggle.checked ? "block" : "none";
-        // }
+@section Scripts {   
+  <script>
             function toggleVisibility(toggleId, targetId, inputId) {
             const toggle = document.getElementById(toggleId);
             const target = document.getElementById(targetId);
@@ -213,5 +211,5 @@
             toggleVisibility("allergyToggle", "allergyRemarks");
             toggleVisibility("fallRiskToggle", "fallRiskRemarks");
         });
-    </script>
+  </script>
 }

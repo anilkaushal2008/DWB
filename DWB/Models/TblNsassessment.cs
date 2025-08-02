@@ -127,4 +127,6 @@ public partial class TblNsassessment
     public int IntCode { get; set; }
 
     public int IntYr { get; set; }
+
+    public int IntHmscode { get; set; }
 }

@@ -56,22 +56,24 @@ namespace DWB.Controllers
                 }
             }
             //get assessed patients
-            var intcode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            //check and update completed status of nursing and doctor too
             List<TblNsassessment> tbllist = new List<TblNsassessment>();
             tbllist = await _context.TblNsassessment
-               .Where(a => a.IntCode == intcode && a.BitIsCompleted == true)
+               .Where(a => a.IntCode == intUnitcode && a.IntHmscode==intHMScode && a.BitIsCompleted == true)
                .ToListAsync();
             if (tbllist.Count() != 0)
             {
-                var result = from p in tbllist
-                             join t in patients on p.VchUhidNo equals t.opdno into pt
-                             from t in pt.DefaultIfEmpty()
-                             select new
-                             {
-
-
-                             };
-                return View(result);
+                foreach (var p in patients)
+                {
+                    var t = tbllist.FirstOrDefault(x => x.VchUhidNo == p.opdno && x.IntIhmsvisit==p.visit);
+                    if (t!=null)
+                    {
+                        p.bitTempNSAssComplete = t != null ? t.BitIsCompleted : false;
+                        p.bitTempDOcAssComplete = t != null ? t.BitIsDoctorCompleted : false; // Adjust based on your field name
+                    }                   
+                }               
             }
             return View(patients);
         }
@@ -88,7 +90,8 @@ namespace DWB.Controllers
                 VchIhmintime = timein,
                 VchHmsconsultant = consultant,
                 VchHmscategory = category,
-                DtStartTime = DateTime.Now,                
+                DtStartTime = DateTime.Now,  
+                IntIhmsvisit=Convert.ToInt32(visit),
                 VchCreatedBy = User.Identity.Name.ToString(),
                 VchIpUsed = HttpContext.Connection.RemoteIpAddress.ToString()                
             };
@@ -107,7 +110,8 @@ namespace DWB.Controllers
                 model.VchCreatedBy = User.Identity.Name; // Set created by user
                 model.VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"; // Get IP address
                 model.BitIsCompleted = true;
-                model.IntCode= Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+                model.IntHmscode= Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+                model.IntCode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
                 //model.IntYr= get year from OPD api (pending in api)
                 _context.TblNsassessment.Add(model);
                 _context.SaveChanges();
@@ -116,6 +120,72 @@ namespace DWB.Controllers
             }
             // Model is invalid; re-display the form with errors
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ViewAssessment(string uhid, int visit, string jdate)
+        {
+            var data = _context.TblNsassessment.FirstOrDefault(x => x.VchUhidNo == uhid && x.BitIsCompleted == true && x.VchHmsdtEntry==jdate);
+            if (data == null)
+                return Content("<div class='alert alert-warning'>No data found.</div>");
+
+            return PartialView("_NsAssessmentView", data);
+        }
+        public IActionResult Edit(string uhid, int visit, string jdate)
+        {
+            //check param reach here
+            var model = _context.TblNsassessment
+                        .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == visit);
+            return PartialView("_EditAssessmentPartial", model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(TblNsassessment model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Return the partial view with validation errors
+                return PartialView("_EditAssessmentPartial", model);
+            }
+
+            var existingRecord = await _context.TblNsassessment.FindAsync(model.IntAssessmentId);
+
+            if (existingRecord == null)
+            {
+                return NotFound();
+            }
+
+            // Update fields
+            existingRecord.VchBloodPressure = model.VchBloodPressure;
+            existingRecord.VchPulse = model.VchPulse;
+            existingRecord.DecTemperature = model.DecTemperature;
+            existingRecord.DecSpO2 = model.DecSpO2;
+            existingRecord.DecWeight = model.DecWeight;
+            existingRecord.DecHeight = model.DecHeight;
+            existingRecord.DecRespiratoryRate = model.DecRespiratoryRate;
+            existingRecord.DecOxygenFlowRate = model.DecOxygenFlowRate;
+
+            existingRecord.BitIsAllergical = model.BitIsAllergical;
+            existingRecord.VchAllergicalDrugs = model.VchAllergicalDrugs;
+            existingRecord.BitIsAlcoholic = model.BitIsAlcoholic;
+            existingRecord.BitIsSmoking = model.BitIsSmoking;
+            existingRecord.VchLmpForFemale = model.VchLmpForFemale;
+
+            existingRecord.BitDiabetes = model.BitDiabetes;
+            existingRecord.BitHeartDisease = model.BitHeartDisease;
+            existingRecord.BitHypertension = model.BitHypertension;
+            existingRecord.BitAsthma = model.BitAsthma;
+            existingRecord.BitCholesterol = model.BitCholesterol;
+            existingRecord.BitTuberculosis = model.BitTuberculosis;
+            existingRecord.BitSurgery = model.BitSurgery;
+            existingRecord.BitHospitalization = model.BitHospitalization;
+            existingRecord.VchOtherHistory = model.VchOtherHistory;
+
+            _context.Update(existingRecord);
+            await _context.SaveChangesAsync();
+
+            // Return success response to close modal via JS or AJAX
+            return Json(new { success = true, message = "Assessment updated successfully." });
         }
     }
 }

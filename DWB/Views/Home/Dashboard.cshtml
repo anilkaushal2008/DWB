@@ -53,10 +53,16 @@
                        </div>
                         <div class="mt-4">
                         <p class="mb-2 d-flex align-items-center justify-content-between">
-                           #AssdCount<span class="">@ViewBag.OPDCount</span>
+                          Assessed:@ViewBag.NSAssessment<span class="">Total:@ViewBag.OPDCount</span>
                         </p>
+                                @{
+                                    int totalOPDCount = Convert.ToInt32(ViewBag.OPDCount);
+                                    int totalNSACount = Convert.ToInt32(ViewBag.NSAssessment);
+                                    double percentage = totalOPDCount > 0
+                                    ? (totalNSACount * 100.0) / totalOPDCount : 0;
+                                }
                         <div class="progress w-100" style="height: 6px;">
-                            <div class="progress-bar bg-grd-purple" style="width: 65%"></div>
+                            <div class="progress-bar bg-grd-purple" style="width: @percentage%"></div>
                         </div>
                     </div>
                 </div>

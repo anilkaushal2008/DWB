@@ -351,6 +351,7 @@ public partial class DWBEntity : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
             entity.Property(e => e.IntCode).HasColumnName("intCode");
+            entity.Property(e => e.IntHmscode).HasColumnName("intHMSCode");
             entity.Property(e => e.IntIhmsvisit).HasColumnName("intIHMSVisit");
             entity.Property(e => e.IntYr).HasColumnName("intYR");
             entity.Property(e => e.VchAllergicalDrugs)

@@ -65,9 +65,18 @@
                                         <td>@p.Pcategory</td>
                                         <td>@p.descript</td>                                        
                                         <td>
-                                           
-                                            <a class="btn btn-primary btn-sm" href="@Url.Action("NAssessmentCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, age = p.age, jdate = p.jdate, timein = p.timein, consultant = p.descript, category = p.Pcategory })">Fill</a></td>
-                                    </tr>
+                                           @if(p.bitTempNSAssComplete==false)
+                                           {
+                                                <a class="btn btn-grd btn-grd-primary btn-sm" href="@Url.Action("NAssessmentCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, visit = p.visit, age = p.age, jdate = p.jdate, timein = p.timein, consultant = p.descript, category = p.Pcategory })">&nbsp;Fill&nbsp;</a>
+                                           }
+                                           else if(p.bitTempNSAssComplete==true)
+                                           {
+                                               <div class="d-inline-flex gap-2">
+                                                <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit,@p.jdate')">View</a>
+                                                <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadEditAssessment('@p.opdno','@p.visit,@p.jdate')"> Edit</a>
+                                                </div>
+                                           }
+                                       </tr>
                                 }
                             </tbody>
                         </table>
@@ -77,6 +86,32 @@
         </div>
     </div>
 </main>
+<div class="modal fade" id="viewAssessmentModal" tabindex="-1" aria-labelledby="viewAssessmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewAssessmentModalLabel">Completed Nursing Assessment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="viewAssessmentContent">
+                <!-- Partial View will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editAssessmentModal" tabindex="-1" aria-labelledby="editAssessmentModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="editAssessmentModalLabel">Edit Nursing Assessment</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="editAssessmentContent">
+            <!-- Edit View will be loaded here -->
+        </div>
+    </div>
+</div>
+</div>
 @section scripts {
     <script src="/assets/js/dashboard1.js"></script>
     <script src="~/assets/js/bootstrap.bundle.min.js"></script>   
@@ -118,6 +153,64 @@
                 $(this).val('');
             });
         });
+        //For view assessment           
+        function loadCompletedAssessment(uhid, visit, date) {
+            $.ajax({
+                url: '/Assessment/ViewAssessment',
+                data: { uhid: uhid,
+                visit:visit,
+                date:date},
+                type: 'GET',
+                success: function (response) {
+                $('#viewAssessmentContent').html(response);
+                var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
+                modal.show();
+            },
+            error: function () {
+                alert('Failed to load completed assessment. Please try again.');
+            }
+            });
+        }
+        //for edit assessment
+         function loadEditAssessment(uhid, visit, date) {
+            $.ajax({
+                url: '/Assessment/Edit',
+                data: { uhid: uhid,
+                visi:visit,
+                date:date},
+                type: 'GET',
+                success: function (response) {
+                $('#viewAssessmentContent').html(response);
+                var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
+                modal.show();
+            },
+            error: function () {
+                alert('Failed to load completed assessment. Please try again.');
+            }
+            });
+        }
 
+        //for update post method
+            $(document).ready(function () {
+            $('#editAssessmentForm').submit(function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                $.ajax({
+                    type: 'POST',
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#editAssessmentModal').modal('hide');
+                            // Optionally reload patient table or show toast
+                            location.reload(); // or use AJAX reload for table only
+                        } else {
+                            $('#editAssessmentContent').html(response); // if validation error, re-render partial
+                        }
+                    }
+                });
+            });
+        });
     </script>
 }
