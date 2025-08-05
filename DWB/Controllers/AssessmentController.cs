@@ -100,7 +100,7 @@ namespace DWB.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult NAssessmentCreate(TblNsassessment model)
+        public async Task<IActionResult> NAssessmentCreate(TblNsassessment model, List<IFormFile>? UploadFiles)
         {
             if (ModelState.IsValid)
             {
@@ -110,32 +110,71 @@ namespace DWB.Controllers
                 model.VchCreatedBy = User.Identity.Name; // Set created by user
                 model.VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"; // Get IP address
                 model.BitIsCompleted = true;
-                model.IntHmscode= Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+                model.IntHmscode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
                 model.IntCode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
                 //model.IntYr= get year from OPD api (pending in api)
                 _context.TblNsassessment.Add(model);
                 _context.SaveChanges();
+                //save uploaded files if any
+                if (UploadFiles != null && UploadFiles.Any())
+                {
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".pdf" };
+                    var uploadFolder = Path.Combine("wwwroot/uploads/NAssessment");
+
+                    if (!Directory.Exists(uploadFolder))
+                        Directory.CreateDirectory(uploadFolder);
+
+                    foreach (var file in UploadFiles)
+                    {
+                        var ext = Path.GetExtension(file.FileName).ToLower();
+
+                        if (!allowedExtensions.Contains(ext))
+                            continue;
+                        var originalName = Path.GetFileNameWithoutExtension(file.FileName);
+                        var cleanedName = originalName.Replace(" ", "_");
+                        var savedName = $"{cleanedName}{ext}"; //$"{Guid.NewGuid()}{ext}";
+                        var filePath = Path.Combine(uploadFolder, savedName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var assessmentFile = new TblNassessmentDoc
+                        {
+                            IntFkAssId = model.IntAssessmentId,
+                            VchFileName = file.FileName,
+                            VchFilePath = "/uploads/assessments/" + savedName,
+                            VchCreatedBy = User.Identity.Name,
+                            VchCreatedHost = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                            VchCreatedIp= HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                            BitIsForNassessment=true
+                        };
+                        _context.TblNassessmentDoc.Add(assessmentFile);
+                        await _context.SaveChangesAsync();
+                    }
+                }
                 TempData["Success"] = "Nursing assessment saved successfully!";
                 return RedirectToAction("NursingAssessment"); // or redirect to listing or details
             }
             // Model is invalid; re-display the form with errors
             return View(model);
-        }
+        }       
 
         [HttpGet]
-        public IActionResult ViewAssessment(string uhid, int visit, string jdate)
+        public IActionResult ViewAssessment(string uhid, int visit, string date)
         {
-            var data = _context.TblNsassessment.FirstOrDefault(x => x.VchUhidNo == uhid && x.BitIsCompleted == true && x.VchHmsdtEntry==jdate);
+            var data = _context.TblNsassessment.FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit==visit && x.BitIsCompleted == true && x.VchHmsdtEntry==date);
             if (data == null)
                 return Content("<div class='alert alert-warning'>No data found.</div>");
 
             return PartialView("_NsAssessmentView", data);
         }
-        public IActionResult Edit(string uhid, int visit, string jdate)
+        public IActionResult Edit(string uhid, int visit, string date)
         {
             //check param reach here
             var model = _context.TblNsassessment
-                        .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == visit);
+                        .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == visit && x.VchHmsdtEntry == date);
             return PartialView("_EditAssessmentPartial", model);
         }
         [HttpPost]
@@ -144,17 +183,14 @@ namespace DWB.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Return the partial view with validation errors
+                //Return the partial view with validation errors
                 return PartialView("_EditAssessmentPartial", model);
             }
-
             var existingRecord = await _context.TblNsassessment.FindAsync(model.IntAssessmentId);
-
             if (existingRecord == null)
             {
                 return NotFound();
             }
-
             // Update fields
             existingRecord.VchBloodPressure = model.VchBloodPressure;
             existingRecord.VchPulse = model.VchPulse;
@@ -181,11 +217,21 @@ namespace DWB.Controllers
             existingRecord.BitHospitalization = model.BitHospitalization;
             existingRecord.VchOtherHistory = model.VchOtherHistory;
 
+            existingRecord.VchPsychologicalStatus = model.VchPsychologicalStatus;
+            existingRecord.VchOccupation = model.VchOccupation;
+            existingRecord.VchSocialEconomicStatus = model.VchSocialEconomicStatus;
+            existingRecord.VchFamilySupport = model.VchFamilySupport;
+
+            existingRecord.IntPainScore = model.IntPainScore;
+            existingRecord.BitFallRisk = model.BitFallRisk;
+            existingRecord.VchFallRiskRemarks = model.VchFallRiskRemarks;
+
             _context.Update(existingRecord);
             await _context.SaveChangesAsync();
 
             // Return success response to close modal via JS or AJAX
             return Json(new { success = true, message = "Assessment updated successfully." });
+            //return View("NursingAssessment");
         }
     }
 }

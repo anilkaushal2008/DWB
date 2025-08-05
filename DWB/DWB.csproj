@@ -44,6 +44,8 @@
 
   <ItemGroup>
     <Folder Include="GroupModels\" />
+    <Folder Include="wwwroot\Uploads\DocAssessment\" />
+    <Folder Include="wwwroot\Uploads\NAssessment\" />
   </ItemGroup>
 
 </Project>

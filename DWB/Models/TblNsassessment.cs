@@ -34,9 +34,11 @@ public partial class TblNsassessment
     [Range(30, 250, ErrorMessage = "Height must be between 30 and 250")]
     public decimal? DecHeight { get; set; }
 
+    [Required(ErrorMessage = "Enter Respiratory rate")]
     [Range(5, 50, ErrorMessage = "Respiratory Rate must be between 5 and 50")]
     public decimal DecRespiratoryRate { get; set; }
 
+    [Required(ErrorMessage = "Enter Oxygen flow rate (0-20)")]
     [Range(0, 20, ErrorMessage = "O₂ Flow Rate must be between 0 and 20")]
     public decimal DecOxygenFlowRate { get; set; }
 

@@ -106,13 +106,15 @@
             DisplayHistory("Surgery", Model.BitSurgery);
             DisplayHistory("Hospitalized (last 3 mo)", Model.BitHospitalization);
         }
-
         <div class="col-md-12">
             <label class="form-label fw-bold">Other History</label>
             <p class="form-control-plaintext">@Model.VchOtherHistory</p>
         </div>
     </div>
    </div>
+
+
+
     <div class="text-end mt-4">
         <a asp-action="Nursingassessment" asp-controller="Assessment" class="btn btn-secondary">Close</a>
     </div>

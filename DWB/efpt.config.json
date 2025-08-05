@@ -23,11 +23,19 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[tblDoctorAssessmentDoc]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblFloorMaster]",
          "ObjectType": 0
       },
       {
          "Name": "[dbo].[tblModules]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblNAssessmentDoc]",
          "ObjectType": 0
       },
       {

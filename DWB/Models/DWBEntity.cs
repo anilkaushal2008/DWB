@@ -17,9 +17,13 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblDietMaster> TblDietMaster { get; set; }
 
+    public virtual DbSet<TblDoctorAssessmentDoc> TblDoctorAssessmentDoc { get; set; }
+
     public virtual DbSet<TblFloorMaster> TblFloorMaster { get; set; }
 
     public virtual DbSet<TblModules> TblModules { get; set; }
+
+    public virtual DbSet<TblNassessmentDoc> TblNassessmentDoc { get; set; }
 
     public virtual DbSet<TblNsassessment> TblNsassessment { get; set; }
 
@@ -217,6 +221,46 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchUpdatedBy");
         });
 
+        modelBuilder.Entity<TblDoctorAssessmentDoc>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblDoctorAssessmentDoc");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.BitIsForDoctorAssessment).HasColumnName("bitIsForDoctorAssessment");
+            entity.Property(e => e.DtCreated)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.IntFkDoctorAssId).HasColumnName("intFk_DoctorAssID");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchCreatedHost)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedHost");
+            entity.Property(e => e.VchCreatedIp)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedIP");
+            entity.Property(e => e.VchFileName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchFileName");
+            entity.Property(e => e.VchFilePath)
+                .IsRequired()
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .HasColumnName("vchFIlePath");
+        });
+
         modelBuilder.Entity<TblFloorMaster>(entity =>
         {
             entity.HasKey(e => new { e.IntId, e.IntUnitCode });
@@ -295,6 +339,47 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblNassessmentDoc>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblNAssessmentDoc");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.BitIsForDocAssessment).HasColumnName("bitIsForDocAssessment");
+            entity.Property(e => e.BitIsForNassessment).HasColumnName("bitIsForNAssessment");
+            entity.Property(e => e.DtCreated)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.IntFkAssId).HasColumnName("intFk_AssID");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchCreatedHost)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedHost");
+            entity.Property(e => e.VchCreatedIp)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedIP");
+            entity.Property(e => e.VchFileName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchFileName");
+            entity.Property(e => e.VchFilePath)
+                .IsRequired()
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .HasColumnName("vchFIlePath");
         });
 
         modelBuilder.Entity<TblNsassessment>(entity =>

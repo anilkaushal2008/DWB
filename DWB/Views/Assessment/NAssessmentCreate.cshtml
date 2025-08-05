@@ -2,6 +2,7 @@
 @{    
     ViewData["Title"] = "Nursing Assessment";
 }
+
 <main class="main-wrapper">
     <div class="main-content">
         <div class="row cols-12">
@@ -9,7 +10,7 @@
                 <h4 class="mb-3">Nursing Assessment Form</h4>
                 <div class="card">
                     <div class="card-body">                      
-                        <form asp-action="NAssessmentCreate" asp-controller="Assessment" method="post">
+                        <form asp-action="NAssessmentCreate" asp-controller="Assessment" method="post" enctype="multipart/form-data">
                             <input type="hidden" asp-for="DtStartTime" />                                                
                             <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
                                 <h5 class="mb-3 border-bottom pb-2 text-secondary">👤 Patient Details</h5>
@@ -172,6 +173,28 @@
                                 <textarea asp-for="VchNurseNotes" class="form-control" rows="4" placeholder="Enter nurse notes..."></textarea>
                             </div>
 
+                            @* <div class="mb-3">
+                                <label class="form-label">Upload Supporting Documents(JPG or PDF Multiple allowed)</label>
+                                <div id="drop-zone" class="border border-2 border-dashed p-4 text-center bg-light rounded">
+                                    <p class="mb-1">Drag & drop file here</p>
+                                    <p class="small text-muted">or click to browse</p>
+                                    <input type="file" name="UploadFiles" id="fileInput" class="form-control d-none" />
+                                    <span id="file-name" class="text-primary fw-semibold"></span>
+                                </div
+                                <input type="file" name="UploadFiles" class="form-control" accept=".jpg,.jpeg,.pdf" multiple />
+                            </div> *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Upload Supporting Documents (JPG or PDF Multiple allowed)</label>
+                        <div id="drop-zone" class="border border-2 border-dashed p-4 text-center bg-light rounded" style="cursor: pointer;">
+                            <p class="mb-1 text-muted"><i class="fas fa-cloud-upload-alt fa-2x"></i></p>
+                            <p class="mb-1">Drag & drop files here</p>
+                            <p class="small text-muted">or click to browse</p>
+                            <input type="file" name="UploadFiles" id="fileInput" class="form-control d-none" accept=".jpg,.jpeg,.pdf" multiple />
+                        </div>
+                        <div id="file-list" class="mt-3">
+                        </div>
+                    </div>
+
                             <div class="text-center">
                                 <button type="submit" class="btn btn-grd btn-grd-warning px-4 py-2 rounded-pill"                                        
                                style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">
@@ -187,6 +210,110 @@
 </main>
 @section Scripts {   
   <script>
+      //for drag and drop document
+             document.addEventListener('DOMContentLoaded', function () {
+              const dropZone = document.getElementById('drop-zone');
+              const fileInput = document.getElementById('fileInput');
+              const fileList = document.getElementById('file-list');
+
+              // Prevent default drag behaviors
+              ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                  dropZone.addEventListener(eventName, preventDefaults, false);
+                  document.body.addEventListener(eventName, preventDefaults, false);
+              });
+
+              // Highlight drop zone when item is dragged over it
+              ['dragenter', 'dragover'].forEach(eventName => {
+                  dropZone.addEventListener(eventName, () => dropZone.classList.add('border-primary'), false);
+              });
+
+              ['dragleave', 'drop'].forEach(eventName => {
+                  dropZone.addEventListener(eventName, () => dropZone.classList.remove('border-primary'), false);
+              });
+
+              // Handle dropped files
+              dropZone.addEventListener('drop', handleDrop, false);
+
+              // Handle click on drop zone
+              dropZone.addEventListener('click', () => fileInput.click());
+
+              // Handle files selected via file input
+              fileInput.addEventListener('change', handleFileSelect, false);
+
+              function preventDefaults(e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+              }
+
+              function handleDrop(e) {
+                  const dt = e.dataTransfer;
+                  const files = dt.files;
+
+                  handleFiles(files);
+              }
+
+              function handleFileSelect(e) {
+                  const files = e.target.files;
+                  handleFiles(files);
+              }
+
+              function handleFiles(files) {
+                  for (const file of files) {
+                      if (file.type === "image/jpeg" || file.type === "application/pdf") {
+                          // Append the file to the file input's files list
+                          const existingFiles = fileInput.files;
+                          const newFiles = new DataTransfer();
+
+                          // Add existing files
+                          for (let i = 0; i < existingFiles.length; i++) {
+                              newFiles.items.add(existingFiles[i]);
+                          }
+                          // Add new file
+                          newFiles.items.add(file);
+                          fileInput.files = newFiles.files;
+
+                          // Display the file name
+                          displayFile(file);
+                      } else {
+                          alert(`File "${file.name}" is not a supported type (.jpg, .jpeg, or .pdf).`);
+                      }
+                  }
+              }
+
+              function displayFile(file) {
+                  const listItem = document.createElement('div');
+                  listItem.className = 'd-flex align-items-center justify-content-between p-2 mb-2 bg-success rounded shadow-sm';
+
+                  const fileInfo = document.createElement('span');
+                  fileInfo.textContent = file.name;
+
+                  const removeBtn = document.createElement('button');
+                  removeBtn.className = 'btn btn-sm btn-outline-danger';
+                  removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+
+                  removeBtn.addEventListener('click', (e) => {
+                      e.preventDefault(); // Prevent form submission
+                      listItem.remove();
+
+                      // Remove file from the file input's files list
+                      const existingFiles = fileInput.files;
+                      const newFiles = new DataTransfer();
+
+                      for (let i = 0; i < existingFiles.length; i++) {
+                          if (existingFiles[i].name !== file.name) {
+                              newFiles.items.add(existingFiles[i]);
+                          }
+                      }
+                      fileInput.files = newFiles.files;
+                  });
+
+                  listItem.appendChild(fileInfo);
+                  listItem.appendChild(removeBtn);
+                  fileList.appendChild(listItem);
+              }
+          });
+          // Toggle visibility of remarks based on checkbox state
+
             function toggleVisibility(toggleId, targetId, inputId) {
             const toggle = document.getElementById(toggleId);
             const target = document.getElementById(targetId);
@@ -203,7 +330,6 @@
                     }
                 }
             }
-
             toggle.addEventListener("change", updateVisibility);
             updateVisibility(); // initialize on load
         }

@@ -2,6 +2,21 @@
 @{
     ViewData["Title"] = "Nursing Assessment";
 }
+@* <style>
+    #drop-zone {
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+    }
+
+        #drop-zone.dragover {
+            border-color: #198754;
+            background-color: #f0fff0;
+        }
+
+    #file-list li {
+        margin-bottom: 4px;
+    }
+</style> *@
 <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
 @* for date range *@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -72,8 +87,8 @@
                                            else if(p.bitTempNSAssComplete==true)
                                            {
                                                <div class="d-inline-flex gap-2">
-                                                <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit,@p.jdate')">View</a>
-                                                <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadEditAssessment('@p.opdno','@p.visit,@p.jdate')"> Edit</a>
+                                                <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')">View</a>
+                                                    <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadEditAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')"> Edit</a>
                                                 </div>
                                            }
                                        </tr>
@@ -154,12 +169,12 @@
             });
         });
         //For view assessment           
-        function loadCompletedAssessment(uhid, visit, date) {
+        function loadCompletedAssessment(uhid, visit, jdate) {
             $.ajax({
                 url: '/Assessment/ViewAssessment',
                 data: { uhid: uhid,
                 visit:visit,
-                date:date},
+                date:jdate},
                 type: 'GET',
                 success: function (response) {
                 $('#viewAssessmentContent').html(response);
@@ -172,12 +187,12 @@
             });
         }
         //for edit assessment
-         function loadEditAssessment(uhid, visit, date) {
+         function loadEditAssessment(uhid, visit, jdate) {
             $.ajax({
                 url: '/Assessment/Edit',
                 data: { uhid: uhid,
-                visi:visit,
-                date:date},
+                visit:visit,
+                date:jdate},
                 type: 'GET',
                 success: function (response) {
                 $('#viewAssessmentContent').html(response);
@@ -194,7 +209,6 @@
             $(document).ready(function () {
             $('#editAssessmentForm').submit(function (e) {
                 e.preventDefault();
-
                 var form = $(this);
                 $.ajax({
                     type: 'POST',
@@ -203,8 +217,9 @@
                     success: function (response) {
                         if (response.success) {
                             $('#editAssessmentModal').modal('hide');
+                            alert(response.message);
                             // Optionally reload patient table or show toast
-                            location.reload(); // or use AJAX reload for table only
+                               location.reload(); // or use AJAX reload for table only
                         } else {
                             $('#editAssessmentContent').html(response); // if validation error, re-render partial
                         }
@@ -212,5 +227,34 @@
                 });
             });
         });
+
+         function toggleVisibility(toggleId, targetId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const target = document.getElementById(targetId);
+            const input = inputId ? document.getElementById(inputId) : null;
+
+            function updateVisibility() {
+                const show = toggle.checked;
+                target.style.display = show ? "block" : "none";
+                if (input) {
+                    if (show) {
+                        input.setAttribute("required", "required");
+                    } else {
+                        input.removeAttribute("required");
+                        input.value = "";
+                    }
+                }
+            }
+
+        //for edit action query
+        toggle.addEventListener("change", updateVisibility);
+        updateVisibility(); // initialize on load
+        }
+
+        window.addEventListener("DOMContentLoaded", function () {
+            toggleVisibility("allergyToggle", "allergyRemarks", "VchAllergicalDrugs");
+            toggleVisibility("fallRiskToggle", "fallRiskRemarks", "VchFallRiskRemarks");
+        });
+
     </script>
 }

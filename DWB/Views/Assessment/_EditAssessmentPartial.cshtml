@@ -1,6 +1,6 @@
 ﻿@model DWB.Models.TblNsassessment
 
-<form asp-action="Update" asp-controller="NursingAssessment" method="post" id="editAssessmentForm">
+<form asp-action="Update" asp-controller="Assessment" method="post" id="editAssessmentForm">
     <input type="hidden" asp-for="IntAssessmentId" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -110,15 +110,15 @@
         <div class="row g-3">
             <div class="col-md-3">
                 <label class="form-label fw-bold">Occupation</label>
-                <input asp-for="VchOccupation" type="text" name="Occupation" required="required" class="form-control" placeholder="Enter occupation" />
+                <input asp-for="VchOccupation" type="text" required="required" class="form-control" placeholder="Enter occupation" />
             </div>
             <div class="col-md-3">
                 <label class="form-label fw-bold">Social Economic Status</label>
-                <input asp-for="VchSocialEconomicStatus" type="text" name="SocialEconomicStatus" required="required" class="form-control" placeholder="Enter SES" />
+                <input asp-for="VchSocialEconomicStatus" type="text" required="required" class="form-control" placeholder="Enter SES" />
             </div>
             <div class="col-md-3">
                 <label class="form-label fw-bold">Family Support</label>
-                <input asp-for="VchFamilySupport" type="text" name="FamilySupport" class="form-control" required="required" placeholder="e.g. Good / Poor" />
+                <input asp-for="VchFamilySupport" type="text" class="form-control" required="required" placeholder="e.g. Good / Poor" />
             </div>
             <div class="col-md-3">
                 <label asp-for="VchPsychologicalStatus" class="form-label fw-bold">Psychological Status</label>
@@ -170,5 +170,33 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
     </div>
 </form>
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+@section Scripts {
+   @*  <script>
+        function toggleVisibility(toggleId, targetId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const target = document.getElementById(targetId);
+            const input = inputId ? document.getElementById(inputId) : null;
+
+            function updateVisibility() {
+                const show = toggle.checked;
+                target.style.display = show ? "block" : "none";
+                if (input) {
+                    if (show) {
+                        input.setAttribute("required", "required");
+                    } else {
+                        input.removeAttribute("required");
+                        input.value = "";
+                    }
+                }
+            }
+
+            toggle.addEventListener("change", updateVisibility);
+            updateVisibility(); // initialize on load
+        }
+
+        window.addEventListener("DOMContentLoaded", function () {
+            toggleVisibility("allergyToggle", "allergyRemarks", "VchAllergicalDrugs");
+            toggleVisibility("fallRiskToggle", "fallRiskRemarks", "VchFallRiskRemarks");
+        }); *@
+    </script>
+}

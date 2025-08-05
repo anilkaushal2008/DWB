@@ -9,35 +9,129 @@ namespace DWB.Models
     }
     public class TblNsassessmentMetadata
     {
-        [Required(ErrorMessage = "UHID is required")]
-        public string? VchUhidNo { get; set; }
+        //public int IntAssessmentId { get; set; }
 
-        [Required(ErrorMessage = "Blood Pressure is required")]
-        public string? VchBloodPressure { get; set; }
+        //[Required(ErrorMessage = "UHID is required")]
+        //public string VchUhidNo { get; set; }
 
-        [Required(ErrorMessage = "Pulse is required")]
-        public string? VchPulse { get; set; }
+        //[Required(ErrorMessage = "Blood Pressure is required")]
+        //public string VchBloodPressure { get; set; }
 
-        [Required(ErrorMessage = "Temperature is required")]
-        public string? DecTemperature { get; set; }
+        //[Required(ErrorMessage = "Pulse is required")]
+        //public string VchPulse { get; set; }
 
-        [Required(ErrorMessage = "Enter SpO2")]
-        [Range(50, 100, ErrorMessage = "SpO2 must be between 50 and 100")]
-        public decimal DecSpO2 { get; set; }
+        //[Required(ErrorMessage = "Temperature is required")]
+        //public string DecTemperature { get; set; }
 
-        [Required(ErrorMessage = "Enter weight in kg")]
-        [Range(1, 300, ErrorMessage = "Weight must be between 1 and 300")]
-        public decimal DecWeight { get; set; }
+        //[Required(ErrorMessage = "Enter SpO2")]
+        //[Range(50, 100, ErrorMessage = "SpO2 must be between 50 and 100")]
+        //public decimal DecSpO2 { get; set; }
 
-        [Required(ErrorMessage = "Enter height ")]
-        [Range(30, 250, ErrorMessage = "Height must be between 30 and 250")]
-        public decimal? DecHeight { get; set; }
+        //[Required(ErrorMessage = "Enter weight in kg")]
+        //[Range(1, 300, ErrorMessage = "Weight must be between 1 and 300")]
+        //public decimal DecWeight { get; set; }
 
-        [Range(5, 50, ErrorMessage = "Respiratory Rate must be between 5 and 50")]
-        public decimal DecRespiratoryRate { get; set; }
+        //[Required(ErrorMessage = "Enter height ")]
+        //[Range(30, 250, ErrorMessage = "Height must be between 30 and 250")]
+        //public decimal? DecHeight { get; set; }
 
-        [Range(0, 20, ErrorMessage = "O₂ Flow Rate must be between 0 and 20")]
-        public decimal DecOxygenFlowRate { get; set; }
+        //[Required(ErrorMessage = "Enter Respiratory rate")]
+        //[Range(5, 50, ErrorMessage = "Respiratory Rate must be between 5 and 50")]
+        //public decimal DecRespiratoryRate { get; set; }
+
+        //[Required(ErrorMessage = "Enter Oxygen flow rate (0-20)")]
+        //[Range(0, 20, ErrorMessage = "O₂ Flow Rate must be between 0 and 20")]
+        //public decimal DecOxygenFlowRate { get; set; }
+
+        //public string VchNurseNotes { get; set; }
+
+        //public bool BitIsAssigned { get; set; }
+
+        //public bool BitIsCompleted { get; set; }
+
+        //public DateTime DtStartTime { get; set; }
+
+        //public DateTime DtEndTime { get; set; }
+
+        //public TimeOnly? VchTat { get; set; }
+
+        //public DateTime? DtCreated { get; set; }
+
+        //public string VchCreatedBy { get; set; }
+
+        //public string VchIpUsed { get; set; }
+
+        //public DateTime? DtUpdated { get; set; }
+
+        //public string VchUpdatedBy { get; set; }
+
+        //public string VchIpUpdated { get; set; }
+
+        //public string VchHmsdtEntry { get; set; }
+
+        //public string VchHmsname { get; set; }
+
+        //public string VchHmscategory { get; set; }
+
+        //public string VchHmsconsultant { get; set; }
+
+        //public string VchHmsage { get; set; }
+
+        //public string VchIhmintime { get; set; }
+
+        //public bool BitIsAllergical { get; set; }
+
+        //public string VchAllergicalDrugs { get; set; }
+
+        //public bool BitIsAlcoholic { get; set; }
+
+        //public bool BitIsSmoking { get; set; }
+
+        //public string VchLmpForFemale { get; set; }
+
+        //public bool BitDiabetes { get; set; }
+
+        //public bool BitHeartDisease { get; set; }
+
+        //public bool BitHypertension { get; set; }
+
+        //public bool BitAsthma { get; set; }
+
+        //public bool BitCholesterol { get; set; }
+
+        //public bool BitTuberculosis { get; set; }
+
+        //public bool BitSurgery { get; set; }
+
+        //public bool BitHospitalization { get; set; }
+
+        //public string VchOtherHistory { get; set; }
+
+        //public int? IntPainScore { get; set; }
+
+        //public bool BitFallRisk { get; set; }
+
+        //public string VchFallRiskRemarks { get; set; }
+
+        //public string VchOccupation { get; set; }
+
+        //public string VchSocialEconomicStatus { get; set; }
+
+        //public string VchFamilySupport { get; set; }
+
+        //public string VchPsychologicalStatus { get; set; }
+
+        //public int IntIhmsvisit { get; set; }
+
+        //public bool BitSendToDoctor { get; set; }
+
+        //public bool BitIsDoctorCompleted { get; set; }
+
+        //public int IntCode { get; set; }
+
+        //public int IntYr { get; set; }
+
+        //public int IntHmscode { get; set; }
     }
 }
 

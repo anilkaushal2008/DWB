@@ -22,7 +22,7 @@ namespace DWB.Controllers
 
         private readonly DWBEntity _context;
         private readonly GroupEntity _groupcontext;
-              
+        
         public HomeController(ILogger<HomeController> logger, DWBEntity dWBEntity, GroupEntity groupcontext)
         {
             _logger = logger;
@@ -187,6 +187,7 @@ namespace DWB.Controllers
             ViewBag.Company = new SelectList(company, "IntPk", "Descript");
             return View(model);
         }
+       
         [Authorize(Roles ="Admin, Nursing, Billing")]
         public async Task<IActionResult> Dashboard()
         {
@@ -251,6 +252,7 @@ namespace DWB.Controllers
             await _context.SaveChangesAsync();
             return Json(new { success = true, message = "Password changed successfully." });
         }
+       
         public IActionResult ForgotPassword()
         {
             return View();
