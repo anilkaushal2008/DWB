@@ -10,7 +10,7 @@
 @if(hasAddNewUser){
 <div align="right">    
         <a id="btnCreateNew" href="#" class="btn btn-primary px-4 open-modal"
-       data-url="@Url.Action("NewUser", "UserMaster")"
+           data-url="@Url.Action("CreateUser", "UserMaster")"
            data-bs-toggle="modal"
            data-bs-target="#newModal">
         <i class="bi bi-plus-lg me-2"></i>Add user
@@ -81,7 +81,7 @@
                         }
                         @if (hasStatusUser)
                         {
-                            @if (Model[i].BitIsDeActived == false)
+                            @if (Model[i].BitIsDeActivated == false)
                             {
                                 <a class="btn btn-sm btn-warning me-1"
                                 href="@Url.Action("UserDeactivate", "UserMaster", new { id = Model[i].IntUserId })">
@@ -111,6 +111,6 @@ else
 </table>
 @section Scripts { 
     <script>
-        <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+        <script src="~/assets/js/bootstrap.bundle.min.js">      
     </script>
 }

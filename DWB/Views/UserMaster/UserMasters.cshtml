@@ -69,64 +69,63 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>	
-	<script type="text/javascript">		
-	   $(document).ready(function () {
-	       $('#usersTable').DataTable({
-	                pageLength: 50,
-	                lengthChange: true,
-	                ordering: true,
-	                language: {
-	                    searchPlaceholder: "Search users..."
-	                }
-	            });
-	       });
-		$(document).on("click", "#btnCreateNew, .open-modal", function (e) {
-				e.preventDefault();
-				var url = $(this).data("url");
+	<script type="text/javascript">
 
-				$.get(url, function (data) {
-					$("#modal-content-placeholder").html(data);
-					$("#newModal").modal("show");
+		$(document).ready(function () {
+			  $('#usersTable').DataTable({
+					   pageLength: 50,
+					   lengthChange: true,
+					   ordering: true,
+					   language: {
+						   searchPlaceholder: "Search users..."
+					   }
+				   });
+			  });
+		   $(document).on("click", "#btnCreateNew, .open-modal", function (e) {
+				   e.preventDefault();
+				   var url = $(this).data("url");
 
-					// parse validation
-					$.validator.unobtrusive.parse("#userForm");
-					$.validator.unobtrusive.parse("#createPermissionForm");
-				});
-			});
+				   $.get(url, function (data) {
+					   $("#modal-content-placeholder").html(data);
+					   $("#newModal").modal("show");
 
-			// Handle form submission diet master
-		$(document).on("submit", "#userForm", function (e) {
-			e.preventDefault();
-			  var checkedCount = $("input[name='SelectedCompanyIds']:checked").length;
-		if (checkedCount === 0) {
-			e.preventDefault();
-			$("span[data-valmsg-for='SelectedCompanyIds']").text("Please select at least one company.");
-		}
-			var form = $(this);
+					   // parse validation
+					   $.validator.unobtrusive.parse("#userForm");
+					   $.validator.unobtrusive.parse("#createPermissionForm");
+				   });
+			   });
 
-			if (!form.valid()) return;
+			   //Handle form submission diet master
+		   // $(document).on("submit", "#userForm", function (e) {
+			  //  e.preventDefault();
+				 // var checkedCount = $("input[name='SelectedCompanyIds']:checked").length;
+		   // if (checkedCount === 0) {
+			  //  e.preventDefault();
+			  //  $("span[data-valmsg-for='SelectedCompanyIds']").text("Please select at least one company.");
+		   // }
+			  //  var form = $(this);
 
-			$.ajax({
-				url: form.attr("action"),
-				method: "POST",
-				data: form.serialize(),
-				headers: {
-					//This sends the anti-forgery token from the hidden input
-					'RequestVerificationToken': form.find('input[name="__RequestVerificationToken"]').val()
-				},
-				success: function (result) {
-					if (result.success) {
-						$("#newModal").modal("hide");
-						location.reload();
-					} else {
-						$("#modal-content-placeholder").html(result);
-						$.validator.unobtrusive.parse("#userForm");
-					}
-				}
-			});
-		});
-			
+			  //  if (!form.valid()) return;
+
+			  //  $.ajax({
+				 //   url: form.attr("action"),
+				 //   method: "POST",
+				 //   data: form.serialize(),
+				 //   headers: {
+					//    //This sends the anti-forgery token from the hidden input
+					//    'RequestVerificationToken': form.find('input[name="__RequestVerificationToken"]').val()
+				 //   },
+				 //   success: function (result) {
+					//    if (result.success) {
+					// 	   $("#newModal").modal("hide");
+					// 	   location.reload();
+					//    } else {
+					// 	   $("#modal-content-placeholder").html(result);
+					// 	   $.validator.unobtrusive.parse("#userForm");
+					//    }
+				 //   }
+			  //  });
+		   // });			
 	</script>
-
 }
 

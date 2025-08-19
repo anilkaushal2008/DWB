@@ -1,20 +1,27 @@
 ﻿using DWB.Models;
 using DWB.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
+using System.Threading.Tasks;
 
 namespace DWB.Controllers
 {
     public class UserMasterController : Controller
     {
         private readonly DWBEntity _context;
-        public UserMasterController(DWBEntity dWBEntity)
+        private readonly IWebHostEnvironment _WebHostEnvironment;
+        public UserMasterController(DWBEntity dWBEntity, IWebHostEnvironment webHostEnvironment)
         {
             _context = dWBEntity;
+            _WebHostEnvironment = webHostEnvironment;
         }
         [Authorize(Roles = "Admin,Nursing")]
         public ActionResult UserMasters()
@@ -82,75 +89,80 @@ namespace DWB.Controllers
         //POST: UserMasterController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> NewUser(CreateUserViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                // Reload dropdowns on validation error
-                ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole");
-                ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
-                ModelState.AddModelError("VchUsername", "Model error generated contact to administrator!");
-                return PartialView("_PartialCreateUser", model);
-            }
-            //check duplicate user name
-            if (_context.TblUsers.Any(d => d.VchUsername == model.VchUsername))
-            {   //add model error
-                ModelState.AddModelError("VchUsername", "User already existing ");
-                ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole");
-                ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
-                return PartialView("_PartialCreateUser", model);
-            }
-            //check password
-            if (string.IsNullOrWhiteSpace(model.HpasswordHash))
-            {
-                ModelState.AddModelError("HpasswordHash", "Password is required");
-            }
-            if (!ModelState.IsValid)
-            {
-                // Reload dropdowns on validation error
-                ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole");
-                ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
-                return PartialView("_PartialCreateUser", model);
-            }
-            //Convert password to hash
-            var HasedPassword = PasswordHelper.ConvertHashPassword(model.HpasswordHash);
-            // Create user entity
-            var user = new TblUsers
-            {
-                VchUsername = model.VchUsername,
-                HpasswordHash = HasedPassword, //You may hash this
-                VchFullName = model.VchFullName,
-                VchEmail = model.VchEmail,
-                VchMobile = model.VchMobile,
-                FkRoleId = model.FkRoleId,
-                //BitIsDeActived = model.BitIsDeActived,
-                DtCreated = DateTime.Now,
-                VchCreatedBy = User.Identity?.Name ?? "system",
-                VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString()
-            };
+        //public async Task<IActionResult> NewUser(CreateUserViewModel model)
+        //{
+        //    //if (!ModelState.IsValid)
+        //    //{
+        //    //    // Reload dropdowns on validation error
+        //    //    ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole");
+        //    //    ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
+        //    //    ModelState.AddModelError("VchUsername", "Model error generated contact to administrator!");
+        //    //    return PartialView("_PartialCreateUser", model);
+        //    //}
+        //    ////check duplicate user name
+        //    //if (_context.TblUsers.Any(d => d.VchUsername == model.VchUsername))
+        //    //{   //add model error
+        //    //    ModelState.AddModelError("VchUsername", "User already existing ");
+        //    //    ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole");
+        //    //    ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
+        //    //    return PartialView("_PartialCreateUser", model);
+        //    //}
+        //    ////check password
+        //    //if (string.IsNullOrWhiteSpace(model.HpasswordHash))
+        //    //{
+        //    //    ModelState.AddModelError("HpasswordHash", "Password is required");
+        //    //}
+        //    //if (!ModelState.IsValid)
+        //    //{
+        //    //    // Reload dropdowns on validation error
+        //    //    ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole");
+        //    //    ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
+        //    //    return PartialView("_PartialCreateUser", model);
+        //    //}
+        //    ////Convert password to hash
+        //    //var HasedPassword = PasswordHelper.ConvertHashPassword(model.HpasswordHash);
+        //    //// Create user entity
+        //    //var user = new TblUsers
+        //    //{
+        //    //    VchUsername = model.VchUsername,
+        //    //    HpasswordHash = HasedPassword, //You may hash this
+        //    //    VchFullName = model.VchFullName,
+        //    //    VchEmail = model.VchEmail,
+        //    //    VchMobile = model.VchMobile,
+        //    //    FkRoleId = model.FkRoleId,
+        //    //    //BitIsDeActived = model.BitIsDeActived,
+        //    //    DtCreated = DateTime.Now,
+        //    //    VchCreatedBy = User.Identity?.Name ?? "system",
+        //    //    VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString()
+        //    //};
 
-            _context.TblUsers.Add(user);
-            await _context.SaveChangesAsync();
+        //    //_context.TblUsers.Add(user);
+        //   // await _context.SaveChangesAsync();
+        //    // Save assigned branches with doctor code
+        //    //for (int i = 0; i < model.SelectedCompanyIds.Count; i++)
+        //    //{
+        //    //    var companyId = model.SelectedCompanyIds[i];
+        //    //    var doctorCode = model.vchDoctorCode?.ElementAtOrDefault(i) ?? string.Empty;
 
-            // Save assigned branches
-            foreach (var companyId in model.SelectedCompanyIds)
-            {
-                var assignment = new TblUserCompany
-                {
-                    FkUseriId = user.IntUserId,
-                    FkIntCompanyId = companyId,
-                    DtCreated = DateTime.Now,
-                    VchCreatedBy = User.Identity?.Name ?? "system",
-                    VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString()
-                };
-                _context.TblUserCompany.Add(assignment);
-                await _context.SaveChangesAsync();
-            }
-            TempData["ActiveTab"] = "UserTab";
-            TempData["userSuccess"] = "User created and saved successfully.";
-            // Return success (optional: redirect or return JSON)
-            return Json(new { success = true });
-        }
+        //    //    var assignment = new TblUserCompany
+        //    //    {
+        //    //        FkUseriId = user.IntUserId,
+        //    //        FkIntCompanyId = companyId,
+        //    //        VchDoctorCode = doctorCode,
+        //    //        DtCreated = DateTime.Now,
+        //    //        VchCreatedBy = User.Identity?.Name ?? "system",
+        //    //        VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString()
+        //    //    };
+
+        //    //    _context.TblUserCompany.Add(assignment);
+        //    //}
+
+        //    //await _context.SaveChangesAsync();
+        //    TempData["ActiveTab"] = "UserTab";
+        //    TempData["userSuccess"] = "User created and saved successfully.";
+        //    // Return success (optional: redirect or return JSON)
+        //    return Json(new { success = true });
+        //}
 
 
         [Authorize(Roles = "Admin")]
@@ -158,11 +170,10 @@ namespace DWB.Controllers
         public IActionResult UserEdit(int id)
         {
             //var user = await _context.TblUsers
-            //    .Include(u => u.TblUserCompany)
-            //    .FirstOrDefaultAsync(u => u.IntUserId == id);
+            //.Include(u => u.TblUserCompany)
+            //.FirstOrDefaultAsync(u => u.IntUserId == id);
             var user = _context.TblUsers
                 .Include(u => u.TblUserCompany).Where(u => u.IntUserId == id).FirstOrDefault();
-
             if (user == null)
             {
                 var msg = "User not found contact to aministrator!";
@@ -178,8 +189,8 @@ namespace DWB.Controllers
                 VchFullName = user.VchFullName,
                 VchEmail = user.VchEmail,
                 VchMobile = user.VchMobile,
-                FkRoleId = user.FkRoleId,
-                SelectedCompanyIds = user.TblUserCompany.Select(uc => uc.FkIntCompanyId).ToList()
+                FkRoleId = user.FkRoleId,               
+                //SelectedCompanyIds = user.TblUserCompany.Select(uc => uc.FkIntCompanyId).ToList()
             };
             ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(m => m.VchRole), "IntId", "VchRole", model.FkRoleId);
             ViewBag.BranchList = new SelectList(_context.IndusCompanies.OrderBy(m => m.Descript), "IntPk", "Descript");
@@ -226,21 +237,21 @@ namespace DWB.Controllers
                 var userCompanies = _context.TblUserCompany.Where(x => x.FkUseriId == model.IntUserId).ToList();
                 _context.TblUserCompany.RemoveRange(userCompanies);
                 // Then, add selected companies again
-                if (model.SelectedCompanyIds != null)
-                {
-                    foreach (var companyId in model.SelectedCompanyIds)
-                    {
-                        _context.TblUserCompany.Add(new TblUserCompany
-                        {
-                            FkUseriId = model.IntUserId,
-                            FkIntCompanyId = companyId,
-                            DtUpdated = DateTime.Now,
-                            VchUpdatedBy = User.Identity?.Name ?? "system",
-                            VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString()
-                        });
-                    }
-                }
-                _context.SaveChanges();
+                //if (model.SelectedCompanyIds != null)
+                //{
+                //    foreach (var companyId in model.SelectedCompanyIds)
+                //    {
+                //        _context.TblUserCompany.Add(new TblUserCompany
+                //        {
+                //            FkUseriId = model.IntUserId,
+                //            FkIntCompanyId = companyId,
+                //            DtUpdated = DateTime.Now,
+                //            VchUpdatedBy = User.Identity?.Name ?? "system",
+                //            VchIpUpdated = HttpContext.Connection.RemoteIpAddress?.ToString()
+                //        });
+                //    }
+                //}
+                //_context.SaveChanges();
                 TempData["ActiveTab"] = "UserTab";
                 TempData["userSuccess"] = "User updated successfully.";
                 //Return success (optional: redirect or return JSON)
@@ -256,8 +267,7 @@ namespace DWB.Controllers
         {
             var GetUser = _context.TblUsers.Find(id);
             if (GetUser != null)
-            {
-                GetUser.BitIsDeActived = true;
+            {              
                 _context.SaveChanges();
                 TempData["ActiveTab"] = "UserTab";
                 TempData["userSuccess"] = "User Deactivated successfully.";
@@ -275,8 +285,7 @@ namespace DWB.Controllers
         {
             var GetUser = _context.TblUsers.Find(id);
             if (GetUser != null)
-            {
-                GetUser.BitIsDeActived = false;
+            {                
                 _context.SaveChanges();
                 TempData["ActiveTab"] = "UserTab";
                 TempData["userSuccess"] = "User Activated successfully.";
@@ -288,6 +297,150 @@ namespace DWB.Controllers
                 TempData["userError"] = "User not found or already activated.";
                 return RedirectToAction("UserMasters");
             }
+        }
+
+        #endregion
+
+        #region New user code
+        // -- Role HELPERS --
+        private void LoadDropdowns()
+        {
+            ViewBag.RoleList = new SelectList(_context.TblRoleMas.OrderBy(r => r.VchRole), "IntId", "VchRole");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        [HttpGet]
+        public IActionResult CreateUser()
+        {
+            var model = new CreateUserViewModel
+            {
+                UserCompanies = _context.IndusCompanies
+                    .Select(c => new CompanySelectionViewModel
+                    {
+                        CompanyId = c.IntPk,
+                        CompanyName = c.Descript,
+                        IsSelected = false
+                    })
+                    .ToList()
+            };
+
+            LoadDropdowns();
+            return PartialView("_PartialCreateUser", model);         
+        }
+
+        [Authorize(Roles = "Admin")]
+        //POST: UserMasterController/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateUser(CreateUserViewModel model, IFormFile ProfileFile, IFormFile SignatureFile)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Model error generated, contact to administrator!";
+                LoadDropdowns();
+                return PartialView("_PartialCreateUser", model);               
+            }
+            var FinalProfileFile = string.Empty;
+            var FinalSignatureFile=string.Empty;
+            var ProfileFolder = Path.Combine(_WebHostEnvironment.WebRootPath, "uploads","Profile");
+            var SignatureFolder = Path.Combine(_WebHostEnvironment.WebRootPath, "uploads","Signature");
+            if (model.ProfileFile!=null)
+            {
+                var Extension = Path.GetExtension(ProfileFile.FileName);
+                FinalProfileFile = $"{Path.GetFileNameWithoutExtension(model.ProfileFile.FileName)}-{DateTime.Now:yyyyMMddHHmmss}{Extension}";
+                var filepath = Path.Combine(ProfileFolder, FinalProfileFile);
+                using (var stream = model.ProfileFile.OpenReadStream())
+                {
+                    using (var image = Image.Load(stream))
+                    {
+                        // Resize the image if needed
+                        var maxWidth = 200; // Set your desired max width
+                        var maxHeight = 200; // Set your desired max height
+                        image.Mutate(x => x.Resize(new ResizeOptions
+                        {
+                            Size = new Size(maxWidth, maxHeight),
+                            Mode = ResizeMode.Crop //crop/fir to aspect ratio
+                        })
+                        );
+                        var encoder = new JpegEncoder
+                        {
+                            Quality = 95 //Set quality for JPEG
+                        };
+                        // Save the resized image
+                        await image.SaveAsync(filepath, encoder);
+                    }                   
+                }
+            }
+            if (model.SignatureFile!=null)
+            {
+                var Extension = Path.GetExtension(SignatureFile.FileName);
+                FinalSignatureFile = $"{Path.GetFileNameWithoutExtension(model.SignatureFile.FileName)}_{DateTime.Now:yyyyMMddHHmmss}{Extension}";
+                var filePath=Path.Combine(SignatureFolder, FinalSignatureFile);
+                //crop and grayscale the image as desired
+                using (var stream =model.SignatureFile.OpenReadStream())
+                {
+                    using (var image= Image.Load(stream))
+                    {
+                        // Resize the image if needed
+                        var maxWidth = 200; // Set your desired max width
+                        var maxHeight = 100; // Set your desired max height
+                       image.Mutate(x=> x.Resize(new ResizeOptions
+                        {
+                            Size = new Size(maxWidth, maxHeight),
+                            Mode = ResizeMode.Crop // crop/fir to aspect ratio
+                        }).Grayscale()
+                        );
+                        var encoder=new JpegEncoder
+                        {
+                            Quality = 95 // Set quality for JPEG
+                        };
+                        // Save the resized image
+                        await image.SaveAsync(filePath, encoder);
+                    }
+                }               
+            }
+            var user = new TblUsers
+            {
+                VchUsername = model.VchUsername,
+                HpasswordHash = model.HpasswordHash, // You should hash it in real app
+                VchFullName = model.VchFullName,
+                VchEmail = model.VchEmail,
+                VchMobile = model.VchMobile,
+                FkRoleId = model.FkRoleId,
+                VchProfileFileAddress = ProfileFolder+"/"+FinalProfileFile,
+                VchProfileFileName = FinalProfileFile,
+                VchSignFileAddress = SignatureFolder + "/" + FinalSignatureFile,
+                VchSignFileName = FinalSignatureFile,
+                VchCreatedBy = User.Identity?.Name ?? "system",
+                VchIpUsed= HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+            _context.TblUsers.Add(user);
+            _context.SaveChanges();
+            
+            //Save company mappings
+            foreach(var company in model.UserCompanies)
+            {
+                if (company.IsSelected)
+                {
+                    var userCompany = new TblUserCompany
+                    {
+                        //add company hms id
+                        FkUseriId = user.IntUserId,
+                        FkIntCompanyId = company.CompanyId,
+                        VchDoctorCode = company.VchDoctorCode,
+                        DtCreated = DateTime.Now,
+                        VchCreatedBy = User.Identity?.Name ?? "system",
+                        VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString()
+                    };
+                    _context.TblUserCompany.Add(userCompany);
+                    _context.SaveChanges();
+                }
+            }
+            TempData["ActiveTab"] = "UserTab";
+            TempData["userSuccess"] = "User created and saved successfully.";
+            //Return success (optional: redirect or return JSON)
+            return Json(new { success = true });
         }
 
         #endregion

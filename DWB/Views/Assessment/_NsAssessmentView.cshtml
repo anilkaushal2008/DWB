@@ -111,8 +111,45 @@
             <p class="form-control-plaintext">@Model.VchOtherHistory</p>
         </div>
     </div>
-   </div>
-
+    </div>
+       
+          @*   @{
+                var documents = ViewBag.Documents as List<DWB.Models.TblNassessmentDoc>;
+            } *@
+            @if (Model.TblNassessmentDoc != null && Model.TblNassessmentDoc.Any())
+            {
+            <div class="card p-4 shadow-sm border-start border-info border-3 mb-4">
+                <h5 class="mb-3 text-info">📂 Supporting Documents</h5>
+                <ul class="list-group list-group-flush">
+                    @foreach (var document in Model.TblNassessmentDoc)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@document.VchFileName</span>
+                            @* path H:\DWB-Working\DWB\wwwroot\Uploads\NAssessment *@
+                        <a href="@Url.Content("~/uploads/NAssessment/" + document.VchFileName)"
+                               class="btn btn-sm btn-outline-info"
+                               target="_blank"
+                               title="View Document">
+                                <i class="fas fa-eye me-1"></i>View
+                            </a>
+                            @*<a href="~/Content/Uploads/@document.VchFileName" class="btn btn-sm btn-outline-primary" target="_blank" download>
+                                <i class="fas fa-download me-1"></i> http://localhost:5222/View
+                            </a>*@
+                        </li>
+                    }
+                </ul>
+            </div>   
+            }
+            else
+            {
+            <div class="card p-4 shadow-sm border-start border-info border-3 mb-4">
+                <h5 class="mb-3 text-info">📂 Supporting Documents</h5>
+                <ul class="list-group list-group-flush">
+                    <p class="text-info fst-italic">No supporting documents were uploaded for this assessment.</p>
+                </ul>
+            </div>
+            }
+    
 
 
     <div class="text-end mt-4">

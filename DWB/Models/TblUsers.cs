@@ -21,7 +21,7 @@ public partial class TblUsers
 
     public int FkRoleId { get; set; }
 
-    public bool BitIsDeActived { get; set; }
+    public bool? BitIsDeActivated { get; set; }
 
     public DateTime? DtCreated { get; set; }
 
@@ -34,6 +34,14 @@ public partial class TblUsers
     public string VchUpdatedBy { get; set; }
 
     public string VchIpUpdated { get; set; }
+
+    public string VchSignFileName { get; set; }
+
+    public string VchSignFileAddress { get; set; }
+
+    public string VchProfileFileName { get; set; }
+
+    public string VchProfileFileAddress { get; set; }
 
     public virtual TblRoleMas FkRole { get; set; }
 

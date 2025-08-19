@@ -372,14 +372,19 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchCreatedIP");
             entity.Property(e => e.VchFileName)
                 .IsRequired()
-                .HasMaxLength(100)
+                .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("vchFileName");
             entity.Property(e => e.VchFilePath)
                 .IsRequired()
-                .HasMaxLength(200)
+                .HasMaxLength(300)
                 .IsUnicode(false)
                 .HasColumnName("vchFIlePath");
+
+            entity.HasOne(d => d.IntFkAss).WithMany(p => p.TblNassessmentDoc)
+                .HasForeignKey(d => d.IntFkAssId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblNAssessmentDoc_tblNSAssessment");
         });
 
         modelBuilder.Entity<TblNsassessment>(entity =>
@@ -668,17 +673,23 @@ public partial class DWBEntity : DbContext
 
             entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.DtCreated)
+                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("dtCreated");
             entity.Property(e => e.DtUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
             entity.Property(e => e.FkIntCompanyId).HasColumnName("fk_intCompanyID");
+            entity.Property(e => e.FkIntHmscode).HasColumnName("fk_intHMSCode");
             entity.Property(e => e.FkUseriId).HasColumnName("fk_UseriId");
             entity.Property(e => e.VchCreatedBy)
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchDoctorCode)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchDoctorCode");
             entity.Property(e => e.VchIpUpdated)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -710,7 +721,9 @@ public partial class DWBEntity : DbContext
             entity.ToTable("tblUsers");
 
             entity.Property(e => e.IntUserId).HasColumnName("intUserId");
-            entity.Property(e => e.BitIsDeActived).HasColumnName("bitIsDeActived");
+            entity.Property(e => e.BitIsDeActivated)
+                .HasDefaultValue(false)
+                .HasColumnName("bitIsDeActivated");
             entity.Property(e => e.DtCreated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtCreated");
@@ -746,6 +759,22 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("vchMobile");
+            entity.Property(e => e.VchProfileFileAddress)
+                .HasMaxLength(300)
+                .IsUnicode(false)
+                .HasColumnName("vchProfileFileAddress");
+            entity.Property(e => e.VchProfileFileName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchProfileFileName");
+            entity.Property(e => e.VchSignFileAddress)
+                .HasMaxLength(300)
+                .IsUnicode(false)
+                .HasColumnName("vchSignFileAddress");
+            entity.Property(e => e.VchSignFileName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchSignFileName");
             entity.Property(e => e.VchUpdatedBy)
                 .HasMaxLength(100)
                 .IsUnicode(false)

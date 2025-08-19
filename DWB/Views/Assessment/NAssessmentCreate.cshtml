@@ -1,7 +1,46 @@
 ﻿@model TblNsassessment
-@{    
+
+@{ 
     ViewData["Title"] = "Nursing Assessment";
 }
+<style>
+    /* Custom styles for the dashed border */
+        .border-dashed {
+                border-style: dashed !important;
+        }
+    /* Style for file list items */
+        .file-list-item {
+                background-color: #f8f9fa; /* Light background */
+                border: 1px solid #e9ecef; /* Light border */
+                border-radius: 0.5rem; /* Rounded corners */
+                padding: 0.75rem 1rem;
+                margin-bottom: 0.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow */
+        }
+        .file-list-item span {
+                        font-weight: 500;
+                        color: #343a40;
+        }
+        .btn-close {
+                font-size: 0.8rem;
+        }
+
+    /* Custom gradient button style */
+        .btn-grd {
+                background: linear-gradient(45deg, #ffc107, #ff8c00); /* Yellow to Orange gradient */
+                border: none;
+                color: white;
+                font-weight: bold;
+        }
+                .btn-grd:hover {
+                        opacity: 0.9; /* Slightly dim on hover */
+                        color: white;
+                }
+
+</style>
 
 <main class="main-wrapper">
     <div class="main-content">
@@ -9,40 +48,47 @@
             <div class="col">
                 <h4 class="mb-3">Nursing Assessment Form</h4>
                 <div class="card">
-                    <div class="card-body">                      
-                        <form asp-action="NAssessmentCreate" asp-controller="Assessment" method="post" enctype="multipart/form-data">
-                            <input type="hidden" asp-for="DtStartTime" />                                                
-                            <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
-                                <h5 class="mb-3 border-bottom pb-2 text-secondary">👤 Patient Details</h5>
+                    <div class="card-body">
+                        <form method="post" id="Nassessment" enctype="multipart/form-data" asp-action="NAssessmentCreate" asp-controller="Assessment">
+                            <input type="hidden" asp-for="DtStartTime" />
+                             <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
+                                 <h5 class="mb-3 border-bottom pb-2 text-secondary">👤 Patient Details</h5>
                                 <div class="row g-3">
                                     <div class="col-md-2">
                                         <label asp-for="VchUhidNo" class="form-label fw-bold">UHID No</label>
                                         <input asp-for="VchUhidNo" class="form-control bg-gradient" readonly />
                                     </div>
+
                                     <div class="col-md-2">
                                         <label asp-for="IntIhmsvisit" class="form-label fw-bold">Visit No</label>
                                         <input asp-for="IntIhmsvisit" class="form-control bg-gradient" readonly />
                                     </div>
+
                                     <div class="col-md-3">
                                         <label asp-for="VchHmsname" class="form-label fw-bold">Name</label>
                                         <input asp-for="VchHmsname" class="form-control bg-gradient" readonly />
                                     </div>
+
                                     <div class="col-md-1">
                                         <label asp-for="VchHmsage" class="form-label fw-bold">Age</label>
                                         <input asp-for="VchHmsage" class="form-control bg-gradient" readonly />
                                     </div>
+
                                     <div class="col-md-2">
                                         <label asp-for="VchHmsdtEntry" class="form-label fw-bold">Entry Date</label>
                                         <input asp-for="VchHmsdtEntry" class="form-control bg-gradient" readonly />
                                     </div>
+
                                     <div class="col-md-2">
                                         <label asp-for="VchIhmintime" class="form-label fw-bold">In Time</label>
                                         <input asp-for="VchIhmintime" class="form-control bg-gradient" readonly />
                                     </div>
+
                                     <div class="col-md-6">
                                         <label asp-for="VchHmsconsultant" class="form-label fw-bold">Consultant</label>
                                         <input asp-for="VchHmsconsultant" class="form-control bg-gradient" readonly />
                                     </div>
+
                                     <div class="col-md-6">
                                         <label asp-for="VchHmscategory" class="form-label fw-bold">Category</label>
                                         <input asp-for="VchHmscategory" class="form-control bg-gradient" readonly />
@@ -73,16 +119,19 @@
                                             <label class="form-check-label fw-bold mb-0" for="allergyToggle">Allergies</label>
                                         </div>
                                     </div>
+
                                     <div class="col-md-9" id="allergyRemarks" style="display:none;">
                                         <label asp-for="VchAllergicalDrugs" class="form-label fw-bold">If yes, list drugs/foods</label>
                                         <input asp-for="VchAllergicalDrugs" class="form-control" />
                                     </div>
+
                                     <div class="col-md-3">
                                         <div class="form-check d-flex align-items-center">
                                             <input asp-for="BitIsAlcoholic" type="checkbox" class="form-check-input me-2" />
                                             <label class="form-check-label fw-bold mb-0">Alcohol</label>
                                         </div>
                                     </div>
+
                                     <div class="col-md-3">
                                         <div class="form-check d-flex align-items-center">
                                             <input asp-for="BitIsSmoking" type="checkbox" class="form-check-input me-2" />
@@ -118,15 +167,16 @@
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <label class="form-label fw-bold">Occupation</label>
-                                        <input asp-for="VchOccupation" type="text" name="Occupation" required="required" class="form-control" placeholder="Enter occupation" />
+                                        <input asp-for="VchOccupation" class="form-control" placeholder="Enter occupation" />
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-bold">Social Economic Status</label>
-                                        <input asp-for="VchSocialEconomicStatus" type="text" name="SocialEconomicStatus" required="required" class="form-control" placeholder="Enter SES" />
+                                        <input asp-for="VchSocialEconomicStatus" class="form-control" placeholder="Enter SES" />
                                     </div>
+
                                     <div class="col-md-3">
                                         <label class="form-label fw-bold">Family Support</label>
-                                        <input asp-for="VchFamilySupport" type="text" name="FamilySupport" class="form-control" required="required" placeholder="e.g. Good / Poor" />
+                                        <input asp-for="VchFamilySupport" class="form-control" placeholder="e.g. Good / Poor" />
                                     </div>
                                     <div class="col-md-3">
                                         <label asp-for="VchPsychologicalStatus" class="form-label fw-bold">Psychological Status</label>
@@ -155,6 +205,7 @@
                                             }
                                         </select>
                                     </div>
+
                                     <div class="col-md-3">
                                         <div class="form-check d-flex align-items-center">
                                             <input asp-for="BitFallRisk" type="checkbox" class="form-check-input me-2" id="fallRiskToggle" />
@@ -167,37 +218,33 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="card p-4 shadow-sm border rounded mb-4">
                                 <label asp-for="VchNurseNotes" class="form-label fw-bold">🖊️ Nurse Notes</label>
                                 <textarea asp-for="VchNurseNotes" class="form-control" rows="4" placeholder="Enter nurse notes..."></textarea>
                             </div>
-
-                            @* <div class="mb-3">
-                                <label class="form-label">Upload Supporting Documents(JPG or PDF Multiple allowed)</label>
-                                <div id="drop-zone" class="border border-2 border-dashed p-4 text-center bg-light rounded">
-                                    <p class="mb-1">Drag & drop file here</p>
-                                    <p class="small text-muted">or click to browse</p>
-                                    <input type="file" name="UploadFiles" id="fileInput" class="form-control d-none" />
-                                    <span id="file-name" class="text-primary fw-semibold"></span>
-                                </div
-                                <input type="file" name="UploadFiles" class="form-control" accept=".jpg,.jpeg,.pdf" multiple />
-                            </div> *@
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Upload Supporting Documents (JPG or PDF Multiple allowed)</label>
-                        <div id="drop-zone" class="border border-2 border-dashed p-4 text-center bg-light rounded" style="cursor: pointer;">
-                            <p class="mb-1 text-muted"><i class="fas fa-cloud-upload-alt fa-2x"></i></p>
-                            <p class="mb-1">Drag & drop files here</p>
-                            <p class="small text-muted">or click to browse</p>
-                            <input type="file" name="UploadFiles" id="fileInput" class="form-control d-none" accept=".jpg,.jpeg,.pdf" multiple />
-                        </div>
-                        <div id="file-list" class="mt-3">
-                        </div>
-                    </div>
+                            <!-- Integrated Drag and Drop File Upload Section -->
+                            <div class="mb-4 p-4 border rounded-4 shadow-sm bg-white">
+                                <label class="form-label fw-bold fs-5 text-primary mb-3">
+                                    <i class="fas fa-paperclip me-2"></i>Upload Supporting Documents
+                                </label>
+                                <div id="drop-zone" class="border border-3 border-dashed border-info p-5 text-center bg-light rounded-4 shadow-sm" style="cursor: pointer; transition: all 0.2s ease-in-out;">
+                                    <p class="mb-3 text-info"><i class="fas fa-cloud-upload-alt fa-4x"></i></p>
+                                    <p class="mb-1 fw-bold text-info fs-5">Drag & drop your files here</p>
+                                    <p class="small text-info mb-0">or click to browse</p>
+                                    <!-- Hidden file input - 'name' attribute is crucial for server-side binding -->
+                                    <!-- The 'name' attribute should match the parameter name in your ASP.NET Core controller action -->
+                                    <input type="file" name="supportDocsI" id="supportDocsInput" class="form-control d-none" accept=".jpg,.jpeg,.pdf" multiple />
+                                </div>
+                                <div class="mt-3 text-muted text-center" style="font-size: 0.875rem;">
+                                    Supported file types: JPG, PDF. Maximum: 5 documents.
+                                </div>
+                                <div id="file-list" class="mt-4">
+                                    <!-- Selected file names will be dynamically displayed here -->
+                                </div>
+                            </div>
 
                             <div class="text-center">
-                                <button type="submit" class="btn btn-grd btn-grd-warning px-4 py-2 rounded-pill"                                        
-                               style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">
+                                <button type="submit" class="btn btn-grd btn-grd-warning px-4 py-2 rounded-pill" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">
                                     ✅ Submit Assessment
                                 </button>
                             </div>
@@ -208,124 +255,157 @@
         </div>
     </div>
 </main>
-@section Scripts {   
-  <script>
-      //for drag and drop document
-             document.addEventListener('DOMContentLoaded', function () {
-              const dropZone = document.getElementById('drop-zone');
-              const fileInput = document.getElementById('fileInput');
-              const fileList = document.getElementById('file-list');
 
-              // Prevent default drag behaviors
-              ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                  dropZone.addEventListener(eventName, preventDefaults, false);
-                  document.body.addEventListener(eventName, preventDefaults, false);
-              });
+@section Scripts {   
+         <!-- Bootstrap JS Bundle (Popper included) -->
+           <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-              // Highlight drop zone when item is dragged over it
-              ['dragenter', 'dragover'].forEach(eventName => {
-                  dropZone.addEventListener(eventName, () => dropZone.classList.add('border-primary'), false);
-              });
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get references to DOM elements
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('supportDocsInput'); // Matches the ID in the HTML
+            const fileListDiv = document.getElementById('file-list');
+            const form = document.getElementById('Nassessment'); // Get the form by its ID
+            // Array to hold the File objects selected by the user
+            let selectedFiles = [];
+            const maxFiles = 5; // Maximum number of files allowed
+            // --- Event Listeners ---
+            // Handle click on the drop zone to trigger the hidden file input
+            dropZone.addEventListener('click', () => fileInput.click());
 
-              ['dragleave', 'drop'].forEach(eventName => {
-                  dropZone.addEventListener(eventName, () => dropZone.classList.remove('border-primary'), false);
-              });
 
-              // Handle dropped files
-              dropZone.addEventListener('drop', handleDrop, false);
 
-              // Handle click on drop zone
-              dropZone.addEventListener('click', () => fileInput.click());
+            // Prevent default drag behaviors for the drop zone and document body
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false); // Prevent browser default for entire page
+            });
 
-              // Handle files selected via file input
-              fileInput.addEventListener('change', handleFileSelect, false);
 
-              function preventDefaults(e) {
-                  e.preventDefault();
-                  e.stopPropagation();
-              }
 
-              function handleDrop(e) {
-                  const dt = e.dataTransfer;
-                  const files = dt.files;
+            // Add visual feedback when files are dragged over the drop zone
+            dropZone.addEventListener('dragover', e => {
+                dropZone.classList.add('border-primary'); // Highlight border
+                dropZone.classList.remove('border-info'); // Remove default border color
+            });
 
-                  handleFiles(files);
-              }
 
-              function handleFileSelect(e) {
-                  const files = e.target.files;
-                  handleFiles(files);
-              }
 
-              function handleFiles(files) {
-                  for (const file of files) {
-                      if (file.type === "image/jpeg" || file.type === "application/pdf") {
-                          // Append the file to the file input's files list
-                          const existingFiles = fileInput.files;
-                          const newFiles = new DataTransfer();
+            // Remove visual feedback when files leave the drop zone or are dropped
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.classList.remove('border-primary'); // Remove highlight
+                dropZone.classList.add('border-info'); // Revert to default border color
+            });
 
-                          // Add existing files
-                          for (let i = 0; i < existingFiles.length; i++) {
-                              newFiles.items.add(existingFiles[i]);
-                          }
-                          // Add new file
-                          newFiles.items.add(file);
-                          fileInput.files = newFiles.files;
 
-                          // Display the file name
-                          displayFile(file);
-                      } else {
-                          alert(`File "${file.name}" is not a supported type (.jpg, .jpeg, or .pdf).`);
-                      }
-                  }
-              }
 
-              function displayFile(file) {
-                  const listItem = document.createElement('div');
-                  listItem.className = 'd-flex align-items-center justify-content-between p-2 mb-2 bg-success rounded shadow-sm';
+            // Handle files dropped onto the drop zone
+            dropZone.addEventListener('drop', e => {
+                handleNewFiles(e.dataTransfer.files);
+            });
 
-                  const fileInfo = document.createElement('span');
-                  fileInfo.textContent = file.name;
 
-                  const removeBtn = document.createElement('button');
-                  removeBtn.className = 'btn btn-sm btn-outline-danger';
-                  removeBtn.innerHTML = '<i class="fas fa-times"></i>';
 
-                  removeBtn.addEventListener('click', (e) => {
-                      e.preventDefault(); // Prevent form submission
-                      listItem.remove();
+            // Handle files selected via the traditional file input dialog
+            fileInput.addEventListener('change', () => {
+                handleNewFiles(fileInput.files);
+                // Clear the file input's value to allow re-selection of the same file
+                // This is important for the 'change' event to fire consistently
+                fileInput.value = "";
 
-                      // Remove file from the file input's files list
-                      const existingFiles = fileInput.files;
-                      const newFiles = new DataTransfer();
+            });
+            // --- Core Functions ---
+            // Prevents default browser behavior for drag-and-drop events
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
 
-                      for (let i = 0; i < existingFiles.length; i++) {
-                          if (existingFiles[i].name !== file.name) {
-                              newFiles.items.add(existingFiles[i]);
-                          }
-                      }
-                      fileInput.files = newFiles.files;
-                  });
+            // Processes new files (from drop or select) and updates the selectedFiles array
+            function handleNewFiles(files) {
+                const allowedTypes = ['application/pdf', 'image/jpeg'];
+                // Iterate over the new files
+                for (const file of files) {
+                    // Check if max file limit is reached
+                    if (selectedFiles.length >= maxFiles) {
+                        alert(`You can only upload a maximum of ${maxFiles} files.`);
+                        break; // Stop processing further files
+                    }
 
-                  listItem.appendChild(fileInfo);
-                  listItem.appendChild(removeBtn);
-                  fileList.appendChild(listItem);
-              }
-          });
+                    // Validate file type
+                    if (!allowedTypes.includes(file.type)) {
+                        alert(`Invalid file type: "${file.name}". Only JPG and PDF are allowed.`);
+                        continue; // Skip this file
+                    }
+                    // Check for duplicate files (by name and size)
+                    if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                        selectedFiles.push(file); // Add unique and valid file
+                    } else {
+                        alert(`File "${file.name}" is already selected.`);
+                    }
+                }
+                renderFileList(); // Update the UI display
+            }
+            // Renders the current list of selected files in the UI
+            function renderFileList() {
+                fileListDiv.innerHTML = ''; // Clear existing list items
+                selectedFiles.forEach((file, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'file-list-item d-flex justify-content-between align-items-center bg-success border rounded-pill px-4 py-2 shadow-sm';
+                    div.innerHTML = `<span class="text-dark fw-bold"><i class="fas fa-file-alt me-2 text-secondary"></i>${file.name}</span>
+                        <button type="button" class="btn btn-close" aria-label="Remove" data-index="${index}"></button>`;
+                    fileListDiv.appendChild(div);
+                });
+
+                // Attach event listeners to the dynamically created remove buttons
+
+                fileListDiv.querySelectorAll('.btn-close').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const indexToRemove = e.target.getAttribute('data-index');
+                        selectedFiles.splice(indexToRemove, 1); // Remove file from array
+                        renderFileList(); // Re-render the list
+                    });
+                });
+            }
+
+
+            // --- Form Submission Logic (Non-AJAX) ---
+            // This event listener runs just before the form is submitted normally
+            // It ensures that the 'fileInput' element contains all files from 'selectedFiles'
+            if (form) { // Only attach if a form is found
+                form.addEventListener("submit", function (e) {
+                  // Create a new DataTransfer object to hold the files
+                    const dataTransfer = new DataTransfer();
+                    selectedFiles.forEach(file => {
+                        dataTransfer.items.add(file); // Add each selected file
+                    });
+                    // Assign the new FileList to the hidden file input
+                    fileInput.files = dataTransfer.files;
+                    // The form will now submit normally with the files attached to 'fileInput'
+                    // No e.preventDefault() here, as we want the form to submit
+                });
+            } 
+            else {
+                console.warn("No parent <form> element found for the file upload section. Files might not be submitted correctly.");
+            }
+        });
+
+
           // Toggle visibility of remarks based on checkbox state
-
-            function toggleVisibility(toggleId, targetId, inputId) {
+           function toggleVisibility(toggleId, targetId, inputId) {
             const toggle = document.getElementById(toggleId);
             const target = document.getElementById(targetId);
             const input = inputId ? document.getElementById(inputId) : null;
-
             function updateVisibility() {
                 const show = toggle.checked;
                 target.style.display = show ? "block" : "none";
                 if (input) {
                     if (show) {
-                        input.setAttribute("required", "required");
-                    } else {
+                              input.setAttribute("required", "required");                                          
+                    } 
+                    else 
+                    {
                         input.removeAttribute("required");
                     }
                 }
@@ -337,5 +417,7 @@
             toggleVisibility("allergyToggle", "allergyRemarks");
             toggleVisibility("fallRiskToggle", "fallRiskRemarks");
         });
-  </script>
+
+    </script>
+
 }

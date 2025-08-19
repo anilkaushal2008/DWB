@@ -15,7 +15,7 @@ public partial class TblNassessmentDoc
 
     public string VchFilePath { get; set; }
 
-    public DateTime DtCreated { get; set; }
+    public DateTime? DtCreated { get; set; }
 
     public string VchCreatedBy { get; set; }
 
@@ -26,4 +26,6 @@ public partial class TblNassessmentDoc
     public bool BitIsForNassessment { get; set; }
 
     public bool BitIsForDocAssessment { get; set; }
+
+    public virtual TblNsassessment IntFkAss { get; set; }
 }

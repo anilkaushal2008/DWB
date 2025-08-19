@@ -12,12 +12,15 @@ namespace DWB.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly DWBEntity _context;
-        public AssessmentController(IConfiguration configuration, DWBEntity dWBEntity)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public AssessmentController(IConfiguration configuration, DWBEntity dWBEntity, IWebHostEnvironment webHostEnvironment)
         {
             _configuration = configuration;
             _context = dWBEntity;
+            _webHostEnvironment = webHostEnvironment;
         }
-        //GET:AssessmentController
+
+        #region Nursing Assessment Actions ADD,EDIT,VIEW
         public async Task<IActionResult> NursingAssessment(string dateRange)
         {
             List<SP_OPD> patients = new List<SP_OPD>();
@@ -61,25 +64,25 @@ namespace DWB.Controllers
             //check and update completed status of nursing and doctor too
             List<TblNsassessment> tbllist = new List<TblNsassessment>();
             tbllist = await _context.TblNsassessment
-               .Where(a => a.IntCode == intUnitcode && a.IntHmscode==intHMScode && a.BitIsCompleted == true)
+               .Where(a => a.IntCode == intUnitcode && a.IntHmscode == intHMScode && a.BitIsCompleted == true)
                .ToListAsync();
             if (tbllist.Count() != 0)
             {
                 foreach (var p in patients)
                 {
-                    var t = tbllist.FirstOrDefault(x => x.VchUhidNo == p.opdno && x.IntIhmsvisit==p.visit);
-                    if (t!=null)
+                    var t = tbllist.FirstOrDefault(x => x.VchUhidNo == p.opdno && x.IntIhmsvisit == p.visit);
+                    if (t != null)
                     {
                         p.bitTempNSAssComplete = t != null ? t.BitIsCompleted : false;
                         p.bitTempDOcAssComplete = t != null ? t.BitIsDoctorCompleted : false; // Adjust based on your field name
-                    }                   
-                }               
+                    }
+                }
             }
             return View(patients);
         }
 
         [HttpGet]
-        public IActionResult NAssessmentCreate(string uhid, string pname,string visit,string gender, string age,string jdate, string timein, string consultant, string category)
+        public IActionResult NAssessmentCreate(string uhid, string pname, string visit, string gender, string age, string jdate, string timein, string consultant, string category)
         {
             var model = new TblNsassessment
             {
@@ -90,24 +93,24 @@ namespace DWB.Controllers
                 VchIhmintime = timein,
                 VchHmsconsultant = consultant,
                 VchHmscategory = category,
-                DtStartTime = DateTime.Now,  
-                IntIhmsvisit=Convert.ToInt32(visit),
+                DtStartTime = DateTime.Now,
+                IntIhmsvisit = Convert.ToInt32(visit),
                 VchCreatedBy = User.Identity.Name.ToString(),
-                VchIpUsed = HttpContext.Connection.RemoteIpAddress.ToString()                
+                VchIpUsed = HttpContext.Connection.RemoteIpAddress.ToString()
             };
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> NAssessmentCreate(TblNsassessment model, List<IFormFile>? UploadFiles)
+        public async Task<IActionResult> NAssessmentCreate(TblNsassessment model, List<IFormFile>? supportDocsI)
         {
             if (ModelState.IsValid)
             {
                 // Save logic here, for example:
-                model.DtEndTime = DateTime.Now; // Set end time to now
-                model.VchTat = null; // Set TAT to null initially
-                model.VchCreatedBy = User.Identity.Name; // Set created by user
+                model.DtEndTime = DateTime.Now; //Set end time to now
+                model.VchTat = null; //Set TAT to null initially
+                model.VchCreatedBy = User.Identity.Name; //Set created by user
                 model.VchIpUsed = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown"; // Get IP address
                 model.BitIsCompleted = true;
                 model.IntHmscode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
@@ -116,39 +119,36 @@ namespace DWB.Controllers
                 _context.TblNsassessment.Add(model);
                 _context.SaveChanges();
                 //save uploaded files if any
-                if (UploadFiles != null && UploadFiles.Any())
+                if (supportDocsI != null && supportDocsI.Any())
                 {
                     var allowedExtensions = new[] { ".jpg", ".jpeg", ".pdf" };
-                    var uploadFolder = Path.Combine("wwwroot/uploads/NAssessment");
-
+                    var uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Uploads", "NAssessment");
+                    //Path.Combine("wwwroot/uploads/NAssessment");
                     if (!Directory.Exists(uploadFolder))
                         Directory.CreateDirectory(uploadFolder);
-
-                    foreach (var file in UploadFiles)
+                    foreach (var file in supportDocsI)
                     {
                         var ext = Path.GetExtension(file.FileName).ToLower();
-
                         if (!allowedExtensions.Contains(ext))
                             continue;
                         var originalName = Path.GetFileNameWithoutExtension(file.FileName);
                         var cleanedName = originalName.Replace(" ", "_");
+                        cleanedName = cleanedName + model.IntAssessmentId.ToString();
                         var savedName = $"{cleanedName}{ext}"; //$"{Guid.NewGuid()}{ext}";
                         var filePath = Path.Combine(uploadFolder, savedName);
-
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
                             await file.CopyToAsync(stream);
                         }
-
                         var assessmentFile = new TblNassessmentDoc
                         {
                             IntFkAssId = model.IntAssessmentId,
-                            VchFileName = file.FileName,
-                            VchFilePath = "/uploads/assessments/" + savedName,
+                            VchFileName = savedName,
+                            VchFilePath = uploadFolder + "/" + savedName,
                             VchCreatedBy = User.Identity.Name,
                             VchCreatedHost = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                            VchCreatedIp= HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                            BitIsForNassessment=true
+                            VchCreatedIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                            BitIsForNassessment = true
                         };
                         _context.TblNassessmentDoc.Add(assessmentFile);
                         await _context.SaveChangesAsync();
@@ -157,81 +157,231 @@ namespace DWB.Controllers
                 TempData["Success"] = "Nursing assessment saved successfully!";
                 return RedirectToAction("NursingAssessment"); // or redirect to listing or details
             }
-            // Model is invalid; re-display the form with errors
+            //Model is invalid; re-display the form with errors
             return View(model);
-        }       
+        }
 
         [HttpGet]
         public IActionResult ViewAssessment(string uhid, int visit, string date)
         {
-            var data = _context.TblNsassessment.FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit==visit && x.BitIsCompleted == true && x.VchHmsdtEntry==date);
+            var data = _context.TblNsassessment
+                .Include(a => a.TblNassessmentDoc)
+                .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == visit && x.BitIsCompleted == true && x.VchHmsdtEntry == date);
             if (data == null)
+            {
                 return Content("<div class='alert alert-warning'>No data found.</div>");
-
-            return PartialView("_NsAssessmentView", data);
+            }
+            else
+            {
+                return PartialView("_NsAssessmentView", data);
+            }
         }
-        public IActionResult Edit(string uhid, int visit, string date)
+
+        public IActionResult NAssessmentEdit(string uhid, int visit, string date)
         {
             //check param reach here
-            var model = _context.TblNsassessment
+            var getAssessment = _context.TblNsassessment.Include(a => a.TblNassessmentDoc)
                         .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == visit && x.VchHmsdtEntry == date);
-            return PartialView("_EditAssessmentPartial", model);
+            if (getAssessment != null)
+            {
+                return View(getAssessment);
+            }
+            else
+            {
+                TempData["Error"] = "Assessment detail not found, contact to admin!";
+                return RedirectToAction("NursingAssessment");
+            }
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(TblNsassessment model)
+        public async Task<IActionResult> NAssessmentEdit(TblNsassessment updatedModel, List<IFormFile>? supportDocsI, string? deletedFileIds)
         {
-            if (!ModelState.IsValid)
-            {
-                //Return the partial view with validation errors
-                return PartialView("_EditAssessmentPartial", model);
-            }
-            var existingRecord = await _context.TblNsassessment.FindAsync(model.IntAssessmentId);
-            if (existingRecord == null)
+            if (updatedModel.IntAssessmentId == 0)
             {
                 return NotFound();
             }
-            // Update fields
-            existingRecord.VchBloodPressure = model.VchBloodPressure;
-            existingRecord.VchPulse = model.VchPulse;
-            existingRecord.DecTemperature = model.DecTemperature;
-            existingRecord.DecSpO2 = model.DecSpO2;
-            existingRecord.DecWeight = model.DecWeight;
-            existingRecord.DecHeight = model.DecHeight;
-            existingRecord.DecRespiratoryRate = model.DecRespiratoryRate;
-            existingRecord.DecOxygenFlowRate = model.DecOxygenFlowRate;
+            if (ModelState.IsValid)
+            {
+                // --- 1. Update the main assessment data ---
+                var existingAssessmentWithDoc = await _context.TblNsassessment.Include(a => a.TblNassessmentDoc)
+                        .FirstOrDefaultAsync(a => a.IntAssessmentId == updatedModel.IntAssessmentId);
+                if (existingAssessmentWithDoc != null)
+                {
+                    var filesToDeleteFromDb = await _context.TblNassessmentDoc.Where(d => d.IntFkAssId == updatedModel.IntAssessmentId).ToListAsync();
+                    //If there are files to delete, remove them from the database
+                    if (filesToDeleteFromDb != null && filesToDeleteFromDb.Any())
+                    {
+                        foreach (var doc in filesToDeleteFromDb)
+                        {
+                            // delete file from disk
+                            var filePath = Path.Combine("wwwroot/uploads/NAssessment", doc.VchFileName);
+                            if (System.IO.File.Exists(filePath))
+                            {
+                                System.IO.File.Delete(filePath);
+                            }
+                            // remove from database
+                            _context.TblNassessmentDoc.Remove(doc);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    // Update the existing assessment with the new values
+                    existingAssessmentWithDoc.VchBloodPressure = updatedModel.VchBloodPressure;
+                    existingAssessmentWithDoc.VchPulse = updatedModel.VchPulse;
+                    existingAssessmentWithDoc.DecTemperature = updatedModel.DecTemperature;
+                    existingAssessmentWithDoc.DecSpO2 = updatedModel.DecSpO2;
+                    existingAssessmentWithDoc.DecWeight = updatedModel.DecWeight;
+                    existingAssessmentWithDoc.DecHeight = updatedModel.DecHeight;
+                    existingAssessmentWithDoc.DecRespiratoryRate = updatedModel.DecRespiratoryRate;
+                    existingAssessmentWithDoc.DecOxygenFlowRate = updatedModel.DecOxygenFlowRate;
 
-            existingRecord.BitIsAllergical = model.BitIsAllergical;
-            existingRecord.VchAllergicalDrugs = model.VchAllergicalDrugs;
-            existingRecord.BitIsAlcoholic = model.BitIsAlcoholic;
-            existingRecord.BitIsSmoking = model.BitIsSmoking;
-            existingRecord.VchLmpForFemale = model.VchLmpForFemale;
+                    existingAssessmentWithDoc.BitIsAllergical = updatedModel.BitIsAllergical;
+                    existingAssessmentWithDoc.VchAllergicalDrugs = updatedModel.VchAllergicalDrugs;
+                    existingAssessmentWithDoc.BitIsAlcoholic = updatedModel.BitIsAlcoholic;
+                    existingAssessmentWithDoc.BitIsSmoking = updatedModel.BitIsSmoking;
+                    existingAssessmentWithDoc.VchLmpForFemale = updatedModel.VchLmpForFemale;
 
-            existingRecord.BitDiabetes = model.BitDiabetes;
-            existingRecord.BitHeartDisease = model.BitHeartDisease;
-            existingRecord.BitHypertension = model.BitHypertension;
-            existingRecord.BitAsthma = model.BitAsthma;
-            existingRecord.BitCholesterol = model.BitCholesterol;
-            existingRecord.BitTuberculosis = model.BitTuberculosis;
-            existingRecord.BitSurgery = model.BitSurgery;
-            existingRecord.BitHospitalization = model.BitHospitalization;
-            existingRecord.VchOtherHistory = model.VchOtherHistory;
+                    existingAssessmentWithDoc.BitDiabetes = updatedModel.BitDiabetes;
+                    existingAssessmentWithDoc.BitHeartDisease = updatedModel.BitHeartDisease;
+                    existingAssessmentWithDoc.BitHypertension = updatedModel.BitHypertension;
+                    existingAssessmentWithDoc.BitAsthma = updatedModel.BitAsthma;
+                    existingAssessmentWithDoc.BitCholesterol = updatedModel.BitCholesterol;
+                    existingAssessmentWithDoc.BitTuberculosis = updatedModel.BitTuberculosis;
+                    existingAssessmentWithDoc.BitSurgery = updatedModel.BitSurgery;
+                    existingAssessmentWithDoc.BitHospitalization = updatedModel.BitHospitalization;
+                    existingAssessmentWithDoc.VchOtherHistory = updatedModel.VchOtherHistory;
 
-            existingRecord.VchPsychologicalStatus = model.VchPsychologicalStatus;
-            existingRecord.VchOccupation = model.VchOccupation;
-            existingRecord.VchSocialEconomicStatus = model.VchSocialEconomicStatus;
-            existingRecord.VchFamilySupport = model.VchFamilySupport;
+                    existingAssessmentWithDoc.VchPsychologicalStatus = updatedModel.VchPsychologicalStatus;
+                    existingAssessmentWithDoc.VchOccupation = updatedModel.VchOccupation;
+                    existingAssessmentWithDoc.VchSocialEconomicStatus = updatedModel.VchSocialEconomicStatus;
+                    existingAssessmentWithDoc.VchFamilySupport = updatedModel.VchFamilySupport;
 
-            existingRecord.IntPainScore = model.IntPainScore;
-            existingRecord.BitFallRisk = model.BitFallRisk;
-            existingRecord.VchFallRiskRemarks = model.VchFallRiskRemarks;
+                    existingAssessmentWithDoc.IntPainScore = updatedModel.IntPainScore;
+                    existingAssessmentWithDoc.BitFallRisk = updatedModel.BitFallRisk;
+                    existingAssessmentWithDoc.VchFallRiskRemarks = updatedModel.VchFallRiskRemarks;
 
-            _context.Update(existingRecord);
-            await _context.SaveChangesAsync();
-
-            // Return success response to close modal via JS or AJAX
-            return Json(new { success = true, message = "Assessment updated successfully." });
-            //return View("NursingAssessment");
+                    _context.Update(existingAssessmentWithDoc);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    TempData["Error"] = "Nursing assessment detail not found contact to admin!";
+                    return RedirectToAction("NursingAssessment");
+                }
+                // --- 3. Handle NEW files to be uploaded ---
+                if (supportDocsI != null && supportDocsI.Any())
+                {
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".pdf" };
+                    var uploadFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "NAssessment");
+                    if (!Directory.Exists(uploadFolderPath))
+                    {
+                        Directory.CreateDirectory(uploadFolderPath);
+                    }
+                    foreach (var file in supportDocsI)
+                    {
+                        var ext = Path.GetExtension(file.FileName).ToLower();
+                        if (allowedExtensions.Contains(ext))
+                        {
+                            var uniqueFileName = $"{Guid.NewGuid()}{ext}";
+                            var filePath = Path.Combine(uploadFolderPath, uniqueFileName);
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+                            var assessmentFile = new TblNassessmentDoc
+                            {
+                                IntFkAssId = updatedModel.IntAssessmentId, // Link to the existing assessment
+                                VchFileName = file.FileName,
+                                VchFilePath = $"/uploads/NAssessment/{uniqueFileName}",
+                                VchCreatedBy = User.Identity.Name,
+                                VchCreatedHost = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                                VchCreatedIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+                                DtCreated = DateTime.Now
+                            };
+                            _context.TblNassessmentDoc.Add(assessmentFile);
+                        }
+                    }
+                    // Save all changes (updates, deletions, and new additions) in one go
+                    await _context.SaveChangesAsync();
+                }
+                TempData["Success"] = "Nursing assessment updated successfully!";
+                return RedirectToAction("NursingAssessment");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Model error generated contact to administrator!";
+                return View(updatedModel); // Return the view with validation errors
+            }
         }
+
+        private bool TblNsassessmentExists(int id)
+        {
+            return _context.TblNsassessment.Any(e => e.IntAssessmentId == id);
+        }
+
+        #endregion
+
+        #region Doctor Assessment Actions ADD,EDIT,VIEW
+        public async Task<IActionResult> DoctorAssessment(string dateRange)
+        {
+            List<SP_OPD> patients = new List<SP_OPD>();
+            //Get branch ihms code
+            int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            //Get Deafult OPD API
+            string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
+            string finalURL = string.Empty;
+            if (dateRange != null)
+            {
+                var dates = dateRange.Split(" - ");
+                DateTime Sdate = DateTime.ParseExact(dates[0], "dd/MM/yyyy", null);
+                DateTime Edate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null);
+                string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
+                string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
+                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
+            }
+            else
+            {
+                //set today date patient view               
+                string today = DateTime.Now.ToString("dd-MM-yyyy");
+                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=null
+                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=null";
+            }
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(finalURL);
+                var response = await client.GetAsync(finalURL);
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(jsonString)) // Ensure jsonString is not null or empty
+                    {
+                        patients = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>(); // Handle possible null value
+                    }
+                }
+            }
+            //get assessed patients
+            var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            //check and update completed status of nursing and doctor too
+            List<TblNsassessment> tbllist = new List<TblNsassessment>();
+            tbllist = await _context.TblNsassessment
+               .Where(a => a.IntCode == intUnitcode && a.IntHmscode == intHMScode && a.BitIsCompleted == true)
+               .ToListAsync();
+            if (tbllist.Count() != 0)
+            {
+                foreach (var p in patients)
+                {
+                    var t = tbllist.FirstOrDefault(x => x.VchUhidNo == p.opdno && x.IntIhmsvisit == p.visit);
+                    if (t != null)
+                    {
+                        p.bitTempNSAssComplete = t != null ? t.BitIsCompleted : false;
+                        p.bitTempDOcAssComplete = t != null ? t.BitIsDoctorCompleted : false; // Adjust based on your field name
+                    }
+                }
+            }
+            return View(patients);
+        }
+        #endregion
+
     }
 }

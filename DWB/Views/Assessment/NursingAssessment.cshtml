@@ -88,11 +88,11 @@
                                            {
                                                <div class="d-inline-flex gap-2">
                                                 <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')">View</a>
-                                                    <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadEditAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')"> Edit</a>
+                                                    <a class="btn btn-grd btn-grd-info btn-sm" href="@Url.Action("NassessmentEdit", "Assessment", new { uhid = @p.opdno, visit = @p.visit, date = @p.jdate.ToString() })"> Edit</a>
                                                 </div>
                                            }
                                        </tr>
-                                }
+                                       }
                             </tbody>
                         </table>
                     </div>
@@ -137,6 +137,10 @@
     @* for date range *@
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+         //For partial view Edit assessment
+    <!-- Bootstrap JS Bundle (Popper included) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
           $('#nursingTable').DataTable({
@@ -186,75 +190,46 @@
             }
             });
         }
-        //for edit assessment
-         function loadEditAssessment(uhid, visit, jdate) {
-            $.ajax({
-                url: '/Assessment/Edit',
-                data: { uhid: uhid,
-                visit:visit,
-                date:jdate},
-                type: 'GET',
-                success: function (response) {
-                $('#viewAssessmentContent').html(response);
-                var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
-                modal.show();
-            },
-            error: function () {
-                alert('Failed to load completed assessment. Please try again.');
-            }
-            });
-        }
+        // //for edit assessment
+        //  function loadEditAssessment(uhid, visit, jdate) {
+        //     $.ajax({
+        //         url: '/Assessment/NAssessmentEdit',
+        //         data: { uhid: uhid,
+        //         visit:visit,
+        //         date:jdate},
+        //         type: 'GET',
+        //         success: function (response) {
+        //         $('#viewAssessmentContent').html(response);
+        //         var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
+        //         modal.show();
+        //     },
+        //     error: function () {
+        //         alert('Failed to load completed assessment. Please try again.');
+        //     }
+        //     });
+        // }
 
         //for update post method
-            $(document).ready(function () {
-            $('#editAssessmentForm').submit(function (e) {
-                e.preventDefault();
-                var form = $(this);
-                $.ajax({
-                    type: 'POST',
-                    url: form.attr('action'),
-                    data: form.serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            $('#editAssessmentModal').modal('hide');
-                            alert(response.message);
-                            // Optionally reload patient table or show toast
-                               location.reload(); // or use AJAX reload for table only
-                        } else {
-                            $('#editAssessmentContent').html(response); // if validation error, re-render partial
-                        }
-                    }
-                });
-            });
-        });
-
-         function toggleVisibility(toggleId, targetId, inputId) {
-            const toggle = document.getElementById(toggleId);
-            const target = document.getElementById(targetId);
-            const input = inputId ? document.getElementById(inputId) : null;
-
-            function updateVisibility() {
-                const show = toggle.checked;
-                target.style.display = show ? "block" : "none";
-                if (input) {
-                    if (show) {
-                        input.setAttribute("required", "required");
-                    } else {
-                        input.removeAttribute("required");
-                        input.value = "";
-                    }
-                }
-            }
-
-        //for edit action query
-        toggle.addEventListener("change", updateVisibility);
-        updateVisibility(); // initialize on load
-        }
-
-        window.addEventListener("DOMContentLoaded", function () {
-            toggleVisibility("allergyToggle", "allergyRemarks", "VchAllergicalDrugs");
-            toggleVisibility("fallRiskToggle", "fallRiskRemarks", "VchFallRiskRemarks");
-        });
-
+        //     $(document).ready(function () {
+        //     $('#editAssessmentForm').submit(function (e) {
+        //         e.preventDefault();
+        //         var form = $(this);
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: form.attr('action'),
+        //             data: form.serialize(),
+        //             success: function (response) {
+        //                 if (response.success) {
+        //                     $('#editAssessmentModal').modal('hide');
+        //                     alert(response.message);
+        //                     // Optionally reload patient table or show toast
+        //                        location.reload(); // or use AJAX reload for table only
+        //                 } else {
+        //                     $('#editAssessmentContent').html(response); // if validation error, re-render partial
+        //                 }
+        //             }
+        //         });
+        //     });
+        // });   
     </script>
-}
+ }

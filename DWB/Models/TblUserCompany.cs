@@ -13,6 +13,10 @@ public partial class TblUserCompany
 
     public int FkIntCompanyId { get; set; }
 
+    public int? FkIntHmscode { get; set; }
+
+    public string VchDoctorCode { get; set; }
+
     public DateTime? DtCreated { get; set; }
 
     public string VchCreatedBy { get; set; }

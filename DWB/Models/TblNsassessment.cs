@@ -2,7 +2,6 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace DWB.Models;
 
@@ -10,36 +9,22 @@ public partial class TblNsassessment
 {
     public int IntAssessmentId { get; set; }
 
-    [Required(ErrorMessage = "UHID is required")]
     public string VchUhidNo { get; set; }
 
-    [Required(ErrorMessage = "Blood Pressure is required")]
     public string VchBloodPressure { get; set; }
 
-    [Required(ErrorMessage = "Pulse is required")]
     public string VchPulse { get; set; }
 
-    [Required(ErrorMessage = "Temperature is required")]
     public string DecTemperature { get; set; }
 
-    [Required(ErrorMessage = "Enter SpO2")]
-    [Range(50, 100, ErrorMessage = "SpO2 must be between 50 and 100")]
     public decimal DecSpO2 { get; set; }
 
-    [Required(ErrorMessage = "Enter weight in kg")]
-    [Range(1, 300, ErrorMessage = "Weight must be between 1 and 300")]
     public decimal DecWeight { get; set; }
 
-    [Required(ErrorMessage = "Enter height ")]
-    [Range(30, 250, ErrorMessage = "Height must be between 30 and 250")]
     public decimal? DecHeight { get; set; }
 
-    [Required(ErrorMessage = "Enter Respiratory rate")]
-    [Range(5, 50, ErrorMessage = "Respiratory Rate must be between 5 and 50")]
     public decimal DecRespiratoryRate { get; set; }
 
-    [Required(ErrorMessage = "Enter Oxygen flow rate (0-20)")]
-    [Range(0, 20, ErrorMessage = "O₂ Flow Rate must be between 0 and 20")]
     public decimal DecOxygenFlowRate { get; set; }
 
     public string VchNurseNotes { get; set; }
@@ -131,4 +116,6 @@ public partial class TblNsassessment
     public int IntYr { get; set; }
 
     public int IntHmscode { get; set; }
+
+    public virtual ICollection<TblNassessmentDoc> TblNassessmentDoc { get; set; } = new List<TblNassessmentDoc>();
 }
