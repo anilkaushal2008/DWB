@@ -4,7 +4,6 @@
     {
         public int CompanyId { get; set; }
         public string? CompanyName { get; set; }
-
         public bool IsSelected { get; set; }
 
         // Optional doctor code

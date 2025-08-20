@@ -44,6 +44,8 @@ namespace DWB.Models
         public IFormFile? SignatureFile { get; set; }
 
         // To show uploaded images (optional)
+        public string? UploadedProfileFile { get; set; }
+        public string? UploadedSignatureFile { get; set; }
         public string? ProfilePath { get; set; }
         public string? SignaturePath { get; set; }
 

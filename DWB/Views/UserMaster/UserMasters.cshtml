@@ -39,8 +39,7 @@
 							</div>
 						    <div class="tab-pane fade show @(TempData["ActiveTab"]?.ToString() == "UserTab" ? "active" : "")" id="primary-pills-usermaster" role="tabpanel">
 								@await Html.PartialAsync("_AllUser", Model.AllUsers)
-							</div>
-							
+							</div>							
 						</div>
 					</div>
 				</div>
@@ -70,7 +69,6 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>	
 	<script type="text/javascript">
-
 		$(document).ready(function () {
 			  $('#usersTable').DataTable({
 					   pageLength: 50,

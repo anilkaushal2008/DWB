@@ -56,7 +56,10 @@
 </style>
 
 <form id="userForm" enctype="multipart/form-data" asp-action="@(Model.IntUserId > 0 ? "EditUser" : "CreateUser")" asp-controller="UserMaster" method="post">
-    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.IntUserId)
+    @Html.HiddenFor(m => m.ProfilePath)
+    @Html.HiddenFor(m => m.SignaturePath)
+ @Html.AntiForgeryToken()
 
     <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">@((Model.IntUserId > 0) ? "Edit User" : "Create User")</h5>
@@ -96,7 +99,7 @@
 
             <div class="col-md-6 form-group">
                 <label asp-for="HpasswordHash" class="form-label required-label"></label>
-                <input asp-for="HpasswordHash" type="password" class="form-control" />
+                <input asp-for="HpasswordHash" type="password" class="form-control" placeholder="Password (leave blank to keep existing)" />
                 <span asp-validation-for="HpasswordHash" class="text-danger"></span>
             </div>
         </div>
@@ -138,7 +141,8 @@
                 <div class="flex flex-col items-center">
                     <label>Profile Image</label>
                     <label class="profile-upload">
-                        <img id="profileImagePreview" src="https://placehold.co/200x200/cccccc/333333?text=Profile" />
+                        <img id="profileImagePreview" src="@(string.IsNullOrEmpty(Model.ProfilePath)
+                          ? "https://placehold.co/200x200/cccccc/333333?text=Profile" : Url.Content("~/Uploads/Profile/"+Model.UploadedProfileFile))"  />
                         <input asp-for="ProfileFile" type="file" id="ProfileFileInput" accept="image/jpeg" style="display:none;" />
                     </label>
                 </div>
@@ -148,38 +152,19 @@
                 <div class="flex flex-col items-center">
                     <label>Signature</label>
                     <label class="signature-upload">
-                        <img id="signatureImagePreview" src="https://placehold.co/300x100/cccccc/333333?text=Signature" />
+                        <img id="signatureImagePreview" src=@(string.IsNullOrEmpty(Model.SignaturePath)
+                       ? "https://placehold.co/300x100/cccccc/333333?text=Signature" : Url.Content("~/Uploads/Signature/"+Model.UploadedSignatureFile))  />
                         <input asp-for="SignatureFile" type="file" id="SignatureFileInput" accept="image/jpeg" style="display:none;" />
                     </label>
                 </div>
-            </div>
-           @*  <div class="mb-3">
-                <label asp-for="ProfileFile" class="form-label"></label>
-                <input asp-for="ProfileFile" type="file" id="ProfileFileInput" class="form-control" />
-                @if (!string.IsNullOrEmpty(Model.ProfilePath))
-                {
-                    <img src="@Model.ProfilePath" class="img-thumbnail mt-2" style="max-height:100px;" />
-                }
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="SignatureFile" class="form-label"></label>
-                <input asp-for="SignatureFile" type="file" id="ProfileFileInput" class="form-control" />
-                @if (!string.IsNullOrEmpty(Model.SignaturePath))
-                {
-                    <img src="@Model.SignaturePath" class="img-thumbnail mt-2" style="max-height:100px;" />
-                }
-            </div> *@
+            </div>          
         </div>
-
-
         <hr />
         <div class="row border p-2 rounded">
             <h6 align="center" style="color:darkorange">Assign company (For consultant add HMS doctor code)</h6>
             <hr />
             @for (int i = 0; i < Model.UserCompanies.Count; i++)
             {
-
                 <div class="col-md-6 mb-3">
                     <div class="company-row">
                         <div class="form-check">
@@ -188,7 +173,7 @@
                                    class="form-check-input company-checkbox"
                                    onclick="toggleDoctorCode($(this))" />
                             @*for get isselecetd on post *@ 
-                                    <input type="hidden" asp-for="UserCompanies[i].IsSelected" />
+                                    <input type="hidden" asp-for="UserCompanies[i].IsSelected" value="false" />
                             <label class="form-check-label fw-bold" for="company_@i">
                                 @Model.UserCompanies[i].CompanyName
                             </label>
@@ -211,12 +196,6 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         </div>
 </form>
-
-@* <script src="/assets/js/main.js"></script>
-<script src="~/assets/js/bootstrap.bundle.min.js"></script>
-<!--bootstrap js-->
-<script src="~/assets/js/bootstrap.bundle.min.js"></script>
-<script src="https:code.jquery.com/jquery-3.6.0.min.js"></script> *@
 <script type="text/javascript">    
 
 
