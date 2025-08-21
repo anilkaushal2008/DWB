@@ -157,25 +157,27 @@ namespace DWB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(CreateUserViewModel model, IFormFile ProfileFile, IFormFile SignatureFile)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["Error"] = "Model error generated, contact to administrator!";
-                LoadDropdowns();
-                return PartialView("_PartialCreateUser", model);
-            }
+            //if (!ModelState.IsValid)
+            //{
+            //    TempData["Error"] = "Model error generated, contact to administrator!";
+            //    LoadDropdowns();
+            //    return PartialView("_PartialCreateUser", model);
+            //}
             //check duplicate user name
             if (_context.TblUsers.Any(d => d.VchUsername == model.VchUsername))
             {   //add model error
+                //TempData["ActiveTab"] = "UserTab";
                 ModelState.AddModelError("VchUsername", "User already existing ");
                 LoadDropdowns();
                 return PartialView("_PartialCreateUser", model);
             }
             var FinalProfileFile = string.Empty;
             var FinalSignatureFile = string.Empty;
-            var ProfileFolder = Path.Combine(_WebHostEnvironment.WebRootPath, "uploads", "Profile");
-            var SignatureFolder = Path.Combine(_WebHostEnvironment.WebRootPath, "uploads", "Signature");
+            var ProfileFolder = string.Empty;
+            var SignatureFolder = string.Empty;
             if (model.ProfileFile != null)
             {
+                ProfileFolder= Path.Combine(_WebHostEnvironment.WebRootPath, "uploads", "Profile");
                 var Extension = Path.GetExtension(ProfileFile.FileName);
                 FinalProfileFile = $"{Path.GetFileNameWithoutExtension(model.ProfileFile.FileName)}-{DateTime.Now:yyyyMMddHHmmss}{Extension}";
                 var filepath = Path.Combine(ProfileFolder, FinalProfileFile);
@@ -203,6 +205,7 @@ namespace DWB.Controllers
             }
             if (model.SignatureFile != null)
             {
+                SignatureFolder = Path.Combine(_WebHostEnvironment.WebRootPath, "uploads", "Signature");
                 var Extension = Path.GetExtension(SignatureFile.FileName);
                 FinalSignatureFile = $"{Path.GetFileNameWithoutExtension(model.SignatureFile.FileName)}_{DateTime.Now:yyyyMMddHHmmss}{Extension}";
                 var filePath = Path.Combine(SignatureFolder, FinalSignatureFile);

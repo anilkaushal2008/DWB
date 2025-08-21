@@ -125,6 +125,8 @@ namespace DWB.Controllers
                     new Claim("BaseAPI", selectedCompany.VchDwbApi.ToString()??"null"),                   
                     //All User assigned companies
                     new Claim("AllCompanyIds", companyIdList),
+                    //CHeck profile, if avilable add to claim
+                    new Claim("ProfilePath", user.VchProfileFileName ?? string.Empty),
                     //set role
                     new Claim(ClaimTypes.Role, roleName)
                 };
