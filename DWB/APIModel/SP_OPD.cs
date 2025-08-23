@@ -11,6 +11,7 @@ namespace DWB.APIModel
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateOnly jdate { get; set; }
         public string descript { get; set; } = string.Empty;
+        public string doccode { get; set; } = string.Empty;
         public string timein { get; set; } = string.Empty;
         public string age { get; set; } = string.Empty;
         public string sex { get; set; }

@@ -117,5 +117,7 @@ public partial class TblNsassessment
 
     public int IntHmscode { get; set; }
 
+    public virtual ICollection<TblDoctorAssessment> TblDoctorAssessment { get; set; } = new List<TblDoctorAssessment>();
+
     public virtual ICollection<TblNassessmentDoc> TblNassessmentDoc { get; set; } = new List<TblNassessmentDoc>();
 }

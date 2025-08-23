@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Security.Claims;
 
 
@@ -101,6 +102,7 @@ namespace DWB.Controllers
                         p.BitEdit,
                         p.BitDelete,
                         p.BitStatus
+                       
                     }).ToList();
                 //Get all company which is mapped to current user
                 var UserCompanies = (from uc in _context.TblUserCompany                 
@@ -108,6 +110,9 @@ namespace DWB.Controllers
                 select uc.FkIntCompanyId).ToList();
                 //get all user assigned companies
                 string companyIdList = string.Join(",", UserCompanies);
+                string doctorCode = (from uc in _context.TblUserCompany
+                                     where uc.FkUseriId == user.IntUserId && uc.FkIntCompanyId == model.fk_intPK
+                                     select uc.VchDoctorCode).FirstOrDefault() ?? string.Empty;
 
                 //string companyIdList = string.Join(",", UserCompanies);
                 var claims = new List<Claim>
@@ -125,8 +130,10 @@ namespace DWB.Controllers
                     new Claim("BaseAPI", selectedCompany.VchDwbApi.ToString()??"null"),                   
                     //All User assigned companies
                     new Claim("AllCompanyIds", companyIdList),
-                    //CHeck profile, if avilable add to claim
+                    //Check profile, if avilable add to claim
                     new Claim("ProfilePath", user.VchProfileFileName ?? string.Empty),
+                    //add doctor code as selcted company code
+                    new Claim("DoctorCode", doctorCode),
                     //set role
                     new Claim(ClaimTypes.Role, roleName)
                 };
@@ -142,7 +149,7 @@ namespace DWB.Controllers
                     if (permission.BitDelete)
                         claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Delete:{permission.BitDelete}"));
                     if (permission.BitStatus)
-                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Status:{permission.BitStatus}"));
+                        claims.Add(new Claim("Permission", $"{permission.VchModule}:{permission.VchSubModule}:Status:{permission.BitStatus}"));                    
                 }
                 //set identity and principal  
                 var newIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -190,14 +197,24 @@ namespace DWB.Controllers
             return View(model);
         }
        
-        [Authorize(Roles ="Admin, Nursing, Billing")]
+        [Authorize(Roles ="Admin, Nursing, Billing, Consultant")]
         public async Task<IActionResult> Dashboard()
         {
             //Get Opd Count //api format Base+opdCount?code=1
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
             //get current ihms code
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
-            var finalURL = BaseAPI + "opdCount?code=" + code;
+            //get doctor code if available
+            string DocCode = User.FindFirst("DoctorCode")?.Value ?? String.Empty;
+            var finalURL = string.Empty;
+            if (DocCode != null)
+            {
+                finalURL = BaseAPI + "opdCount?code=" + code + "&doccode=" + DocCode;
+            }
+            else
+            {
+                finalURL = BaseAPI + "opdCount?code=" + code;
+            }               
             using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri(finalURL);
@@ -215,7 +232,9 @@ namespace DWB.Controllers
             //get Today Nursing assessment completed count
             var aajkidate = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
             var nursAssessmentCount = _context.TblNsassessment.Count(m => m.BitIsCompleted && m.VchHmsdtEntry == aajkidate);
+            var doctorAssessmentCount = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted==true && m.DtHmsentry == aajkidate);
             ViewBag.NSAssessment = nursAssessmentCount.ToString();
+            ViewBag.DocAssessment = doctorAssessmentCount.ToString();
             return View();
         }
 

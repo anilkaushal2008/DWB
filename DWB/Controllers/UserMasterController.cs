@@ -185,7 +185,7 @@ namespace DWB.Controllers
                 {
                     using (var image = Image.Load(stream))
                     {
-                        // Resize the image if needed
+                        //Resize the image if needed
                         var maxWidth = 200; // Set your desired max width
                         var maxHeight = 200; // Set your desired max height
                         image.Mutate(x => x.Resize(new ResizeOptions
@@ -417,8 +417,7 @@ namespace DWB.Controllers
                             // Save the resized image
                             await image.SaveAsync(filePath, encoder);
                             user.VchSignFileAddress = SignatureFolder + "\\" + FinalSignatureFile;
-                            user.VchSignFileName = FinalSignatureFile.ToString();
-                            
+                            user.VchSignFileName = FinalSignatureFile.ToString();                            
                         }
                     }
                 }
@@ -428,8 +427,7 @@ namespace DWB.Controllers
             if (companyExisting.Count() != 0)
             {
                 _context.TblUserCompany.RemoveRange(companyExisting);
-            }
-                                                                      
+            }                                                                      
             foreach (var company in model.UserCompanies)
             {
                 if (company.IsSelected)
@@ -441,12 +439,10 @@ namespace DWB.Controllers
                     });
                 }
             }
-
             await _context.SaveChangesAsync();
             TempData["ActiveTab"] = "UserTab";
             TempData["userSuccess"] = "User updated successfully!";
-            return Json(new { success = true });
-           
+            return Json(new { success = true });           
         }
     #endregion
 

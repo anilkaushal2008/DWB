@@ -1,5 +1,6 @@
 ﻿using DWB.APIModel;
 using DWB.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,8 @@ namespace DWB.Controllers
         }
 
         #region Nursing Assessment Actions ADD,EDIT,VIEW
-        public async Task<IActionResult> NursingAssessment(string dateRange)
+        [Authorize(Roles = "Admin, Nursing")]
+        public async Task<IActionResult> NursingAssessment(string dateRange, string uhid, string doctorcode)
         {
             List<SP_OPD> patients = new List<SP_OPD>();
             //Get branch ihms code
@@ -36,28 +38,45 @@ namespace DWB.Controllers
                 DateTime Edate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null);
                 string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
                 string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
-                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
+                if(doctorcode!=null)
+                {
+                    //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
+                    finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doctorcode=" + doctorcode;
+                    //finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
+                }
+                else
+                {
+                    //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
+                    finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "@doctorCode=null";
+                }
             }
-            else
+            else if(uhid!=null)
             {
                 //set today date patient view               
                 string today = DateTime.Now.ToString("dd-MM-yyyy");
-                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=null
-                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=null";
+                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
+                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=" + uhid;
             }
-            using (var client = new HttpClient())
+            else if(doctorcode!=null)
             {
-                client.BaseAddress = new Uri(finalURL);
-                var response = await client.GetAsync(finalURL);
-                if (response.IsSuccessStatusCode)
+                //set today date patient view               
+                string today = DateTime.Now.ToString("dd-MM-yyyy");
+                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
+                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=" + uhid;
+            }
+                using (var client = new HttpClient())
                 {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    if (!string.IsNullOrEmpty(jsonString)) // Ensure jsonString is not null or empty
+                    client.BaseAddress = new Uri(finalURL);
+                    var response = await client.GetAsync(finalURL);
+                    if (response.IsSuccessStatusCode)
                     {
-                        patients = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>(); // Handle possible null value
+                        var jsonString = await response.Content.ReadAsStringAsync();
+                        if (!string.IsNullOrEmpty(jsonString)) // Ensure jsonString is not null or empty
+                        {
+                            patients = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>(); // Handle possible null value
+                        }
                     }
                 }
-            }
             //get assessed patients
             var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
             var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
@@ -80,7 +99,7 @@ namespace DWB.Controllers
             }
             return View(patients);
         }
-
+        [Authorize(Roles = "Admin, Nursing")]
         [HttpGet]
         public IActionResult NAssessmentCreate(string uhid, string pname, string visit, string gender, string age, string jdate, string timein, string consultant, string category)
         {
@@ -101,6 +120,7 @@ namespace DWB.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin, Nursing")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NAssessmentCreate(TblNsassessment model, List<IFormFile>? supportDocsI)
@@ -161,6 +181,7 @@ namespace DWB.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin, Nursing")]
         [HttpGet]
         public IActionResult ViewAssessment(string uhid, int visit, string date)
         {
@@ -177,6 +198,7 @@ namespace DWB.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin, Nursing")]
         public IActionResult NAssessmentEdit(string uhid, int visit, string date)
         {
             //check param reach here
@@ -193,6 +215,7 @@ namespace DWB.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin, Nursing")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NAssessmentEdit(TblNsassessment updatedModel, List<IFormFile>? supportDocsI, string? deletedFileIds)
@@ -314,6 +337,7 @@ namespace DWB.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin, Nursing")]
         private bool TblNsassessmentExists(int id)
         {
             return _context.TblNsassessment.Any(e => e.IntAssessmentId == id);
@@ -322,6 +346,7 @@ namespace DWB.Controllers
         #endregion
 
         #region Doctor Assessment Actions ADD,EDIT,VIEW
+        [Authorize(Roles = "Admin, Consultant")]
         public async Task<IActionResult> DoctorAssessment(string dateRange)
         {
             List<SP_OPD> patients = new List<SP_OPD>();

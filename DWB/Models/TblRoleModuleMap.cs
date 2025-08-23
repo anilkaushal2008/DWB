@@ -23,6 +23,8 @@ public partial class TblRoleModuleMap
 
     public bool BitStatus { get; set; }
 
+    public string VchDoctorCode { get; set; }
+
     public DateTime DtCreated { get; set; }
 
     public string VchCreatedBy { get; set; }
