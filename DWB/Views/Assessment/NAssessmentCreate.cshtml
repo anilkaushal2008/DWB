@@ -46,7 +46,7 @@
     <div class="main-content">
         <div class="row cols-12">
             <div class="col">
-                <h4 class="mb-3">Nursing Assessment Form</h4>
+                <h4 class="mb-4">Nursing Assessment Form</h4>
                 <div class="card">
                     <div class="card-body">
                         <form method="post" id="Nassessment" enctype="multipart/form-data" asp-action="NAssessmentCreate" asp-controller="Assessment">
@@ -59,7 +59,7 @@
                                         <input asp-for="VchUhidNo" class="form-control bg-gradient" readonly />
                                     </div>
 
-                                    <div class="col-md-2">
+                                    <div class="col-md-1">
                                         <label asp-for="IntIhmsvisit" class="form-label fw-bold">Visit No</label>
                                         <input asp-for="IntIhmsvisit" class="form-control bg-gradient" readonly />
                                     </div>
@@ -71,7 +71,11 @@
 
                                     <div class="col-md-1">
                                         <label asp-for="VchHmsage" class="form-label fw-bold">Age</label>
-                                        <input asp-for="VchHmsage" class="form-control bg-gradient" readonly />
+                                        <input asp-for="VchHmsage" class="form-control bg-gradient" readonly />                                        
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label asp-for="VchGender" class="form-label fw-bold">Gender</label>
+                                        <input asp-for="VchGender" class="form-control bg-gradient" readonly />
                                     </div>
 
                                     <div class="col-md-2">

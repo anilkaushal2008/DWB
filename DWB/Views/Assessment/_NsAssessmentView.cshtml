@@ -1,14 +1,14 @@
 ﻿@model DWB.Models.TblNsassessment
 
 <div class="card-body">
-    <div class="card p-4 shadow-sm border-top border-primary border-3 mb-4">
-    <h5 class="mb-3 border-bottom pb-2 text-secondary">👤 Patient Details</h5>
+    <div class="card p-4 shadow-sm border-top border-success border-3 mb-4">
+    <h5 class="mb-3 border-bottom pb-2 text-success">👤 Patient Details</h5>
     <div class="row g-3">
         <div class="col-md-2">
             <label class="form-label fw-bold">UHID No</label>
             <p class="form-control-plaintext">@Model.VchUhidNo</p>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             <label class="form-label fw-bold">Visit No</label>
             <p class="form-control-plaintext">@Model.IntIhmsvisit</p>
         </div>
@@ -20,6 +20,10 @@
             <label class="form-label fw-bold">Age</label>
             <p class="form-control-plaintext">@Model.VchHmsage</p>
         </div>
+            <div class="col-md-1">
+                <label class="form-label fw-bold">Gender</label>
+                <p class="form-control-plaintext">@Model.VchGender</p>
+            </div>
         <div class="col-md-2">
             <label class="form-label fw-bold">Entry Date</label>
             <p class="form-control-plaintext">@Model.VchHmsdtEntry</p>
@@ -38,25 +42,27 @@
         </div>
     </div>
     </div>
-
-    <hr />
+   
+   
     <div class="card p-4 shadow-sm border-start border-primary border-3 mb-4">
-        <h5 class="mb-3 text-primary">💓 Vital Signs</h5>
-        <div class="row g-3">
-            <div class="col-md-3"><label class="form-label">BP(/Mmhg)</label><p class="form-control-plaintext">@Model.VchBloodPressure</p></div>
-            <div class="col-md-3"><label class="form-label">Pulse(/Min)</label><p class="form-control-plaintext">@Model.VchPulse</p></div>
-            <div class="col-md-3"><label class="form-label">Temperature(°F)</label><p class="form-control-plaintext">@Model.DecTemperature</p></div>
-            <div class="col-md-3"><label class="form-label">SpO2(%age)</label><p class="form-control-plaintext">@Model.DecSpO2</p></div>
-            <div class="col-md-3"><label class="form-label">Weight(Kg)</label><p class="form-control-plaintext">@Model.DecWeight</p></div>
-            <div class="col-md-3"><label class="form-label">Height(CM)</label><p class="form-control-plaintext">@Model.DecHeight</p></div>
-            <div class="col-md-3"><label class="form-label">Respiratory Rate(/Min)</label><p class="form-control-plaintext">@Model.DecRespiratoryRate</p></div>
-            <div class="col-md-3"><label class="form-label">O₂ Flow Rate</label><p class="form-control-plaintext">@Model.DecOxygenFlowRate</p></div>
+        <h5 class="mb-3 border-bottom pb-2 text-primary">💓 Vital Signs</h5>           
+            <div class="row g-3">
+                <div class="row g-3">
+                    <div class="col-md-3"><label class="form-label">BP(/Mmhg)</label><p class="form-control-plaintext">@Model.VchBloodPressure</p></div>
+                    <div class="col-md-3"><label class="form-label">Pulse(/Min)</label><p class="form-control-plaintext">@Model.VchPulse</p></div>
+                    <div class="col-md-3"><label class="form-label">Temperature(°F)</label><p class="form-control-plaintext">@Model.DecTemperature</p></div>
+                    <div class="col-md-3"><label class="form-label">SpO2(%age)</label><p class="form-control-plaintext">@Model.DecSpO2</p></div>
+                    <div class="col-md-3"><label class="form-label">Weight(Kg)</label><p class="form-control-plaintext">@Model.DecWeight</p></div>
+                    <div class="col-md-3"><label class="form-label">Height(CM)</label><p class="form-control-plaintext">@Model.DecHeight</p></div>
+                    <div class="col-md-3"><label class="form-label">Respiratory Rate(/Min)</label><p class="form-control-plaintext">@Model.DecRespiratoryRate</p></div>
+                    <div class="col-md-3"><label class="form-label">O₂ Flow Rate</label><p class="form-control-plaintext">@Model.DecOxygenFlowRate</p></div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <hr />
-    <div class="card p-4 shadow-sm border-start border-success border-3 mb-4">
-        <h5 class="mb-3 text-success">🧬 Personal History</h5>
+    
+    <div class="card p-4 shadow-sm border-start border-warning border-3 mb-4">
+    <h5 class="mb-3 border-bottom pb-2 text-warning">🧬 Personal History</h5>
         <div class="row g-3 align-items-center">
             <div class="col-md-3">
                 <label class="form-label fw-bold">Allergies</label>
@@ -84,9 +90,9 @@
         </div>
     </div>
 
-    <hr />
+    
     <div class="card p-4 shadow-sm border-start border-danger border-3 mb-4">
-    <h5 class="mb-3 text-danger">🩺 Past History</h5>
+    <h5 class="mb-3 border-bottom pb-2 text-danger">🩺 Past History</h5>
     <div class="row g-3">
         @{
             void DisplayHistory(string label, bool? value)
@@ -116,10 +122,10 @@
           @*   @{
                 var documents = ViewBag.Documents as List<DWB.Models.TblNassessmentDoc>;
             } *@
-            @if (Model.TblNassessmentDoc != null && Model.TblNassessmentDoc.Any())
+     @if (Model.TblNassessmentDoc != null && Model.TblNassessmentDoc.Any())
             {
             <div class="card p-4 shadow-sm border-start border-info border-3 mb-4">
-                <h5 class="mb-3 text-info">📂 Supporting Documents</h5>
+        <h5 class="mb-3 border-bottom pb-2 text-info">📂 Supporting Documents</h5>
                 <ul class="list-group list-group-flush">
                     @foreach (var document in Model.TblNassessmentDoc)
                     {
@@ -150,9 +156,9 @@
             </div>
             }
     
-
+    </div>
 
     <div class="text-end mt-4">
         <a asp-action="Nursingassessment" asp-controller="Assessment" class="btn btn-secondary">Close</a>
     </div>
-</div>
+

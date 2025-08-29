@@ -23,7 +23,7 @@ namespace DWB.Controllers
 
         #region Nursing Assessment Actions ADD,EDIT,VIEW
         [Authorize(Roles = "Admin, Nursing")]
-        public async Task<IActionResult> NursingAssessment(string dateRange, string uhid, string doctorcode)
+        public async Task<IActionResult> NursingAssessment(string dateRange)
         {
             List<SP_OPD> patients = new List<SP_OPD>();
             //Get branch ihms code
@@ -38,45 +38,33 @@ namespace DWB.Controllers
                 DateTime Edate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null);
                 string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
                 string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
-                if(doctorcode!=null)
-                {
-                    //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                    finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doctorcode=" + doctorcode;
-                    //finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
-                }
-                else
-                {
-                    //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                    finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "@doctorCode=null";
-                }
-            }
-            else if(uhid!=null)
-            {
-                //set today date patient view               
-                string today = DateTime.Now.ToString("dd-MM-yyyy");
                 //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=" + uhid;
+                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doctorcode=null";
+                //finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
+
             }
-            else if(doctorcode!=null)
+            else if (dateRange == null)
             {
-                //set today date patient view               
-                string today = DateTime.Now.ToString("dd-MM-yyyy");
+                DateTime today = DateTime.Now;
+                string finalSdate = Convert.ToDateTime(today).ToString("dd-MM-yyyy");
+                //both start and ende date same
                 //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=" + uhid;
+                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalSdate + "&code=" + code + "&uhidno=null" + "&doctorcode=null";
             }
-                using (var client = new HttpClient())
+
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(finalURL);
+                var response = await client.GetAsync(finalURL);
+                if (response.IsSuccessStatusCode)
                 {
-                    client.BaseAddress = new Uri(finalURL);
-                    var response = await client.GetAsync(finalURL);
-                    if (response.IsSuccessStatusCode)
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(jsonString)) // Ensure jsonString is not null or empty
                     {
-                        var jsonString = await response.Content.ReadAsStringAsync();
-                        if (!string.IsNullOrEmpty(jsonString)) // Ensure jsonString is not null or empty
-                        {
-                            patients = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>(); // Handle possible null value
-                        }
+                        patients = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>(); // Handle possible null value
                     }
                 }
+            }
             //get assessed patients
             var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
             var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
@@ -108,6 +96,7 @@ namespace DWB.Controllers
                 VchUhidNo = uhid,
                 VchHmsname = pname,
                 VchHmsage = age,
+                VchGender = gender,
                 VchHmsdtEntry = DateTime.ParseExact(jdate, "MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture).ToString("dd/MM/yyyy"),
                 VchIhmintime = timein,
                 VchHmsconsultant = consultant,
@@ -228,12 +217,16 @@ namespace DWB.Controllers
             {
                 // --- 1. Update the main assessment data ---
                 var existingAssessmentWithDoc = await _context.TblNsassessment.Include(a => a.TblNassessmentDoc)
-                        .FirstOrDefaultAsync(a => a.IntAssessmentId == updatedModel.IntAssessmentId);
+                       .FirstOrDefaultAsync(a => a.IntAssessmentId == updatedModel.IntAssessmentId);
+                //check existing documents
+                var GetDocuments = await _context.TblNassessmentDoc
+                    .Where(d => d.IntFkAssId == updatedModel.IntAssessmentId)
+                    .ToListAsync();
                 if (existingAssessmentWithDoc != null)
                 {
                     var filesToDeleteFromDb = await _context.TblNassessmentDoc.Where(d => d.IntFkAssId == updatedModel.IntAssessmentId).ToListAsync();
                     //If there are files to delete, remove them from the database
-                    if (filesToDeleteFromDb != null && filesToDeleteFromDb.Any())
+                    if (filesToDeleteFromDb.Count() != 0 && supportDocsI != null)
                     {
                         foreach (var doc in filesToDeleteFromDb)
                         {
@@ -346,30 +339,41 @@ namespace DWB.Controllers
         #endregion
 
         #region Doctor Assessment Actions ADD,EDIT,VIEW
+
+        [HttpGet]
         [Authorize(Roles = "Admin, Consultant")]
         public async Task<IActionResult> DoctorAssessment(string dateRange)
         {
+            //if user consultant get consultant code from claim
+            var doccode = User.FindFirst("DoctorCode")?.Value;
             List<SP_OPD> patients = new List<SP_OPD>();
             //Get branch ihms code
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
             //Get Deafult OPD API
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
             string finalURL = string.Empty;
-            if (dateRange != null)
+            if (dateRange != null && doccode != null)
             {
                 var dates = dateRange.Split(" - ");
                 DateTime Sdate = DateTime.ParseExact(dates[0], "dd/MM/yyyy", null);
                 DateTime Edate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null);
                 string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
                 string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
-                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
+                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doccode=" + doccode;
             }
-            else
+            else if (doccode == null)
+            {
+                //if doctor code is null
+                TempData["Error"] = "Your doctor code for current branch is missing so contact to administrator!";
+                return View();
+
+            }
+            else if (dateRange == null && doccode != null)
             {
                 //set today date patient view               
                 string today = DateTime.Now.ToString("dd-MM-yyyy");
-                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=null
-                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=null";
+                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
+                finalURL = BaseAPI + "opd?&sdate=" + today + "&edate=" + today + "&code=" + code + "&uhidno=null" + "&doccode=" + doccode;
             }
             using (var client = new HttpClient())
             {
@@ -406,7 +410,96 @@ namespace DWB.Controllers
             }
             return View(patients);
         }
-        #endregion
 
+        [Authorize(Roles = "Admin, Consultant")]
+        public ActionResult DoctorAssmntCreate(string uhid, string pname, string visit)
+        {
+            var nursing = _context.TblNsassessment
+            .Include(x => x.TblNassessmentDoc) // 🔑 load documents
+            .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == Convert.ToInt32(visit));
+
+            if (nursing == null)
+            {
+                TempData["Error"] = "Nursing assessment not found, complete nursing assessment first!";
+                return RedirectToAction("DoctorAssessment");
+            }
+
+            var doctor = new TblDoctorAssessment
+            {
+                FkUhid = uhid,
+                DtStartTime = DateTime.Now
+            };
+
+            var vm = new DoctorAssessmentVM
+            {
+                NursingAssessment = nursing,
+                DoctorAssessment = doctor
+            };
+
+            return View(vm);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DocAssmntCreate(DoctorAssessmentVM model, IFormFile[] doctorDocs)
+        {
+            if (!ModelState.IsValid)
+            {
+                //return the same view with validation messages
+                return View(model);
+            }
+            try
+            {
+                //1. Save Doctor Assessment details
+                if (model.DoctorAssessment != null)
+                {
+                    //Example: save to database
+                    model.DoctorAssessment.VchCreatedBy = User.Identity.Name;
+                    model.DoctorAssessment.DtCreated = DateTime.Now;
+                    model.DoctorAssessment.DtEndTime = DateTime.Now;
+                    _context.TblDoctorAssessment.Add(model.DoctorAssessment);
+                    await _context.SaveChangesAsync();
+                }
+
+                //uploaded supporting documents
+                if (doctorDocs != null && doctorDocs.Length > 0)
+                {
+                    string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "DoctorDocs");
+                    if (!Directory.Exists(uploadPath))
+                        Directory.CreateDirectory(uploadPath);
+
+                    foreach (var file in doctorDocs)
+                    {
+                        if (file.Length > 0)
+                        {
+                            string fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                            string filePath = Path.Combine(uploadPath, fileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await file.CopyToAsync(stream);
+                            }
+
+                            //Save file info to database
+                            _context.TblDoctorAssessmentDoc.Add(new TblDoctorAssessmentDoc
+                            {
+                                IntFkDoctorAssId = model.DoctorAssessment.IntId,
+                                VchFileName = fileName,
+                                DtCreated = DateTime.Now
+                            });
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
+
+                TempData["Success"] = "✅ Doctor Assessment saved successfully!";
+                return RedirectToAction("Index"); // or wherever you want
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "❌ Error saving assessment: " + ex.Message;
+                return View(model);
+            }
+            #endregion
+        }
     }
 }

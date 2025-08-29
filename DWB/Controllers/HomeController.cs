@@ -132,7 +132,7 @@ namespace DWB.Controllers
                     new Claim("AllCompanyIds", companyIdList),
                     //Check profile, if avilable add to claim
                     new Claim("ProfilePath", user.VchProfileFileName ?? string.Empty),
-                    //add doctor code as selcted company code
+                    //add doctor code as selected company code
                     new Claim("DoctorCode", doctorCode),
                     //set role
                     new Claim(ClaimTypes.Role, roleName)

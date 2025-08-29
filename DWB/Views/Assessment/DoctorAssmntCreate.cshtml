@@ -1,0 +1,617 @@
+﻿@model DWB.Models.DoctorAssessmentVM
+<main class="main-wrapper py-4">
+   <div class="container-fluid">
+        <h4 class="mb-4 fw-bold text-primary">Doctor Assessment Form</h4>        
+        <div class="card p-2 border-0 shadow-sm rounded-3 mb-2 bg-light">
+            <div class="d-flex flex-wrap align-items-center small text-dark fw-semibold">
+                <span class="me-3 text-primary" >Selected Patient|UHID: <span class="text-white">@Model.NursingAssessment.VchUhidNo</span></span>
+                <span class="me-3 text-primary">Name: <span class="text-white">@Model.NursingAssessment.VchHmsname</span></span>
+                <span><a class="btn btn-sm btn-grd-primary">View History</a> </span>&nbsp;
+                <span><a class="btn btn-sm btn-grd-danger">Use last history</a> </span>
+            </div>
+        </div>
+        <div class="card shadow-sm rounded-4">
+            <div class="card-body">
+                <form method="post" id="DAssessment" enctype="multipart/form-data"
+                      asp-action="DocAssmntCreate" asp-controller="Assessment">
+                      @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
+                    <!-- Nav Tabs -->
+                    <ul class="nav nav-pills mb-3 justify-content-center" id="docAssessmentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="patient-tab" data-bs-toggle="tab" data-bs-target="#patient" type="button" role="tab">
+                                👤 Initial Assessment
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="clinical-tab" data-bs-toggle="tab" data-bs-target="#clinical" type="button" role="tab">
+                                🩺 Clinical
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="medicine-tab" data-bs-toggle="tab" data-bs-target="#medicine" type="button" role="tab">
+                                💊 Medicines
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="lab-tab" data-bs-toggle="tab" data-bs-target="#lab" type="button" role="tab">
+                                🧪 Lab
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="radiology-tab" data-bs-toggle="tab" data-bs-target="#radiology" type="button" role="tab">
+                                🩻 Radiology
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="followup-tab" data-bs-toggle="tab" data-bs-target="#followup" type="button" role="tab">
+                                📅 Follow Up
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button" role="tab">
+                                📂 Documents
+                            </button>
+                        </li>
+                    </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="docAssessmentContent">
+                        <!-- Patient -->
+                        <hr />
+                        <div class="tab-pane fade show active" id="patient" role="tabpanel">
+                          <div class="card p-2 border-top border-secondary shadow rounded-3 mb-2 bg-light">
+                            @* 
+                            <!-- Patient detail -->
+                                <h5 class="small mb-3 text-primary">Patient Detail</h5>
+                            <div class="row g-2">                                 
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold small">UHID No</label>
+                                        <input asp-for="@Model.NursingAssessment.VchUhidNo" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                </div>
+
+                                    <div class="col-md-4">
+                                        <label asp-for="@Model.NursingAssessment.VchHmsname" class="form-label fw-bold small">Name</label>
+                                        <input asp-for="@Model.NursingAssessment.VchHmsname" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label asp-for="@Model.NursingAssessment.IntIhmsvisit" class="form-label fw-bold small">Visit No</label>
+                                        <input asp-for="@Model.NursingAssessment.IntIhmsvisit" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label asp-for="@Model.NursingAssessment.VchHmsage" class="form-label fw-bold small">Age</label>
+                                        <input asp-for="@Model.NursingAssessment.VchHmsage" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label asp-for="@Model.NursingAssessment.VchGender" class="form-label fw-bold small">Gender</label>
+                                        <input asp-for="@Model.NursingAssessment.VchGender" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label asp-for="@Model.NursingAssessment.VchHmsdtEntry" class="form-label fw-bold small">Entry Date</label>
+                                        <input asp-for="@Model.NursingAssessment.VchHmsdtEntry" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label asp-for="@Model.NursingAssessment.VchIhmintime" class="form-label fw-bold small">In Time</label>
+                                        <input asp-for="@Model.NursingAssessment.VchIhmintime" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label asp-for="@Model.NursingAssessment.VchHmsconsultant" class="form-label fw-bold small">Consultant</label>
+                                        <input asp-for="@Model.NursingAssessment.VchHmsconsultant" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label asp-for="@Model.NursingAssessment.VchHmscategory" class="form-label fw-bold small">Category</label>
+                                        <input asp-for="@Model.NursingAssessment.VchHmscategory" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                              </div> *@
+                                <!-- Vital Signs -->
+                                <h5 class="text-primary small mb-2">💓 Vital Signs</h5>
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">BP(/MmHg)</label>
+                                        <input asp-for="@Model.NursingAssessment.VchBloodPressure" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Pulse</label>
+                                        <input asp-for="@Model.NursingAssessment.VchPulse" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Temperature(°F)</label>
+                                        <input asp-for="@Model.NursingAssessment.DecTemperature" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">SpO2(%age)</label>
+                                        <input asp-for="@Model.NursingAssessment.DecSpO2" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Weight(Kg)</label>
+                                        <input asp-for="@Model.NursingAssessment.DecWeight" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Height(CM)</label>
+                                        <input asp-for="@Model.NursingAssessment.DecHeight" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Respiratory Rate(/Min)</label>
+                                        <input asp-for="@Model.NursingAssessment.DecRespiratoryRate" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">O₂ Flow Rate(%age)</label>
+                                        <input asp-for="@Model.NursingAssessment.DecOxygenFlowRate" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                </div>
+                                <hr />
+                                <!-- Personal History -->
+                                <h5 class="text-success small mb-2">🧬 Personal History</h5>
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Allergies</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitIsAllergical? Model.NursingAssessment.VchAllergicalDrugs : "N/A")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Alcohol</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitIsAlcoholic ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Smoking</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitIsSmoking ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">LMP(Females)</label>
+                                        <input type="text" value="@(string.IsNullOrEmpty(Model.NursingAssessment.VchLmpForFemale) ? "No" : Model.NursingAssessment.VchLmpForFemale)"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    </div>
+                                <hr />
+                                <!-- Past History -->
+                                <h5 class="text-danger small mb-2">🩺 Past History</h5>
+                                <div class="row g-2">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Diabetes</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitDiabetes ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Heart Disease</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitHeartDisease ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Hypertension</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitHypertension ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Asthma</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitAsthma ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">High Cholesterol</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitCholesterol ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Tuberculosis</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitTuberculosis ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Surgery</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitSurgery ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold small">Hospitalized (last 3 mo)</label>
+                                        <input type="text" value="@(Model.NursingAssessment.BitHospitalization ? "Yes" : "No")"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold small">Other History</label>
+                                        <input type="text" value="@Model.NursingAssessment.VchOtherHistory"
+                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                                    </div>
+                                </div>
+                                <hr />
+                                @if (Model.NursingAssessment.TblNassessmentDoc != null && Model.NursingAssessment.TblNassessmentDoc.Any())
+                                {
+                                   
+                                        <h5 class="text-info small mb-2">📂 Supporting Documents</h5>
+                                        <div class="row g-2">
+                                            @foreach (var document in Model.NursingAssessment.TblNassessmentDoc)
+                                            {
+                                                <div class="col-auto text-center">
+                                                    <a href="@Url.Content("~/uploads/NAssessment/" + document.VchFileName)" target="_blank" title="@document.VchFileName">
+                                                        <div class="border rounded bg-white p-2" style="width:70px; height:70px; display:flex; align-items:center; justify-content:center;">
+                                                            <i class="fas fa-file-alt fa-2x text-info"></i>
+                                                        </div>
+                                                        <small class="d-block text-truncate" style="max-width:70px;">@document.VchFileName</small>
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>                                 
+                                }
+                            </div>
+                        </div>
+                  
+                        <!-- Clinical -->
+                        <div class="tab-pane fade" id="clinical" role="tabpanel">
+                        <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Chief Complaints</label>
+                                    <textarea asp-for="DoctorAssessment.VchChiefcomplaints" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Medical History</label>
+                                    <textarea asp-for="DoctorAssessment.VchMedicalHistory" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Systemic Examination</label>
+                                    <textarea asp-for="DoctorAssessment.VchSystemicexam" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Diagnosis</label>
+                                    <textarea asp-for="DoctorAssessment.VchDiagnosis" class="form-control" rows="2"></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Remarks</label>
+                                    <textarea asp-for="DoctorAssessment.VchRemarks" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        <!-- Medicines -->
+                        <div class="tab-pane fade" id="medicine" role="tabpanel">
+                        <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
+                            <div id="medicine-list">
+                                <div class="row g-2 mb-2 medicine-item">
+                                    <div class="col-md-4">
+                                        <select class="form-select">
+                                            <option value="">-- Select Medicine --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Dosage"></div>
+                                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Frequency"></div>
+                                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Duration"></div>
+                                    <div class="col-md-2 text-center">
+                                        <button class="btn btn-danger btn-sm remove-medicine">❌</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="addMedicine" type="button" class="btn btn-outline-primary btn-sm">➕ Add Medicine</button>
+                        </div>
+                        </div>
+
+                        <!-- Lab -->
+                        <div class="tab-pane fade" id="lab" role="tabpanel">
+                            <div id="lab-list">
+                                <div class="row g-2 mb-2 lab-item">
+                                    <div class="col-md-8">
+                                        <select class="form-select">
+                                            <option value="">-- Select Lab Test --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select">
+                                            <option value="Normal">Normal</option>
+                                            <option value="Urgent">Urgent</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <button class="btn btn-danger btn-sm remove-lab">❌</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="addLab" type="button" class="form-control btn btn-outline-primary btn-sm">➕ Add Lab Test</button>                     
+                        </div>
+
+                        <!-- Radiology -->
+                        <div class="tab-pane fade" id="radiology" role="tabpanel">
+                            <div id="radiology-list">
+                                <div class="row g-2 mb-2 radiology-item">
+                                    <div class="col-md-8">
+                                        <select class="form-select">
+                                            <option value="">-- Select Procedure --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select">
+                                            <option value="Normal">Normal</option>
+                                            <option value="Urgent">Urgent</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <button class="btn btn-danger btn-sm remove-radiology">❌</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="addRadiology" type="button" class="form-control btn btn-outline-primary btn-sm">➕ Add Procedure</button>
+                         
+                        </div>
+
+                        <!-- Follow Up -->
+                        <div class="tab-pane fade" id="followup" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Follow-up Date</label>
+                                    <input asp-for="DoctorAssessment.DtFollowUpDate" type="date" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Follow-up Time</label>
+                                    <input asp-for="DoctorAssessment.FollowUpTime" type="time" class="form-control" />
+                                </div>
+                            </div>
+                        </div>  
+                        <!--File upload-->
+                        <div class="tab-pane fade" id="files" role="tabpanel">                           
+                            <div class="mb-4 p-4 border rounded-4 shadow-sm bg-white">
+                                <label class="form-label fw-bold fs-5 text-primary mb-3">
+                                    <i class="fas fa-paperclip me-2"></i>Upload Supporting Documents
+                                </label>
+
+                                <div id="doctor-drop-zone"
+                                     class="border border-3 border-dashed border-info p-5 text-center bg-light rounded-4 shadow-sm"
+                                     style="cursor: pointer; transition: all 0.2s ease-in-out;">
+                                    <p class="mb-3 text-info"><i class="fas fa-cloud-upload-alt fa-4x"></i></p>
+                                    <p class="mb-1 fw-bold text-info fs-5">Drag & drop your files here</p>
+                                    <p class="small text-info mb-0">or click to browse</p>
+
+                                    <!-- Hidden file input -->
+                                    <input type="file"
+                                           name="doctorDocs"
+                                           id="doctorDocsInput"
+                                           class="form-control d-none"
+                                           accept=".jpg,.jpeg,.png,.pdf"
+                                           multiple />
+                                </div>
+
+                                <div class="mt-3 text-muted text-center" style="font-size: 0.875rem;">
+                                    Supported file types: JPG, PNG, PDF. Maximum: 5 documents.
+                                </div>
+
+                                <!-- Preview File List -->
+                                <div id="doctor-file-list" class="mt-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                  
+                    <!-- Submit -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
+                            ✅ Save Assessment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+     </div>
+</main>
+
+@section scripts{
+    <script src="/assets/js/dashboard1.js"></script>
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // ===== Medicine dynamic rows =====
+            const medicineList = document.getElementById("medicine-list");
+            document.getElementById("addMedicine").addEventListener("click", function () {
+                const newItem = document.createElement("div");
+                newItem.className = "row g-2 mb-2 medicine-item";
+                newItem.innerHTML = `
+                    <div class="col-md-4">
+                        <select class="form-select">
+                            <option value="">-- Select Medicine --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Dosage"></div>
+                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Frequency"></div>
+                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Duration"></div>
+                    <div class="col-md-2 text-center">
+                        <button class="btn btn-danger btn-sm remove-medicine">❌</button>
+                    </div>
+                `;
+                medicineList.appendChild(newItem);
+            });
+
+            medicineList.addEventListener("click", function (e) {
+                if (e.target.classList.contains("remove-medicine")) {
+                    e.preventDefault();
+                    e.target.closest(".medicine-item").remove();
+                }
+            });
+
+            // ===== add lab dynamic rows =====
+            const labList = document.getElementById("lab-list");
+            document.getElementById("addLab").addEventListener("click", function () {
+            const newItem = document.createElement("div");
+            newItem.className = "row g-2 mb-2 lab-item";
+            newItem.innerHTML = `
+                <div class="col-md-8">
+                    <select class="form-select">
+                        <option value="">-- Select Lab Test --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option value="Normal">Normal</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-lab">❌</button>
+                </div>`;
+
+            labList.appendChild(newItem); // ✅ fixed
+        });
+
+        labList.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-lab")) {
+                e.preventDefault();
+                e.target.closest(".lab-item").remove();
+            }
+        });
+
+            // For Radiology dynamic rows
+            const radiologyList = document.getElementById("radiology-list");
+            document.getElementById("addRadiology").addEventListener("click", function () {
+            const newItem = document.createElement("div");
+            newItem.className = "row g-2 mb-2 radiology-item";
+            newItem.innerHTML = `
+                <div class="col-md-8">
+                    <select class="form-select">
+                        <option value="">-- Select Procedure --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option value="Normal">Normal</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-radiology">❌</button>
+                </div>
+            `;
+            radiologyList.appendChild(newItem);
+        });
+
+            radiologyList.addEventListener("click", function (e) {
+                if (e.target.classList.contains("remove-radiology")) {
+                    e.preventDefault();
+                    e.target.closest(".radiology-item").remove();
+                }
+            });
+
+            // File upload drag & drop
+            const dropZone = document.getElementById("drop-zone");
+            const fileInput = document.getElementById("supportDocsInput");
+            const fileList = document.getElementById("file-list");
+
+            dropZone.addEventListener("click", () => fileInput.click());
+
+            dropZone.addEventListener("dragover", function (e) {
+                e.preventDefault();
+                dropZone.classList.add("bg-info", "text-white");
+            });
+
+            dropZone.addEventListener("dragleave", function (e) {
+                e.preventDefault();
+                dropZone.classList.remove("bg-info", "text-white");
+            });
+
+            dropZone.addEventListener("drop", function (e) {
+                e.preventDefault();
+                dropZone.classList.remove("bg-info", "text-white");
+                const files = Array.from(e.dataTransfer.files);
+                fileInput.files = e.dataTransfer.files; // assign to input for form submit
+                displayFiles(files);
+            });
+
+            fileInput.addEventListener("change", function () {
+                displayFiles(Array.from(fileInput.files));
+            });
+
+            function displayFiles(files) {
+                fileList.innerHTML = "";
+                files.forEach((file, index) => {
+                    const fileRow = document.createElement("div");
+                    fileRow.className = "d-flex justify-content-between align-items-center border p-2 mb-2 rounded";
+                    fileRow.innerHTML = `
+                        <span>${file.name}</span>
+                        <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">❌</button>
+                    `;
+                    fileList.appendChild(fileRow);
+                });
+            }
+
+            fileList.addEventListener("click", function (e) {
+                if (e.target.classList.contains("remove-file")) {
+                    e.preventDefault();
+                    const idx = e.target.getAttribute("data-index");
+                    const dt = new DataTransfer();
+                    Array.from(fileInput.files).forEach((file, i) => {
+                        if (i != idx) dt.items.add(file);
+                    });
+                    fileInput.files = dt.files;
+                    displayFiles(Array.from(fileInput.files));
+                }
+            });
+
+        });
+
+        //for file upload
+            const doctorDropZone = document.getElementById("doctor-drop-zone");
+        const doctorFileInput = document.getElementById("doctorDocsInput");
+        const doctorFileList = document.getElementById("doctor-file-list");
+
+        doctorDropZone.addEventListener("click", () => doctorFileInput.click());
+
+        doctorDropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            doctorDropZone.classList.add("bg-info", "bg-opacity-10");
+        });
+
+        doctorDropZone.addEventListener("dragleave", () => {
+            doctorDropZone.classList.remove("bg-info", "bg-opacity-10");
+        });
+
+        doctorDropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            doctorDropZone.classList.remove("bg-info", "bg-opacity-10");
+            doctorFileInput.files = e.dataTransfer.files;
+            displayDoctorFiles();
+        });
+
+        doctorFileInput.addEventListener("change", displayDoctorFiles);
+
+        function displayDoctorFiles() {
+            doctorFileList.innerHTML = "";
+            let files = Array.from(doctorFileInput.files);
+
+            if (files.length > 5) {
+                alert("❌ Maximum 5 files allowed.");
+                doctorFileInput.value = "";
+                return;
+            }
+
+            files.forEach((file, index) => {
+                const div = document.createElement("div");
+                div.className = "d-flex align-items-center mb-2 border p-2 rounded bg-light shadow-sm";
+                div.innerHTML = `
+                    <i class="fas fa-file-alt text-primary me-2"></i>
+                    <span class="text-truncate" style="max-width: 160px;">${file.name}</span>
+                    <span class="badge bg-secondary ms-2">${(file.size / 1024).toFixed(1)} KB</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-auto remove-file" data-index="${index}">❌</button>
+                `;
+                doctorFileList.appendChild(div);
+            });
+        }
+
+        doctorFileList.addEventListener("click", function(e){
+            if(e.target.classList.contains("remove-file")){
+                const idx = e.target.getAttribute("data-index");
+                const dt = new DataTransfer();
+                Array.from(doctorFileInput.files).forEach((file, i) => {
+                    if(i != idx) dt.items.add(file);
+                });
+                doctorFileInput.files = dt.files;
+                displayDoctorFiles();
+            }
+        });
+       
+    </script>
+}

@@ -74,34 +74,40 @@
                                 <h5 class="mb-3 border-bottom pb-2 text-secondary">👤 Patient Details</h5>
                                 <input type="hidden" asp-for="IntAssessmentId" />
                                 <div class="row g-3">
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
                                         <label asp-for="VchUhidNo" class="form-label fw-bold">UHID No</label>
                                         <input asp-for="VchUhidNo" class="form-control bg-gradient" readonly />
                                     </div>
 
-                                    <div class="col-md-2">
-                                        <label asp-for="IntIhmsvisit" class="form-label fw-bold">Visit No</label>
-                                        <input asp-for="IntIhmsvisit" class="form-control bg-gradient" readonly />
-                                    </div>
-
-                                    <div class="col-md-3">
+                                     <div class="col-md-5">
                                         <label asp-for="VchHmsname" class="form-label fw-bold">Name</label>
                                         <input asp-for="VchHmsname" class="form-control bg-gradient" readonly />
                                     </div>
 
-                                    <div class="col-md-1">
-                                        <label asp-for="VchHmsage" class="form-label fw-bold">Age</label>
-                                        <input asp-for="VchHmsage" class="form-control bg-gradient" readonly />
+                                    <div class="col-md-3">
+                                        <label asp-for="IntIhmsvisit" class="form-label fw-bold">Visit No</label>
+                                        <input asp-for="IntIhmsvisit" class="form-control bg-gradient" readonly />
                                     </div>
-
-                                    <div class="col-md-2">
+                                   
+                               
+                                    <div class="col-md-3">
                                         <label asp-for="VchHmsdtEntry" class="form-label fw-bold">Entry Date</label>
                                         <input asp-for="VchHmsdtEntry" class="form-control bg-gradient" readonly />
                                     </div>
 
-                                    <div class="col-md-2">
+                                    <div class="col-md-3">
                                         <label asp-for="VchIhmintime" class="form-label fw-bold">In Time</label>
                                         <input asp-for="VchIhmintime" class="form-control bg-gradient" readonly />
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label asp-for="VchHmsage" class="form-label fw-bold">Age</label>
+                                        <input asp-for="VchHmsage" class="form-control bg-gradient" readonly />
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label asp-for="VchGender" class="form-label fw-bold">Age</label>
+                                        <input asp-for="VchGender" class="form-control bg-gradient" readonly />
                                     </div>
 
                                     <div class="col-md-6">

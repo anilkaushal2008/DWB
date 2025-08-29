@@ -13,8 +13,6 @@ public partial class TblDoctorAssessment
 
     public int FkAssessmentId { get; set; }
 
-    public string VchDoctorName { get; set; }
-
     public string VchChiefcomplaints { get; set; }
 
     public string VchMedicalHistory { get; set; }
@@ -84,4 +82,10 @@ public partial class TblDoctorAssessment
     public string DtHmsentry { get; set; }
 
     public virtual TblNsassessment FkAssessment { get; set; }
+
+    public virtual ICollection<TblDoctorAssmntLab> TblDoctorAssmntLab { get; set; } = new List<TblDoctorAssmntLab>();
+
+    public virtual ICollection<TblDoctorAssmntMedicine> TblDoctorAssmntMedicine { get; set; } = new List<TblDoctorAssmntMedicine>();
+
+    public virtual ICollection<TblDoctorAssmntRadiology> TblDoctorAssmntRadiology { get; set; } = new List<TblDoctorAssmntRadiology>();
 }

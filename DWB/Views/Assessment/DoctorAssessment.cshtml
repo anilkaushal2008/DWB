@@ -2,21 +2,9 @@
 @{
     ViewData["Title"] = "Nursing Assessment";
 }
-@* <style>
-    #drop-zone {
-        cursor: pointer;
-        transition: border-color 0.3s ease;
-    }
-
-        #drop-zone.dragover {
-            border-color: #198754;
-            background-color: #f0fff0;
-        }
-
-    #file-list li {
-        margin-bottom: 4px;
-    }
-</style> *@
+<style>
+   
+</style>
 <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
 @* for date range *@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -24,7 +12,7 @@
     <div class="main-content">
         <div class="row cols-12">
             <div class="col">
-                <h4 class="mb-4">Nursing Assessment - Today's Patients</h4>
+                <h4 class="mb-4">Consultant Assessment - Today's Patients</h4>
                 <hr />
                 <div class="card">
                     <div class="card-body">
@@ -44,7 +32,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         }
-                        <form method="get" asp-action="NursingAssessment" asp-controller="Assessment" class="row g-2 mb-3">
+                        <form method="get" asp-action="DoctorAssessment" asp-controller="Assessment" class="row g-2 mb-3">
                             <div class="col-md-4">
                                 <label for="daterange" class="form-label">Select Date Range</label>
                                 <input type="text" id="daterange" name="daterange" class="form-control" autocomplete="off"
@@ -52,7 +40,7 @@
                             </div>
                             <div class="col-md-3 align-self-end">
                                 <button type="submit" class="btn btn-success">Filter</button>
-                                <a href="@Url.Action("NursingAssessment", "Assessment")" class="btn btn-secondary">Clear</a>
+                                <a href="@Url.Action("DoctorAssessment", "Assessment")" class="btn btn-secondary">Clear</a>
                             </div>
                         </form>
                         <table id="nursingTable" class="table form-control table-responsive table-striped table-bordered " style="width:100%;font-size:90%">
@@ -78,21 +66,27 @@
                                         <td>@p.age/@p.sex</td>
                                         <td>@p.visit</td>
                                         <td>@p.Pcategory</td>
-                                        <td>@p.descript</td>                                        
+                                        <td>@p.descript</td>
                                         <td>
-                                           @if(p.bitTempNSAssComplete==false)
-                                           {
-                                                <a class="btn btn-grd btn-grd-primary btn-sm" href="@Url.Action("NAssessmentCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, visit = p.visit, gender=p.sex, age = p.age, jdate = p.jdate, timein = p.timein, consultant = p.descript, category = p.Pcategory })">&nbsp;Fill&nbsp;</a>
-                                           }
-                                           else if(p.bitTempNSAssComplete==true)
-                                           {
-                                               <div class="d-inline-flex gap-2">
-                                                <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')">View</a>
+                                            @if (p.bitTempNSAssComplete == false)
+                                            {
+                                                @* <a class="btn btn-grd btn-grd-primary btn-sm" href="@Url.Action("NAssessmentCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, visit = p.visit, age = p.age, jdate = p.jdate, timein = p.timein, consultant = p.descript, category = p.Pcategory })">&nbsp;Fill&nbsp;</a> *@
+                                                <span class="badge rounded-pill bg-grd-primary" >Initial Pending</span>
+                                            }
+                                            else if (p.bitTempNSAssComplete == true && p.bitTempDOcAssComplete==false)
+                                            {
+                                                //give option to fill assessment to consultant
+                                                <a class="btn btn-grd btn-grd-primary btn-sm" href="@Url.Action("DoctorAssmntCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, visit = p.visit})">&nbsp;Fill&nbsp;</a>
+                                            }
+                                            else if(p.bitTempDOcAssComplete==true)
+                                            {
+                                                <div class="d-inline-flex gap-2">
+                                                    <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')">View</a>
                                                     <a class="btn btn-grd btn-grd-info btn-sm" href="@Url.Action("NassessmentEdit", "Assessment", new { uhid = @p.opdno, visit = @p.visit, date = @p.jdate.ToString() })"> Edit</a>
                                                 </div>
-                                           }
-                                       </tr>
-                                       }
+                                            }
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -102,7 +96,7 @@
     </div>
 </main>
 <div class="modal fade" id="viewAssessmentModal" tabindex="-1" aria-labelledby="viewAssessmentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="viewAssessmentModalLabel">Completed Nursing Assessment</h5>
@@ -115,21 +109,21 @@
     </div>
 </div>
 <div class="modal fade" id="editAssessmentModal" tabindex="-1" aria-labelledby="editAssessmentModalLabel" aria-hidden="true">
-<div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title" id="editAssessmentModalLabel">Edit Nursing Assessment</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="editAssessmentContent">
-            <!-- Edit View will be loaded here -->
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editAssessmentModalLabel">Edit Nursing Assessment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="editAssessmentContent">
+                <!-- Edit View will be loaded here -->
+            </div>
         </div>
     </div>
 </div>
-</div>
 @section scripts {
     <script src="/assets/js/dashboard1.js"></script>
-    <script src="~/assets/js/bootstrap.bundle.min.js"></script>   
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
@@ -137,10 +131,6 @@
     @* for date range *@
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-         //For partial view Edit assessment
-    <!--Bootstrap JS Bundle (Popper included)-->
-   @*  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
- *@
     <script type="text/javascript">
         $(document).ready(function () {
           $('#nursingTable').DataTable({
@@ -172,10 +162,10 @@
                 $(this).val('');
             });
         });
-        //For view assessment           
+        //For view assessment
         function loadCompletedAssessment(uhid, visit, jdate) {
             $.ajax({
-                url: '/Assessment/ViewAssessment',
+                url: '/Assessment/ViewDocAssessment',
                 data: { uhid: uhid,
                 visit:visit,
                 date:jdate},
@@ -190,46 +180,6 @@
             }
             });
         }
-        // //for edit assessment
-        //  function loadEditAssessment(uhid, visit, jdate) {
-        //     $.ajax({
-        //         url: '/Assessment/NAssessmentEdit',
-        //         data: { uhid: uhid,
-        //         visit:visit,
-        //         date:jdate},
-        //         type: 'GET',
-        //         success: function (response) {
-        //         $('#viewAssessmentContent').html(response);
-        //         var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
-        //         modal.show();
-        //     },
-        //     error: function () {
-        //         alert('Failed to load completed assessment. Please try again.');
-        //     }
-        //     });
-        // }
-
-        //for update post method
-        //     $(document).ready(function () {
-        //     $('#editAssessmentForm').submit(function (e) {
-        //         e.preventDefault();
-        //         var form = $(this);
-        //         $.ajax({
-        //             type: 'POST',
-        //             url: form.attr('action'),
-        //             data: form.serialize(),
-        //             success: function (response) {
-        //                 if (response.success) {
-        //                     $('#editAssessmentModal').modal('hide');
-        //                     alert(response.message);
-        //                     // Optionally reload patient table or show toast
-        //                        location.reload(); // or use AJAX reload for table only
-        //                 } else {
-        //                     $('#editAssessmentContent').html(response); // if validation error, re-render partial
-        //                 }
-        //             }
-        //         });
-        //     });
-        // });   
+       
     </script>
- }
+}

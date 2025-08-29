@@ -31,6 +31,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[TblDoctorAssmntLab]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TblDoctorAssmntMedicine]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TblDoctorAssmntRadiology]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblFloorMaster]",
          "ObjectType": 0
       },
