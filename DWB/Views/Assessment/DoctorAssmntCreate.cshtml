@@ -15,6 +15,8 @@
                 <form method="post" id="DAssessment" enctype="multipart/form-data"
                       asp-action="DocAssmntCreate" asp-controller="Assessment">
                       @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
+                      @Html.HiddenFor(m => m.DoctorAssessment.FkUhid)
+
                     <!-- Nav Tabs -->
                     <ul class="nav nav-pills mb-3 justify-content-center" id="docAssessmentTabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -271,25 +273,42 @@
                     </div>
                         <!-- Medicines -->
                         <div class="tab-pane fade" id="medicine" role="tabpanel">
-                        <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
-                            <div id="medicine-list">
-                                <div class="row g-2 mb-2 medicine-item">
-                                    <div class="col-md-4">
-                                        <select class="form-select">
-                                            <option value="">-- Select Medicine --</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Dosage"></div>
-                                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Frequency"></div>
-                                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Duration"></div>
-                                    <div class="col-md-2 text-center">
-                                        <button class="btn btn-danger btn-sm remove-medicine">❌</button>
+                            <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
+                                <div id="medicine-list">
+                                    <div class="row g-2 mb-2 medicine-item">
+                                        <div class="col-md-4 position-relative">
+                                            <input type="text"
+                                                   class="form-control medicine-autocomplete"
+                                                   name="Medicines[0].vchMedicineName"
+                                                   placeholder="Search Medicine" autocomplete="off">
+                                            <input type="hidden"
+                                                   name="Medicines[0].vchMedicineCode"
+                                                   class="medicine-code">
+                                            <div class="list-group position-absolute w-100 medicine-suggestions"
+                                                 style="z-index:999; display:none;"></div>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" name="Medicines[0].vchDosage" placeholder="Dosage">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" name="Medicines[0].vchFrequency" placeholder="Frequency">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="text" class="form-control" name="Medicines[0].vchDuration" placeholder="Duration">
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <button type="button" class="btn btn-danger btn-sm remove-medicine">❌</button>
+                                        </div>
                                     </div>
                                 </div>
+
+                                <button id="addMedicine" type="button" class="btn btn-outline-primary btn-sm">➕ Add Medicine</button>
                             </div>
-                            <button id="addMedicine" type="button" class="btn btn-outline-primary btn-sm">➕ Add Medicine</button>
                         </div>
-                        </div>
+
+
+
 
                         <!-- Lab -->
                         <div class="tab-pane fade" id="lab" role="tabpanel">
@@ -404,37 +423,139 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        //Medicine searching / adding
+                   $(document).ready(function () {
+            let medIndex = 1; // start from 1 since 0 already exists
 
-            // ===== Medicine dynamic rows =====
-            const medicineList = document.getElementById("medicine-list");
-            document.getElementById("addMedicine").addEventListener("click", function () {
-                const newItem = document.createElement("div");
-                newItem.className = "row g-2 mb-2 medicine-item";
-                newItem.innerHTML = `
-                    <div class="col-md-4">
-                        <select class="form-select">
-                            <option value="">-- Select Medicine --</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Dosage"></div>
-                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Frequency"></div>
-                    <div class="col-md-2"><input type="text" class="form-control" placeholder="Duration"></div>
-                    <div class="col-md-2 text-center">
-                        <button class="btn btn-danger btn-sm remove-medicine">❌</button>
-                    </div>
-                `;
-                medicineList.appendChild(newItem);
+            // Add new medicine row
+            $("#addMedicine").click(function () {
+                let newRow = `
+                    <div class="row g-2 mb-2 medicine-item">
+                        <div class="col-md-4 position-relative">
+                            <input type="text" class="form-control medicine-autocomplete"
+                                   name="Medicines[${medIndex}].vchMedicineName"
+                                   placeholder="Search Medicine" autocomplete="off">
+                            <!-- hidden input to store medicine code -->
+                            <input type="hidden" class="medicine-code"
+                                   name="Medicines[${medIndex}].vchMedicineCode">
+                            <div class="list-group position-absolute w-100 medicine-suggestions"
+                                 style="z-index:999; display:none;"></div>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control"
+                                   name="Medicines[${medIndex}].vchDosage" placeholder="Dosage">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control"
+                                   name="Medicines[${medIndex}].vchFrequency" placeholder="Frequency">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control"
+                                   name="Medicines[${medIndex}].vchDuration" placeholder="Duration">
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <button type="button" class="btn btn-danger btn-sm remove-medicine">❌</button>
+                        </div>
+                    </div>`;
+                $("#medicine-list").append(newRow);
+                medIndex++;
             });
 
-            medicineList.addEventListener("click", function (e) {
-                if (e.target.classList.contains("remove-medicine")) {
-                    e.preventDefault();
-                    e.target.closest(".medicine-item").remove();
+            // Remove medicine row
+            $(document).on("click", ".remove-medicine", function () {
+                $(this).closest(".medicine-item").remove();
+            });
+
+            // Autocomplete search
+            $(document).on("keyup", ".medicine-autocomplete", function () {
+                let input = $(this);
+                let query = input.val().trim();
+                let suggestionBox = input.siblings(".medicine-suggestions");
+                let hidden = input.siblings(".medicine-code");
+
+                // Reset hidden code if user types
+                hidden.val("");
+
+                if (query.length >= 2) {
+                    $.ajax({
+                        url: "/Assessment/SearchMedicine",
+                        type: "GET",
+                        data: { term: query },
+                        success: function (data) {
+                            suggestionBox.empty();
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    suggestionBox.append(
+                                        `<a href="#" class="list-group-item list-group-item-action"
+                                            data-name="${item.descript}"
+                                            data-code="${item.icode}">
+                                            ${item.descript} <small class="text-muted">(${item.icode})</small>
+                                        </a>`
+                                    );
+                                });
+                                suggestionBox.show();
+                            } else {
+                                suggestionBox.hide();
+                            }
+                        }
+                    });
+                } else {
+                    suggestionBox.hide();
                 }
             });
 
-            // ===== add lab dynamic rows =====
+            // Select from suggestion
+            $(document).on("click", ".medicine-suggestions a", function (e) {
+                e.preventDefault();
+                let selectedName = $(this).data("name");
+                let selectedCode = $(this).data("code");
+
+                let $container = $(this).closest(".position-relative");
+                let $input = $container.find(".medicine-autocomplete");
+                let $hidden = $container.find(".medicine-code");
+
+                // ✅ Prevent duplicate by name or code
+                let isDuplicate = false;
+                $(".medicine-autocomplete").each(function () {
+                    let name = $(this).val();
+                    let code = $(this).closest(".position-relative").find(".medicine-code").val();
+
+                    if (name === selectedName || code === selectedCode) {
+                        isDuplicate = true;
+                        return false; // break loop
+                    }
+                });
+
+                if (isDuplicate) {
+                    alert("⚠️ This medicine is already selected.");
+                    return;
+                }
+
+                // ✅ Set values
+                $input.val(selectedName);
+                $hidden.val(selectedCode);
+
+                // Hide suggestions
+                $(this).closest(".medicine-suggestions").hide();
+            });
+
+            // Hide suggestions if click outside
+            $(document).click(function (e) {
+                if (!$(e.target).closest(".medicine-autocomplete, .medicine-suggestions").length) {
+                    $(".medicine-suggestions").hide();
+                }
+            });
+        });
+
+     
+
+        
+        ///////
+        document.addEventListener("DOMContentLoaded", function () {
+
+        
+
+            //add lab dynamic rows
             const labList = document.getElementById("lab-list");
             document.getElementById("addLab").addEventListener("click", function () {
             const newItem = document.createElement("div");

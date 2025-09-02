@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Reflection.Emit;
 using System.Reflection.Metadata;
 
 namespace DWB.Controllers
@@ -433,11 +434,32 @@ namespace DWB.Controllers
             var vm = new DoctorAssessmentVM
             {
                 NursingAssessment = nursing,
-                DoctorAssessment = doctor
+                DoctorAssessment = doctor,
+                Medicines = new List<TblDoctorAssmntMedicine>(),
+                Labs = new List<TblDoctorAssmntLab>(),
+                Procedures = new List<TblDoctorAssmntRadiology>()
             };
-
             return View(vm);
         }
+
+        // Change the method signature of SearchMedicine to async Task<JsonResult>
+        [HttpGet]
+        public async Task<JsonResult> SearchMedicine(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<string>());
+
+            term = term.Trim().ToLower();         
+            List<spMedicine> medicines = new List<spMedicine>();
+            //With the following code to map the result to List<spMedicine>:
+            var searchResults = await _context.Procedures.spSearchMedicinesAsync(term);
+            medicines = searchResults
+                .Select(r => new spMedicine { descript = r.descript, icode = r.icode })
+                .ToList();
+            return Json(medicines);
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DocAssmntCreate(DoctorAssessmentVM model, IFormFile[] doctorDocs)
@@ -450,23 +472,54 @@ namespace DWB.Controllers
             try
             {
                 //1. Save Doctor Assessment details
-                if (model.DoctorAssessment != null)
+                var doctorAssessment = new TblDoctorAssessment
                 {
-                    //Example: save to database
-                    model.DoctorAssessment.VchCreatedBy = User.Identity.Name;
-                    model.DoctorAssessment.DtCreated = DateTime.Now;
-                    model.DoctorAssessment.DtEndTime = DateTime.Now;
-                    _context.TblDoctorAssessment.Add(model.DoctorAssessment);
-                    await _context.SaveChangesAsync();
+                    FkUhid = model.DoctorAssessment.FkUhid,
+                    FkAssessmentId = model.DoctorAssessment.FkAssessmentId,
+                    VchChiefcomplaints = model.DoctorAssessment.VchChiefcomplaints,
+                    VchDiagnosis = model.DoctorAssessment.VchDiagnosis,
+                    VchMedicalHistory = model.DoctorAssessment.VchMedicalHistory,
+                    VchSystemicexam = model.DoctorAssessment.VchSystemicexam,
+                    VchRemarks = model.DoctorAssessment.VchRemarks
+                };
+                _context.TblDoctorAssessment.Add(doctorAssessment);
+                _context.SaveChanges();
+                if(model.Medicines.Count() != 0)
+                {
+                    //add all medicine if prescribed
+                    foreach(var med in model.Medicines)
+                    {
+                        TblDoctorAssmntMedicine objMedicine = new TblDoctorAssmntMedicine
+                        {
+                            FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
+                            VchMedicineName = med.VchMedicineName,
+                            VchMedicineCode = med.VchMedicineCode, // hidden code
+                            VchDosage = med.VchDosage,
+                            VchFrequency = med.VchFrequency,
+                            VchDuration = med.VchDuration,
+                            DtCreated = DateTime.Now,
+                            VchCreatedBy = User.Identity.Name
+                        };
+                        _context.TblDoctorAssmntMedicine.Add(objMedicine);
+                        _context.SaveChanges();
+                    }
                 }
+                //add lab if prescribed
+                if (model.Labs.Count() != 0)
+                {
 
+                }
+                //add procedure if prescribed
+                if (model.Procedures.Count() != 0)
+                {
+
+                }
                 //uploaded supporting documents
                 if (doctorDocs != null && doctorDocs.Length > 0)
                 {
                     string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "DoctorDocs");
                     if (!Directory.Exists(uploadPath))
                         Directory.CreateDirectory(uploadPath);
-
                     foreach (var file in doctorDocs)
                     {
                         if (file.Length > 0)
@@ -478,7 +531,6 @@ namespace DWB.Controllers
                             {
                                 await file.CopyToAsync(stream);
                             }
-
                             //Save file info to database
                             _context.TblDoctorAssessmentDoc.Add(new TblDoctorAssessmentDoc
                             {
@@ -490,7 +542,6 @@ namespace DWB.Controllers
                         }
                     }
                 }
-
                 TempData["Success"] = "✅ Doctor Assessment saved successfully!";
                 return RedirectToAction("Index"); // or wherever you want
             }

@@ -15,6 +15,10 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[imaster]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[IndusCompanies]",
          "ObjectType": 0
       },
@@ -77,6 +81,14 @@
       {
          "Name": "[dbo].[tblUsers]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblVitalsRange]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[spSearchMedicines]",
+         "ObjectType": 1
       }
    ],
    "UiHint": null,

@@ -11,7 +11,7 @@ public partial class TblDoctorAssmntMedicine
 
     public int FkDocAssmntId { get; set; }
 
-    public int FkMedId { get; set; }
+    public string VchMedicineCode { get; set; }
 
     public string VchMedicineName { get; set; }
 

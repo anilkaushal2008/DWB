@@ -13,6 +13,8 @@ public partial class DWBEntity : DbContext
     {
     }
 
+    public virtual DbSet<Imaster> Imaster { get; set; }
+
     public virtual DbSet<IndusCompanies> IndusCompanies { get; set; }
 
     public virtual DbSet<TblDietMaster> TblDietMaster { get; set; }
@@ -45,8 +47,299 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblUsers> TblUsers { get; set; }
 
+    public virtual DbSet<TblVitalsRange> TblVitalsRange { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Imaster>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("imaster");
+
+            entity.Property(e => e.IntId)
+                .ValueGeneratedNever()
+                .HasColumnName("intID");
+            entity.Property(e => e.AdjustmentAccount)
+                .HasMaxLength(255)
+                .HasColumnName("adjustment_account");
+            entity.Property(e => e.Area).HasColumnName("area");
+            entity.Property(e => e.BackingType)
+                .HasMaxLength(255)
+                .HasColumnName("backing_type");
+            entity.Property(e => e.BarCode).HasColumnName("bar_code");
+            entity.Property(e => e.BarcodeOpt)
+                .HasMaxLength(255)
+                .HasColumnName("barcode_opt");
+            entity.Property(e => e.BatchNo).HasColumnName("batch_no");
+            entity.Property(e => e.BoxQty).HasColumnName("box_qty");
+            entity.Property(e => e.CSize)
+                .HasMaxLength(255)
+                .HasColumnName("c_size");
+            entity.Property(e => e.Ccost).HasColumnName("ccost");
+            entity.Property(e => e.ClQty).HasColumnName("cl_qty");
+            entity.Property(e => e.Cn).HasMaxLength(255);
+            entity.Property(e => e.Code).HasColumnName("code");
+            entity.Property(e => e.CogsAccount)
+                .HasMaxLength(255)
+                .HasColumnName("cogs_account");
+            entity.Property(e => e.Col)
+                .HasMaxLength(255)
+                .HasColumnName("COL");
+            entity.Property(e => e.Colour)
+                .HasMaxLength(255)
+                .HasColumnName("COLOUR");
+            entity.Property(e => e.CompName).HasMaxLength(255);
+            entity.Property(e => e.Costmethod)
+                .HasMaxLength(255)
+                .HasColumnName("costmethod");
+            entity.Property(e => e.Cuom)
+                .HasMaxLength(255)
+                .HasColumnName("cuom");
+            entity.Property(e => e.Cweight).HasColumnName("cweight");
+            entity.Property(e => e.Des)
+                .HasMaxLength(255)
+                .HasColumnName("DES");
+            entity.Property(e => e.Descript)
+                .HasMaxLength(255)
+                .HasColumnName("descript");
+            entity.Property(e => e.Design)
+                .HasMaxLength(255)
+                .HasColumnName("DESIGN");
+            entity.Property(e => e.DtAdded)
+                .HasColumnType("datetime")
+                .HasColumnName("dtAdded");
+            entity.Property(e => e.DtOutofFormerly).HasColumnName("dtOutofFormerly");
+            entity.Property(e => e.Dupicode)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("dupicode");
+            entity.Property(e => e.EfDate)
+                .HasColumnType("datetime")
+                .HasColumnName("ef_date");
+            entity.Property(e => e.EnDate)
+                .HasColumnType("datetime")
+                .HasColumnName("en_date");
+            entity.Property(e => e.EntryComputer)
+                .HasMaxLength(70)
+                .IsUnicode(false);
+            entity.Property(e => e.ExpDate).HasColumnName("exp_date");
+            entity.Property(e => e.F101).HasMaxLength(255);
+            entity.Property(e => e.F102).HasMaxLength(255);
+            entity.Property(e => e.F103).HasMaxLength(255);
+            entity.Property(e => e.F104).HasMaxLength(255);
+            entity.Property(e => e.F105).HasMaxLength(255);
+            entity.Property(e => e.F106).HasMaxLength(255);
+            entity.Property(e => e.F107).HasMaxLength(255);
+            entity.Property(e => e.Feet).HasColumnName("feet");
+            entity.Property(e => e.GrossQlty).HasColumnName("gross_qlty");
+            entity.Property(e => e.Gstp)
+                .HasColumnType("numeric(10, 2)")
+                .HasColumnName("gstp");
+            entity.Property(e => e.Height).HasColumnName("height");
+            entity.Property(e => e.HighRisk)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("High_Risk");
+            entity.Property(e => e.HsnCode)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("hsnCode");
+            entity.Property(e => e.Icode)
+                .HasMaxLength(255)
+                .HasColumnName("icode");
+            entity.Property(e => e.Ig)
+                .HasMaxLength(255)
+                .HasColumnName("IG");
+            entity.Property(e => e.Ihdescript)
+                .HasMaxLength(255)
+                .HasColumnName("ihdescript");
+            entity.Property(e => e.Iname)
+                .HasMaxLength(255)
+                .HasColumnName("INAME");
+            entity.Property(e => e.IntQty).HasColumnName("intQty");
+            entity.Property(e => e.IsChemo).HasColumnName("isChemo");
+            entity.Property(e => e.IsIndentApproved).HasColumnName("isIndentApproved");
+            entity.Property(e => e.IsRestricted).HasColumnName("isRestricted");
+            entity.Property(e => e.It)
+                .HasMaxLength(255)
+                .HasColumnName("IT");
+            entity.Property(e => e.ItemAccount)
+                .HasMaxLength(255)
+                .HasColumnName("item_account");
+            entity.Property(e => e.ItemGroup).HasMaxLength(255);
+            entity.Property(e => e.ItemRemarks)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.ItemStatus)
+                .HasMaxLength(255)
+                .HasColumnName("item_status");
+            entity.Property(e => e.ItemType)
+                .HasMaxLength(255)
+                .HasColumnName("ITEM_TYPE");
+            entity.Property(e => e.Itemname)
+                .HasMaxLength(255)
+                .HasColumnName("ITEMNAME");
+            entity.Property(e => e.Itemtype1)
+                .HasMaxLength(255)
+                .HasColumnName("ITEMTYPE");
+            entity.Property(e => e.Itype)
+                .HasMaxLength(255)
+                .HasColumnName("ITYPE");
+            entity.Property(e => e.LatexType)
+                .HasMaxLength(255)
+                .HasColumnName("latex_type");
+            entity.Property(e => e.Lenth).HasColumnName("lenth");
+            entity.Property(e => e.Lookalike)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("lookalike");
+            entity.Property(e => e.LotControl)
+                .HasMaxLength(255)
+                .HasColumnName("lot_control");
+            entity.Property(e => e.Manf)
+                .HasMaxLength(255)
+                .HasColumnName("manf");
+            entity.Property(e => e.ManuFact).HasColumnName("MANU_FACT");
+            entity.Property(e => e.MaterialType)
+                .HasMaxLength(255)
+                .HasColumnName("MATERIAL_TYPE");
+            entity.Property(e => e.MaxQty).HasColumnName("max_qty");
+            entity.Property(e => e.Mcost).HasColumnName("mcost");
+            entity.Property(e => e.MfgDate).HasColumnName("mfg_date");
+            entity.Property(e => e.MinLen).HasColumnName("min_len");
+            entity.Property(e => e.MinQty).HasColumnName("min_qty");
+            entity.Property(e => e.MrpFac).HasColumnName("mrp_fac");
+            entity.Property(e => e.Mtype)
+                .HasMaxLength(255)
+                .HasColumnName("mtype");
+            entity.Property(e => e.Muom)
+                .HasMaxLength(255)
+                .HasColumnName("muom");
+            entity.Property(e => e.NetQlty).HasColumnName("net_qlty");
+            entity.Property(e => e.OnLine)
+                .HasMaxLength(255)
+                .HasColumnName("on_line");
+            entity.Property(e => e.OutofFormerly)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.PcName)
+                .HasMaxLength(255)
+                .HasColumnName("pc_name");
+            entity.Property(e => e.Planingtype)
+                .HasMaxLength(255)
+                .HasColumnName("planingtype");
+            entity.Property(e => e.PoUom)
+                .HasMaxLength(255)
+                .HasColumnName("po_uom");
+            entity.Property(e => e.PpvAccount)
+                .HasMaxLength(255)
+                .HasColumnName("ppv_account");
+            entity.Property(e => e.PurRate).HasColumnName("pur_rate");
+            entity.Property(e => e.Purchase).HasColumnName("purchase");
+            entity.Property(e => e.QltyType)
+                .HasMaxLength(255)
+                .HasColumnName("qlty_type");
+            entity.Property(e => e.Qual)
+                .HasMaxLength(255)
+                .HasColumnName("QUAL");
+            entity.Property(e => e.Quality)
+                .HasMaxLength(255)
+                .HasColumnName("QUALITY");
+            entity.Property(e => e.ReOrderLevel).HasColumnName("re_order_level");
+            entity.Property(e => e.ReOrderQty).HasColumnName("re_order_qty");
+            entity.Property(e => e.Receiptm).HasColumnName("receiptm");
+            entity.Property(e => e.Receiptp).HasColumnName("receiptp");
+            entity.Property(e => e.Rfeet).HasColumnName("rfeet");
+            entity.Property(e => e.SafetyStock).HasColumnName("safety_stock");
+            entity.Property(e => e.SaleAccount)
+                .HasMaxLength(255)
+                .HasColumnName("SALE_ACCOUNT");
+            entity.Property(e => e.SaleDiscount)
+                .HasMaxLength(255)
+                .HasColumnName("sale_discount");
+            entity.Property(e => e.SaleRate).HasColumnName("sale_rate");
+            entity.Property(e => e.Salt)
+                .HasMaxLength(255)
+                .HasColumnName("salt");
+            entity.Property(e => e.Sdsales)
+                .HasMaxLength(255)
+                .HasColumnName("sdsales");
+            entity.Property(e => e.Sdwh)
+                .HasMaxLength(255)
+                .HasColumnName("sdwh");
+            entity.Property(e => e.SerialNo).HasColumnName("serial_no");
+            entity.Property(e => e.Shade)
+                .HasMaxLength(255)
+                .HasColumnName("SHADE");
+            entity.Property(e => e.Shape)
+                .HasMaxLength(255)
+                .HasColumnName("shape");
+            entity.Property(e => e.Shd)
+                .HasMaxLength(255)
+                .HasColumnName("SHD");
+            entity.Property(e => e.Shipmentm).HasColumnName("shipmentm");
+            entity.Property(e => e.Shipmentp).HasColumnName("shipmentp");
+            entity.Property(e => e.Soundalike)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("soundalike");
+            entity.Property(e => e.SubCont).HasColumnName("sub_cont");
+            entity.Property(e => e.Sz)
+                .HasMaxLength(255)
+                .HasColumnName("sz");
+            entity.Property(e => e.Tax).HasColumnName("tax");
+            entity.Property(e => e.Tax2)
+                .HasMaxLength(255)
+                .HasColumnName("tax2");
+            entity.Property(e => e.TaxId)
+                .HasMaxLength(255)
+                .HasColumnName("tax_id");
+            entity.Property(e => e.TrimItem)
+                .HasMaxLength(255)
+                .HasColumnName("trim_item");
+            entity.Property(e => e.Uom)
+                .HasMaxLength(255)
+                .HasColumnName("uom");
+            entity.Property(e => e.UomCon).HasColumnName("uom_con");
+            entity.Property(e => e.UomCon2).HasColumnName("uom_con2");
+            entity.Property(e => e.UpdateComputer)
+                .HasMaxLength(70)
+                .IsUnicode(false);
+            entity.Property(e => e.UsageOth).HasColumnName("usage_oth");
+            entity.Property(e => e.UsagePrd).HasColumnName("usage_prd");
+            entity.Property(e => e.UsageSal).HasColumnName("usage_sal");
+            entity.Property(e => e.UserEntry)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("User_Entry");
+            entity.Property(e => e.UserUpdate)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("User_Update");
+            entity.Property(e => e.VatonD).HasColumnName("vatonD");
+            entity.Property(e => e.VchPack)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("vchPack");
+            entity.Property(e => e.VchUnit)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUnit");
+            entity.Property(e => e.Vdescript)
+                .HasMaxLength(255)
+                .HasColumnName("VDESCRIPT");
+            entity.Property(e => e.Ved)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("VED");
+            entity.Property(e => e.Weight)
+                .HasMaxLength(255)
+                .HasColumnName("weight");
+            entity.Property(e => e.Yard).HasColumnName("yard");
+        });
+
         modelBuilder.Entity<IndusCompanies>(entity =>
         {
             entity.HasKey(e => e.IntPk);
@@ -450,7 +743,6 @@ public partial class DWBEntity : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
             entity.Property(e => e.FkDocAssmntId).HasColumnName("fk_DocAssmntID");
-            entity.Property(e => e.FkMedId).HasColumnName("fk_MedID");
             entity.Property(e => e.VchCreatedBy)
                 .IsRequired()
                 .HasMaxLength(100)
@@ -476,6 +768,11 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("vchInstruction");
+            entity.Property(e => e.VchMedicineCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchMedicineCode");
             entity.Property(e => e.VchMedicineName)
                 .IsRequired()
                 .HasMaxLength(150)
@@ -1079,6 +1376,47 @@ public partial class DWBEntity : DbContext
                 .HasForeignKey(d => d.FkRoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblUsers_tblRoleMas");
+        });
+
+        modelBuilder.Entity<TblVitalsRange>(entity =>
+        {
+            entity.HasKey(e => e.IntRangeId);
+
+            entity.ToTable("tblVitalsRange");
+
+            entity.Property(e => e.IntRangeId).HasColumnName("intRangeID");
+            entity.Property(e => e.BitIsDeactivated).HasColumnName("bitIsDeactivated");
+            entity.Property(e => e.DecMaxValue)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("decMaxValue");
+            entity.Property(e => e.DecMinValue)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("decMinValue");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchUnitMeasure)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUnitMeasure");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+            entity.Property(e => e.VchVitalName)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchVitalName");
         });
 
         OnModelCreatingPartial(modelBuilder);

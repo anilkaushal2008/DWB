@@ -9,5 +9,9 @@ namespace DWB.Models
        
         [NotMapped]
         public List<IFormFile> UploadedFiles { get; set; }
+        public List<TblDoctorAssmntMedicine> Medicines { get; set; } = new List<TblDoctorAssmntMedicine>();
+        public List<TblDoctorAssmntLab> Labs { get; set; } = new List<TblDoctorAssmntLab>();
+        public List<TblDoctorAssmntRadiology> Procedures { get; set; } = new List<TblDoctorAssmntRadiology>();
     }
 }
+
