@@ -43,6 +43,40 @@ namespace DWB.Models
             _context = context;
         }
 
+        public virtual async Task<List<spGetRadioProcedureResult>> spGetRadioProcedureAsync(string type, string search, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "Type",
+                    Size = 100,
+                    Value = type ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "Search",
+                    Size = 200,
+                    Value = search ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<spGetRadioProcedureResult>("EXEC @returnValue = [dbo].[spGetRadioProcedure] @Type = @Type, @Search = @Search", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<spSearchMedicinesResult>> spSearchMedicinesAsync(string searchTerm, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter

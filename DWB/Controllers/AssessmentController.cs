@@ -437,7 +437,9 @@ namespace DWB.Controllers
                 DoctorAssessment = doctor,
                 Medicines = new List<TblDoctorAssmntMedicine>(),
                 Labs = new List<TblDoctorAssmntLab>(),
-                Procedures = new List<TblDoctorAssmntRadiology>()
+                Radiology = new List<TblDoctorAssmntRadiology>(),
+                Procedures = new List<TblDoctorAssmntProcedure>()
+
             };
             return View(vm);
         }
@@ -458,7 +460,19 @@ namespace DWB.Controllers
                 .ToList();
             return Json(medicines);
         }
-
+        [HttpGet]
+        public async Task<JsonResult> SearchRadiology(string term)
+        {
+           if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<string>());
+                string search = "Radio";
+            List<spGetRadioProcedureResult> getProcedure = new List<spGetRadioProcedureResult>();
+            var searchResults = await _context.Procedures.spGetRadioProcedureAsync(search, term);
+            getProcedure = searchResults
+                .Select(r => new spGetRadioProcedureResult { service = r.service, scode = r.scode })
+                .ToList();
+            return Json(searchResults);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -471,7 +485,7 @@ namespace DWB.Controllers
             }
             try
             {
-                //1. Save Doctor Assessment details
+                //Save Doctor Assessment details
                 var doctorAssessment = new TblDoctorAssessment
                 {
                     FkUhid = model.DoctorAssessment.FkUhid,
@@ -484,10 +498,11 @@ namespace DWB.Controllers
                 };
                 _context.TblDoctorAssessment.Add(doctorAssessment);
                 _context.SaveChanges();
-                if(model.Medicines.Count() != 0)
+                //Save medicines
+                if (model.Medicines.Count() != 0)
                 {
                     //add all medicine if prescribed
-                    foreach(var med in model.Medicines)
+                    foreach (var med in model.Medicines)
                     {
                         TblDoctorAssmntMedicine objMedicine = new TblDoctorAssmntMedicine
                         {
@@ -503,11 +518,6 @@ namespace DWB.Controllers
                         _context.TblDoctorAssmntMedicine.Add(objMedicine);
                         _context.SaveChanges();
                     }
-                }
-                //add lab if prescribed
-                if (model.Labs.Count() != 0)
-                {
-
                 }
                 //add procedure if prescribed
                 if (model.Procedures.Count() != 0)
@@ -550,7 +560,9 @@ namespace DWB.Controllers
                 TempData["Error"] = "❌ Error saving assessment: " + ex.Message;
                 return View(model);
             }
-            #endregion
         }
+
+       #endregion
+        
     }
 }

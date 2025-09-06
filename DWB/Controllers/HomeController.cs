@@ -20,10 +20,8 @@ namespace DWB.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
         private readonly DWBEntity _context;
-        private readonly GroupEntity _groupcontext;
-        
+        private readonly GroupEntity _groupcontext;        
         public HomeController(ILogger<HomeController> logger, DWBEntity dWBEntity, GroupEntity groupcontext)
         {
             _logger = logger;

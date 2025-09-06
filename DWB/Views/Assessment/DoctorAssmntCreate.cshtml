@@ -6,17 +6,23 @@
             <div class="d-flex flex-wrap align-items-center small text-dark fw-semibold">
                 <span class="me-3 text-primary" >Selected Patient|UHID: <span class="text-white">@Model.NursingAssessment.VchUhidNo</span></span>
                 <span class="me-3 text-primary">Name: <span class="text-white">@Model.NursingAssessment.VchHmsname</span></span>
+                <span class="me-3 text-primary">Visit No: <span class="text-white">@Model.NursingAssessment.IntIhmsvisit</span></span>
                 <span><a class="btn btn-sm btn-grd-primary">View History</a> </span>&nbsp;
                 <span><a class="btn btn-sm btn-grd-danger">Use last history</a> </span>
             </div>
         </div>
-        <div class="card shadow-sm rounded-4">
-            <div class="card-body">
+        <div class="card shadow-sm rounded-4">           
+            <div class="card-body">                
                 <form method="post" id="DAssessment" enctype="multipart/form-data"
                       asp-action="DocAssmntCreate" asp-controller="Assessment">
                       @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
                       @Html.HiddenFor(m => m.DoctorAssessment.FkUhid)
-
+                    <!-- Submit -->
+                    <div align="right" class="text-end mt-1 my-1">
+                        <button type="submit" align="right" class="btn btn-sm btn-primary px-4 py-2 rounded-pill shadow-sm">
+                            ✅ Save Assessment
+                        </button>
+                    </div>
                     <!-- Nav Tabs -->
                     <ul class="nav nav-pills mb-3 justify-content-center" id="docAssessmentTabs" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -45,6 +51,11 @@
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="procedure-tab" data-bs-toggle="tab" data-bs-target="#procedure" type="button" role="tab">
+                                💉 Procedure
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <button class="nav-link" id="followup-tab" data-bs-toggle="tab" data-bs-target="#followup" type="button" role="tab">
                                 📅 Follow Up
                             </button>
@@ -55,198 +66,131 @@
                             </button>
                         </li>
                     </ul>
-
+                   
                         <!-- Tab Content -->
                         <div class="tab-content" id="docAssessmentContent">
                         <!-- Patient -->
                         <hr />
-                        <div class="tab-pane fade show active" id="patient" role="tabpanel">
-                          <div class="card p-2 border-top border-secondary shadow rounded-3 mb-2 bg-light">
-                            @* 
-                            <!-- Patient detail -->
-                                <h5 class="small mb-3 text-primary">Patient Detail</h5>
-                            <div class="row g-2">                                 
-                                <div class="col-md-2">
-                                    <label class="form-label fw-bold small">UHID No</label>
-                                        <input asp-for="@Model.NursingAssessment.VchUhidNo" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                </div>
-
-                                    <div class="col-md-4">
-                                        <label asp-for="@Model.NursingAssessment.VchHmsname" class="form-label fw-bold small">Name</label>
-                                        <input asp-for="@Model.NursingAssessment.VchHmsname" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label asp-for="@Model.NursingAssessment.IntIhmsvisit" class="form-label fw-bold small">Visit No</label>
-                                        <input asp-for="@Model.NursingAssessment.IntIhmsvisit" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label asp-for="@Model.NursingAssessment.VchHmsage" class="form-label fw-bold small">Age</label>
-                                        <input asp-for="@Model.NursingAssessment.VchHmsage" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label asp-for="@Model.NursingAssessment.VchGender" class="form-label fw-bold small">Gender</label>
-                                        <input asp-for="@Model.NursingAssessment.VchGender" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label asp-for="@Model.NursingAssessment.VchHmsdtEntry" class="form-label fw-bold small">Entry Date</label>
-                                        <input asp-for="@Model.NursingAssessment.VchHmsdtEntry" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-
-                                    <div class="col-md-2">
-                                        <label asp-for="@Model.NursingAssessment.VchIhmintime" class="form-label fw-bold small">In Time</label>
-                                        <input asp-for="@Model.NursingAssessment.VchIhmintime" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <label asp-for="@Model.NursingAssessment.VchHmsconsultant" class="form-label fw-bold small">Consultant</label>
-                                        <input asp-for="@Model.NursingAssessment.VchHmsconsultant" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <label asp-for="@Model.NursingAssessment.VchHmscategory" class="form-label fw-bold small">Category</label>
-                                        <input asp-for="@Model.NursingAssessment.VchHmscategory" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                              </div> *@
-                                <!-- Vital Signs -->
-                                <h5 class="text-primary small mb-2">💓 Vital Signs</h5>
-                                <div class="row g-2">
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">BP(/MmHg)</label>
-                                        <input asp-for="@Model.NursingAssessment.VchBloodPressure" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Pulse</label>
-                                        <input asp-for="@Model.NursingAssessment.VchPulse" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Temperature(°F)</label>
-                                        <input asp-for="@Model.NursingAssessment.DecTemperature" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">SpO2(%age)</label>
-                                        <input asp-for="@Model.NursingAssessment.DecSpO2" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Weight(Kg)</label>
-                                        <input asp-for="@Model.NursingAssessment.DecWeight" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Height(CM)</label>
-                                        <input asp-for="@Model.NursingAssessment.DecHeight" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Respiratory Rate(/Min)</label>
-                                        <input asp-for="@Model.NursingAssessment.DecRespiratoryRate" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">O₂ Flow Rate(%age)</label>
-                                        <input asp-for="@Model.NursingAssessment.DecOxygenFlowRate" class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+                        <div class="tab-pane fade show active" id="patient" role="tabpanel">                         
+                           <div class="row g-3">
+                                <!-- VITAL SIGNS -->
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm rounded-3 border-top border-primary text-white bg-light h-100">
+                                        <div class="card-header bg-light py-2">
+                                            <h6 class="mb-0 text-primary d-flex align-items-center">
+                                                💓 VITAL SIGNS
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-3 small">
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">BP (MMHG):</strong> <span>@Model.NursingAssessment.VchBloodPressure</span></div>
+                                                <div class="col-6"><strong class="text-secondary">PULSE:</strong> <span>@Model.NursingAssessment.VchPulse</span></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">TEMP (°F):</strong> <span>@Model.NursingAssessment.DecTemperature</span></div>
+                                                <div class="col-6"><strong class="text-secondary">SPO₂ (%):</strong> <span>@Model.NursingAssessment.DecSpO2</span></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">WEIGHT (KG):</strong> <span>@Model.NursingAssessment.DecWeight</span></div>
+                                                <div class="col-6"><strong class="text-secondary">HEIGHT (CM):</strong> <span>@Model.NursingAssessment.DecHeight</span></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">RESP RATE:</strong> <span>@Model.NursingAssessment.DecRespiratoryRate</span></div>
+                                                <div class="col-6"><strong class="text-secondary">O₂ FLOW:</strong> <span>@Model.NursingAssessment.DecOxygenFlowRate</span></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <hr />
-                                <!-- Personal History -->
-                                <h5 class="text-success small mb-2">🧬 Personal History</h5>
-                                <div class="row g-2">
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Allergies</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitIsAllergical? Model.NursingAssessment.VchAllergicalDrugs : "N/A")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Alcohol</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitIsAlcoholic ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Smoking</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitIsSmoking ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">LMP(Females)</label>
-                                        <input type="text" value="@(string.IsNullOrEmpty(Model.NursingAssessment.VchLmpForFemale) ? "No" : Model.NursingAssessment.VchLmpForFemale)"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    </div>
-                                <hr />
-                                <!-- Past History -->
-                                <h5 class="text-danger small mb-2">🩺 Past History</h5>
-                                <div class="row g-2">
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Diabetes</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitDiabetes ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Heart Disease</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitHeartDisease ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Hypertension</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitHypertension ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Asthma</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitAsthma ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">High Cholesterol</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitCholesterol ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Tuberculosis</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitTuberculosis ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Surgery</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitSurgery ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label fw-bold small">Hospitalized (last 3 mo)</label>
-                                        <input type="text" value="@(Model.NursingAssessment.BitHospitalization ? "Yes" : "No")"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label class="form-label fw-bold small">Other History</label>
-                                        <input type="text" value="@Model.NursingAssessment.VchOtherHistory"
-                                               class="form-control bg-gradient p-1 m-0" style="font-size:12px; line-height:1;" readonly />
+
+                                <!-- PAST HISTORY -->
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm rounded-3 border-top border-danger bg-light text-white h-100">
+                                        <div class="card-header bg-light py-2">
+                                            <h6 class="mb-0 text-danger flex align-items-center">
+                                                <i class="fa-solid fa-dna me-2"></i>🩺 PAST HISTORY
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-3 small">
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">DIABETES:</strong> <span>@(Model.NursingAssessment.BitDiabetes ? "YES" : "NO")</span></div>
+                                                <div class="col-6"><strong class="text-secondary">HEART DISEASE:</strong> <span>@(Model.NursingAssessment.BitHeartDisease ? "YES" : "NO")</span></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">HYPERTENSION:</strong> <span>@(Model.NursingAssessment.BitHypertension ? "YES" : "NO")</span></div>
+                                                <div class="col-6"><strong class="text-secondary">ASTHMA:</strong> <span>@(Model.NursingAssessment.BitAsthma ? "YES" : "NO")</span></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">HIGH CHOLESTEROL:</strong> <span>@(Model.NursingAssessment.BitCholesterol ? "YES" : "NO")</span></div>
+                                                <div class="col-6"><strong class="text-secondary">TUBERCULOSIS:</strong> <span>@(Model.NursingAssessment.BitTuberculosis ? "YES" : "NO")</span></div>
+                                            </div>
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6"><strong class="text-secondary">SURGERY:</strong> <span>@(Model.NursingAssessment.BitSurgery ? "YES" : "NO")</span></div>
+                                                <div class="col-6"><strong class="text-secondary">HOSPITALIZED (LAST 3 MO):</strong> <span>@(Model.NursingAssessment.BitHospitalization ? "YES" : "NO")</span></div>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-12"><strong class="text-secondary">OTHER HISTORY:</strong> <span>@Model.NursingAssessment.VchOtherHistory</span></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <hr />
-                                @if (Model.NursingAssessment.TblNassessmentDoc != null && Model.NursingAssessment.TblNassessmentDoc.Any())
-                                {
-                                   
-                                        <h5 class="text-info small mb-2">📂 Supporting Documents</h5>
-                                        <div class="row g-2">
-                                            @foreach (var document in Model.NursingAssessment.TblNassessmentDoc)
-                                            {
-                                                <div class="col-auto text-center">
-                                                    <a href="@Url.Content("~/uploads/NAssessment/" + document.VchFileName)" target="_blank" title="@document.VchFileName">
-                                                        <div class="border rounded bg-white p-2" style="width:70px; height:70px; display:flex; align-items:center; justify-content:center;">
-                                                            <i class="fas fa-file-alt fa-2x text-info"></i>
-                                                        </div>
-                                                        <small class="d-block text-truncate" style="max-width:70px;">@document.VchFileName</small>
-                                                    </a>
-                                                </div>
-                                            }
-                                        </div>                                 
-                                }
                             </div>
-                        </div>
-                  
+                            <br />
+                            <div class="row g-3">
+                                <!-- PERSONAL HISTORY -->
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm rounded-3 border-top border-success bg-light text-white h-100">
+                                        <div class="card-header bg-light py-2">
+                                            <h6 class="mb-0 text-success d-flex align-items-center">
+                                                <i class="fa-solid fa-dna me-2"></i>🧬 PERSONAL HISTORY
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-3 small">
+                                            <div class="row g-2">
+                                                <div class="col-6"><strong class="text-secondary">ALLERGIES:</strong> <span>@(Model.NursingAssessment.BitIsAllergical? Model.NursingAssessment.VchAllergicalDrugs : "N/A")</span></div>
+                                                <div class="col-6"><strong class="text-secondary">ALCOHOL:</strong> <span>@(Model.NursingAssessment.BitIsAlcoholic ? "YES" : "NO")</span></div>
+                                                <div class="col-6"><strong class="text-secondary">SMOKING:</strong> <span>@(Model.NursingAssessment.BitIsSmoking ? "YES" : "NO")</span></div>
+                                                <div class="col-6"><strong class="text-secondary">LMP (FEMALES):</strong> <span>@(string.IsNullOrEmpty(Model.NursingAssessment.VchLmpForFemale) ? "N/A" : Model.NursingAssessment.VchLmpForFemale)</span></div>
+                                                <div class="col-6"><strong class="text-secondary">OCCUPATION:</strong> <span>@(string.IsNullOrEmpty(Model.NursingAssessment.VchOccupation) ? "N/A" : Model.NursingAssessment.VchOccupation)</span></div>
+                                                <div class="col-6"><strong class="text-secondary">PSYCHOLOGICAL STATUS:</strong> <span>@(string.IsNullOrEmpty(Model.NursingAssessment.VchSocialEconomicStatus) ? "N/A" : Model.NursingAssessment.VchSocialEconomicStatus)</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Support Document -->
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm rounded-3 border-top border-info bg-light text-white h-100">
+                                        <div class="card-header bg-light py-2">
+                                            <h6 class="mb-0 text-info d-flex align-items-center">
+                                                <i class="fa-solid fa-dna me-2"></i>📂 SUPPORTING DOCUMENTS
+                                            </h6>
+                                        </div>
+                                        <div class="card-body p-3 small">
+                                            <div class="row g-2">
+                                        <!-- Supporting Documents -->
+                                        @if (Model.NursingAssessment.TblNassessmentDoc != null && Model.NursingAssessment.TblNassessmentDoc.Any())
+                                            {
+                                                @foreach (var document in Model.NursingAssessment.TblNassessmentDoc)
+                                                {
+                                                    <div class="col-auto text-center">
+                                                        <a href="@Url.Content("~/uploads/NAssessment/" + document.VchFileName)" target="_blank" title="@document.VchFileName">
+                                                            <div class="border rounded bg-white p-2 shadow-sm" style="width:70px; height:70px; display:flex; align-items:center; justify-content:center;">
+                                                                <i class="fas fa-file-alt fa-2x text-info"></i>
+                                                            </div>
+                                                            <small class="d-block text-truncate" style="max-width:70px;">@document.VchFileName</small>
+                                                        </a>
+                                                    </div>
+                                                }
+                                            }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+
                         <!-- Clinical -->
                         <div class="tab-pane fade" id="clinical" role="tabpanel">
-                        <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
+                        <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Chief Complaints</label>
@@ -270,96 +214,182 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        </div>
+
                         <!-- Medicines -->
                         <div class="tab-pane fade" id="medicine" role="tabpanel">
-                            <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
+                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
                                 <div id="medicine-list">
                                     <div class="row g-2 mb-2 medicine-item">
                                         <div class="col-md-4 position-relative">
                                             <input type="text"
                                                    class="form-control medicine-autocomplete"
-                                                   name="Medicines[0].vchMedicineName"
+                                                   name="Medicines[0].VchMedicineName"
                                                    placeholder="Search Medicine" autocomplete="off">
                                             <input type="hidden"
-                                                   name="Medicines[0].vchMedicineCode"
+                                                   name="Medicines[0].VchMedicineCode"
                                                    class="medicine-code">
                                             <div class="list-group position-absolute w-100 medicine-suggestions"
                                                  style="z-index:999; display:none;"></div>
                                         </div>
-
                                         <div class="col-md-2">
-                                            <input type="text" class="form-control" name="Medicines[0].vchDosage" placeholder="Dosage">
+                                            <input type="text" class="form-control" name="Medicines[0].VchDosage" placeholder="Dosage">
                                         </div>
                                         <div class="col-md-2">
-                                            <input type="text" class="form-control" name="Medicines[0].vchFrequency" placeholder="Frequency">
+                                            <input type="text" class="form-control" name="Medicines[0].VchFrequency" placeholder="Frequency">
                                         </div>
                                         <div class="col-md-2">
-                                            <input type="text" class="form-control" name="Medicines[0].vchDuration" placeholder="Duration">
+                                            <input type="text" class="form-control" name="Medicines[0].VchDuration" placeholder="Duration">
                                         </div>
                                         <div class="col-md-2 text-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-medicine">❌</button>
+                                            <button type="button" class="btn btn-danger btn remove-medicine form-group"><i class="bi bi-x-lg text-white"></i></button>
+                                            <button type="button" class="btn btn-success btn add-medicine-row form-group"><i class="bi bi-plus-lg"></i></button>
                                         </div>
                                     </div>
-                                </div>
-
-                                <button id="addMedicine" type="button" class="btn btn-outline-primary btn-sm">➕ Add Medicine</button>
+                                </div>                               
                             </div>
                         </div>
 
-
-
-
                         <!-- Lab -->
                         <div class="tab-pane fade" id="lab" role="tabpanel">
-                            <div id="lab-list">
-                                <div class="row g-2 mb-2 lab-item">
-                                    <div class="col-md-8">
-                                        <select class="form-select">
-                                            <option value="">-- Select Lab Test --</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select">
-                                            <option value="Normal">Normal</option>
-                                            <option value="Urgent">Urgent</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1 text-center">
-                                        <button class="btn btn-danger btn-sm remove-lab">❌</button>
+                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
+                                <div id="lab-list">
+                                    <div class="row g-2 mb-2 lab-item">
+                                        <!-- Lab Name Autocomplete -->
+                                        <div class="col-md-5 position-relative">
+                                            <input type="text"
+                                                   class="form-control lab-autocomplete"
+                                                   name="Labs[0].VchLabName"
+                                                   placeholder="Search Lab Test"
+                                                   autocomplete="off">
+                                            <input type="hidden"
+                                                   name="Labs[0].VchLabCode"
+                                                   class="lab-code">
+                                            <div class="list-group position-absolute w-100 lab-suggestions"
+                                                 style="z-index:999; display:none;"></div>
+                                        </div>
+
+                                        <!-- Priority -->
+                                        <div class="col-md-2">
+                                            <select class="form-select" name="Labs[0].VchPriority">
+                                                <option value="Normal">Normal</option>
+                                                <option value="Urgent">Urgent</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Remarks -->
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control" name="Labs[0].VchRemarks" placeholder="Remarks">
+                                        </div>
+
+                                        <!-- Action Buttons -->
+                                        <div class="col-md-2 text-center">
+                                            <button type="button" class="btn btn-danger btn remove-lab form-group">
+                                                <i class="bi bi-x-lg text-white"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-success btn add-lab-row">
+                                                <i class="bi bi-plus-lg text-white form-group"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <button id="addLab" type="button" class="form-control btn btn-outline-primary btn-sm">➕ Add Lab Test</button>                     
                         </div>
 
                         <!-- Radiology -->
                         <div class="tab-pane fade" id="radiology" role="tabpanel">
-                            <div id="radiology-list">
-                                <div class="row g-2 mb-2 radiology-item">
-                                    <div class="col-md-8">
-                                        <select class="form-select">
-                                            <option value="">-- Select Procedure --</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select class="form-select">
-                                            <option value="Normal">Normal</option>
-                                            <option value="Urgent">Urgent</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1 text-center">
-                                        <button class="btn btn-danger btn-sm remove-radiology">❌</button>
+                            <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
+                                <div id="radiology-list">
+                                    <div class="row g-2 mb-2 radiology-item">
+                                        <div class="col-md-4 position-relative">
+                                            <input type="text"
+                                                   class="form-control radiology-autocomplete"
+                                                   name="Radiology[0].VchRadiologyName"
+                                                   placeholder="Search Radiology" autocomplete="off">
+                                            <input type="hidden"
+                                                   name="Radiology[0].VchRadiologyCode"
+                                                   class="radiology-code">
+                                            <div class="list-group position-absolute w-100 radiology-suggestions"
+                                                 style="z-index:999; display:none;"></div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <select class="form-select" name="Radiology[0].VchPriority">
+                                                <option value="">-- Priority --</option>
+                                                <option value="High">High</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="Low">Low</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control"
+                                                   name="Radiology[0].VchRemarks"
+                                                   placeholder="Remarks">
+                                        </div>
+
+                                        <div class="col-md-2 text-center">
+                                            <button type="button" class="btn btn-danger btn-sm remove-radiology"><i class="bi bi-x-lg text-white"></i></button>
+                                            <button type="button" class="btn btn-success btn-sm add-radiology-row text-white"><i class="bi bi-plus-lg"></i></button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <button id="addRadiology" type="button" class="form-control btn btn-outline-primary btn-sm">➕ Add Procedure</button>
-                         
                         </div>
+
+
+                        <!--Procedure-->
+                        <div class="tab-pane fade" id="procedure" role="tabpanel">
+                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
+                                <div id="procedure-list">
+                                    <div class="row g-2 mb-2 procedure-item">
+                                        <!-- Procedure Name -->
+                                        <div class="col-md-4 position-relative">
+                                            <input type="text"
+                                                   class="form-control procedure-autocomplete"
+                                                   name="Procedures[0].VchProcedureName"
+                                                   placeholder="Search Procedure"
+                                                   autocomplete="off">
+                                            <input type="hidden"
+                                                   name="Procedures[0].VchProcedureCode"
+                                                   class="procedure-code">
+                                            <div class="list-group position-absolute w-100 procedure-suggestions"
+                                                 style="z-index:999; display:none;"></div>
+                                        </div>
+
+                                        <!-- Priority -->
+                                        <div class="col-md-3">
+                                            <select class="form-select" name="Procedures[0].VchPriority">
+                                                <option value="Normal">Normal</option>
+                                                <option value="Urgent">Urgent</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Remarks -->
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control" name="Procedures[0].VchRemarks" placeholder="Remarks">
+                                        </div>
+
+                                        <!-- Action Buttons -->
+                                        <div class="col-md-2 text-center">
+                                            <button type="button" class="btn btn-danger btn remove-procedure">
+                                                <i class="bi bi-x-lg text-white"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-success btn add-procedure-row">
+                                                <i class="bi bi-plus-lg text-white"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                     
 
                         <!-- Follow Up -->
                         <div class="tab-pane fade" id="followup" role="tabpanel">
-                            <div class="row g-3">
+                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
+                                <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Follow-up Date</label>
                                     <input asp-for="DoctorAssessment.DtFollowUpDate" type="date" class="form-control" />
@@ -370,13 +400,16 @@
                                 </div>
                             </div>
                         </div>  
-                        <!--File upload-->
-                        <div class="tab-pane fade" id="files" role="tabpanel">                           
-                            <div class="mb-4 p-4 border rounded-4 shadow-sm bg-white">
+                        </div>  
+
+                        <!--File upload supporting document-->
+                        <div class="tab-pane fade" id="files" role="tabpanel">
+                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
                                 <label class="form-label fw-bold fs-5 text-primary mb-3">
                                     <i class="fas fa-paperclip me-2"></i>Upload Supporting Documents
                                 </label>
 
+                                <!-- Drop Zone -->
                                 <div id="doctor-drop-zone"
                                      class="border border-3 border-dashed border-info p-5 text-center bg-light rounded-4 shadow-sm"
                                      style="cursor: pointer; transition: all 0.2s ease-in-out;">
@@ -393,7 +426,8 @@
                                            multiple />
                                 </div>
 
-                                <div class="mt-3 text-muted text-center" style="font-size: 0.875rem;">
+                                <!-- Info -->
+                                <div class="mt-3 text-muted text-center text-white-50" style="font-size: 0.875rem;">
                                     Supported file types: JPG, PNG, PDF. Maximum: 5 documents.
                                 </div>
 
@@ -401,14 +435,10 @@
                                 <div id="doctor-file-list" class="mt-4"></div>
                             </div>
                         </div>
+
+                       
                     </div>
-                  
-                    <!-- Submit -->
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-                            ✅ Save Assessment
-                        </button>
-                    </div>
+                    
                 </form>
             </div>
         </div>
@@ -423,106 +453,156 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
-        //Medicine searching / adding
-                   $(document).ready(function () {
+        //Medicine searching / adding                
+        $(document).ready(function () {
             let medIndex = 1; // start from 1 since 0 already exists
 
-            // Add new medicine row
-            $("#addMedicine").click(function () {
-                let newRow = `
+            // Function to generate new row
+            function getNewRow(index) {
+                return `
                     <div class="row g-2 mb-2 medicine-item">
                         <div class="col-md-4 position-relative">
                             <input type="text" class="form-control medicine-autocomplete"
-                                   name="Medicines[${medIndex}].vchMedicineName"
+                                   name="Medicines[${index}].VchMedicineName"
                                    placeholder="Search Medicine" autocomplete="off">
-                            <!-- hidden input to store medicine code -->
                             <input type="hidden" class="medicine-code"
-                                   name="Medicines[${medIndex}].vchMedicineCode">
+                                   name="Medicines[${index}].VchMedicineCode">
                             <div class="list-group position-absolute w-100 medicine-suggestions"
                                  style="z-index:999; display:none;"></div>
                         </div>
                         <div class="col-md-2">
                             <input type="text" class="form-control"
-                                   name="Medicines[${medIndex}].vchDosage" placeholder="Dosage">
+                                   name="Medicines[${index}].VchDosage" placeholder="Dosage">
                         </div>
                         <div class="col-md-2">
                             <input type="text" class="form-control"
-                                   name="Medicines[${medIndex}].vchFrequency" placeholder="Frequency">
+                                   name="Medicines[${index}].VchFrequency" placeholder="Frequency">
                         </div>
                         <div class="col-md-2">
                             <input type="text" class="form-control"
-                                   name="Medicines[${medIndex}].vchDuration" placeholder="Duration">
+                                   name="Medicines[${index}].VchDuration" placeholder="Duration">
                         </div>
                         <div class="col-md-2 text-center">
-                            <button type="button" class="btn btn-danger btn-sm remove-medicine">❌</button>
+                             <button type="button" class="btn btn-danger btn remove-medicine form-group"><i class="bi bi-x-lg text-white"></i></button>
+                             <button type="button" class="btn btn-success btn add-medicine-row text-white"><i class="bi bi-plus-lg"></i></button>
                         </div>
                     </div>`;
-                $("#medicine-list").append(newRow);
+            }
+
+            // Global add button
+            $("#addMedicine").click(function () {
+                $("#medicine-list").append(getNewRow(medIndex));
                 medIndex++;
             });
-
-            // Remove medicine row
+            // Add row beside
+            $(document).on("click", ".add-medicine-row", function () {
+                $(this).closest(".medicine-item").after(getNewRow(medIndex));
+                medIndex++;
+            });
+            // Remove row
             $(document).on("click", ".remove-medicine", function () {
                 $(this).closest(".medicine-item").remove();
             });
 
-            // Autocomplete search
-            $(document).on("keyup", ".medicine-autocomplete", function () {
-                let input = $(this);
-                let query = input.val().trim();
-                let suggestionBox = input.siblings(".medicine-suggestions");
-                let hidden = input.siblings(".medicine-code");
+            // Autocomplete search medicine (same as before, with keyboard support)
+            $(document).on("keyup", ".medicine-autocomplete", function (e) {
+            let input = $(this);
+            let query = input.val().trim();
+            let suggestionBox = input.siblings(".medicine-suggestions");
+            let hidden = input.siblings(".medicine-code");
 
-                // Reset hidden code if user types
+            // Reset hidden only if typing (not Enter/Arrow keys)
+            if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
                 hidden.val("");
+            }
 
-                if (query.length >= 2) {
-                    $.ajax({
-                        url: "/Assessment/SearchMedicine",
-                        type: "GET",
-                        data: { term: query },
-                        success: function (data) {
-                            suggestionBox.empty();
-                            if (data.length > 0) {
-                                data.forEach(item => {
-                                    suggestionBox.append(
-                                        `<a href="#" class="list-group-item list-group-item-action"
-                                            data-name="${item.descript}"
-                                            data-code="${item.icode}">
-                                            ${item.descript} <small class="text-muted">(${item.icode})</small>
-                                        </a>`
-                                    );
-                                });
-                                suggestionBox.show();
-                            } else {
-                                suggestionBox.hide();
-                            }
+            if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
+
+            if (query.length >= 2) {
+                $.ajax({
+                    url: "/Assessment/SearchMedicine",
+                    type: "GET",
+                    data: { term: query },
+                    success: function (data) {
+                        suggestionBox.empty();
+                        if (data.length > 0) {
+                            data.forEach(item => {
+                                suggestionBox.append(
+                                    `<a href="#" class="list-group-item list-group-item-action"
+                                        data-name="${item.descript}"
+                                        data-code="${item.icode}">
+                                        ${item.descript} <small class="text-muted">(${item.icode})</small>
+                                    </a>`
+                                );
+                            });
+                            suggestionBox.show();
+                        } else {
+                            suggestionBox.hide();
                         }
-                    });
-                } else {
-                    suggestionBox.hide();
-                }
-            });
+                    }
+                });
+            } else {
+                suggestionBox.hide();
+            }
+        });
 
-            // Select from suggestion
+            // Keyboard navigation
+            $(document).on("keydown", ".medicine-autocomplete", function (e) {
+            let $input = $(this);
+            let $box = $input.siblings(".medicine-suggestions");
+            let $items = $box.find(".list-group-item-action");
+            let $active = $items.filter(".active");
+
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if ($active.length === 0) $items.first().addClass("active");
+                else {
+                    let $next = $active.removeClass("active").next();
+                    ($next.length ? $next : $items.first()).addClass("active");
+                }
+            }
+            else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if ($active.length === 0) $items.last().addClass("active");
+                else {
+                    let $prev = $active.removeClass("active").prev();
+                    ($prev.length ? $prev : $items.last()).addClass("active");
+                }
+            }
+            else if (e.key === "Enter") {
+                e.preventDefault(); // stop form submit
+                e.stopPropagation();
+
+                if ($active.length) {
+                    // ✅ Directly set the text + hidden field
+                    let name = $active.data("name");
+                    let code = $active.data("code");
+
+                    $input.val(name);
+                    $input.siblings(".medicine-code").val(code);
+
+                    $box.hide();
+                }
+            }
+        });
+            // Select medicine
             $(document).on("click", ".medicine-suggestions a", function (e) {
                 e.preventDefault();
-                let selectedName = $(this).data("name");
-                let selectedCode = $(this).data("code");
+                let name = $(this).data("name");
+                let code = $(this).data("code");
 
                 let $container = $(this).closest(".position-relative");
                 let $input = $container.find(".medicine-autocomplete");
                 let $hidden = $container.find(".medicine-code");
 
-                // ✅ Prevent duplicate by name or code
+                // Prevent duplicate
                 let isDuplicate = false;
                 $(".medicine-autocomplete").each(function () {
-                    let name = $(this).val();
-                    let code = $(this).closest(".position-relative").find(".medicine-code").val();
-
-                    if (name === selectedName || code === selectedCode) {
+                    let n = $(this).val();
+                    let c = $(this).closest(".position-relative").find(".medicine-code").val();
+                    if (n === name || c === code) {
                         isDuplicate = true;
-                        return false; // break loop
+                        return false;
                     }
                 });
 
@@ -531,11 +611,8 @@
                     return;
                 }
 
-                // ✅ Set values
-                $input.val(selectedName);
-                $hidden.val(selectedCode);
-
-                // Hide suggestions
+                $input.val(name);
+                $hidden.val(code);
                 $(this).closest(".medicine-suggestions").hide();
             });
 
@@ -547,135 +624,382 @@
             });
         });
 
-     
+        //Code for Lab
+        $(document).ready(function () {
+            let labIndex = 0;
 
-        
-        ///////
-        document.addEventListener("DOMContentLoaded", function () {
+            // Autocomplete for Lab Test
+            $(document).on("keyup", ".lab-autocomplete", function (e) {
+                const $input = $(this);
+                const query = $input.val();
+                const $suggestions = $input.siblings(".lab-suggestions");
 
-        
+                // Handle keyboard navigation
+                const $items = $suggestions.find(".list-group-item");
+                let $selected = $items.filter(".active");
 
-            //add lab dynamic rows
-            const labList = document.getElementById("lab-list");
-            document.getElementById("addLab").addEventListener("click", function () {
-            const newItem = document.createElement("div");
-            newItem.className = "row g-2 mb-2 lab-item";
-            newItem.innerHTML = `
-                <div class="col-md-8">
-                    <select class="form-select">
-                        <option value="">-- Select Lab Test --</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="Normal">Normal</option>
-                        <option value="Urgent">Urgent</option>
-                    </select>
-                </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-lab">❌</button>
+                if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    if ($selected.length === 0) {
+                        $items.first().addClass("active");
+                    } else {
+                        $selected.removeClass("active").next().addClass("active");
+                    }
+                }
+                else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    if ($selected.length === 0) {
+                        $items.last().addClass("active");
+                    } else {
+                        $selected.removeClass("active").prev().addClass("active");
+                    }
+                }
+                else if (e.key === "Enter") {
+                    e.preventDefault();
+                    if ($selected.length > 0) {
+                        $selected.trigger("click");
+                    }
+                }
+                else {
+                    if (query.length >= 2) {
+                        $.getJSON("/DoctorAssessment/SearchLab", { term: query }, function (data) {
+                            $suggestions.empty().show();
+                            data.forEach(function (item) {
+                                $suggestions.append(
+                                    `<button type="button" class="list-group-item list-group-item-action"
+                                        data-code="${item.code}" data-name="${item.name}">
+                                        ${item.name}
+                                     </button>`
+                                );
+                            });
+                        });
+                    } else {
+                        $suggestions.hide();
+                    }
+                }
+            });
+
+            // Select suggestion (Mouse or Enter key)
+            $(document).on("click", ".lab-suggestions .list-group-item", function () {
+                const $btn = $(this);
+                const $parent = $btn.closest(".position-relative");
+
+                $parent.find(".lab-autocomplete").val($btn.data("name"));
+                $parent.find(".lab-code").val($btn.data("code"));
+                $parent.find(".lab-suggestions").hide();
+            });
+
+            // Add new Lab row
+            $(document).on("click", ".add-lab-row", function () {
+                labIndex++;
+                const newRow = `
+                <div class="row g-2 mb-2 lab-item">
+                    <div class="col-md-4 position-relative">
+                        <input type="text" class="form-control lab-autocomplete"
+                               name="Labs[${labIndex}].VchLabName" placeholder="Search Lab Test" autocomplete="off">
+                        <input type="hidden" name="Labs[${labIndex}].VchLabCode" class="lab-code">
+                        <div class="list-group position-absolute w-100 lab-suggestions" style="z-index:999; display:none;"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="Labs[${labIndex}].VchPriority">
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="Labs[${labIndex}].VchRemarks" placeholder="Remarks">
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <button type="button" class="btn btn-danger btn remove-lab form-group">
+                            <i class="bi bi-x-lg text-white"></i>
+                        </button>
+                         <button type="button" class="btn btn-success btn add-lab-row form-group">
+                            <i class="bi bi-plus-lg text-white"></i>
+                        </button>
+                    </div>
                 </div>`;
+                $("#lab-list").append(newRow);
+            });
 
-            labList.appendChild(newItem); // ✅ fixed
-        });
-
-        labList.addEventListener("click", function (e) {
-            if (e.target.classList.contains("remove-lab")) {
-                e.preventDefault();
-                e.target.closest(".lab-item").remove();
-            }
-        });
-
-            // For Radiology dynamic rows
-            const radiologyList = document.getElementById("radiology-list");
-            document.getElementById("addRadiology").addEventListener("click", function () {
-            const newItem = document.createElement("div");
-            newItem.className = "row g-2 mb-2 radiology-item";
-            newItem.innerHTML = `
-                <div class="col-md-8">
-                    <select class="form-select">
-                        <option value="">-- Select Procedure --</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="Normal">Normal</option>
-                        <option value="Urgent">Urgent</option>
-                    </select>
-                </div>
-                <div class="col-md-1 text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-radiology">❌</button>
-                </div>
-            `;
-            radiologyList.appendChild(newItem);
-        });
-
-            radiologyList.addEventListener("click", function (e) {
-                if (e.target.classList.contains("remove-radiology")) {
-                    e.preventDefault();
-                    e.target.closest(".radiology-item").remove();
+            // Remove Lab row
+            $(document).on("click", ".remove-lab", function () {
+                if ($(".lab-item").length > 1) {
+                    $(this).closest(".lab-item").remove();
                 }
             });
+        });
 
-            // File upload drag & drop
-            const dropZone = document.getElementById("drop-zone");
-            const fileInput = document.getElementById("supportDocsInput");
-            const fileList = document.getElementById("file-list");
+        //Radiology
+        $(document).ready(function () {
+         let radIndex = 1; // start from 1 since 0 exists
 
-            dropZone.addEventListener("click", () => fileInput.click());
-
-            dropZone.addEventListener("dragover", function (e) {
-                e.preventDefault();
-                dropZone.classList.add("bg-info", "text-white");
+        //➕ Add new radiology row
+        $(document).on("click", ".add-radiology-row", function () {
+                let newRow = `
+                    <div class="row g-2 mb-2 radiology-item">
+                        <div class="col-md-4 position-relative">
+                            <input type="text" class="form-control radiology-autocomplete"
+                                   name="Radiology[${radIndex}].VchRadiologyName"
+                                   placeholder="Search Radiology" autocomplete="off">
+                            <input type="hidden" class="radiology-code"
+                                   name="Radiology[${radIndex}].VchRadiologyCode">
+                            <div class="list-group position-absolute w-100 radiology-suggestions"
+                                 style="z-index:999; display:none;"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="Radiology[${radIndex}].VchPriority">
+                                <option value="">-- Priority --</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control"
+                                   name="Radiology[${radIndex}].VchRemarks" placeholder="Remarks">
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <button type="button" class="btn btn-danger btn-sm remove-radiology">
+                                <i class="bi bi-x-lg text-white"></i>
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm add-radiology-row text-white">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                $("#radiology-list").append(newRow);
+                radIndex++;
             });
 
-            dropZone.addEventListener("dragleave", function (e) {
-                e.preventDefault();
-                dropZone.classList.remove("bg-info", "text-white");
+            // ❌ Remove radiology row
+            $(document).on("click", ".remove-radiology", function () {
+                $(this).closest(".radiology-item").remove();
             });
 
-            dropZone.addEventListener("drop", function (e) {
-                e.preventDefault();
-                dropZone.classList.remove("bg-info", "text-white");
-                const files = Array.from(e.dataTransfer.files);
-                fileInput.files = e.dataTransfer.files; // assign to input for form submit
-                displayFiles(files);
-            });
+            // Search radiology (on typing)
+                    $(document).on("keyup", ".radiology-autocomplete", function (e) {
+            let input = $(this);
+            let query = input.val().trim();
+            let suggestionBox = input.siblings(".radiology-suggestions");
+            let hidden = input.siblings(".radiology-code");
 
-            fileInput.addEventListener("change", function () {
-                displayFiles(Array.from(fileInput.files));
-            });
+            // ✅ Reset hidden only when typing
+            if (!["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+                hidden.val("");
+            }
 
-            function displayFiles(files) {
-                fileList.innerHTML = "";
-                files.forEach((file, index) => {
-                    const fileRow = document.createElement("div");
-                    fileRow.className = "d-flex justify-content-between align-items-center border p-2 mb-2 rounded";
-                    fileRow.innerHTML = `
-                        <span>${file.name}</span>
-                        <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">❌</button>
-                    `;
-                    fileList.appendChild(fileRow);
+            // skip navigation keys
+            if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) return;
+
+            if (query.length >= 2) {
+                $.ajax({
+                    url: "/Assessment/SearchRadiology", // controller endpoint
+                    type: "GET",
+                    data: { term: query },
+                    success: function (data) {
+                        suggestionBox.empty();
+                        if (data.length > 0) {
+                            data.forEach(item => {
+                                suggestionBox.append(`
+                                    <a href="#" class="list-group-item list-group-item-action"
+                                       data-name="${item.service}"
+                                       data-code="${item.scode}">
+                                       ${item.service} <small class="text-muted">(${item.scode})</small>
+                                    </a>
+                                `);
+                            });
+                            suggestionBox.show();
+                        } else {
+                            suggestionBox.hide();
+                        }
+                    }
                 });
+            } else {
+                suggestionBox.hide();
             }
+        });
 
-            fileList.addEventListener("click", function (e) {
-                if (e.target.classList.contains("remove-file")) {
+
+            // ⌨️ Keyboard navigation
+            $(document).on("keydown", ".radiology-autocomplete", function (e) {
+                let $input = $(this);
+                let $box = $input.siblings(".radiology-suggestions");
+                let $items = $box.find(".list-group-item-action");
+                let $active = $items.filter(".active");
+
+                if (e.key === "ArrowDown") {
                     e.preventDefault();
-                    const idx = e.target.getAttribute("data-index");
-                    const dt = new DataTransfer();
-                    Array.from(fileInput.files).forEach((file, i) => {
-                        if (i != idx) dt.items.add(file);
-                    });
-                    fileInput.files = dt.files;
-                    displayFiles(Array.from(fileInput.files));
+                    if ($active.length === 0) {
+                        $items.first().addClass("active");
+                    } else {
+                        let $next = $active.removeClass("active").next();
+                        ($next.length ? $next : $items.first()).addClass("active");
+                    }
+                }
+                else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    if ($active.length === 0) {
+                        $items.last().addClass("active");
+                    } else {
+                        let $prev = $active.removeClass("active").prev();
+                        ($prev.length ? $prev : $items.last()).addClass("active");
+                    }
+                }
+                else if (e.key === "Enter") {
+                    e.preventDefault();
+                    if ($active.length) $active.trigger("click");
                 }
             });
 
+            // 🖱️ Select radiology suggestion
+            $(document).on("click", ".radiology-suggestions a", function (e) {
+                e.preventDefault();
+                let selectedName = $(this).data("name");
+                let selectedCode = $(this).data("code");
+
+                let $container = $(this).closest(".position-relative");
+                let $input = $container.find(".radiology-autocomplete");
+                let $hidden = $container.find(".radiology-code");
+
+                // prevent duplicate
+                let isDuplicate = false;
+                $(".radiology-autocomplete").each(function () {
+                    let name = $(this).val();
+                    let code = $(this).closest(".position-relative").find(".radiology-code").val();
+                    if (name === selectedName || code === selectedCode) {
+                        isDuplicate = true;
+                        return false;
+                    }
+                });
+
+                if (isDuplicate) {
+                    alert("⚠️ This radiology is already selected.");
+                    return;
+                }
+
+                $input.val(selectedName);
+                $hidden.val(selectedCode);
+                $(this).closest(".radiology-suggestions").hide();
+            });
+
+            // Hide suggestion box on outside click
+            $(document).click(function (e) {
+                if (!$(e.target).closest(".radiology-autocomplete, .radiology-suggestions").length) {
+                    $(".radiology-suggestions").hide();
+                }
+            });
         });
 
-        //for file upload
-            const doctorDropZone = document.getElementById("doctor-drop-zone");
+
+
+
+
+        //Procedure
+        $(document).ready(function () {
+            let procedureIndex = 0;
+
+            // Autocomplete with keyboard navigation
+            $(document).on("keyup", ".procedure-autocomplete", function (e) {
+                const $input = $(this);
+                const query = $input.val();
+                const $suggestions = $input.siblings(".procedure-suggestions");
+
+                const $items = $suggestions.find(".list-group-item");
+                let $selected = $items.filter(".active");
+
+                if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    if ($selected.length === 0) {
+                        $items.first().addClass("active");
+                    } else {
+                        $selected.removeClass("active").next().addClass("active");
+                    }
+                }
+                else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    if ($selected.length === 0) {
+                        $items.last().addClass("active");
+                    } else {
+                        $selected.removeClass("active").prev().addClass("active");
+                    }
+                }
+                else if (e.key === "Enter") {
+                    e.preventDefault();
+                    if ($selected.length > 0) {
+                        $selected.trigger("click");
+                    }
+                }
+                else {
+                    if (query.length >= 2) {
+                        $.getJSON("/DoctorAssessment/SearchProcedure", { term: query }, function (data) {
+                            $suggestions.empty().show();
+                            data.forEach(function (item) {
+                                $suggestions.append(
+                                    `<button type="button" class="list-group-item list-group-item-action"
+                                        data-code="${item.code}" data-name="${item.name}">
+                                        ${item.name}
+                                     </button>`
+                                );
+                            });
+                        });
+                    } else {
+                        $suggestions.hide();
+                    }
+                }
+            });
+
+            // Select suggestion (click or Enter)
+            $(document).on("click", ".procedure-suggestions .list-group-item", function () {
+                const $btn = $(this);
+                const $parent = $btn.closest(".position-relative");
+
+                $parent.find(".procedure-autocomplete").val($btn.data("name"));
+                $parent.find(".procedure-code").val($btn.data("code"));
+                $parent.find(".procedure-suggestions").hide();
+            });
+
+            // Add new procedure row
+            $(document).on("click", ".add-procedure-row", function () {
+                procedureIndex++;
+                const newRow = `
+                <div class="row g-2 mb-2 procedure-item">
+                    <div class="col-md-4 position-relative">
+                        <input type="text" class="form-control procedure-autocomplete"
+                               name="Procedures[${procedureIndex}].VchProcedureName" placeholder="Search Procedure" autocomplete="off">
+                        <input type="hidden" name="Procedures[${procedureIndex}].VchProcedureCode" class="procedure-code">
+                        <div class="list-group position-absolute w-100 procedure-suggestions" style="z-index:999; display:none;"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="Procedures[${procedureIndex}].VchPriority">
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="Procedures[${procedureIndex}].VchRemarks" placeholder="Remarks">
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <button type="button" class="btn btn-danger btn remove-procedure">
+                            <i class="bi bi-x-lg text-white"></i>
+                        </button>
+                        <button type="button" class="btn btn-success btn add-procedure-row">
+                            <i class="bi bi-plus-lg text-white"></i>
+                        </button>
+                    </div>
+                </div>`;
+                $("#procedure-list").append(newRow);
+            });
+
+            // Remove procedure row
+            $(document).on("click", ".remove-procedure", function () {
+                if ($(".procedure-item").length > 1) {
+                    $(this).closest(".procedure-item").remove();
+                }
+            });
+        });
+
+        //For supporting document
+        const doctorDropZone = document.getElementById("doctor-drop-zone");
         const doctorFileInput = document.getElementById("doctorDocsInput");
         const doctorFileList = document.getElementById("doctor-file-list");
 
@@ -733,6 +1057,5 @@
                 displayDoctorFiles();
             }
         });
-       
     </script>
 }

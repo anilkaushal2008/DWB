@@ -23,6 +23,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Service_master]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblDietMaster]",
          "ObjectType": 0
       },
@@ -43,7 +47,11 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[TblDoctorAssmntRadiology]",
+         "Name": "[dbo].[TblDoctorAssmntProcedure]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblDoctorAssmntRadiology]",
          "ObjectType": 0
       },
       {
@@ -85,6 +93,10 @@
       {
          "Name": "[dbo].[tblVitalsRange]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[spGetRadioProcedure]",
+         "ObjectType": 1
       },
       {
          "Name": "[dbo].[spSearchMedicines]",

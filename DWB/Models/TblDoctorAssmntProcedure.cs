@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace DWB.Models;
 
-public partial class TblDoctorAssmntRadiology
+public partial class TblDoctorAssmntProcedure
 {
     public int IntId { get; set; }
 
-    public int FkDocAssmntId { get; set; }
+    public int FkDocAsstId { get; set; }
 
-    public string VchRadiologyCode { get; set; }
+    public string VchProcedureCode { get; set; }
 
-    public string VchRadiologyName { get; set; }
+    public string VchProcedureName { get; set; }
 
     public string VchPriority { get; set; }
 
@@ -29,5 +29,5 @@ public partial class TblDoctorAssmntRadiology
 
     public string VchUpdatedBy { get; set; }
 
-    public virtual TblDoctorAssessment FkDocAssmnt { get; set; }
+    public virtual TblDoctorAssessment FkDocAsst { get; set; }
 }

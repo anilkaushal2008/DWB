@@ -87,5 +87,7 @@ public partial class TblDoctorAssessment
 
     public virtual ICollection<TblDoctorAssmntMedicine> TblDoctorAssmntMedicine { get; set; } = new List<TblDoctorAssmntMedicine>();
 
+    public virtual ICollection<TblDoctorAssmntProcedure> TblDoctorAssmntProcedure { get; set; } = new List<TblDoctorAssmntProcedure>();
+
     public virtual ICollection<TblDoctorAssmntRadiology> TblDoctorAssmntRadiology { get; set; } = new List<TblDoctorAssmntRadiology>();
 }

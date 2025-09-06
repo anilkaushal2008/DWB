@@ -17,6 +17,8 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<IndusCompanies> IndusCompanies { get; set; }
 
+    public virtual DbSet<ServiceMaster> ServiceMaster { get; set; }
+
     public virtual DbSet<TblDietMaster> TblDietMaster { get; set; }
 
     public virtual DbSet<TblDoctorAssessment> TblDoctorAssessment { get; set; }
@@ -26,6 +28,8 @@ public partial class DWBEntity : DbContext
     public virtual DbSet<TblDoctorAssmntLab> TblDoctorAssmntLab { get; set; }
 
     public virtual DbSet<TblDoctorAssmntMedicine> TblDoctorAssmntMedicine { get; set; }
+
+    public virtual DbSet<TblDoctorAssmntProcedure> TblDoctorAssmntProcedure { get; set; }
 
     public virtual DbSet<TblDoctorAssmntRadiology> TblDoctorAssmntRadiology { get; set; }
 
@@ -478,6 +482,234 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchGSTStateCode");
         });
 
+        modelBuilder.Entity<ServiceMaster>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("Service_master");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.ACard)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("A_Card");
+            entity.Property(e => e.AccountNo)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("account_no");
+            entity.Property(e => e.Acode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("acode");
+            entity.Property(e => e.AvailFor)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("avail_for");
+            entity.Property(e => e.AvailUnit)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("avail_unit");
+            entity.Property(e => e.Cal)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("cal");
+            entity.Property(e => e.ChargeMode)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("Charge_Mode");
+            entity.Property(e => e.Charges)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("charges");
+            entity.Property(e => e.Cnt).HasColumnName("cnt");
+            entity.Property(e => e.Code).HasColumnName("code");
+            entity.Property(e => e.Def)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("def");
+            entity.Property(e => e.DefQty)
+                .HasColumnType("decimal(18, 1)")
+                .HasColumnName("def_qty");
+            entity.Property(e => e.Depart)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+            entity.Property(e => e.DisExc)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("dis_exc");
+            entity.Property(e => e.DiscountApp)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("discount_app");
+            entity.Property(e => e.Dscode)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasColumnName("dscode");
+            entity.Property(e => e.DtAdded)
+                .HasColumnType("datetime")
+                .HasColumnName("dtAdded");
+            entity.Property(e => e.Dura).HasColumnName("dura");
+            entity.Property(e => e.Editable)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("editable");
+            entity.Property(e => e.Gsno).HasColumnName("gsno");
+            entity.Property(e => e.Icharges)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("icharges");
+            entity.Property(e => e.ImPcode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("im_pcode");
+            entity.Property(e => e.ImScode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("im_scode");
+            entity.Property(e => e.ImSno)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("im_sno");
+            entity.Property(e => e.IpdAccount)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("ipd_account");
+            entity.Property(e => e.MajorMinor)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("major_minor");
+            entity.Property(e => e.MaxCharges)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("max_charges");
+            entity.Property(e => e.MedAmount).HasColumnName("med_amount");
+            entity.Property(e => e.Mgrp)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("mgrp");
+            entity.Property(e => e.MinCharges)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("min_charges");
+            entity.Property(e => e.MulSit)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("Mul_Sit");
+            entity.Property(e => e.Ncharges)
+                .HasColumnType("numeric(18, 2)")
+                .HasColumnName("ncharges");
+            entity.Property(e => e.Nicharges)
+                .HasColumnType("numeric(18, 2)")
+                .HasColumnName("nicharges");
+            entity.Property(e => e.Ns)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("ns");
+            entity.Property(e => e.Ot)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("ot");
+            entity.Property(e => e.PayMode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("pay_mode");
+            entity.Property(e => e.Pcode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("pcode");
+            entity.Property(e => e.Pday).HasColumnName("pday");
+            entity.Property(e => e.PkgIcuDays).HasColumnName("Pkg_Icu_Days");
+            entity.Property(e => e.ProvidedDoctor)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("provided_doctor");
+            entity.Property(e => e.Ps).HasColumnName("ps");
+            entity.Property(e => e.PshareAmount)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("Pshare_Amount");
+            entity.Property(e => e.QtyEditable)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("qty_editable");
+            entity.Property(e => e.Ratio)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("ratio");
+            entity.Property(e => e.RefundPr)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("refund_pr");
+            entity.Property(e => e.Remarks)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("remarks");
+            entity.Property(e => e.Restrict1)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("restrict1");
+            entity.Property(e => e.RoomNo)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasColumnName("Room_no");
+            entity.Property(e => e.Scode)
+                .IsRequired()
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("scode");
+            entity.Property(e => e.Service)
+                .IsRequired()
+                .HasMaxLength(300)
+                .IsUnicode(false)
+                .HasColumnName("service");
+            entity.Property(e => e.ServiceOs)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("service_os");
+            entity.Property(e => e.Sname)
+                .HasMaxLength(5)
+                .IsUnicode(false)
+                .HasColumnName("sname");
+            entity.Property(e => e.Sno)
+                .HasMaxLength(40)
+                .IsUnicode(false)
+                .HasColumnName("sno");
+            entity.Property(e => e.SpEqp)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("sp_eqp");
+            entity.Property(e => e.SpIns)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("sp_ins");
+            entity.Property(e => e.Ssno).HasColumnName("ssno");
+            entity.Property(e => e.Status)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("status");
+            entity.Property(e => e.SubService)
+                .HasMaxLength(5)
+                .IsUnicode(false)
+                .HasColumnName("sub_service");
+            entity.Property(e => e.Tax)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .HasColumnName("tax");
+            entity.Property(e => e.TechCode)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("tech_code");
+            entity.Property(e => e.TimeBound)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("time_bound");
+            entity.Property(e => e.Tremarks)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("tremarks");
+            entity.Property(e => e.Uom)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("uom");
+            entity.Property(e => e.UpcName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("upc_name");
+        });
+
         modelBuilder.Entity<TblDietMaster>(entity =>
         {
             entity.HasKey(e => new { e.IntId, e.IntUnitCode });
@@ -789,9 +1021,9 @@ public partial class DWBEntity : DbContext
                 .HasConstraintName("FK_TblDoctorAssmntMedicine_tblDoctorAssessment");
         });
 
-        modelBuilder.Entity<TblDoctorAssmntRadiology>(entity =>
+        modelBuilder.Entity<TblDoctorAssmntProcedure>(entity =>
         {
-            entity.HasKey(e => e.IntId);
+            entity.HasKey(e => e.IntId).HasName("PK_TblDoctorAssmntRadiology");
 
             entity.Property(e => e.IntId)
                 .ValueGeneratedNever()
@@ -803,7 +1035,7 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.DtUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
-            entity.Property(e => e.FkDocAssmntId).HasColumnName("fk_DocAssmntID");
+            entity.Property(e => e.FkDocAsstId).HasColumnName("fk_DocAsstID");
             entity.Property(e => e.VchCreatedBy)
                 .IsRequired()
                 .HasMaxLength(150)
@@ -834,10 +1066,61 @@ public partial class DWBEntity : DbContext
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
 
+            entity.HasOne(d => d.FkDocAsst).WithMany(p => p.TblDoctorAssmntProcedure)
+                .HasForeignKey(d => d.FkDocAsstId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TblDoctorAssmntRadiology_tblDoctorAssessment");
+        });
+
+        modelBuilder.Entity<TblDoctorAssmntRadiology>(entity =>
+        {
+            entity.HasKey(e => e.IntId).HasName("PK_tblDoctorAssmntRadiology1");
+
+            entity.ToTable("tblDoctorAssmntRadiology");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkDocAssmntId).HasColumnName("fk_DocAssmntID");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchPriority)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchPriority");
+            entity.Property(e => e.VchRadiologyCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchRadiologyCode");
+            entity.Property(e => e.VchRadiologyName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchRadiologyName");
+            entity.Property(e => e.VchRemarks)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchRemarks");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+
             entity.HasOne(d => d.FkDocAssmnt).WithMany(p => p.TblDoctorAssmntRadiology)
                 .HasForeignKey(d => d.FkDocAssmntId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TblDoctorAssmntRadiology_tblDoctorAssessment");
+                .HasConstraintName("FK_tblDoctorAssmntRadiology_tblDoctorAssessment1");
         });
 
         modelBuilder.Entity<TblFloorMaster>(entity =>
