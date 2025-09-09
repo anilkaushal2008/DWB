@@ -3,6 +3,7 @@ using DWB.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient.DataClassification;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Reflection.Emit;
@@ -412,6 +413,7 @@ namespace DWB.Controllers
             return View(patients);
         }
 
+        [HttpGet]
         [Authorize(Roles = "Admin, Consultant")]
         public ActionResult DoctorAssmntCreate(string uhid, string pname, string visit)
         {
@@ -428,7 +430,10 @@ namespace DWB.Controllers
             var doctor = new TblDoctorAssessment
             {
                 FkUhid = uhid,
-                DtStartTime = DateTime.Now
+                FkAssessmentId = nursing.IntAssessmentId,
+                DtStartTime = DateTime.Now,
+                FkVisitNo = nursing.IntIhmsvisit,
+                DtHmsentry = nursing.VchHmsdtEntry,
             };
 
             var vm = new DoctorAssessmentVM
@@ -439,7 +444,6 @@ namespace DWB.Controllers
                 Labs = new List<TblDoctorAssmntLab>(),
                 Radiology = new List<TblDoctorAssmntRadiology>(),
                 Procedures = new List<TblDoctorAssmntProcedure>()
-
             };
             return View(vm);
         }
@@ -451,7 +455,7 @@ namespace DWB.Controllers
             if (string.IsNullOrWhiteSpace(term))
                 return Json(new List<string>());
 
-            term = term.Trim().ToLower();         
+            term = term.Trim().ToLower();
             List<spMedicine> medicines = new List<spMedicine>();
             //With the following code to map the result to List<spMedicine>:
             var searchResults = await _context.Procedures.spSearchMedicinesAsync(term);
@@ -461,13 +465,13 @@ namespace DWB.Controllers
             return Json(medicines);
         }
         [HttpGet]
-        public async Task<JsonResult> SearchRadiology(string term)
+        public async Task<JsonResult> SearchRadiology(string term, string type)
         {
-           if (string.IsNullOrWhiteSpace(term))
+            if (string.IsNullOrWhiteSpace(term))
                 return Json(new List<string>());
-                string search = "Radio";
+            //string search = "Radio";
             List<spGetRadioProcedureResult> getProcedure = new List<spGetRadioProcedureResult>();
-            var searchResults = await _context.Procedures.spGetRadioProcedureAsync(search, term);
+            var searchResults = await _context.Procedures.spGetRadioProcedureAsync(type, term);
             getProcedure = searchResults
                 .Select(r => new spGetRadioProcedureResult { service = r.service, scode = r.scode })
                 .ToList();
@@ -489,12 +493,23 @@ namespace DWB.Controllers
                 var doctorAssessment = new TblDoctorAssessment
                 {
                     FkUhid = model.DoctorAssessment.FkUhid,
-                    FkAssessmentId = model.DoctorAssessment.FkAssessmentId,
-                    VchChiefcomplaints = model.DoctorAssessment.VchChiefcomplaints,
-                    VchDiagnosis = model.DoctorAssessment.VchDiagnosis,
-                    VchMedicalHistory = model.DoctorAssessment.VchMedicalHistory,
-                    VchSystemicexam = model.DoctorAssessment.VchSystemicexam,
-                    VchRemarks = model.DoctorAssessment.VchRemarks
+                    FkAssessmentId = model.NursingAssessment.IntAssessmentId,
+                    VchChiefcomplaints = string.IsNullOrEmpty(model.DoctorAssessment.VchChiefcomplaints) ?
+                    null : model.DoctorAssessment.VchChiefcomplaints,
+                    VchDiagnosis = string.IsNullOrEmpty(model.DoctorAssessment.VchDiagnosis)
+                        ? null : model.DoctorAssessment.VchDiagnosis,
+                    VchMedicalHistory = string.IsNullOrEmpty(model.DoctorAssessment.VchMedicalHistory)
+                        ? null : model.DoctorAssessment.VchMedicalHistory,
+                    VchSystemicexam = string.IsNullOrEmpty(model.DoctorAssessment.VchSystemicexam)
+                        ? null : model.DoctorAssessment.VchSystemicexam,
+                    VchRemarks = string.IsNullOrEmpty(model.DoctorAssessment.VchRemarks)
+                        ? null : model.DoctorAssessment.VchRemarks,
+                    BitAsstCompleted = true,
+                    DtStartTime = model.DoctorAssessment.DtStartTime,
+                    DtEndTime = DateTime.Now,
+                    VchCreatedBy = User.Identity.Name,
+                    DtCreated = DateTime.Now,
+                    DtHmsentry=model.DoctorAssessment.DtHmsentry
                 };
                 _context.TblDoctorAssessment.Add(doctorAssessment);
                 _context.SaveChanges();
@@ -519,10 +534,65 @@ namespace DWB.Controllers
                         _context.SaveChanges();
                     }
                 }
-                //add procedure if prescribed
+                //add lab if prescribed
+                if (model.Labs.Count() != 0)
+                {
+                    //add all lab if prescribed
+                    foreach (var lab in model.Labs)
+                    {
+                        TblDoctorAssmntLab objLab = new TblDoctorAssmntLab
+                        {
+                            FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
+                            VchTestName = lab.VchTestName,
+                            VchTestCode = lab.VchTestCode, // hidden code
+                            VchPriority = lab.VchPriority,
+                            VchRemarks = lab.VchRemarks,
+                            DtCreated = DateTime.Now,
+                            VchCreatedBy = User.Identity.Name
+                        };
+                        _context.TblDoctorAssmntLab.Add(objLab);
+                        _context.SaveChanges();
+                    }
+                }
+                //add radiology if prescribed
+                if (model.Radiology.Count() != 0)
+                {
+                    //add all radiology if prescribed
+                    foreach (var radio in model.Radiology)
+                    {
+                        TblDoctorAssmntRadiology objRadio = new TblDoctorAssmntRadiology
+                        {
+                            FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
+                            VchRadiologyName = radio.VchRadiologyName,
+                            VchRadiologyCode = radio.VchRadiologyCode, // hidden code
+                            VchPriority = radio.VchPriority,
+                            VchRemarks = radio.VchRemarks,
+                            DtCreated = DateTime.Now,
+                            VchCreatedBy = User.Identity.Name
+                        };
+                        _context.TblDoctorAssmntRadiology.Add(objRadio);
+                        _context.SaveChanges();
+                    }
+                }
+                //add procedures if any
                 if (model.Procedures.Count() != 0)
                 {
-
+                    //add all procedures if prescribed
+                    foreach (var proc in model.Procedures)
+                    {
+                        TblDoctorAssmntProcedure objProc = new TblDoctorAssmntProcedure
+                        {
+                            FkDocAsstId = doctorAssessment.IntId, // use saved assessment PK
+                            VchProcedureName = proc.VchProcedureName,
+                            VchProcedureCode = proc.VchProcedureCode, // hidden code
+                            VchPriority = proc.VchPriority,
+                            VchRemarks = proc.VchRemarks,
+                            DtCreated = DateTime.Now,
+                            VchCreatedBy = User.Identity.Name
+                        };
+                        _context.TblDoctorAssmntProcedure.Add(objProc);
+                        _context.SaveChanges();
+                    }
                 }
                 //uploaded supporting documents
                 if (doctorDocs != null && doctorDocs.Length > 0)
@@ -553,16 +623,142 @@ namespace DWB.Controllers
                     }
                 }
                 TempData["Success"] = "✅ Doctor Assessment saved successfully!";
-                return RedirectToAction("Index"); // or wherever you want
+                return RedirectToAction("DoctorAssessment"); //or wherever you want
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "❌ Error saving assessment: " + ex.Message;
-                return View(model);
+                // Add error to model state
+                ModelState.AddModelError("", "❌ Error saving assessment: " + ex.Message);
+
+                // Ensure child collections are not null
+                model.Medicines = model.Medicines ?? new List<TblDoctorAssmntMedicine>();
+                model.Labs = model.Labs ?? new List<TblDoctorAssmntLab>();
+                model.Radiology = model.Radiology ?? new List<TblDoctorAssmntRadiology>();
+                model.Procedures = model.Procedures ?? new List<TblDoctorAssmntProcedure>();
+
+                // Return same view with model and errors
+                return View("DoctorAssmntCreate",model);
             }
         }
 
-       #endregion
-        
+        // GET: Doctor Assessment Edit
+        //public async Task<IActionResult> DocAssmntEdit(int id)
+        //{
+        //    var assessment = await _context.TblDoctorAssessment
+        //        .FirstOrDefaultAsync(x => x.IntId == id);
+
+        //    if (assessment == null)
+        //        return NotFound();
+
+        //    var model = new DoctorAssessmentVM
+        //    {
+        //        DoctorAssessment = new TblDoctorAssessment
+        //        {
+        //            IntId = assessment.IntId,
+        //            FkUhid = assessment.FkUhid,
+        //            FkAssessmentId = assessment.FkAssessmentId,
+        //            VchChiefcomplaints = assessment.VchChiefcomplaints,
+        //            VchDiagnosis = assessment.VchDiagnosis,
+        //            VchMedicalHistory = assessment.VchMedicalHistory,
+        //            VchSystemicexam = assessment.VchSystemicexam,
+        //            VchRemarks = assessment.VchRemarks
+        //        },
+        //        Medicines = await _context.TblDoctorAssmntMedicine
+        //            .Where(m => m.FkDocAssmntId == id).ToListAsync(),
+        //        Labs = await _context.TblDoctorAssmntLab
+        //            .Where(l => l.FkDocAssmntId == id).ToListAsync(),
+        //        Radiology = await _context.TblDoctorAssmntRadiology
+        //            .Where(r => r.FkDocAssmntId == id).ToListAsync(),
+        //        Procedures = await _context.TblDoctorAssmntProcedure
+        //            .Where(p => p.FkDocAsstId == id).ToListAsync(),
+        //        Documents = await _context.TblDoctorAssessmentDoc
+        //            .Where(d => d.IntFkDoctorAssId == id).ToListAsync()
+        //    };
+
+        //    return View(model);
+        //}
+
+        //// POST: Doctor Assessment Edit
+        //[HttpPost]
+        //public async Task<IActionResult> DocAssmntEdit(DoctorAssessmentVM model, IFormFile[] doctorDocs)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return View(model);
+
+        //    try
+        //    {
+        //        // update assessment
+        //        var assessment = await _context.TblDoctorAssessment
+        //            .FirstOrDefaultAsync(x => x.IntId == model.DoctorAssessment.IntId);
+
+        //        if (assessment == null) return NotFound();
+
+        //        assessment.VchChiefcomplaints = model.DoctorAssessment.VchChiefcomplaints;
+        //        assessment.VchDiagnosis = model.DoctorAssessment.VchDiagnosis;
+        //        assessment.VchMedicalHistory = model.DoctorAssessment.VchMedicalHistory;
+        //        assessment.VchSystemicexam = model.DoctorAssessment.VchSystemicexam;
+        //        assessment.VchRemarks = model.DoctorAssessment.VchRemarks;
+
+        //        _context.TblDoctorAssessment.Update(assessment);
+        //        await _context.SaveChangesAsync();
+
+        //        // 🔹 Medicines/Labs/Radiology/Procedures update strategy:
+        //        // simplest: delete old and re-insert new
+        //        var oldMeds = _context.TblDoctorAssmntMedicine.Where(m => m.FkDocAssmntId == assessment.IntId);
+        //        _context.TblDoctorAssmntMedicine.RemoveRange(oldMeds);
+        //        await _context.SaveChangesAsync();
+
+        //        foreach (var med in model.Medicines)
+        //        {
+        //            med.FkDocAssmntId = assessment.IntId;
+        //            med.DtCreated = DateTime.Now;
+        //            med.VchCreatedBy = User.Identity.Name;
+        //            _context.TblDoctorAssmntMedicine.Add(med);
+        //        }
+        //        await _context.SaveChangesAsync();
+
+        //        // repeat same remove+add logic for Labs, Radiology, Procedures...
+
+        //        // 🔹 Handle file uploads
+        //        if (doctorDocs != null && doctorDocs.Length > 0)
+        //        {
+        //            string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "DoctorDocs");
+        //            if (!Directory.Exists(uploadPath))
+        //                Directory.CreateDirectory(uploadPath);
+
+        //            foreach (var file in doctorDocs)
+        //            {
+        //                if (file.Length > 0)
+        //                {
+        //                    string fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+        //                    string filePath = Path.Combine(uploadPath, fileName);
+
+        //                    using (var stream = new FileStream(filePath, FileMode.Create))
+        //                    {
+        //                        await file.CopyToAsync(stream);
+        //                    }
+
+        //                    _context.TblDoctorAssessmentDoc.Add(new TblDoctorAssessmentDoc
+        //                    {
+        //                        IntFkDoctorAssId = assessment.IntId,
+        //                        VchFileName = fileName,
+        //                        DtCreated = DateTime.Now
+        //                    });
+        //                }
+        //            }
+        //            await _context.SaveChangesAsync();
+        //        }
+
+        //        TempData["Success"] = "✅ Doctor Assessment updated successfully!";
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TempData["Error"] = "❌ Error updating assessment: " + ex.Message;
+        //        return View(model);
+        //    }
+        //}
+        #endregion
+
     }
 }

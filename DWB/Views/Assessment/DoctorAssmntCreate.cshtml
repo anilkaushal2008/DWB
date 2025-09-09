@@ -1,5 +1,14 @@
 ﻿@model DWB.Models.DoctorAssessmentVM
-<main class="main-wrapper py-4">
+@{ 
+    ViewData["Title"] = "DoctorAssessment";
+}
+<style>
+    .scale-radio {
+        transform: scale(1.2); /* increase radio button size */
+        margin-right: 2.9px; /* space between button and label text */
+        cursor: pointer;
+    }</style>
+<main class="main-wrapper py-4">  
    <div class="container-fluid">
         <h4 class="mb-4 fw-bold text-primary">Doctor Assessment Form</h4>        
         <div class="card p-2 border-0 shadow-sm rounded-3 mb-2 bg-light">
@@ -17,6 +26,10 @@
                       asp-action="DocAssmntCreate" asp-controller="Assessment">
                       @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
                       @Html.HiddenFor(m => m.DoctorAssessment.FkUhid)
+                      @Html.HiddenFor(m => m.DoctorAssessment.FkAssessmentId)                      
+                      @Html.HiddenFor(m => m.DoctorAssessment.DtHmsentry)
+                      @Html.HiddenFor(m => m.NursingAssessment.IntAssessmentId)
+
                     <!-- Submit -->
                     <div align="right" class="text-end mt-1 my-1">
                         <button type="submit" align="right" class="btn btn-sm btn-primary px-4 py-2 rounded-pill shadow-sm">
@@ -75,7 +88,7 @@
                            <div class="row g-3">
                                 <!-- VITAL SIGNS -->
                                 <div class="col-md-6">
-                                    <div class="card shadow-sm rounded-3 border-top border-primary text-white bg-light h-100">
+                                    <div class="card shadow-sm  border-top border-primary rounded-3 text-white bg-light h-100">
                                         <div class="card-header bg-light py-2">
                                             <h6 class="mb-0 text-primary d-flex align-items-center">
                                                 💓 VITAL SIGNS
@@ -218,83 +231,149 @@
 
                         <!-- Medicines -->
                         <div class="tab-pane fade" id="medicine" role="tabpanel">
-                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
-                                <div id="medicine-list">
-                                    <div class="row g-2 mb-2 medicine-item">
-                                        <div class="col-md-4 position-relative">
-                                            <input type="text"
-                                                   class="form-control medicine-autocomplete"
-                                                   name="Medicines[0].VchMedicineName"
-                                                   placeholder="Search Medicine" autocomplete="off">
-                                            <input type="hidden"
-                                                   name="Medicines[0].VchMedicineCode"
-                                                   class="medicine-code">
-                                            <div class="list-group position-absolute w-100 medicine-suggestions"
-                                                 style="z-index:999; display:none;"></div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <input type="text" class="form-control" name="Medicines[0].VchDosage" placeholder="Dosage">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <input type="text" class="form-control" name="Medicines[0].VchFrequency" placeholder="Frequency">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <input type="text" class="form-control" name="Medicines[0].VchDuration" placeholder="Duration">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <button type="button" class="btn btn-danger btn remove-medicine form-group"><i class="bi bi-x-lg text-white"></i></button>
-                                            <button type="button" class="btn btn-success btn add-medicine-row form-group"><i class="bi bi-plus-lg"></i></button>
-                                        </div>
-                                    </div>
-                                </div>                               
+                            <div class="card p-3 border-top border-primary shadow rounded-3 mb-4">
+                                <table class="table table-bordered table-sm align-middle mb-0">
+                                    <thead class="table bg-primary text-left small">
+                                        <tr>
+                                            <th style="width: 25%;">Medicine</th>
+                                            <th style="width: 10%;">Dosage</th>
+                                            <th style="width: 10%;">Frequency</th>
+                                            <th style="width: 10%;">Duration</th>
+                                            <th class="text-center" style="width: 25%;">Timings</th>
+                                            <th style="width: 10%;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="medicine-list">
+                                        <tr class="medicine-item">
+                                            <!-- Medicine -->
+                                            <td class="position-relative">
+                                                <input type="text"
+                                                       class="form-control form-control-sm medicine-autocomplete"
+                                                       name="Medicines[0].VchMedicineName"
+                                                       placeholder="Search Medicine" autocomplete="off">
+                                                <input type="hidden"
+                                                       name="Medicines[0].VchMedicineCode"
+                                                       class="medicine-code">
+                                                <div class="list-group position-absolute w-100 medicine-suggestions"
+                                                     style="z-index:999; display:none;"></div>
+                                            </td>
+
+                                            <!-- Dosage -->
+                                            <td>
+                                                <input type="text" class="form-control form-control-sm"
+                                                       name="Medicines[0].VchDosage" placeholder="Dosage">
+                                            </td>
+
+                                            <!-- Frequency -->
+                                            <td>
+                                                <input type="text" class="form-control form-control-sm"
+                                                       name="Medicines[0].VchFrequency" placeholder="Frequency">
+                                            </td>
+
+                                            <!-- Duration -->
+                                            <td>
+                                                <input type="text" class="form-control form-control-sm"
+                                                       name="Medicines[0].VchDuration" placeholder="Duration">
+                                            </td>
+
+                                            <!-- Timings -->
+                                            <td>
+                                                <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                                    <!-- Breakfast -->
+                                                    <label>
+                                                        <input type="radio" class="form-check-input scale-radio"
+                                                               name="Medicines[0].BreakfastTiming" value="BBF"> BBF
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" class="form-check-input scale-radio"
+                                                               name="Medicines[0].BreakfastTiming" value="ABF"> ABF
+                                                    </label>
+                                                    <!-- Lunch -->
+                                                    <label>
+                                                        <input type="radio" class="form-check-input scale-radio"
+                                                               name="Medicines[0].LunchTiming" value="BL"> BL
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" class="form-check-input scale-radio"
+                                                               name="Medicines[0].LunchTiming" value="AL"> AL
+                                                    </label>
+                                                    <!-- Dinner -->
+                                                    <label>
+                                                        <input type="radio" class="form-check-input scale-radio"
+                                                               name="Medicines[0].DinnerTiming" value="BD"> BD
+                                                    </label>
+                                                    <label>
+                                                        <input type="radio" class="form-check-input scale-radio"
+                                                               name="Medicines[0].DinnerTiming" value="AD"> AD
+                                                    </label>
+                                                </div>
+                                            </td>
+
+
+                                            <!-- Action -->
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove-medicine">
+                                                    <i class="bi bi-x-lg text-white"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-success btn-sm add-medicine-row">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Note -->
+                                <div class="form-text mt-1" style="font-size: 0.7rem;color:orangered">
+                                    <b style="color:red">NOTE:</b> BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch,
+                                    AL = After Lunch, BD = Before Dinner, AD = After Dinner
+                                </div>
                             </div>
+
+                          
                         </div>
 
                         <!-- Lab -->
                         <div class="tab-pane fade" id="lab" role="tabpanel">
-                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
+                            <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
                                 <div id="lab-list">
                                     <div class="row g-2 mb-2 lab-item">
-                                        <!-- Lab Name Autocomplete -->
-                                        <div class="col-md-5 position-relative">
+                                        <div class="col-md-4 position-relative">
                                             <input type="text"
                                                    class="form-control lab-autocomplete"
                                                    name="Labs[0].VchLabName"
-                                                   placeholder="Search Lab Test"
-                                                   autocomplete="off">
+                                                   placeholder="Search Lab Test" autocomplete="off">
                                             <input type="hidden"
                                                    name="Labs[0].VchLabCode"
                                                    class="lab-code">
                                             <div class="list-group position-absolute w-100 lab-suggestions"
                                                  style="z-index:999; display:none;"></div>
                                         </div>
-
-                                        <!-- Priority -->
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <select class="form-select" name="Labs[0].VchPriority">
+                                                <option value="">-- Priority --</option>
                                                 <option value="Normal">Normal</option>
                                                 <option value="Urgent">Urgent</option>
                                             </select>
                                         </div>
-
-                                        <!-- Remarks -->
                                         <div class="col-md-3">
-                                            <input type="text" class="form-control" name="Labs[0].VchRemarks" placeholder="Remarks">
+                                            <input type="text" class="form-control"
+                                                   name="Labs[0].VchRemarks"
+                                                   placeholder="Remarks">
                                         </div>
-
-                                        <!-- Action Buttons -->
                                         <div class="col-md-2 text-center">
-                                            <button type="button" class="btn btn-danger btn remove-lab form-group">
+                                            <button type="button" class="btn btn-danger btn remove-lab">
                                                 <i class="bi bi-x-lg text-white"></i>
                                             </button>
-                                            <button type="button" class="btn btn-success btn add-lab-row">
-                                                <i class="bi bi-plus-lg text-white form-group"></i>
+                                            <button type="button" class="btn btn-success btn add-lab-row text-white">
+                                                <i class="bi bi-plus-lg"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- Radiology -->
                         <div class="tab-pane fade" id="radiology" role="tabpanel">
@@ -312,7 +391,6 @@
                                             <div class="list-group position-absolute w-100 radiology-suggestions"
                                                  style="z-index:999; display:none;"></div>
                                         </div>
-
                                         <div class="col-md-3">
                                             <select class="form-select" name="Radiology[0].VchPriority">
                                                 <option value="">-- Priority --</option>
@@ -321,70 +399,58 @@
                                                 <option value="Low">Low</option>
                                             </select>
                                         </div>
-
                                         <div class="col-md-3">
                                             <input type="text" class="form-control"
                                                    name="Radiology[0].VchRemarks"
                                                    placeholder="Remarks">
                                         </div>
-
                                         <div class="col-md-2 text-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-radiology"><i class="bi bi-x-lg text-white"></i></button>
-                                            <button type="button" class="btn btn-success btn-sm add-radiology-row text-white"><i class="bi bi-plus-lg"></i></button>
+                                            <button type="button" class="btn btn-danger btn remove-radiology"><i class="bi bi-x-lg text-white"></i></button>
+                                            <button type="button" class="btn btn-success btn add-radiology-row text-white"><i class="bi bi-plus-lg"></i></button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
 
                         <!--Procedure-->
                         <div class="tab-pane fade" id="procedure" role="tabpanel">
                             <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
                                 <div id="procedure-list">
                                     <div class="row g-2 mb-2 procedure-item">
-                                        <!-- Procedure Name -->
                                         <div class="col-md-4 position-relative">
-                                            <input type="text"
-                                                   class="form-control procedure-autocomplete"
-                                                   name="Procedures[0].VchProcedureName"
-                                                   placeholder="Search Procedure"
-                                                   autocomplete="off">
-                                            <input type="hidden"
-                                                   name="Procedures[0].VchProcedureCode"
-                                                   class="procedure-code">
+                                            <input type="text" class="form-control procedure-autocomplete"
+                                                   name="Procedure[0].VchProcedureName"
+                                                   placeholder="Search Procedure" autocomplete="off">
+                                            <input type="hidden" class="procedure-code"
+                                                   name="Procedure[0].VchProcedureCode">
                                             <div class="list-group position-absolute w-100 procedure-suggestions"
                                                  style="z-index:999; display:none;"></div>
                                         </div>
-
-                                        <!-- Priority -->
                                         <div class="col-md-3">
-                                            <select class="form-select" name="Procedures[0].VchPriority">
-                                                <option value="Normal">Normal</option>
-                                                <option value="Urgent">Urgent</option>
+                                            <select class="form-select" name="Procedure[0].VchPriority">
+                                                <option value="">-- Priority --</option>
+                                                <option value="High">High</option>
+                                                <option value="Medium">Medium</option>
+                                                <option value="Low">Low</option>
                                             </select>
                                         </div>
-
-                                        <!-- Remarks -->
                                         <div class="col-md-3">
-                                            <input type="text" class="form-control" name="Procedures[0].VchRemarks" placeholder="Remarks">
+                                            <input type="text" class="form-control"
+                                                   name="Procedure[0].VchRemarks" placeholder="Remarks">
                                         </div>
-
-                                        <!-- Action Buttons -->
                                         <div class="col-md-2 text-center">
                                             <button type="button" class="btn btn-danger btn remove-procedure">
                                                 <i class="bi bi-x-lg text-white"></i>
                                             </button>
-                                            <button type="button" class="btn btn-success btn add-procedure-row">
-                                                <i class="bi bi-plus-lg text-white"></i>
+                                            <button type="button" class="btn btn-success btn add-procedure-row text-white">
+                                                <i class="bi bi-plus-lg"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                     
+                        </div>                     
 
                         <!-- Follow Up -->
                         <div class="tab-pane fade" id="followup" role="tabpanel">
@@ -434,9 +500,7 @@
                                 <!-- Preview File List -->
                                 <div id="doctor-file-list" class="mt-4"></div>
                             </div>
-                        </div>
-
-                       
+                        </div>                       
                     </div>
                     
                 </form>
@@ -453,56 +517,173 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
+        //case first if all medicine, lab, radio, procedure is null set null for all
+         $("form").on("submit", function () {
+           // 🔹 Clean up Medicines
+            $("#medicine-list tr.medicine-item").each(function () {
+                let hasValue = false;
+                $(this).find("input[type=text], input[type=hidden], select").each(function () {
+                    if ($(this).val().trim() !== "") {
+                        hasValue = true;
+                        return false;
+                    }
+                });
+                if (!hasValue) $(this).remove();
+            });
+            reIndexMedicineRows();
+
+            // 🔹 Clean up Labs
+            $("#lab-list .lab-item").each(function () {
+                let hasValue = false;
+                $(this).find("input[type=text], input[type=hidden], select").each(function () {
+                    if ($(this).val().trim() !== "") {
+                        hasValue = true;
+                        return false;
+                    }
+                });
+                if (!hasValue) $(this).remove();
+            });
+            reIndexLabRows(); // ✅ added
+      
+            // 🔹 Clean up Radiology
+            $("#radiology-list .radiology-item").each(function () {
+                let hasValue = false;
+                $(this).find("input[type=text], input[type=hidden], select").each(function () {
+                    if ($(this).val().trim() !== "") {
+                        hasValue = true;
+                        return false;
+                    }
+                });
+                if (!hasValue) $(this).remove();
+            });
+
+            // 🔹 Clean up Procedures
+            $("#procedure-list .procedure-item").each(function () {
+                let hasValue = false;
+                $(this).find("input[type=text], input[type=hidden], select").each(function () {
+                    if ($(this).val().trim() !== "") {
+                        hasValue = true;
+                        return false;
+                    }
+                });
+                if (!hasValue) $(this).remove();
+            });
+        });
+
         //Medicine searching / adding                
         $(document).ready(function () {
             let medIndex = 1; // start from 1 since 0 already exists
 
             // Function to generate new row
             function getNewRow(index) {
-                return `
-                    <div class="row g-2 mb-2 medicine-item">
-                        <div class="col-md-4 position-relative">
-                            <input type="text" class="form-control medicine-autocomplete"
-                                   name="Medicines[${index}].VchMedicineName"
-                                   placeholder="Search Medicine" autocomplete="off">
-                            <input type="hidden" class="medicine-code"
-                                   name="Medicines[${index}].VchMedicineCode">
-                            <div class="list-group position-absolute w-100 medicine-suggestions"
-                                 style="z-index:999; display:none;"></div>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control"
-                                   name="Medicines[${index}].VchDosage" placeholder="Dosage">
-                        </div>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control"
-                                   name="Medicines[${index}].VchFrequency" placeholder="Frequency">
-                        </div>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control"
-                                   name="Medicines[${index}].VchDuration" placeholder="Duration">
-                        </div>
-                        <div class="col-md-2 text-center">
-                             <button type="button" class="btn btn-danger btn remove-medicine form-group"><i class="bi bi-x-lg text-white"></i></button>
-                             <button type="button" class="btn btn-success btn add-medicine-row text-white"><i class="bi bi-plus-lg"></i></button>
-                        </div>
-                    </div>`;
+                        return `
+            <tr class="medicine-item">
+                <!-- Medicine -->
+                <td class="position-relative">
+                    <input type="text"
+                           class="form-control form-control-sm medicine-autocomplete"
+                           name="Medicines[${index}].VchMedicineName"
+                           placeholder="Search Medicine" autocomplete="off">
+                    <input type="hidden"
+                           name="Medicines[${index}].VchMedicineCode"
+                           class="medicine-code">
+                    <div class="list-group position-absolute w-100 medicine-suggestions"
+                         style="z-index:999; display:none;"></div>
+                </td>
+
+                <!-- Dosage -->
+                <td>
+                    <input type="text" class="form-control form-control-sm"
+                           name="Medicines[${index}].VchDosage" placeholder="Dosage">
+                </td>
+
+                <!-- Frequency -->
+                <td>
+                    <input type="text" class="form-control form-control-sm"
+                           name="Medicines[${index}].VchFrequency" placeholder="Frequency">
+                </td>
+
+                <!-- Duration -->
+                <td>
+                    <input type="text" class="form-control form-control-sm"
+                           name="Medicines[${index}].VchDuration" placeholder="Duration">
+                </td>
+
+                <!-- Timings -->
+                <td>
+                    <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                        <!-- Breakfast -->
+                        <label>
+                            <input type="radio" class="form-check-input scale-radio"
+                                   name="Medicines[${index}].BreakfastTiming" value="BBF"> BBF
+                        </label>
+                        <label>
+                            <input type="radio" class="form-check-input scale-radio"
+                                   name="Medicines[${index}].BreakfastTiming" value="ABF"> ABF
+                        </label>
+                        <!-- Lunch -->
+                        <label>
+                            <input type="radio" class="form-check-input scale-radio"
+                                   name="Medicines[${index}].LunchTiming" value="BL"> BL
+                        </label>
+                        <label>
+                            <input type="radio" class="form-check-input scale-radio"
+                                   name="Medicines[${index}].LunchTiming" value="AL"> AL
+                        </label>
+                        <!-- Dinner -->
+                        <label>
+                            <input type="radio" class="form-check-input scale-radio"
+                                   name="Medicines[${index}].DinnerTiming" value="BD"> BD
+                        </label>
+                        <label>
+                            <input type="radio" class="form-check-input scale-radio"
+                                   name="Medicines[${index}].DinnerTiming" value="AD"> AD
+                        </label>
+                    </div>
+                </td>
+
+                <!-- Action -->
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-medicine">
+                        <i class="bi bi-x-lg text-white"></i>
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm add-medicine-row">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                </td>
+            </tr>`;
             }
 
             // Global add button
             $("#addMedicine").click(function () {
                 $("#medicine-list").append(getNewRow(medIndex));
-                medIndex++;
+                reIndexMedicineRows();
             });
             // Add row beside
             $(document).on("click", ".add-medicine-row", function () {
                 $(this).closest(".medicine-item").after(getNewRow(medIndex));
-                medIndex++;
+                reIndexMedicineRows();
             });
             // Remove row
             $(document).on("click", ".remove-medicine", function () {
+                 if ($(".medicine-item").length > 1) {                
                 $(this).closest(".medicine-item").remove();
+                reIndexMedicineRows();
+                }
             });
+            //renumbering of row after deletion and addations
+           function reIndexMedicineRows() {
+            $("#medicine-list tr.medicine-item").each(function (i, row) {
+                $(row).find("input").each(function () {
+                    let name = $(this).attr("name");
+                    if (name) {
+                        let newName = name.replace(/\[\d+\]/, `[${i}]`);
+                        $(this).attr("name", newName);
+                    }
+                });
+            });
+            medIndex = $("#medicine-list tr.medicine-item").length; // reset counter
+        }
 
             // Autocomplete search medicine (same as before, with keyboard support)
             $(document).on("keyup", ".medicine-autocomplete", function (e) {
@@ -518,7 +699,7 @@
 
             if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
 
-            if (query.length >= 2) {
+            if (query.length >= 1) {
                 $.ajax({
                     url: "/Assessment/SearchMedicine",
                     type: "GET",
@@ -623,117 +804,116 @@
                 }
             });
         });
+          
+        //for medicine check boxes select unselect
+        $(document).on("click", "input[type=radio]", function () {
+            let $radio = $(this);
+
+            // If already checked, uncheck it
+            if ($radio.data("waschecked") === true) {
+                $radio.prop("checked", false);
+                $radio.data("waschecked", false);
+            } else {
+                // Unset all in group, set this one
+                $("input[name='" + $radio.attr("name") + "']").data("waschecked", false);
+                $radio.data("waschecked", true);
+            }
+        });
 
         //Code for Lab
         $(document).ready(function () {
-            let labIndex = 0;
 
-            // Autocomplete for Lab Test
-            $(document).on("keyup", ".lab-autocomplete", function (e) {
-                const $input = $(this);
-                const query = $input.val();
-                const $suggestions = $input.siblings(".lab-suggestions");
-
-                // Handle keyboard navigation
-                const $items = $suggestions.find(".list-group-item");
-                let $selected = $items.filter(".active");
-
-                if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    if ($selected.length === 0) {
-                        $items.first().addClass("active");
-                    } else {
-                        $selected.removeClass("active").next().addClass("active");
-                    }
-                }
-                else if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    if ($selected.length === 0) {
-                        $items.last().addClass("active");
-                    } else {
-                        $selected.removeClass("active").prev().addClass("active");
-                    }
-                }
-                else if (e.key === "Enter") {
-                    e.preventDefault();
-                    if ($selected.length > 0) {
-                        $selected.trigger("click");
-                    }
-                }
-                else {
-                    if (query.length >= 2) {
-                        $.getJSON("/DoctorAssessment/SearchLab", { term: query }, function (data) {
-                            $suggestions.empty().show();
-                            data.forEach(function (item) {
-                                $suggestions.append(
-                                    `<button type="button" class="list-group-item list-group-item-action"
-                                        data-code="${item.code}" data-name="${item.name}">
-                                        ${item.name}
-                                     </button>`
-                                );
-                            });
-                        });
-                    } else {
-                        $suggestions.hide();
-                    }
-                }
-            });
-
-            // Select suggestion (Mouse or Enter key)
-            $(document).on("click", ".lab-suggestions .list-group-item", function () {
-                const $btn = $(this);
-                const $parent = $btn.closest(".position-relative");
-
-                $parent.find(".lab-autocomplete").val($btn.data("name"));
-                $parent.find(".lab-code").val($btn.data("code"));
-                $parent.find(".lab-suggestions").hide();
-            });
-
-            // Add new Lab row
+            // Add new lab row
             $(document).on("click", ".add-lab-row", function () {
-                labIndex++;
-                const newRow = `
-                <div class="row g-2 mb-2 lab-item">
-                    <div class="col-md-4 position-relative">
-                        <input type="text" class="form-control lab-autocomplete"
-                               name="Labs[${labIndex}].VchLabName" placeholder="Search Lab Test" autocomplete="off">
-                        <input type="hidden" name="Labs[${labIndex}].VchLabCode" class="lab-code">
-                        <div class="list-group position-absolute w-100 lab-suggestions" style="z-index:999; display:none;"></div>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select" name="Labs[${labIndex}].VchPriority">
-                            <option value="Normal">Normal</option>
-                            <option value="Urgent">Urgent</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="Labs[${labIndex}].VchRemarks" placeholder="Remarks">
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <button type="button" class="btn btn-danger btn remove-lab form-group">
-                            <i class="bi bi-x-lg text-white"></i>
-                        </button>
-                         <button type="button" class="btn btn-success btn add-lab-row form-group">
-                            <i class="bi bi-plus-lg text-white"></i>
-                        </button>
-                    </div>
-                </div>`;
+                let index = $("#lab-list .lab-item").length; // count current rows
+                let newRow = `
+                    <div class="row g-2 mb-2 lab-item">
+                        <div class="col-md-4 position-relative">
+                            <input type="text"
+                                   class="form-control lab-autocomplete"
+                                   name="Labs[${index}].VchLabName"
+                                   placeholder="Search Lab Test" autocomplete="off">
+                            <input type="hidden"
+                                   name="Labs[${index}].VchLabCode"
+                                   class="lab-code">
+                            <div class="list-group position-absolute w-100 lab-suggestions"
+                                 style="z-index:999; display:none;"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="Labs[${index}].VchPriority">
+                                <option value="">-- Priority --</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control"
+                                   name="Labs[${index}].VchRemarks"
+                                   placeholder="Remarks">
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <button type="button" class="btn btn-danger btn remove-lab">
+                                <i class="bi bi-x-lg text-white"></i>
+                            </button>
+                            <button type="button" class="btn btn-success btn add-lab-row text-white">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>`;
                 $("#lab-list").append(newRow);
             });
 
-            // Remove Lab row
+            // Remove lab row (but keep at least one row)
             $(document).on("click", ".remove-lab", function () {
-                if ($(".lab-item").length > 1) {
+                if ($("#lab-list .lab-item").length > 1) {
                     $(this).closest(".lab-item").remove();
                 }
             });
+
+            // Lab autocomplete (example, adjust to your API)
+            $(document).on("keyup", ".lab-autocomplete", function () {
+                let query = $(this).val();
+                let $suggestions = $(this).siblings(".lab-suggestions");
+
+                if (query.length > 1) {
+                    $.ajax({
+                        url: '/Doctor/GetLabs',  // 🔹 update with your controller action
+                        type: 'GET',
+                        data: { term: query },
+                        success: function (data) {
+                            $suggestions.empty().show();
+                            $.each(data, function (i, item) {
+                                $suggestions.append(
+                                    `<a href="#" class="list-group-item list-group-item-action lab-option"
+                                        data-code="${item.code}"
+                                        data-name="${item.name}">
+                                        ${item.name}
+                                    </a>`
+                                );
+                            });
+                        }
+                    });
+                } else {
+                    $suggestions.hide();
+                }
+            });
+
+            // Select lab from suggestions
+            $(document).on("click", ".lab-option", function (e) {
+                e.preventDefault();
+                let $parent = $(this).closest(".position-relative");
+                $parent.find(".lab-autocomplete").val($(this).data("name"));
+                $parent.find(".lab-code").val($(this).data("code"));
+                $parent.find(".lab-suggestions").hide();
+            });
+
         });
 
         //Radiology
         $(document).ready(function () {
          let radIndex = 1; // start from 1 since 0 exists
 
-        //➕ Add new radiology row
+        //Add new radiology row
         $(document).on("click", ".add-radiology-row", function () {
                 let newRow = `
                     <div class="row g-2 mb-2 radiology-item">
@@ -759,10 +939,10 @@
                                    name="Radiology[${radIndex}].VchRemarks" placeholder="Remarks">
                         </div>
                         <div class="col-md-2 text-center">
-                            <button type="button" class="btn btn-danger btn-sm remove-radiology">
+                            <button type="button" class="btn btn-danger btn remove-radiology">
                                 <i class="bi bi-x-lg text-white"></i>
                             </button>
-                            <button type="button" class="btn btn-success btn-sm add-radiology-row text-white">
+                            <button type="button" class="btn btn-success btn add-radiology-row text-white">
                                 <i class="bi bi-plus-lg"></i>
                             </button>
                         </div>
@@ -771,19 +951,21 @@
                 radIndex++;
             });
 
-            // ❌ Remove radiology row
+            //Remove radiology row
             $(document).on("click", ".remove-radiology", function () {
-                $(this).closest(".radiology-item").remove();
+               if ($(".radiology-item").length > 1) {
+                 $(this).closest(".radiology-item").remove();
+               }
             });
 
             // Search radiology (on typing)
-                    $(document).on("keyup", ".radiology-autocomplete", function (e) {
+            $(document).on("keyup", ".radiology-autocomplete", function (e) {
             let input = $(this);
             let query = input.val().trim();
             let suggestionBox = input.siblings(".radiology-suggestions");
             let hidden = input.siblings(".radiology-code");
 
-            // ✅ Reset hidden only when typing
+            //Reset hidden only when typing
             if (!["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
                 hidden.val("");
             }
@@ -791,11 +973,14 @@
             // skip navigation keys
             if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) return;
 
-            if (query.length >= 2) {
+            if (query.length >= 1) {
                 $.ajax({
                     url: "/Assessment/SearchRadiology", // controller endpoint
                     type: "GET",
-                    data: { term: query },
+                    data: { 
+                        term: query,
+                        type:"Radio"
+                    },
                     success: function (data) {
                         suggestionBox.empty();
                         if (data.length > 0) {
@@ -820,7 +1005,7 @@
         });
 
 
-            // ⌨️ Keyboard navigation
+            //Keyboard navigation
             $(document).on("keydown", ".radiology-autocomplete", function (e) {
                 let $input = $(this);
                 let $box = $input.siblings(".radiology-suggestions");
@@ -851,7 +1036,7 @@
                 }
             });
 
-            // 🖱️ Select radiology suggestion
+            //Select radiology suggestion
             $(document).on("click", ".radiology-suggestions a", function (e) {
                 e.preventDefault();
                 let selectedName = $(this).data("name");
@@ -890,113 +1075,108 @@
             });
         });
 
-
-
-
-
         //Procedure
         $(document).ready(function () {
-            let procedureIndex = 0;
-
-            // Autocomplete with keyboard navigation
-            $(document).on("keyup", ".procedure-autocomplete", function (e) {
-                const $input = $(this);
-                const query = $input.val();
-                const $suggestions = $input.siblings(".procedure-suggestions");
-
-                const $items = $suggestions.find(".list-group-item");
-                let $selected = $items.filter(".active");
-
-                if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    if ($selected.length === 0) {
-                        $items.first().addClass("active");
-                    } else {
-                        $selected.removeClass("active").next().addClass("active");
-                    }
-                }
-                else if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    if ($selected.length === 0) {
-                        $items.last().addClass("active");
-                    } else {
-                        $selected.removeClass("active").prev().addClass("active");
-                    }
-                }
-                else if (e.key === "Enter") {
-                    e.preventDefault();
-                    if ($selected.length > 0) {
-                        $selected.trigger("click");
-                    }
-                }
-                else {
-                    if (query.length >= 2) {
-                        $.getJSON("/DoctorAssessment/SearchProcedure", { term: query }, function (data) {
-                            $suggestions.empty().show();
-                            data.forEach(function (item) {
-                                $suggestions.append(
-                                    `<button type="button" class="list-group-item list-group-item-action"
-                                        data-code="${item.code}" data-name="${item.name}">
-                                        ${item.name}
-                                     </button>`
-                                );
-                            });
-                        });
-                    } else {
-                        $suggestions.hide();
-                    }
-                }
-            });
-
-            // Select suggestion (click or Enter)
-            $(document).on("click", ".procedure-suggestions .list-group-item", function () {
-                const $btn = $(this);
-                const $parent = $btn.closest(".position-relative");
-
-                $parent.find(".procedure-autocomplete").val($btn.data("name"));
-                $parent.find(".procedure-code").val($btn.data("code"));
-                $parent.find(".procedure-suggestions").hide();
-            });
-
             // Add new procedure row
             $(document).on("click", ".add-procedure-row", function () {
-                procedureIndex++;
-                const newRow = `
-                <div class="row g-2 mb-2 procedure-item">
-                    <div class="col-md-4 position-relative">
-                        <input type="text" class="form-control procedure-autocomplete"
-                               name="Procedures[${procedureIndex}].VchProcedureName" placeholder="Search Procedure" autocomplete="off">
-                        <input type="hidden" name="Procedures[${procedureIndex}].VchProcedureCode" class="procedure-code">
-                        <div class="list-group position-absolute w-100 procedure-suggestions" style="z-index:999; display:none;"></div>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select" name="Procedures[${procedureIndex}].VchPriority">
-                            <option value="Normal">Normal</option>
-                            <option value="Urgent">Urgent</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="Procedures[${procedureIndex}].VchRemarks" placeholder="Remarks">
-                    </div>
-                    <div class="col-md-2 text-center">
-                        <button type="button" class="btn btn-danger btn remove-procedure">
-                            <i class="bi bi-x-lg text-white"></i>
-                        </button>
-                        <button type="button" class="btn btn-success btn add-procedure-row">
-                            <i class="bi bi-plus-lg text-white"></i>
-                        </button>
-                    </div>
-                </div>`;
+                let index = $("#procedure-list .procedure-item").length;
+                let newRow = `
+                    <div class="row g-2 mb-2 procedure-item">
+                        <div class="col-md-4 position-relative">
+                            <input type="text" class="form-control procedure-autocomplete"
+                                   name="Procedures[${index}].VchProcedureName"
+                                   placeholder="Search Procedure" autocomplete="off">
+                            <input type="hidden" class="procedure-code"
+                                   name="Procedures[${index}].VchProcedureCode">
+                            <div class="list-group position-absolute w-100 procedure-suggestions"
+                                 style="z-index:999; display:none;"></div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="Procedures[${index}].VchPriority">
+                                <option value="">-- Priority --</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control"
+                                   name="Procedures[${index}].VchRemarks" placeholder="Remarks">
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <button type="button" class="btn btn-danger btn remove-procedure">
+                                <i class="bi bi-x-lg text-white"></i>
+                            </button>
+                            <button type="button" class="btn btn-success btn add-procedure-row text-white">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>`;
                 $("#procedure-list").append(newRow);
             });
 
             // Remove procedure row
             $(document).on("click", ".remove-procedure", function () {
-                if ($(".procedure-item").length > 1) {
+                if ($("#procedure-list .procedure-item").length > 1) {
                     $(this).closest(".procedure-item").remove();
                 }
             });
+
+            // Autocomplete
+            $(document).on("keyup", ".procedure-autocomplete", function (e) {
+                let input = $(this);
+                let query = input.val().trim();
+                let suggestionBox = input.siblings(".procedure-suggestions");
+                let hidden = input.siblings(".procedure-code");
+
+                if (!["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+                    hidden.val("");
+                }
+                if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) return;
+
+                if (query.length >= 1) {
+                    $.ajax({
+                        url: "/Assessment/SearchRadiology", // ✅ still using Radiology action
+                        type: "GET",
+                        data: { term: query, type: "Procedure" },
+                        success: function (data) {
+                            suggestionBox.empty();
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    suggestionBox.append(`
+                                        <a href="#" class="list-group-item list-group-item-action"
+                                           data-name="${item.service}"
+                                           data-code="${item.scode}">
+                                           ${item.service} <small class="text-muted">(${item.scode})</small>
+                                        </a>
+                                    `);
+                                });
+                                suggestionBox.show();
+                            } else {
+                                suggestionBox.hide();
+                            }
+                        }
+                    });
+                } else {
+                    suggestionBox.hide();
+                }
+            });
+
+            // Select suggestion
+            $(document).on("click", ".procedure-suggestions a", function (e) {
+                e.preventDefault();
+                let selectedName = $(this).data("name");
+                let selectedCode = $(this).data("code");
+
+                let $container = $(this).closest(".position-relative");
+                $container.find(".procedure-autocomplete").val(selectedName);
+                $container.find(".procedure-code").val(selectedCode);
+                $container.find(".procedure-suggestions").hide();
+            });
+
         });
+
+
 
         //For supporting document
         const doctorDropZone = document.getElementById("doctor-drop-zone");

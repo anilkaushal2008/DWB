@@ -33,5 +33,17 @@ public partial class TblDoctorAssmntMedicine
 
     public string VchUpdatedBy { get; set; }
 
+    public bool BitBbf { get; set; }
+
+    public bool BitAbf { get; set; }
+
+    public bool BitBl { get; set; }
+
+    public bool BitAl { get; set; }
+
+    public bool BitBd { get; set; }
+
+    public bool BitAd { get; set; }
+
     public virtual TblDoctorAssessment FkDocAssmnt { get; set; }
 }
