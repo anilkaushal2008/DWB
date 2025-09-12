@@ -15,6 +15,10 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[dbo].[category_price_list]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[imaster]",
          "ObjectType": 0
       },
@@ -93,6 +97,10 @@
       {
          "Name": "[dbo].[tblVitalsRange]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[spGetLabTest]",
+         "ObjectType": 1
       },
       {
          "Name": "[dbo].[spGetRadioProcedure]",

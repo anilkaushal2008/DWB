@@ -43,6 +43,33 @@ namespace DWB.Models
             _context = context;
         }
 
+        public virtual async Task<List<spGetLabTestResult>> spGetLabTestAsync(string term, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "term",
+                    Size = 100,
+                    Value = term ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<spGetLabTestResult>("EXEC @returnValue = [dbo].[spGetLabTest] @term = @term", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<spGetRadioProcedureResult>> spGetRadioProcedureAsync(string type, string search, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter

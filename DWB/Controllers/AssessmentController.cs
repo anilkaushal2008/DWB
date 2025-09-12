@@ -477,6 +477,25 @@ namespace DWB.Controllers
                 .ToList();
             return Json(searchResults);
         }
+        [HttpGet]
+        public async Task<JsonResult> SearchLab(string term)
+        {
+            // If the term is empty, just return empty results
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<spGetLabTestResult>());
+
+            var searchResults = await _context.Procedures.spGetLabTestAsync(term);
+
+            var getLabTest = searchResults
+                .Select(r => new spGetLabTestResult
+                {
+                    descript = r.descript,
+                    tcode = r.tcode
+                })
+                .ToList();
+
+            return Json(getLabTest);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -489,6 +508,10 @@ namespace DWB.Controllers
             }
             try
             {
+                //get nursing first for update status
+                var nsgAssessment=(from e in _context.TblNsassessment
+                                   where e.IntAssessmentId == model.NursingAssessment.IntAssessmentId
+                                   select e).FirstOrDefault();
                 //Save Doctor Assessment details
                 var doctorAssessment = new TblDoctorAssessment
                 {
@@ -510,28 +533,36 @@ namespace DWB.Controllers
                     VchCreatedBy = User.Identity.Name,
                     DtCreated = DateTime.Now,
                     DtHmsentry=model.DoctorAssessment.DtHmsentry
+                    
                 };
-                _context.TblDoctorAssessment.Add(doctorAssessment);
-                _context.SaveChanges();
+                if (nsgAssessment != null)
+                {
+                    nsgAssessment.BitIsDoctorCompleted = true; //mark nursing assessment doctor completed
+                }
+                _context.TblDoctorAssessment.Add(doctorAssessment);                
+                //_context.SaveChanges();
                 //Save medicines
                 if (model.Medicines.Count() != 0)
                 {
                     //add all medicine if prescribed
                     foreach (var med in model.Medicines)
                     {
-                        TblDoctorAssmntMedicine objMedicine = new TblDoctorAssmntMedicine
+                        if (med.VchMedicineName != null && med.VchMedicineCode!=null)
                         {
-                            FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
-                            VchMedicineName = med.VchMedicineName,
-                            VchMedicineCode = med.VchMedicineCode, // hidden code
-                            VchDosage = med.VchDosage,
-                            VchFrequency = med.VchFrequency,
-                            VchDuration = med.VchDuration,
-                            DtCreated = DateTime.Now,
-                            VchCreatedBy = User.Identity.Name
-                        };
-                        _context.TblDoctorAssmntMedicine.Add(objMedicine);
-                        _context.SaveChanges();
+                            TblDoctorAssmntMedicine objMedicine = new TblDoctorAssmntMedicine
+                            {
+                                FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
+                                VchMedicineName = med.VchMedicineName,
+                                VchMedicineCode = med.VchMedicineCode, // hidden code
+                                VchDosage = med.VchDosage,
+                                VchFrequency = med.VchFrequency,
+                                VchDuration = med.VchDuration,
+                                DtCreated = DateTime.Now,
+                                VchCreatedBy = User.Identity.Name
+                            };
+                            _context.TblDoctorAssmntMedicine.Add(objMedicine);
+                            _context.SaveChanges();
+                        }
                     }
                 }
                 //add lab if prescribed
@@ -540,18 +571,21 @@ namespace DWB.Controllers
                     //add all lab if prescribed
                     foreach (var lab in model.Labs)
                     {
-                        TblDoctorAssmntLab objLab = new TblDoctorAssmntLab
+                        if (lab.VchTestName != null && lab.VchTestCode!=null)
                         {
-                            FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
-                            VchTestName = lab.VchTestName,
-                            VchTestCode = lab.VchTestCode, // hidden code
-                            VchPriority = lab.VchPriority,
-                            VchRemarks = lab.VchRemarks,
-                            DtCreated = DateTime.Now,
-                            VchCreatedBy = User.Identity.Name
-                        };
-                        _context.TblDoctorAssmntLab.Add(objLab);
-                        _context.SaveChanges();
+                            TblDoctorAssmntLab objLab = new TblDoctorAssmntLab
+                            {
+                                FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
+                                VchTestName = lab.VchTestName,
+                                VchTestCode = lab.VchTestCode, // hidden code
+                                VchPriority = lab.VchPriority,
+                                VchRemarks = lab.VchRemarks,
+                                DtCreated = DateTime.Now,
+                                VchCreatedBy = User.Identity.Name
+                            };
+                            _context.TblDoctorAssmntLab.Add(objLab);
+                            _context.SaveChanges();
+                        }
                     }
                 }
                 //add radiology if prescribed
@@ -560,18 +594,21 @@ namespace DWB.Controllers
                     //add all radiology if prescribed
                     foreach (var radio in model.Radiology)
                     {
-                        TblDoctorAssmntRadiology objRadio = new TblDoctorAssmntRadiology
+                        if (radio.VchRadiologyName != null && radio.VchRadiologyCode!=null)
                         {
-                            FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
-                            VchRadiologyName = radio.VchRadiologyName,
-                            VchRadiologyCode = radio.VchRadiologyCode, // hidden code
-                            VchPriority = radio.VchPriority,
-                            VchRemarks = radio.VchRemarks,
-                            DtCreated = DateTime.Now,
-                            VchCreatedBy = User.Identity.Name
-                        };
-                        _context.TblDoctorAssmntRadiology.Add(objRadio);
-                        _context.SaveChanges();
+                            TblDoctorAssmntRadiology objRadio = new TblDoctorAssmntRadiology
+                            {
+                                FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
+                                VchRadiologyName = radio.VchRadiologyName,
+                                VchRadiologyCode = radio.VchRadiologyCode, // hidden code
+                                VchPriority = radio.VchPriority,
+                                VchRemarks = radio.VchRemarks,
+                                DtCreated = DateTime.Now,
+                                VchCreatedBy = User.Identity.Name
+                            };
+                            _context.TblDoctorAssmntRadiology.Add(objRadio);
+                            _context.SaveChanges();
+                        }
                     }
                 }
                 //add procedures if any
@@ -580,18 +617,21 @@ namespace DWB.Controllers
                     //add all procedures if prescribed
                     foreach (var proc in model.Procedures)
                     {
-                        TblDoctorAssmntProcedure objProc = new TblDoctorAssmntProcedure
+                        if (proc.VchProcedureName != null && proc.VchProcedureCode!=null)
                         {
-                            FkDocAsstId = doctorAssessment.IntId, // use saved assessment PK
-                            VchProcedureName = proc.VchProcedureName,
-                            VchProcedureCode = proc.VchProcedureCode, // hidden code
-                            VchPriority = proc.VchPriority,
-                            VchRemarks = proc.VchRemarks,
-                            DtCreated = DateTime.Now,
-                            VchCreatedBy = User.Identity.Name
-                        };
-                        _context.TblDoctorAssmntProcedure.Add(objProc);
-                        _context.SaveChanges();
+                            TblDoctorAssmntProcedure objProc = new TblDoctorAssmntProcedure
+                            {
+                                FkDocAsstId = doctorAssessment.IntId, // use saved assessment PK
+                                VchProcedureName = proc.VchProcedureName,
+                                VchProcedureCode = proc.VchProcedureCode, // hidden code
+                                VchPriority = proc.VchPriority,
+                                VchRemarks = proc.VchRemarks,
+                                DtCreated = DateTime.Now,
+                                VchCreatedBy = User.Identity.Name
+                            };
+                            _context.TblDoctorAssmntProcedure.Add(objProc);
+                            _context.SaveChanges();
+                        }
                     }
                 }
                 //uploaded supporting documents

@@ -206,24 +206,28 @@
                         <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Chief Complaints</label>
-                                    <textarea asp-for="DoctorAssessment.VchChiefcomplaints" class="form-control" rows="2"></textarea>
+                                        <label class="form-label fw-bold">Chief Complaints<span class="text-danger">*</span></label>
+                                        <textarea asp-for="DoctorAssessment.VchChiefcomplaints" class="form-control required-field" rows="2"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Medical History</label>
-                                    <textarea asp-for="DoctorAssessment.VchMedicalHistory" class="form-control" rows="2"></textarea>
+                                        <label class="form-label fw-bold">Medical History<span class="text-danger">*</span></label>
+                                        <textarea asp-for="DoctorAssessment.VchMedicalHistory" class="form-control required-field" rows="2"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Systemic Examination</label>
-                                    <textarea asp-for="DoctorAssessment.VchSystemicexam" class="form-control" rows="2"></textarea>
+                                        <label class="form-label fw-bold">Systemic Examination<span class="text-danger">*</span></label>
+                                        <textarea asp-for="DoctorAssessment.VchSystemicexam" class="form-control required-field" rows="2"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold">Diagnosis</label>
-                                    <textarea asp-for="DoctorAssessment.VchDiagnosis" class="form-control" rows="2"></textarea>
+                                        <label class="form-label fw-bold">Diagnosis<span class="text-danger">*</span></label>
+                                        <textarea asp-for="DoctorAssessment.VchDiagnosis" class="form-control required-field" rows="2"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-bold">Remarks</label>
-                                    <textarea asp-for="DoctorAssessment.VchRemarks" class="form-control" rows="3"></textarea>
+                                    <textarea asp-for="DoctorAssessment.VchRemarks" class="form-control" rows="3"></textarea>                                       
                                 </div>
                             </div>
                         </div>
@@ -335,122 +339,152 @@
 
                         <!-- Lab -->
                         <div class="tab-pane fade" id="lab" role="tabpanel">
-                            <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
-                                <div id="lab-list">
-                                    <div class="row g-2 mb-2 lab-item">
-                                        <div class="col-md-4 position-relative">
-                                            <input type="text"
-                                                   class="form-control lab-autocomplete"
-                                                   name="Labs[0].VchLabName"
-                                                   placeholder="Search Lab Test" autocomplete="off">
-                                            <input type="hidden"
-                                                   name="Labs[0].VchLabCode"
-                                                   class="lab-code">
-                                            <div class="list-group position-absolute w-100 lab-suggestions"
-                                                 style="z-index:999; display:none;"></div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <select class="form-select" name="Labs[0].VchPriority">
-                                                <option value="">-- Priority --</option>
-                                                <option value="Normal">Normal</option>
-                                                <option value="Urgent">Urgent</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <input type="text" class="form-control"
-                                                   name="Labs[0].VchRemarks"
-                                                   placeholder="Remarks">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <button type="button" class="btn btn-danger btn remove-lab">
-                                                <i class="bi bi-x-lg text-white"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-success btn add-lab-row text-white">
-                                                <i class="bi bi-plus-lg"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card p-3 border-top border-primary shadow rounded-3 mb-4">
+                                <table class="table table-bordered table-sm align-middle mb-0">
+                                    <thead class="table bg-primary text-left small">
+                                        <tr>
+                                            <th style="width: 50%;">Lab Test</th>
+                                            <th style="width: 30%;">Priority</th>                                            
+                                            <th style="width: 20%;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lab-list">
+                                        <tr class="lab-item">
+                                            <!-- Lab Test -->
+                                            <td class="position-relative">
+                                                <input type="text"
+                                                       class="form-control form-control-sm lab-autocomplete"
+                                                       name="Labs[0].VchTestName"
+                                                       placeholder="Search Lab Test" autocomplete="off">
+                                                <input type="hidden"
+                                                       name="Labs[0].VchTestCode"
+                                                       class="lab-code">
+                                                <div class="list-group position-absolute w-100 lab-suggestions"
+                                                     style="z-index:999; display:none;"></div>
+                                            </td>
+
+                                            <!-- Priority -->
+                                            <td>
+                                                <select class="form-select form-select-sm" name="Labs[0].VchPriority">
+                                                    <option value="">-- Priority --</option>
+                                                    <option value="Normal">Normal</option>
+                                                    <option value="Urgent">Urgent</option>
+                                                </select>
+                                            </td>
+                                            <!-- Action -->
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove-lab">
+                                                    <i class="bi bi-x-lg text-white"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-success btn-sm add-lab-row">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-
-
+                       
                         <!-- Radiology -->
                         <div class="tab-pane fade" id="radiology" role="tabpanel">
-                            <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
-                                <div id="radiology-list">
-                                    <div class="row g-2 mb-2 radiology-item">
-                                        <div class="col-md-4 position-relative">
-                                            <input type="text"
-                                                   class="form-control radiology-autocomplete"
-                                                   name="Radiology[0].VchRadiologyName"
-                                                   placeholder="Search Radiology" autocomplete="off">
-                                            <input type="hidden"
-                                                   name="Radiology[0].VchRadiologyCode"
-                                                   class="radiology-code">
-                                            <div class="list-group position-absolute w-100 radiology-suggestions"
-                                                 style="z-index:999; display:none;"></div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <select class="form-select" name="Radiology[0].VchPriority">
-                                                <option value="">-- Priority --</option>
-                                                <option value="High">High</option>
-                                                <option value="Medium">Medium</option>
-                                                <option value="Low">Low</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <input type="text" class="form-control"
-                                                   name="Radiology[0].VchRemarks"
-                                                   placeholder="Remarks">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <button type="button" class="btn btn-danger btn remove-radiology"><i class="bi bi-x-lg text-white"></i></button>
-                                            <button type="button" class="btn btn-success btn add-radiology-row text-white"><i class="bi bi-plus-lg"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card p-3 border-top border-primary shadow rounded-3 mb-4">
+                                <table class="table table-bordered table-sm align-middle mb-0">
+                                    <thead class="table bg-primary text-left small">
+                                        <tr>
+                                            <th style="width: 50%;">Radiology Test</th>
+                                            <th style="width: 30%;">Priority</th>
+                                            <th style="width: 20%;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="radio-list">
+                                        <tr class="radio-item">
+                                            <!-- Radiology Test -->
+                                            <td class="position-relative">
+                                                <input type="text"
+                                                       class="form-control form-control-sm radio-autocomplete"
+                                                       name="Radiology[0].VchRadiologyName"
+                                                       placeholder="Search Radiology Test" autocomplete="off">
+                                                <input type="hidden"
+                                                       name="Radiology[0].VchRadiologyCode"
+                                                       class="radio-code">
+                                                <div class="list-group position-absolute w-100 radio-suggestions"
+                                                     style="z-index:999; display:none;"></div>
+                                            </td>
+
+                                            <!-- Priority -->
+                                            <td>
+                                                <select class="form-select form-select-sm" name="Radiology[0].VchPriority">
+                                                    <option value="">-- Select --</option>
+                                                    <option value="Normal">Normal</option>
+                                                    <option value="Urgent">Urgent</option>
+                                                </select>
+                                            </td>
+
+                                            <!-- Action -->
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove-radio">
+                                                    <i class="bi bi-x-lg text-white"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-success btn-sm add-radio-row">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
                         <!--Procedure-->
                         <div class="tab-pane fade" id="procedure" role="tabpanel">
-                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
-                                <div id="procedure-list">
-                                    <div class="row g-2 mb-2 procedure-item">
-                                        <div class="col-md-4 position-relative">
-                                            <input type="text" class="form-control procedure-autocomplete"
-                                                   name="Procedure[0].VchProcedureName"
-                                                   placeholder="Search Procedure" autocomplete="off">
-                                            <input type="hidden" class="procedure-code"
-                                                   name="Procedure[0].VchProcedureCode">
-                                            <div class="list-group position-absolute w-100 procedure-suggestions"
-                                                 style="z-index:999; display:none;"></div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <select class="form-select" name="Procedure[0].VchPriority">
-                                                <option value="">-- Priority --</option>
-                                                <option value="High">High</option>
-                                                <option value="Medium">Medium</option>
-                                                <option value="Low">Low</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <input type="text" class="form-control"
-                                                   name="Procedure[0].VchRemarks" placeholder="Remarks">
-                                        </div>
-                                        <div class="col-md-2 text-center">
-                                            <button type="button" class="btn btn-danger btn remove-procedure">
-                                                <i class="bi bi-x-lg text-white"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-success btn add-procedure-row text-white">
-                                                <i class="bi bi-plus-lg"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card p-3 border-top border-primary shadow rounded-3 mb-4">
+                                <table class="table table-bordered table-sm align-middle mb-0">
+                                    <thead class="table bg-primary text-left small">
+                                        <tr>
+                                            <th style="width: 50%;">Procedure</th>
+                                            <th style="width: 30%;">Priority</th>                                          
+                                            <th style="width: 20%;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="procedure-list">
+                                        <tr class="procedure-item">
+                                            <!-- Procedure Name -->
+                                            <td class="position-relative">
+                                                <input type="text"
+                                                       class="form-control form-control-sm procedure-autocomplete"
+                                                       name="Procedures[0].VchProcedureName"
+                                                       placeholder="Search Procedure" autocomplete="off">
+                                                <input type="hidden"
+                                                       name="Procedures[0].VchProcedureCode"
+                                                       class="procedure-code">
+                                                <div class="list-group position-absolute w-100 procedure-suggestions"
+                                                     style="z-index:999; display:none;"></div>
+                                            </td>
+
+                                            <!-- Priority -->
+                                            <td>
+                                                <select class="form-select form-select-sm" name="Procedures[0].VchPriority">
+                                                    <option value="">-- Select --</option>
+                                                    <option value="Normal">Normal</option>
+                                                    <option value="Urgent">Urgent</option>
+                                                </select>
+                                            </td>                                          
+
+                                            <!-- Action -->
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-danger btn-sm remove-procedure">
+                                                    <i class="bi bi-x-lg text-white"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-success btn-sm add-procedure-row">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>                     
+                        </div>
 
                         <!-- Follow Up -->
                         <div class="tab-pane fade" id="followup" role="tabpanel">
@@ -517,725 +551,896 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
-        //case first if all medicine, lab, radio, procedure is null set null for all
-         $("form").on("submit", function () {
-           // 🔹 Clean up Medicines
-            $("#medicine-list tr.medicine-item").each(function () {
-                let hasValue = false;
-                $(this).find("input[type=text], input[type=hidden], select").each(function () {
-                    if ($(this).val().trim() !== "") {
-                        hasValue = true;
-                        return false;
-                    }
-                });
-                if (!hasValue) $(this).remove();
-            });
-            reIndexMedicineRows();
-
-            // 🔹 Clean up Labs
-            $("#lab-list .lab-item").each(function () {
-                let hasValue = false;
-                $(this).find("input[type=text], input[type=hidden], select").each(function () {
-                    if ($(this).val().trim() !== "") {
-                        hasValue = true;
-                        return false;
-                    }
-                });
-                if (!hasValue) $(this).remove();
-            });
-            reIndexLabRows(); // ✅ added
-      
-            // 🔹 Clean up Radiology
-            $("#radiology-list .radiology-item").each(function () {
-                let hasValue = false;
-                $(this).find("input[type=text], input[type=hidden], select").each(function () {
-                    if ($(this).val().trim() !== "") {
-                        hasValue = true;
-                        return false;
-                    }
-                });
-                if (!hasValue) $(this).remove();
-            });
-
-            // 🔹 Clean up Procedures
-            $("#procedure-list .procedure-item").each(function () {
-                let hasValue = false;
-                $(this).find("input[type=text], input[type=hidden], select").each(function () {
-                    if ($(this).val().trim() !== "") {
-                        hasValue = true;
-                        return false;
-                    }
-                });
-                if (!hasValue) $(this).remove();
-            });
-        });
-
-        //Medicine searching / adding                
+        //Validations for second tab clinical
         $(document).ready(function () {
-            let medIndex = 1; // start from 1 since 0 already exists
+            $("form").on("submit", function (e) {
+                let isValid = true;
 
-            // Function to generate new row
-            function getNewRow(index) {
-                        return `
-            <tr class="medicine-item">
-                <!-- Medicine -->
-                <td class="position-relative">
-                    <input type="text"
-                           class="form-control form-control-sm medicine-autocomplete"
-                           name="Medicines[${index}].VchMedicineName"
-                           placeholder="Search Medicine" autocomplete="off">
-                    <input type="hidden"
-                           name="Medicines[${index}].VchMedicineCode"
-                           class="medicine-code">
-                    <div class="list-group position-absolute w-100 medicine-suggestions"
-                         style="z-index:999; display:none;"></div>
-                </td>
+                // Clear previous messages
+                $(".validation-msg").text("");
 
-                <!-- Dosage -->
-                <td>
-                    <input type="text" class="form-control form-control-sm"
-                           name="Medicines[${index}].VchDosage" placeholder="Dosage">
-                </td>
-
-                <!-- Frequency -->
-                <td>
-                    <input type="text" class="form-control form-control-sm"
-                           name="Medicines[${index}].VchFrequency" placeholder="Frequency">
-                </td>
-
-                <!-- Duration -->
-                <td>
-                    <input type="text" class="form-control form-control-sm"
-                           name="Medicines[${index}].VchDuration" placeholder="Duration">
-                </td>
-
-                <!-- Timings -->
-                <td>
-                    <div class="d-flex flex-wrap justify-content-center gap-2 small">
-                        <!-- Breakfast -->
-                        <label>
-                            <input type="radio" class="form-check-input scale-radio"
-                                   name="Medicines[${index}].BreakfastTiming" value="BBF"> BBF
-                        </label>
-                        <label>
-                            <input type="radio" class="form-check-input scale-radio"
-                                   name="Medicines[${index}].BreakfastTiming" value="ABF"> ABF
-                        </label>
-                        <!-- Lunch -->
-                        <label>
-                            <input type="radio" class="form-check-input scale-radio"
-                                   name="Medicines[${index}].LunchTiming" value="BL"> BL
-                        </label>
-                        <label>
-                            <input type="radio" class="form-check-input scale-radio"
-                                   name="Medicines[${index}].LunchTiming" value="AL"> AL
-                        </label>
-                        <!-- Dinner -->
-                        <label>
-                            <input type="radio" class="form-check-input scale-radio"
-                                   name="Medicines[${index}].DinnerTiming" value="BD"> BD
-                        </label>
-                        <label>
-                            <input type="radio" class="form-check-input scale-radio"
-                                   name="Medicines[${index}].DinnerTiming" value="AD"> AD
-                        </label>
-                    </div>
-                </td>
-
-                <!-- Action -->
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-sm remove-medicine">
-                        <i class="bi bi-x-lg text-white"></i>
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm add-medicine-row">
-                        <i class="bi bi-plus-lg"></i>
-                    </button>
-                </td>
-            </tr>`;
-            }
-
-            // Global add button
-            $("#addMedicine").click(function () {
-                $("#medicine-list").append(getNewRow(medIndex));
-                reIndexMedicineRows();
-            });
-            // Add row beside
-            $(document).on("click", ".add-medicine-row", function () {
-                $(this).closest(".medicine-item").after(getNewRow(medIndex));
-                reIndexMedicineRows();
-            });
-            // Remove row
-            $(document).on("click", ".remove-medicine", function () {
-                 if ($(".medicine-item").length > 1) {                
-                $(this).closest(".medicine-item").remove();
-                reIndexMedicineRows();
-                }
-            });
-            //renumbering of row after deletion and addations
-           function reIndexMedicineRows() {
-            $("#medicine-list tr.medicine-item").each(function (i, row) {
-                $(row).find("input").each(function () {
-                    let name = $(this).attr("name");
-                    if (name) {
-                        let newName = name.replace(/\[\d+\]/, `[${i}]`);
-                        $(this).attr("name", newName);
-                    }
-                });
-            });
-            medIndex = $("#medicine-list tr.medicine-item").length; // reset counter
-        }
-
-            // Autocomplete search medicine (same as before, with keyboard support)
-            $(document).on("keyup", ".medicine-autocomplete", function (e) {
-            let input = $(this);
-            let query = input.val().trim();
-            let suggestionBox = input.siblings(".medicine-suggestions");
-            let hidden = input.siblings(".medicine-code");
-
-            // Reset hidden only if typing (not Enter/Arrow keys)
-            if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
-                hidden.val("");
-            }
-
-            if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
-
-            if (query.length >= 1) {
-                $.ajax({
-                    url: "/Assessment/SearchMedicine",
-                    type: "GET",
-                    data: { term: query },
-                    success: function (data) {
-                        suggestionBox.empty();
-                        if (data.length > 0) {
-                            data.forEach(item => {
-                                suggestionBox.append(
-                                    `<a href="#" class="list-group-item list-group-item-action"
-                                        data-name="${item.descript}"
-                                        data-code="${item.icode}">
-                                        ${item.descript} <small class="text-muted">(${item.icode})</small>
-                                    </a>`
-                                );
-                            });
-                            suggestionBox.show();
-                        } else {
-                            suggestionBox.hide();
-                        }
-                    }
-                });
-            } else {
-                suggestionBox.hide();
-            }
-        });
-
-            // Keyboard navigation
-            $(document).on("keydown", ".medicine-autocomplete", function (e) {
-            let $input = $(this);
-            let $box = $input.siblings(".medicine-suggestions");
-            let $items = $box.find(".list-group-item-action");
-            let $active = $items.filter(".active");
-
-            if (e.key === "ArrowDown") {
-                e.preventDefault();
-                if ($active.length === 0) $items.first().addClass("active");
-                else {
-                    let $next = $active.removeClass("active").next();
-                    ($next.length ? $next : $items.first()).addClass("active");
-                }
-            }
-            else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                if ($active.length === 0) $items.last().addClass("active");
-                else {
-                    let $prev = $active.removeClass("active").prev();
-                    ($prev.length ? $prev : $items.last()).addClass("active");
-                }
-            }
-            else if (e.key === "Enter") {
-                e.preventDefault(); // stop form submit
-                e.stopPropagation();
-
-                if ($active.length) {
-                    // ✅ Directly set the text + hidden field
-                    let name = $active.data("name");
-                    let code = $active.data("code");
-
-                    $input.val(name);
-                    $input.siblings(".medicine-code").val(code);
-
-                    $box.hide();
-                }
-            }
-        });
-            // Select medicine
-            $(document).on("click", ".medicine-suggestions a", function (e) {
-                e.preventDefault();
-                let name = $(this).data("name");
-                let code = $(this).data("code");
-
-                let $container = $(this).closest(".position-relative");
-                let $input = $container.find(".medicine-autocomplete");
-                let $hidden = $container.find(".medicine-code");
-
-                // Prevent duplicate
-                let isDuplicate = false;
-                $(".medicine-autocomplete").each(function () {
-                    let n = $(this).val();
-                    let c = $(this).closest(".position-relative").find(".medicine-code").val();
-                    if (n === name || c === code) {
-                        isDuplicate = true;
-                        return false;
+                // Check required textareas
+                $(".required-field").each(function () {
+                    if ($(this).val().trim() === "") {
+                        isValid = false;
+                        $(this).siblings(".validation-msg").text("This field is required.");
                     }
                 });
 
-                if (isDuplicate) {
-                    alert("⚠️ This medicine is already selected.");
-                    return;
-                }
-
-                $input.val(name);
-                $hidden.val(code);
-                $(this).closest(".medicine-suggestions").hide();
-            });
-
-            // Hide suggestions if click outside
-            $(document).click(function (e) {
-                if (!$(e.target).closest(".medicine-autocomplete, .medicine-suggestions").length) {
-                    $(".medicine-suggestions").hide();
+                if (!isValid) {
+                    e.preventDefault(); // stop form submission
+                    alert("⚠️ Please fill all required fields.");
                 }
             });
-        });
-          
-        //for medicine check boxes select unselect
-        $(document).on("click", "input[type=radio]", function () {
-            let $radio = $(this);
+        });    
 
-            // If already checked, uncheck it
-            if ($radio.data("waschecked") === true) {
-                $radio.prop("checked", false);
-                $radio.data("waschecked", false);
-            } else {
-                // Unset all in group, set this one
-                $("input[name='" + $radio.attr("name") + "']").data("waschecked", false);
-                $radio.data("waschecked", true);
-            }
-        });
+         //Medicine searching / adding
+         $(document).ready(function () {
+             let medIndex = 1; // start from 1 since 0 already exists
+
+             // Function to generate new row
+             function getNewRow(index) {
+                         return `
+             <tr class="medicine-item">
+                 <!-- Medicine -->
+                 <td class="position-relative">
+                     <input type="text"
+                            class="form-control form-control-sm medicine-autocomplete"
+                            name="Medicines[${index}].VchMedicineName"
+                            placeholder="Search Medicine" autocomplete="off">
+                     <input type="hidden"
+                            name="Medicines[${index}].VchMedicineCode"
+                            class="medicine-code">
+                     <div class="list-group position-absolute w-100 medicine-suggestions"
+                          style="z-index:999; display:none;"></div>
+                 </td>
+
+                 <!-- Dosage -->
+                 <td>
+                     <input type="text" class="form-control form-control-sm"
+                            name="Medicines[${index}].VchDosage" placeholder="Dosage">
+                 </td>
+
+                 <!-- Frequency -->
+                 <td>
+                     <input type="text" class="form-control form-control-sm"
+                            name="Medicines[${index}].VchFrequency" placeholder="Frequency">
+                 </td>
+
+                 <!-- Duration -->
+                 <td>
+                     <input type="text" class="form-control form-control-sm"
+                            name="Medicines[${index}].VchDuration" placeholder="Duration">
+                 </td>
+
+                 <!-- Timings -->
+                 <td>
+                     <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                         <!-- Breakfast -->
+                         <label>
+                             <input type="radio" class="form-check-input scale-radio"
+                                    name="Medicines[${index}].BreakfastTiming" value="BBF"> BBF
+                         </label>
+                         <label>
+                             <input type="radio" class="form-check-input scale-radio"
+                                    name="Medicines[${index}].BreakfastTiming" value="ABF"> ABF
+                         </label>
+                         <!-- Lunch -->
+                         <label>
+                             <input type="radio" class="form-check-input scale-radio"
+                                    name="Medicines[${index}].LunchTiming" value="BL"> BL
+                         </label>
+                         <label>
+                             <input type="radio" class="form-check-input scale-radio"
+                                    name="Medicines[${index}].LunchTiming" value="AL"> AL
+                         </label>
+                         <!-- Dinner -->
+                         <label>
+                             <input type="radio" class="form-check-input scale-radio"
+                                    name="Medicines[${index}].DinnerTiming" value="BD"> BD
+                         </label>
+                         <label>
+                             <input type="radio" class="form-check-input scale-radio"
+                                    name="Medicines[${index}].DinnerTiming" value="AD"> AD
+                         </label>
+                     </div>
+                 </td>
+
+                 <!-- Action -->
+                 <td class="text-center">
+                     <button type="button" class="btn btn-danger btn-sm remove-medicine">
+                         <i class="bi bi-x-lg text-white"></i>
+                     </button>
+                     <button type="button" class="btn btn-success btn-sm add-medicine-row">
+                         <i class="bi bi-plus-lg"></i>
+                     </button>
+                 </td>
+             </tr>`;
+             }
+
+             // Global add button
+             $("#addMedicine").click(function () {
+                 $("#medicine-list").append(getNewRow(medIndex));
+                 reIndexMedicineRows();
+             });
+             // Add row beside
+             $(document).on("click", ".add-medicine-row", function () {
+                 $(this).closest(".medicine-item").after(getNewRow(medIndex));
+                 reIndexMedicineRows();
+             });
+             // Remove row
+             $(document).on("click", ".remove-medicine", function () {
+                  if ($(".medicine-item").length > 1) {
+                 $(this).closest(".medicine-item").remove();
+                 reIndexMedicineRows();
+                 }
+             });
+             //renumbering of row after deletion and addations
+            function reIndexMedicineRows() {
+             $("#medicine-list tr.medicine-item").each(function (i, row) {
+                 $(row).find("input").each(function () {
+                     let name = $(this).attr("name");
+                     if (name) {
+                         let newName = name.replace(/\[\d+\]/, `[${i}]`);
+                         $(this).attr("name", newName);
+                     }
+                 });
+             });
+             medIndex = $("#medicine-list tr.medicine-item").length; // reset counter
+         }
+
+             // Autocomplete search medicine (same as before, with keyboard support)
+             $(document).on("keyup", ".medicine-autocomplete", function (e) {
+             let input = $(this);
+             let query = input.val().trim();
+             let suggestionBox = input.siblings(".medicine-suggestions");
+             let hidden = input.siblings(".medicine-code");
+
+             // Reset hidden only if typing (not Enter/Arrow keys)
+             if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
+                 hidden.val("");
+             }
+
+             if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
+
+             if (query.length >= 1) {
+                 $.ajax({
+                     url: "/Assessment/SearchMedicine",
+                     type: "GET",
+                     data: { term: query },
+                     success: function (data) {
+                         suggestionBox.empty();
+                         if (data.length > 0) {
+                             data.forEach(item => {
+                                 suggestionBox.append(
+                                     `<a href="#" class="list-group-item list-group-item-action"
+                                         data-name="${item.descript}"
+                                         data-code="${item.icode}">
+                                         ${item.descript} <small class="text-muted">(${item.icode})</small>
+                                     </a>`
+                                 );
+                             });
+                             suggestionBox.show();
+                         } else {
+                             suggestionBox.hide();
+                         }
+                     }
+                 });
+             } else {
+                 suggestionBox.hide();
+             }
+         });
+
+             // Keyboard navigation
+             $(document).on("keydown", ".medicine-autocomplete", function (e) {
+             let $input = $(this);
+             let $box = $input.siblings(".medicine-suggestions");
+             let $items = $box.find(".list-group-item-action");
+             let $active = $items.filter(".active");
+
+             if (e.key === "ArrowDown") {
+                 e.preventDefault();
+                 if ($active.length === 0) $items.first().addClass("active");
+                 else {
+                     let $next = $active.removeClass("active").next();
+                     ($next.length ? $next : $items.first()).addClass("active");
+                 }
+             }
+             else if (e.key === "ArrowUp") {
+                 e.preventDefault();
+                 if ($active.length === 0) $items.last().addClass("active");
+                 else {
+                     let $prev = $active.removeClass("active").prev();
+                     ($prev.length ? $prev : $items.last()).addClass("active");
+                 }
+             }
+             else if (e.key === "Enter") {
+                 e.preventDefault(); // stop form submit
+                 e.stopPropagation();
+
+                 if ($active.length) {
+                     // ✅ Directly set the text + hidden field
+                     let name = $active.data("name");
+                     let code = $active.data("code");
+
+                     $input.val(name);
+                     $input.siblings(".medicine-code").val(code);
+
+                     $box.hide();
+                 }
+             }
+         });
+             // Select medicine
+             $(document).on("click", ".medicine-suggestions a", function (e) {
+                 e.preventDefault();
+                 let name = $(this).data("name");
+                 let code = $(this).data("code");
+
+                 let $container = $(this).closest(".position-relative");
+                 let $input = $container.find(".medicine-autocomplete");
+                 let $hidden = $container.find(".medicine-code");
+
+                 // Prevent duplicate
+                 let isDuplicate = false;
+                 $(".medicine-autocomplete").each(function () {
+                     let n = $(this).val();
+                     let c = $(this).closest(".position-relative").find(".medicine-code").val();
+                     if (n === name || c === code) {
+                         isDuplicate = true;
+                         return false;
+                     }
+                 });
+
+                 if (isDuplicate) {
+                     alert("⚠️ This medicine is already selected.");
+                     return;
+                 }
+
+                 $input.val(name);
+                 $hidden.val(code);
+                 $(this).closest(".medicine-suggestions").hide();
+             });
+
+             // Hide suggestions if click outside
+             $(document).click(function (e) {
+                 if (!$(e.target).closest(".medicine-autocomplete, .medicine-suggestions").length) {
+                     $(".medicine-suggestions").hide();
+                 }
+             });
+         });
+
+         //for medicine check boxes select unselect
+         $(document).on("click", "input[type=radio]", function () {
+             let $radio = $(this);
+
+             // If already checked, uncheck it
+             if ($radio.data("waschecked") === true) {
+                 $radio.prop("checked", false);
+                 $radio.data("waschecked", false);
+             } else {
+                 // Unset all in group, set this one
+                 $("input[name='" + $radio.attr("name") + "']").data("waschecked", false);
+                 $radio.data("waschecked", true);
+             }
+         });
 
         //Code for Lab
         $(document).ready(function () {
+            let labIndex = 1; // start from 1 since [0] already exists
 
-            // Add new lab row
+            // Generate new Lab row
+            function getNewLabRow(index) {
+                return `
+                <tr class="lab-item">
+                    <td class="position-relative">
+                        <input type="text"
+                               class="form-control form-control-sm lab-autocomplete"
+                               name="Labs[${index}].VchLabName"
+                               placeholder="Search Lab Test" autocomplete="off">
+                        <input type="hidden"
+                               name="Labs[${index}].VchLabCode"
+                               class="lab-code">
+                        <div class="list-group position-absolute w-100 lab-suggestions"
+                             style="z-index:999; display:none;"></div>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm"
+                                name="Labs[${index}].VchPriority">
+                            <option value="">-- Select --</option>
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-lab">
+                            <i class="bi bi-x-lg text-white"></i>
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm add-lab-row">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }
+
+            // Add row beside
             $(document).on("click", ".add-lab-row", function () {
-                let index = $("#lab-list .lab-item").length; // count current rows
-                let newRow = `
-                    <div class="row g-2 mb-2 lab-item">
-                        <div class="col-md-4 position-relative">
-                            <input type="text"
-                                   class="form-control lab-autocomplete"
-                                   name="Labs[${index}].VchLabName"
-                                   placeholder="Search Lab Test" autocomplete="off">
-                            <input type="hidden"
-                                   name="Labs[${index}].VchLabCode"
-                                   class="lab-code">
-                            <div class="list-group position-absolute w-100 lab-suggestions"
-                                 style="z-index:999; display:none;"></div>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select" name="Labs[${index}].VchPriority">
-                                <option value="">-- Priority --</option>
-                                <option value="Normal">Normal</option>
-                                <option value="Urgent">Urgent</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control"
-                                   name="Labs[${index}].VchRemarks"
-                                   placeholder="Remarks">
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <button type="button" class="btn btn-danger btn remove-lab">
-                                <i class="bi bi-x-lg text-white"></i>
-                            </button>
-                            <button type="button" class="btn btn-success btn add-lab-row text-white">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                $("#lab-list").append(newRow);
+                $(this).closest(".lab-item").after(getNewLabRow(labIndex));
+                reIndexLabRows();
             });
 
-            // Remove lab row (but keep at least one row)
+            // Remove row
             $(document).on("click", ".remove-lab", function () {
-                if ($("#lab-list .lab-item").length > 1) {
+                if ($(".lab-item").length > 1) {
                     $(this).closest(".lab-item").remove();
+                    reIndexLabRows();
                 }
             });
 
-            // Lab autocomplete (example, adjust to your API)
-            $(document).on("keyup", ".lab-autocomplete", function () {
-                let query = $(this).val();
-                let $suggestions = $(this).siblings(".lab-suggestions");
-
-                if (query.length > 1) {
-                    $.ajax({
-                        url: '/Doctor/GetLabs',  // 🔹 update with your controller action
-                        type: 'GET',
-                        data: { term: query },
-                        success: function (data) {
-                            $suggestions.empty().show();
-                            $.each(data, function (i, item) {
-                                $suggestions.append(
-                                    `<a href="#" class="list-group-item list-group-item-action lab-option"
-                                        data-code="${item.code}"
-                                        data-name="${item.name}">
-                                        ${item.name}
-                                    </a>`
-                                );
-                            });
+            // Re-index rows
+            function reIndexLabRows() {
+                $("#lab-list tr.lab-item").each(function (i, row) {
+                    $(row).find("input, select").each(function () {
+                        let name = $(this).attr("name");
+                        if (name) {
+                            $(this).attr("name", name.replace(/\[\d+\]/, `[${i}]`));
                         }
                     });
-                } else {
-                    $suggestions.hide();
-                }
-            });
-
-            // Select lab from suggestions
-            $(document).on("click", ".lab-option", function (e) {
-                e.preventDefault();
-                let $parent = $(this).closest(".position-relative");
-                $parent.find(".lab-autocomplete").val($(this).data("name"));
-                $parent.find(".lab-code").val($(this).data("code"));
-                $parent.find(".lab-suggestions").hide();
-            });
-
-        });
-
-        //Radiology
-        $(document).ready(function () {
-         let radIndex = 1; // start from 1 since 0 exists
-
-        //Add new radiology row
-        $(document).on("click", ".add-radiology-row", function () {
-                let newRow = `
-                    <div class="row g-2 mb-2 radiology-item">
-                        <div class="col-md-4 position-relative">
-                            <input type="text" class="form-control radiology-autocomplete"
-                                   name="Radiology[${radIndex}].VchRadiologyName"
-                                   placeholder="Search Radiology" autocomplete="off">
-                            <input type="hidden" class="radiology-code"
-                                   name="Radiology[${radIndex}].VchRadiologyCode">
-                            <div class="list-group position-absolute w-100 radiology-suggestions"
-                                 style="z-index:999; display:none;"></div>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select" name="Radiology[${radIndex}].VchPriority">
-                                <option value="">-- Priority --</option>
-                                <option value="High">High</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Low">Low</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control"
-                                   name="Radiology[${radIndex}].VchRemarks" placeholder="Remarks">
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <button type="button" class="btn btn-danger btn remove-radiology">
-                                <i class="bi bi-x-lg text-white"></i>
-                            </button>
-                            <button type="button" class="btn btn-success btn add-radiology-row text-white">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                $("#radiology-list").append(newRow);
-                radIndex++;
-            });
-
-            //Remove radiology row
-            $(document).on("click", ".remove-radiology", function () {
-               if ($(".radiology-item").length > 1) {
-                 $(this).closest(".radiology-item").remove();
-               }
-            });
-
-            // Search radiology (on typing)
-            $(document).on("keyup", ".radiology-autocomplete", function (e) {
-            let input = $(this);
-            let query = input.val().trim();
-            let suggestionBox = input.siblings(".radiology-suggestions");
-            let hidden = input.siblings(".radiology-code");
-
-            //Reset hidden only when typing
-            if (!["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
-                hidden.val("");
+                });
+                labIndex = $("#lab-list tr.lab-item").length;
             }
 
-            // skip navigation keys
-            if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) return;
-
-            if (query.length >= 1) {
-                $.ajax({
-                    url: "/Assessment/SearchRadiology", // controller endpoint
-                    type: "GET",
-                    data: { 
-                        term: query,
-                        type:"Radio"
-                    },
-                    success: function (data) {
-                        suggestionBox.empty();
-                        if (data.length > 0) {
-                            data.forEach(item => {
-                                suggestionBox.append(`
-                                    <a href="#" class="list-group-item list-group-item-action"
-                                       data-name="${item.service}"
-                                       data-code="${item.scode}">
-                                       ${item.service} <small class="text-muted">(${item.scode})</small>
-                                    </a>
-                                `);
-                            });
-                            suggestionBox.show();
-                        } else {
-                            suggestionBox.hide();
-                        }
+            // Prevent duplicates
+            function isLabDuplicate(code, name, currentRow) {
+                let duplicate = false;
+                $("#lab-list tr.lab-item").not(currentRow).each(function () {
+                    let lCode = $(this).find(".lab-code").val();
+                    let lName = $(this).find(".lab-autocomplete").val();
+                    if (lCode === code || lName === name) {
+                        duplicate = true;
+                        return false;
                     }
                 });
-            } else {
-                suggestionBox.hide();
+                return duplicate;
             }
-        });
 
-
-            //Keyboard navigation
-            $(document).on("keydown", ".radiology-autocomplete", function (e) {
+            // Autocomplete (search Lab tests)
+            $(document).on("keyup", ".lab-autocomplete", function (e) {
                 let $input = $(this);
-                let $box = $input.siblings(".radiology-suggestions");
-                let $items = $box.find(".list-group-item-action");
+                let query = $input.val().trim();
+                let $box = $input.siblings(".lab-suggestions");
+                let $hidden = $input.siblings(".lab-code");
+
+                if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) $hidden.val("");
+                if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
+
+                if (query.length >= 1) {
+                    $.ajax({
+                        url: "/Assessment/SearchLab",
+                        type: "GET",
+                        data: { term: query },
+                        success: function (data) {
+                            $box.empty();
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    $box.append(`<a href="#" class="list-group-item list-group-item-action"
+                                                 data-name="${item.descript}" data-code="${item.tcode}">
+                                                 ${item.descript} <small class="text-muted">(${item.tcode})</small>
+                                                 </a>`);
+                                });
+                                $box.show();
+                            } else $box.hide();
+                        }
+                    });
+                } else $box.hide();
+            });
+
+            // Keyboard navigation
+            $(document).on("keydown", ".lab-autocomplete", function (e) {
+                let $input = $(this);
+                let $items = $input.siblings(".lab-suggestions").find(".list-group-item-action");
                 let $active = $items.filter(".active");
 
                 if (e.key === "ArrowDown") {
                     e.preventDefault();
-                    if ($active.length === 0) {
-                        $items.first().addClass("active");
-                    } else {
-                        let $next = $active.removeClass("active").next();
-                        ($next.length ? $next : $items.first()).addClass("active");
-                    }
-                }
-                else if (e.key === "ArrowUp") {
+                    if ($active.length === 0) $items.first().addClass("active");
+                    else { $active.removeClass("active").next().addClass("active"); }
+                } else if (e.key === "ArrowUp") {
                     e.preventDefault();
-                    if ($active.length === 0) {
-                        $items.last().addClass("active");
-                    } else {
-                        let $prev = $active.removeClass("active").prev();
-                        ($prev.length ? $prev : $items.last()).addClass("active");
+                    if ($active.length === 0) $items.last().addClass("active");
+                    else { $active.removeClass("active").prev().addClass("active"); }
+                } else if (e.key === "Enter") {
+                    if ($active.length) {
+                        e.preventDefault();
+                        let name = $active.data("name");
+                        let code = $active.data("code");
+                        let $row = $input.closest("tr");
+
+                        if (isLabDuplicate(code, name, $row)) {
+                            alert("⚠️ This lab test is already selected!");
+                            return;
+                        }
+
+                        $input.val(name);
+                        $input.siblings(".lab-code").val(code);
+                        $input.siblings(".lab-suggestions").hide();
                     }
-                }
-                else if (e.key === "Enter") {
-                    e.preventDefault();
-                    if ($active.length) $active.trigger("click");
                 }
             });
 
-            //Select radiology suggestion
-            $(document).on("click", ".radiology-suggestions a", function (e) {
+            // Select from mouse click
+            $(document).on("click", ".lab-suggestions a", function (e) {
                 e.preventDefault();
-                let selectedName = $(this).data("name");
-                let selectedCode = $(this).data("code");
+                let $input = $(this).closest(".position-relative").find(".lab-autocomplete");
+                let name = $(this).data("name");
+                let code = $(this).data("code");
+                let $row = $input.closest("tr");
 
-                let $container = $(this).closest(".position-relative");
-                let $input = $container.find(".radiology-autocomplete");
-                let $hidden = $container.find(".radiology-code");
-
-                // prevent duplicate
-                let isDuplicate = false;
-                $(".radiology-autocomplete").each(function () {
-                    let name = $(this).val();
-                    let code = $(this).closest(".position-relative").find(".radiology-code").val();
-                    if (name === selectedName || code === selectedCode) {
-                        isDuplicate = true;
-                        return false;
-                    }
-                });
-
-                if (isDuplicate) {
-                    alert("⚠️ This radiology is already selected.");
+                if (isLabDuplicate(code, name, $row)) {
+                    alert("⚠️ This lab test is already selected!");
                     return;
                 }
 
-                $input.val(selectedName);
-                $hidden.val(selectedCode);
-                $(this).closest(".radiology-suggestions").hide();
+                $input.val(name);
+                $input.siblings(".lab-code").val(code);
+                $(this).parent().hide();
             });
 
-            // Hide suggestion box on outside click
+            // Hide suggestions on outside click
             $(document).click(function (e) {
-                if (!$(e.target).closest(".radiology-autocomplete, .radiology-suggestions").length) {
-                    $(".radiology-suggestions").hide();
+                if (!$(e.target).closest(".lab-autocomplete, .lab-suggestions").length) {
+                    $(".lab-suggestions").hide();
                 }
+            });
+
+            // On blur clear invalid text
+            $(document).on("blur", ".lab-autocomplete", function () {
+                let $input = $(this);
+                let $hidden = $input.siblings(".lab-code");
+                if ($input.val().trim() !== "" && !$hidden.val()) $input.val("");
+            });
+
+            // Remove empty Lab rows before submit
+            $("form").on("submit", function () {
+                $("#lab-list tr.lab-item").filter(function () {
+                    let code = $(this).find(".lab-code").val();
+                    return !code || code.trim() === "";
+                }).remove();
+                reIndexLabRows();
             });
         });
 
-        //Procedure
+
+
+        //Radiology code
         $(document).ready(function () {
-            // Add new procedure row
-            $(document).on("click", ".add-procedure-row", function () {
-                let index = $("#procedure-list .procedure-item").length;
-                let newRow = `
-                    <div class="row g-2 mb-2 procedure-item">
-                        <div class="col-md-4 position-relative">
-                            <input type="text" class="form-control procedure-autocomplete"
-                                   name="Procedures[${index}].VchProcedureName"
-                                   placeholder="Search Procedure" autocomplete="off">
-                            <input type="hidden" class="procedure-code"
-                                   name="Procedures[${index}].VchProcedureCode">
-                            <div class="list-group position-absolute w-100 procedure-suggestions"
-                                 style="z-index:999; display:none;"></div>
-                        </div>
-                        <div class="col-md-3">
-                            <select class="form-select" name="Procedures[${index}].VchPriority">
-                                <option value="">-- Priority --</option>
-                                <option value="High">High</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Low">Low</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control"
-                                   name="Procedures[${index}].VchRemarks" placeholder="Remarks">
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <button type="button" class="btn btn-danger btn remove-procedure">
-                                <i class="bi bi-x-lg text-white"></i>
-                            </button>
-                            <button type="button" class="btn btn-success btn add-procedure-row text-white">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                $("#procedure-list").append(newRow);
+            let radioIndex = 1; // start from 1 since 0 already exists
+
+            function getNewRadioRow(index) {
+                return `
+                <tr class="radio-item">
+                    <td class="position-relative">
+                        <input type="text"
+                               class="form-control form-control-sm radio-autocomplete"
+                               name="Radiology[${index}].VchRadiologyName"
+                               placeholder="Search Radiology Test" autocomplete="off">
+                        <input type="hidden"
+                               name="Radiology[${index}].VchRadiologyCode"
+                               class="radio-code">
+                        <div class="list-group position-absolute w-100 radio-suggestions"
+                             style="z-index:999; display:none;"></div>
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm"
+                                name="Radiology[${index}].VchPriority">
+                            <option value="">-- Select --</option>
+                            <option value="Normal">Normal</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-radio">
+                            <i class="bi bi-x-lg text-white"></i>
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm add-radio-row">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }
+
+            $(document).on("click", ".add-radio-row", function () {
+                $(this).closest(".radio-item").after(getNewRadioRow(radioIndex));
+                reIndexRadioRows();
             });
 
-            // Remove procedure row
-            $(document).on("click", ".remove-procedure", function () {
-                if ($("#procedure-list .procedure-item").length > 1) {
-                    $(this).closest(".procedure-item").remove();
+            $(document).on("click", ".remove-radio", function () {
+                if ($(".radio-item").length > 1) {
+                    $(this).closest(".radio-item").remove();
+                    reIndexRadioRows();
                 }
             });
 
-            // Autocomplete
-            $(document).on("keyup", ".procedure-autocomplete", function (e) {
-                let input = $(this);
-                let query = input.val().trim();
-                let suggestionBox = input.siblings(".procedure-suggestions");
-                let hidden = input.siblings(".procedure-code");
+            function reIndexRadioRows() {
+                $("#radio-list tr.radio-item").each(function (i, row) {
+                    $(row).find("input, select").each(function () {
+                        let name = $(this).attr("name");
+                        if (name) {
+                            $(this).attr("name", name.replace(/\[\d+\]/, `[${i}]`));
+                        }
+                    });
+                });
+                radioIndex = $("#radio-list tr.radio-item").length;
+            }
 
-                if (!["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
-                    hidden.val("");
-                }
-                if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) return;
+            function isRadiologyDuplicate(code, name, currentRow) {
+                let duplicate = false;
+                $("#radio-list tr.radio-item").not(currentRow).each(function () {
+                    let rCode = $(this).find(".radio-code").val();
+                    let rName = $(this).find(".radio-autocomplete").val();
+                    if (rCode === code || rName === name) {
+                        duplicate = true;
+                        return false;
+                    }
+                });
+                return duplicate;
+            }
+
+            $(document).on("keyup", ".radio-autocomplete", function (e) {
+                let $input = $(this);
+                let query = $input.val().trim();
+                let $box = $input.siblings(".radio-suggestions");
+                let $hidden = $input.siblings(".radio-code");
+
+                if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) $hidden.val("");
+
+                if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
 
                 if (query.length >= 1) {
                     $.ajax({
-                        url: "/Assessment/SearchRadiology", // ✅ still using Radiology action
+                        url: "/Assessment/SearchRadiology",
                         type: "GET",
-                        data: { term: query, type: "Procedure" },
+                        data: { term: query, type: "Radio" },
                         success: function (data) {
-                            suggestionBox.empty();
+                            $box.empty();
                             if (data.length > 0) {
                                 data.forEach(item => {
-                                    suggestionBox.append(`
-                                        <a href="#" class="list-group-item list-group-item-action"
-                                           data-name="${item.service}"
-                                           data-code="${item.scode}">
-                                           ${item.service} <small class="text-muted">(${item.scode})</small>
-                                        </a>
-                                    `);
+                                    $box.append(`<a href="#" class="list-group-item list-group-item-action"
+                                                 data-name="${item.service}" data-code="${item.scode}">
+                                                 ${item.service} <small class="text-muted">(${item.scode})</small>
+                                                 </a>`);
                                 });
-                                suggestionBox.show();
-                            } else {
-                                suggestionBox.hide();
-                            }
+                                $box.show();
+                            } else $box.hide();
                         }
                     });
-                } else {
-                    suggestionBox.hide();
+                } else $box.hide();
+            });
+
+            $(document).on("keydown", ".radio-autocomplete", function (e) {
+                let $input = $(this);
+                let $items = $input.siblings(".radio-suggestions").find(".list-group-item-action");
+                let $active = $items.filter(".active");
+
+                if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    if ($active.length === 0) $items.first().addClass("active");
+                    else { $active.removeClass("active").next().addClass("active"); }
+                } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    if ($active.length === 0) $items.last().addClass("active");
+                    else { $active.removeClass("active").prev().addClass("active"); }
+                } else if (e.key === "Enter") {
+                    if ($active.length) {
+                        e.preventDefault();
+                        let name = $active.data("name");
+                        let code = $active.data("code");
+                        let $row = $input.closest("tr");
+
+                        if (isRadiologyDuplicate(code, name, $row)) {
+                            alert("⚠️ This radiology is already selected!");
+                            return;
+                        }
+
+                        $input.val(name);
+                        $input.siblings(".radio-code").val(code);
+                        $input.siblings(".radio-suggestions").hide();
+                    }
                 }
             });
 
-            // Select suggestion
-            $(document).on("click", ".procedure-suggestions a", function (e) {
+            $(document).on("click", ".radio-suggestions a", function (e) {
                 e.preventDefault();
-                let selectedName = $(this).data("name");
-                let selectedCode = $(this).data("code");
+                let $input = $(this).closest(".position-relative").find(".radio-autocomplete");
+                let name = $(this).data("name");
+                let code = $(this).data("code");
+                let $row = $input.closest("tr");
 
-                let $container = $(this).closest(".position-relative");
-                $container.find(".procedure-autocomplete").val(selectedName);
-                $container.find(".procedure-code").val(selectedCode);
-                $container.find(".procedure-suggestions").hide();
+                if (isRadiologyDuplicate(code, name, $row)) {
+                    alert("⚠️ This radiology is already selected!");
+                    return;
+                }
+
+                $input.val(name);
+                $input.siblings(".radio-code").val(code);
+                $(this).parent().hide();
             });
 
-        });
+            $(document).click(function (e) {
+                if (!$(e.target).closest(".radio-autocomplete, .radio-suggestions").length) {
+                    $(".radio-suggestions").hide();
+                }
+            });
 
-
-
-        //For supporting document
-        const doctorDropZone = document.getElementById("doctor-drop-zone");
-        const doctorFileInput = document.getElementById("doctorDocsInput");
-        const doctorFileList = document.getElementById("doctor-file-list");
-
-        doctorDropZone.addEventListener("click", () => doctorFileInput.click());
-
-        doctorDropZone.addEventListener("dragover", (e) => {
-            e.preventDefault();
-            doctorDropZone.classList.add("bg-info", "bg-opacity-10");
-        });
-
-        doctorDropZone.addEventListener("dragleave", () => {
-            doctorDropZone.classList.remove("bg-info", "bg-opacity-10");
-        });
-
-        doctorDropZone.addEventListener("drop", (e) => {
-            e.preventDefault();
-            doctorDropZone.classList.remove("bg-info", "bg-opacity-10");
-            doctorFileInput.files = e.dataTransfer.files;
-            displayDoctorFiles();
-        });
-
-        doctorFileInput.addEventListener("change", displayDoctorFiles);
-
-        function displayDoctorFiles() {
-            doctorFileList.innerHTML = "";
-            let files = Array.from(doctorFileInput.files);
-
-            if (files.length > 5) {
-                alert("❌ Maximum 5 files allowed.");
-                doctorFileInput.value = "";
+            $(document).on("blur", ".radio-autocomplete", function () {
+                let $input = $(this);
+                let $hidden = $input.siblings(".radio-code");
+                if ($input.val().trim() !== "" && !$hidden.val()) $input.val("");
+            });
+                
+            if (!isValid) {
+                e.preventDefault(); // stop form submission
                 return;
-            }
-
-            files.forEach((file, index) => {
-                const div = document.createElement("div");
-                div.className = "d-flex align-items-center mb-2 border p-2 rounded bg-light shadow-sm";
-                div.innerHTML = `
-                    <i class="fas fa-file-alt text-primary me-2"></i>
-                    <span class="text-truncate" style="max-width: 160px;">${file.name}</span>
-                    <span class="badge bg-secondary ms-2">${(file.size / 1024).toFixed(1)} KB</span>
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-auto remove-file" data-index="${index}">❌</button>
-                `;
-                doctorFileList.appendChild(div);
-            });
         }
 
-        doctorFileList.addEventListener("click", function(e){
-            if(e.target.classList.contains("remove-file")){
-                const idx = e.target.getAttribute("data-index");
-                const dt = new DataTransfer();
-                Array.from(doctorFileInput.files).forEach((file, i) => {
-                    if(i != idx) dt.items.add(file);
-                });
-                doctorFileInput.files = dt.files;
-                displayDoctorFiles();
-            }
-        });
+          //Remove empty rows before submit (to set count 0 on post if empty)
+           $("form").on("submit", function () {
+            // Remove empty radiology rows
+            $("#radio-list tr.radio-item").filter(function () {
+                let code = $(this).find(".radio-code").val();
+                return !code || code.trim() === "";
+              }).remove();
+
+            // Reindex remaining rows
+               reIndexRadioRows();
+           });
+    });
+
+        //Procedure
+        $(document).ready(function () {
+             let procIndex = 1; // start from 1 since [0] already exists
+
+             // Function to generate new Procedure row
+             function getNewProcedureRow(index) {
+                 return `
+                 <tr class="procedure-item">
+                     <!-- Procedure -->
+                     <td class="position-relative">
+                         <input type="text"
+                                class="form-control form-control-sm procedure-autocomplete"
+                                name="Procedures[${index}].VchProcedureName"
+                                placeholder="Search Procedure" autocomplete="off">
+                         <input type="hidden"
+                                name="Procedures[${index}].VchProcedureCode"
+                                class="procedure-code">
+                         <div class="list-group position-absolute w-100 procedure-suggestions"
+                              style="z-index:999; display:none;"></div>
+                     </td>
+
+                     <!-- Priority -->
+                     <td>
+                         <select class="form-select form-select-sm" name="Procedures[${index}].VchPriority">
+                             <option value="">-- Select --</option>
+                             <option value="Normal">Normal</option>
+                             <option value="Urgent">Urgent</option>
+                         </select>
+                     </td>
+                     <!-- Action -->
+                     <td class="text-center">
+                         <button type="button" class="btn btn-danger btn-sm remove-procedure">
+                             <i class="bi bi-x-lg text-white"></i>
+                         </button>
+                         <button type="button" class="btn btn-success btn-sm add-procedure-row">
+                             <i class="bi bi-plus-lg"></i>
+                         </button>
+                     </td>
+                 </tr>`;
+             }
+
+             // Add row beside
+             $(document).on("click", ".add-procedure-row", function () {
+                 $(this).closest(".procedure-item").after(getNewProcedureRow(procIndex));
+                 reIndexProcedureRows();
+             });
+
+             // Remove row (keep at least 1 row)
+             $(document).on("click", ".remove-procedure", function () {
+                 if ($(".procedure-item").length > 1) {
+                     $(this).closest(".procedure-item").remove();
+                     reIndexProcedureRows();
+                 }
+             });
+
+             // Re-index rows after add/remove
+             function reIndexProcedureRows() {
+                 $("#procedure-list tr.procedure-item").each(function (i, row) {
+                     $(row).find("input, select").each(function () {
+                         let name = $(this).attr("name");
+                         if (name) {
+                             let newName = name.replace(/\[\d+\]/, `[${i}]`);
+                             $(this).attr("name", newName);
+                         }
+                     });
+                 });
+                 procIndex = $("#procedure-list tr.procedure-item").length;
+             }
+
+             // Autocomplete Procedure search
+             $(document).on("keyup", ".procedure-autocomplete", function (e) {
+                 let input = $(this);
+                 let query = input.val().trim();
+                 let suggestionBox = input.siblings(".procedure-suggestions");
+                 let hidden = input.siblings(".procedure-code");
+
+                 if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
+                     hidden.val(""); // reset hidden if typing
+                 }
+
+                 if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
+
+                 if (query.length >= 1) {
+                     $.ajax({
+                         url: "/Assessment/SearchRadiology", // 🔹 your controller method
+                         type: "GET",
+                         data: { term: query, type:"Procedure" },
+                         success: function (data) {
+                             suggestionBox.empty();
+                             if (data.length > 0) {
+                                 data.forEach(item => {
+                                     suggestionBox.append(
+                                         `<a href="#" class="list-group-item list-group-item-action"
+                                             data-name="${item.service}"
+                                             data-code="${item.scode}">
+                                             ${item.service} <small class="text-muted">(${item.scode})</small>
+                                         </a>`
+                                     );
+                                 });
+                                 suggestionBox.show();
+                             } else {
+                                 suggestionBox.hide();
+                             }
+                         }
+                     });
+                 } else {
+                     suggestionBox.hide();
+                 }
+             });
+
+             // Keyboard navigation
+             $(document).on("keydown", ".procedure-autocomplete", function (e) {
+                 let $input = $(this);
+                 let $box = $input.siblings(".procedure-suggestions");
+                 let $items = $box.find(".list-group-item-action");
+                 let $active = $items.filter(".active");
+
+                 if (e.key === "ArrowDown") {
+                     e.preventDefault();
+                     if ($active.length === 0) $items.first().addClass("active");
+                     else {
+                         let $next = $active.removeClass("active").next();
+                         ($next.length ? $next : $items.first()).addClass("active");
+                     }
+                 }
+                 else if (e.key === "ArrowUp") {
+                     e.preventDefault();
+                     if ($active.length === 0) $items.last().addClass("active");
+                     else {
+                         let $prev = $active.removeClass("active").prev();
+                         ($prev.length ? $prev : $items.last()).addClass("active");
+                     }
+                 }
+                 else if (e.key === "Enter") {
+                     e.preventDefault();
+                     e.stopPropagation();
+
+                     if ($active.length) {
+                         let name = $active.data("name");
+                         let code = $active.data("code");
+
+                         $input.val(name);
+                         $input.siblings(".procedure-code").val(code);
+                         $box.hide();
+                     }
+                 }
+             });
+
+             // Select from mouse click
+             $(document).on("click", ".procedure-suggestions a", function (e) {
+                 e.preventDefault();
+                 let name = $(this).data("name");
+                 let code = $(this).data("code");
+
+                 let $container = $(this).closest(".position-relative");
+                 let $input = $container.find(".procedure-autocomplete");
+                 let $hidden = $container.find(".procedure-code");
+
+                 // Prevent duplicate
+                 let isDuplicate = false;
+                 $(".procedure-autocomplete").each(function () {
+                     let n = $(this).val();
+                     let c = $(this).closest(".position-relative").find(".procedure-code").val();
+                     if (n === name || c === code) {
+                         isDuplicate = true;
+                         return false;
+                     }
+                 });
+
+                 if (isDuplicate) {
+                     alert("⚠️ This procedure is already selected.");
+                     return;
+                 }
+
+                 $input.val(name);
+                 $hidden.val(code);
+                 $(this).closest(".procedure-suggestions").hide();
+             });
+
+             // Hide suggestions if clicked outside
+             $(document).click(function (e) {
+                 if (!$(e.target).closest(".procedure-autocomplete, .procedure-suggestions").length) {
+                     $(".procedure-suggestions").hide();
+                 }
+             });
+         });
+
+
+         //For supporting document
+         const doctorDropZone = document.getElementById("doctor-drop-zone");
+         const doctorFileInput = document.getElementById("doctorDocsInput");
+         const doctorFileList = document.getElementById("doctor-file-list");
+
+         doctorDropZone.addEventListener("click", () => doctorFileInput.click());
+
+         doctorDropZone.addEventListener("dragover", (e) => {
+             e.preventDefault();
+             doctorDropZone.classList.add("bg-info", "bg-opacity-10");
+         });
+
+         doctorDropZone.addEventListener("dragleave", () => {
+             doctorDropZone.classList.remove("bg-info", "bg-opacity-10");
+         });
+
+         doctorDropZone.addEventListener("drop", (e) => {
+             e.preventDefault();
+             doctorDropZone.classList.remove("bg-info", "bg-opacity-10");
+             doctorFileInput.files = e.dataTransfer.files;
+             displayDoctorFiles();
+         });
+
+         doctorFileInput.addEventListener("change", displayDoctorFiles);
+
+         function displayDoctorFiles() {
+             doctorFileList.innerHTML = "";
+             let files = Array.from(doctorFileInput.files);
+
+             if (files.length > 5) {
+                 alert("❌ Maximum 5 files allowed.");
+                 doctorFileInput.value = "";
+                 return;
+             }
+
+             files.forEach((file, index) => {
+                 const div = document.createElement("div");
+                 div.className = "d-flex align-items-center mb-2 border p-2 rounded bg-light shadow-sm";
+                 div.innerHTML = `
+                     <i class="fas fa-file-alt text-primary me-2"></i>
+                     <span class="text-truncate" style="max-width: 160px;">${file.name}</span>
+                     <span class="badge bg-secondary ms-2">${(file.size / 1024).toFixed(1)} KB</span>
+                     <button type="button" class="btn btn-sm btn-outline-danger ms-auto remove-file" data-index="${index}">❌</button>
+                 `;
+                 doctorFileList.appendChild(div);
+             });
+         }
+
+         doctorFileList.addEventListener("click", function(e){
+             if(e.target.classList.contains("remove-file")){
+                 const idx = e.target.getAttribute("data-index");
+                 const dt = new DataTransfer();
+                 Array.from(doctorFileInput.files).forEach((file, i) => {
+                     if(i != idx) dt.items.add(file);
+                 });
+                 doctorFileInput.files = dt.files;
+                 displayDoctorFiles();
+             }
+         });
     </script>
 }
