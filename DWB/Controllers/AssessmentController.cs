@@ -540,7 +540,7 @@ namespace DWB.Controllers
                     nsgAssessment.BitIsDoctorCompleted = true; //mark nursing assessment doctor completed
                 }
                 _context.TblDoctorAssessment.Add(doctorAssessment);                
-                //_context.SaveChanges();
+                _context.SaveChanges();
                 //Save medicines
                 if (model.Medicines.Count() != 0)
                 {
@@ -561,6 +561,7 @@ namespace DWB.Controllers
                                 VchCreatedBy = User.Identity.Name
                             };
                             _context.TblDoctorAssmntMedicine.Add(objMedicine);
+                            doctorAssessment.BitPrescribeMedicine = true; //mark medicine prescribed
                             _context.SaveChanges();
                         }
                     }
@@ -584,6 +585,7 @@ namespace DWB.Controllers
                                 VchCreatedBy = User.Identity.Name
                             };
                             _context.TblDoctorAssmntLab.Add(objLab);
+                            doctorAssessment.BitPrescribeLabTest = true; //mark lab test prescribed
                             _context.SaveChanges();
                         }
                     }
@@ -607,6 +609,7 @@ namespace DWB.Controllers
                                 VchCreatedBy = User.Identity.Name
                             };
                             _context.TblDoctorAssmntRadiology.Add(objRadio);
+                            doctorAssessment.BitRadioInvestigation = true; //mark radiology test prescribed
                             _context.SaveChanges();
                         }
                     }
@@ -630,6 +633,7 @@ namespace DWB.Controllers
                                 VchCreatedBy = User.Identity.Name
                             };
                             _context.TblDoctorAssmntProcedure.Add(objProc);
+                            doctorAssessment.BitPrescribeProcedure = true; //mark procedure prescribed
                             _context.SaveChanges();
                         }
                     }
@@ -658,6 +662,7 @@ namespace DWB.Controllers
                                 VchFileName = fileName,
                                 DtCreated = DateTime.Now
                             });
+                            doctorAssessment.BitIsSupportDoc = true; //mark document uploaded
                             await _context.SaveChangesAsync();
                         }
                     }
@@ -667,16 +672,14 @@ namespace DWB.Controllers
             }
             catch (Exception ex)
             {
-                // Add error to model state
+                //Add error to model state
                 ModelState.AddModelError("", "❌ Error saving assessment: " + ex.Message);
-
-                // Ensure child collections are not null
+                //Ensure child collections are not null
                 model.Medicines = model.Medicines ?? new List<TblDoctorAssmntMedicine>();
                 model.Labs = model.Labs ?? new List<TblDoctorAssmntLab>();
                 model.Radiology = model.Radiology ?? new List<TblDoctorAssmntRadiology>();
                 model.Procedures = model.Procedures ?? new List<TblDoctorAssmntProcedure>();
-
-                // Return same view with model and errors
+                //Return same view with model and errors
                 return View("DoctorAssmntCreate",model);
             }
         }

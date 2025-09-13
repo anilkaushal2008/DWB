@@ -825,189 +825,189 @@
          });
 
         //Code for Lab
-        $(document).ready(function () {
-            let labIndex = 1; // start from 1 since [0] already exists
+         $(document).ready(function () {
+                let labIndex = 1; // start from 1 since [0] already exists
 
-            // Generate new Lab row
-            function getNewLabRow(index) {
-                return `
-                <tr class="lab-item">
-                    <td class="position-relative">
-                        <input type="text"
-                               class="form-control form-control-sm lab-autocomplete"
-                               name="Labs[${index}].VchLabName"
-                               placeholder="Search Lab Test" autocomplete="off">
-                        <input type="hidden"
-                               name="Labs[${index}].VchLabCode"
-                               class="lab-code">
-                        <div class="list-group position-absolute w-100 lab-suggestions"
-                             style="z-index:999; display:none;"></div>
-                    </td>
-                    <td>
-                        <select class="form-select form-select-sm"
-                                name="Labs[${index}].VchPriority">
-                            <option value="">-- Select --</option>
-                            <option value="Normal">Normal</option>
-                            <option value="Urgent">Urgent</option>
-                        </select>
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger btn-sm remove-lab">
-                            <i class="bi bi-x-lg text-white"></i>
-                        </button>
-                        <button type="button" class="btn btn-success btn-sm add-lab-row">
-                            <i class="bi bi-plus-lg"></i>
-                        </button>
-                    </td>
-                </tr>`;
-            }
+                // Generate new Lab row
+                function getNewLabRow(index) {
+                    return `
+                        <tr class="lab-item">
+            <td class="position-relative">
+                <input type="text"
+                       class="form-control form-control-sm lab-autocomplete"
+                       name="Labs[${index}].VchTestName"
+                       placeholder="Search Lab Test" autocomplete="off">
+                <input type="hidden"
+                       name="Labs[${index}].VchTestCode"
+                       class="lab-code">
+                <div class="list-group position-absolute w-100 lab-suggestions"
+                     style="z-index:999; display:none;"></div>
+            </td>
+            <td>
+                <select class="form-select form-select-sm"
+                        name="Labs[${index}].VchPriority">
+                    <option value="">-- Select --</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Urgent">Urgent</option>
+                </select>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-danger btn-sm remove-lab">
+                    <i class="bi bi-x-lg text-white"></i>
+                </button>
+                <button type="button" class="btn btn-success btn-sm add-lab-row">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+            </td>
+        </tr>`;
+                }
 
-            // Add row beside
-            $(document).on("click", ".add-lab-row", function () {
-                $(this).closest(".lab-item").after(getNewLabRow(labIndex));
-                reIndexLabRows();
-            });
-
-            // Remove row
-            $(document).on("click", ".remove-lab", function () {
-                if ($(".lab-item").length > 1) {
-                    $(this).closest(".lab-item").remove();
+                // Add row beside
+                $(document).on("click", ".add-lab-row", function () {
+                    $(this).closest(".lab-item").after(getNewLabRow(labIndex));
                     reIndexLabRows();
-                }
-            });
-
-            // Re-index rows
-            function reIndexLabRows() {
-                $("#lab-list tr.lab-item").each(function (i, row) {
-                    $(row).find("input, select").each(function () {
-                        let name = $(this).attr("name");
-                        if (name) {
-                            $(this).attr("name", name.replace(/\[\d+\]/, `[${i}]`));
-                        }
-                    });
                 });
-                labIndex = $("#lab-list tr.lab-item").length;
-            }
 
-            // Prevent duplicates
-            function isLabDuplicate(code, name, currentRow) {
-                let duplicate = false;
-                $("#lab-list tr.lab-item").not(currentRow).each(function () {
-                    let lCode = $(this).find(".lab-code").val();
-                    let lName = $(this).find(".lab-autocomplete").val();
-                    if (lCode === code || lName === name) {
-                        duplicate = true;
-                        return false;
+                // Remove row
+                $(document).on("click", ".remove-lab", function () {
+                    if ($(".lab-item").length > 1) {
+                        $(this).closest(".lab-item").remove();
+                        reIndexLabRows();
                     }
                 });
-                return duplicate;
-            }
 
-            // Autocomplete (search Lab tests)
-            $(document).on("keyup", ".lab-autocomplete", function (e) {
-                let $input = $(this);
-                let query = $input.val().trim();
-                let $box = $input.siblings(".lab-suggestions");
-                let $hidden = $input.siblings(".lab-code");
+                // Re-index rows
+                function reIndexLabRows() {
+                    $("#lab-list tr.lab-item").each(function (i, row) {
+                        $(row).find("input, select").each(function () {
+                            let name = $(this).attr("name");
+                            if (name) {
+                                $(this).attr("name", name.replace(/\[\d+\]/, `[${i}]`));
+                            }
+                        });
+                    });
+                    labIndex = $("#lab-list tr.lab-item").length;
+                }
 
-                if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) $hidden.val("");
-                if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
-
-                if (query.length >= 1) {
-                    $.ajax({
-                        url: "/Assessment/SearchLab",
-                        type: "GET",
-                        data: { term: query },
-                        success: function (data) {
-                            $box.empty();
-                            if (data.length > 0) {
-                                data.forEach(item => {
-                                    $box.append(`<a href="#" class="list-group-item list-group-item-action"
-                                                 data-name="${item.descript}" data-code="${item.tcode}">
-                                                 ${item.descript} <small class="text-muted">(${item.tcode})</small>
-                                                 </a>`);
-                                });
-                                $box.show();
-                            } else $box.hide();
+                // Prevent duplicates
+                function isLabDuplicate(code, name, currentRow) {
+                    let duplicate = false;
+                    $("#lab-list tr.lab-item").not(currentRow).each(function () {
+                        let lCode = $(this).find(".lab-code").val();
+                        let lName = $(this).find(".lab-autocomplete").val();
+                        if (lCode === code || lName === name) {
+                            duplicate = true;
+                            return false;
                         }
                     });
-                } else $box.hide();
-            });
+                    return duplicate;
+                }
 
-            // Keyboard navigation
-            $(document).on("keydown", ".lab-autocomplete", function (e) {
-                let $input = $(this);
-                let $items = $input.siblings(".lab-suggestions").find(".list-group-item-action");
-                let $active = $items.filter(".active");
+                // Autocomplete (search Lab tests)
+                $(document).on("keyup", ".lab-autocomplete", function (e) {
+                    let $input = $(this);
+                    let query = $input.val().trim();
+                    let $box = $input.siblings(".lab-suggestions");
+                    let $hidden = $input.siblings(".lab-code");
 
-                if (e.key === "ArrowDown") {
-                    e.preventDefault();
-                    if ($active.length === 0) $items.first().addClass("active");
-                    else { $active.removeClass("active").next().addClass("active"); }
-                } else if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    if ($active.length === 0) $items.last().addClass("active");
-                    else { $active.removeClass("active").prev().addClass("active"); }
-                } else if (e.key === "Enter") {
-                    if ($active.length) {
+                    if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) $hidden.val("");
+                    if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
+
+                    if (query.length >= 1) {
+                        $.ajax({
+                            url: "/Assessment/SearchLab",
+                            type: "GET",
+                            data: { term: query },
+                            success: function (data) {
+                                $box.empty();
+                                if (data.length > 0) {
+                                    data.forEach(item => {
+                                        $box.append(`<a href="#" class="list-group-item list-group-item-action"
+                                                     data-name="${item.descript}" data-code="${item.tcode}">
+                                                     ${item.descript} <small class="text-muted">(${item.tcode})</small>
+                                                     </a>`);
+                                    });
+                                    $box.show();
+                                } else $box.hide();
+                            }
+                        });
+                    } else $box.hide();
+                });
+
+                // Keyboard navigation
+                $(document).on("keydown", ".lab-autocomplete", function (e) {
+                    let $input = $(this);
+                    let $items = $input.siblings(".lab-suggestions").find(".list-group-item-action");
+                    let $active = $items.filter(".active");
+
+                    if (e.key === "ArrowDown") {
                         e.preventDefault();
-                        let name = $active.data("name");
-                        let code = $active.data("code");
-                        let $row = $input.closest("tr");
+                        if ($active.length === 0) $items.first().addClass("active");
+                        else { $active.removeClass("active").next().addClass("active"); }
+                    } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        if ($active.length === 0) $items.last().addClass("active");
+                        else { $active.removeClass("active").prev().addClass("active"); }
+                    } else if (e.key === "Enter") {
+                        if ($active.length) {
+                            e.preventDefault();
+                            let name = $active.data("name");
+                            let code = $active.data("code");
+                            let $row = $input.closest("tr");
 
-                        if (isLabDuplicate(code, name, $row)) {
-                            alert("⚠️ This lab test is already selected!");
-                            return;
+                            if (isLabDuplicate(code, name, $row)) {
+                                alert("⚠️ This lab test is already selected!");
+                                return;
+                            }
+
+                            $input.val(name);
+                            $input.siblings(".lab-code").val(code);
+                            $input.siblings(".lab-suggestions").hide();
                         }
-
-                        $input.val(name);
-                        $input.siblings(".lab-code").val(code);
-                        $input.siblings(".lab-suggestions").hide();
                     }
-                }
+                });
+
+                // Select from mouse click
+                $(document).on("click", ".lab-suggestions a", function (e) {
+                    e.preventDefault();
+                    let $input = $(this).closest(".position-relative").find(".lab-autocomplete");
+                    let name = $(this).data("name");
+                    let code = $(this).data("code");
+                    let $row = $input.closest("tr");
+
+                    if (isLabDuplicate(code, name, $row)) {
+                        alert("⚠️ This lab test is already selected!");
+                        return;
+                    }
+
+                    $input.val(name);
+                    $input.siblings(".lab-code").val(code);
+                    $(this).parent().hide();
+                });
+
+                // Hide suggestions on outside click
+                $(document).click(function (e) {
+                    if (!$(e.target).closest(".lab-autocomplete, .lab-suggestions").length) {
+                        $(".lab-suggestions").hide();
+                    }
+                });
+
+                // On blur clear invalid text
+                $(document).on("blur", ".lab-autocomplete", function () {
+                    let $input = $(this);
+                    let $hidden = $input.siblings(".lab-code");
+                    if ($input.val().trim() !== "" && !$hidden.val()) $input.val("");
+                });
+
+                // Remove empty Lab rows before submit
+                $("form").on("submit", function () {
+                    $("#lab-list tr.lab-item").filter(function () {
+                        let code = $(this).find(".lab-code").val();
+                        return !code || code.trim() === "";
+                    }).remove();
+                    reIndexLabRows();
+                });
             });
-
-            // Select from mouse click
-            $(document).on("click", ".lab-suggestions a", function (e) {
-                e.preventDefault();
-                let $input = $(this).closest(".position-relative").find(".lab-autocomplete");
-                let name = $(this).data("name");
-                let code = $(this).data("code");
-                let $row = $input.closest("tr");
-
-                if (isLabDuplicate(code, name, $row)) {
-                    alert("⚠️ This lab test is already selected!");
-                    return;
-                }
-
-                $input.val(name);
-                $input.siblings(".lab-code").val(code);
-                $(this).parent().hide();
-            });
-
-            // Hide suggestions on outside click
-            $(document).click(function (e) {
-                if (!$(e.target).closest(".lab-autocomplete, .lab-suggestions").length) {
-                    $(".lab-suggestions").hide();
-                }
-            });
-
-            // On blur clear invalid text
-            $(document).on("blur", ".lab-autocomplete", function () {
-                let $input = $(this);
-                let $hidden = $input.siblings(".lab-code");
-                if ($input.val().trim() !== "" && !$hidden.val()) $input.val("");
-            });
-
-            // Remove empty Lab rows before submit
-            $("form").on("submit", function () {
-                $("#lab-list tr.lab-item").filter(function () {
-                    let code = $(this).find(".lab-code").val();
-                    return !code || code.trim() === "";
-                }).remove();
-                reIndexLabRows();
-            });
-        });
 
 
 

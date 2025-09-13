@@ -81,6 +81,12 @@ public partial class TblDoctorAssessment
 
     public string DtHmsentry { get; set; }
 
+    public bool BitPrescribeProcedure { get; set; }
+
+    public bool BitIsSupportDoc { get; set; }
+
+    public bool BitUseTemplete { get; set; }
+
     public virtual TblNsassessment FkAssessment { get; set; }
 
     public virtual ICollection<TblDoctorAssmntLab> TblDoctorAssmntLab { get; set; } = new List<TblDoctorAssmntLab>();

@@ -847,10 +847,13 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.BitIpdconversion)
                 .HasDefaultValue(false)
                 .HasColumnName("bitIPDConversion");
+            entity.Property(e => e.BitIsSupportDoc).HasColumnName("bitIsSupportDoc");
             entity.Property(e => e.BitNutritionalConsult).HasColumnName("bitNutritionalConsult");
             entity.Property(e => e.BitPrescribeLabTest).HasColumnName("bitPrescribeLabTest");
             entity.Property(e => e.BitPrescribeMedicine).HasColumnName("bitPrescribeMedicine");
+            entity.Property(e => e.BitPrescribeProcedure).HasColumnName("bitPrescribeProcedure");
             entity.Property(e => e.BitRadioInvestigation).HasColumnName("bitRadioInvestigation");
+            entity.Property(e => e.BitUseTemplete).HasColumnName("bitUseTemplete");
             entity.Property(e => e.DtCreated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtCreated");
@@ -991,9 +994,7 @@ public partial class DWBEntity : DbContext
         {
             entity.HasKey(e => e.IntId);
 
-            entity.Property(e => e.IntId)
-                .ValueGeneratedNever()
-                .HasColumnName("intID");
+            entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.BitIscompleted).HasColumnName("bitISCompleted");
             entity.Property(e => e.DtCreated)
                 .HasColumnType("datetime")

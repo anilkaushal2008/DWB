@@ -57,7 +57,7 @@ namespace DWB.Models
                 new SqlParameter
                 {
                     ParameterName = "term",
-                    Size = 100,
+                    Size = 200,
                     Value = term ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.NVarChar,
                 },
