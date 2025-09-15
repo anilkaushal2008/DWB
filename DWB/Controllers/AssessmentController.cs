@@ -8,6 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
+//for pdf packages
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using System;
+using System.Collections.Generic;
 
 namespace DWB.Controllers
 {
@@ -105,7 +111,7 @@ namespace DWB.Controllers
                 VchHmscategory = category,
                 DtStartTime = DateTime.Now,
                 IntIhmsvisit = Convert.ToInt32(visit),
-                VchCreatedBy = User.Identity.Name.ToString(),
+                VchCreatedBy = User.Identity.Name,
                 VchIpUsed = HttpContext.Connection.RemoteIpAddress.ToString()
             };
             return View(model);
@@ -126,6 +132,7 @@ namespace DWB.Controllers
                 model.BitIsCompleted = true;
                 model.IntHmscode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
                 model.IntCode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+                model.FkUnitName=User.FindFirst("UnitName")?.Value;
                 //model.IntYr= get year from OPD api (pending in api)
                 _context.TblNsassessment.Add(model);
                 _context.SaveChanges();
@@ -159,7 +166,7 @@ namespace DWB.Controllers
                             VchCreatedBy = User.Identity.Name,
                             VchCreatedHost = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
                             VchCreatedIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                            BitIsForNassessment = true
+                            BitIsForNassessment = true                            
                         };
                         _context.TblNassessmentDoc.Add(assessmentFile);
                         await _context.SaveChangesAsync();
@@ -448,7 +455,7 @@ namespace DWB.Controllers
             return View(vm);
         }
 
-        // Change the method signature of SearchMedicine to async Task<JsonResult>
+        //Change the method signature of SearchMedicine to async Task<JsonResult>
         [HttpGet]
         public async Task<JsonResult> SearchMedicine(string term)
         {
@@ -532,7 +539,10 @@ namespace DWB.Controllers
                     DtEndTime = DateTime.Now,
                     VchCreatedBy = User.Identity.Name,
                     DtCreated = DateTime.Now,
-                    DtHmsentry=model.DoctorAssessment.DtHmsentry
+                    IntCode= Convert.ToInt32(User.FindFirst("UnitId")?.Value),
+                    FkUserId=Convert.ToInt32(User.FindFirst("UserId")?.Value),
+                    FkUnitName= User.FindFirst("CompName")?.Value,
+                    DtHmsentry =model.DoctorAssessment.DtHmsentry
                     
                 };
                 if (nsgAssessment != null)
@@ -580,7 +590,7 @@ namespace DWB.Controllers
                                 VchTestName = lab.VchTestName,
                                 VchTestCode = lab.VchTestCode, // hidden code
                                 VchPriority = lab.VchPriority,
-                                VchRemarks = lab.VchRemarks,
+                                //VchRemarks = lab.VchRemarks,
                                 DtCreated = DateTime.Now,
                                 VchCreatedBy = User.Identity.Name
                             };
@@ -604,7 +614,7 @@ namespace DWB.Controllers
                                 VchRadiologyName = radio.VchRadiologyName,
                                 VchRadiologyCode = radio.VchRadiologyCode, // hidden code
                                 VchPriority = radio.VchPriority,
-                                VchRemarks = radio.VchRemarks,
+                                //VchRemarks = radio.VchRemarks,
                                 DtCreated = DateTime.Now,
                                 VchCreatedBy = User.Identity.Name
                             };
@@ -627,8 +637,7 @@ namespace DWB.Controllers
                                 FkDocAsstId = doctorAssessment.IntId, // use saved assessment PK
                                 VchProcedureName = proc.VchProcedureName,
                                 VchProcedureCode = proc.VchProcedureCode, // hidden code
-                                VchPriority = proc.VchPriority,
-                                VchRemarks = proc.VchRemarks,
+                                VchPriority = proc.VchPriority,                                
                                 DtCreated = DateTime.Now,
                                 VchCreatedBy = User.Identity.Name
                             };
@@ -801,6 +810,15 @@ namespace DWB.Controllers
         //        return View(model);
         //    }
         //}
+
+        //Print assessment
+        [HttpGet]
+        public IActionResult ViewDocAssessment(int id)
+        {
+
+        }
+
+
         #endregion
 
     }

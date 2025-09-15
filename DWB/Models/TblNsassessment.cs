@@ -121,6 +121,8 @@ public partial class TblNsassessment
 
     public string VchGender { get; set; }
 
+    public string FkUnitName { get; set; }
+
     public virtual ICollection<TblDoctorAssessment> TblDoctorAssessment { get; set; } = new List<TblDoctorAssessment>();
 
     public virtual ICollection<TblNassessmentDoc> TblNassessmentDoc { get; set; } = new List<TblNassessmentDoc>();

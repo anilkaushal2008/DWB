@@ -885,6 +885,11 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("fk_UHID");
+            entity.Property(e => e.FkUnitName)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("fk_UnitName");
+            entity.Property(e => e.FkUserId).HasColumnName("fk_userID");
             entity.Property(e => e.FkVisitNo).HasColumnName("fk_visitNO");
             entity.Property(e => e.FollowUpTime).HasColumnName("followUpTime");
             entity.Property(e => e.IntCode).HasColumnName("intCode");
@@ -1136,7 +1141,6 @@ public partial class DWBEntity : DbContext
                 .IsUnicode(false)
                 .HasColumnName("vchProcedureName");
             entity.Property(e => e.VchRemarks)
-                .IsRequired()
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("vchRemarks");
@@ -1187,7 +1191,6 @@ public partial class DWBEntity : DbContext
                 .IsUnicode(false)
                 .HasColumnName("vchRadiologyName");
             entity.Property(e => e.VchRemarks)
-                .IsRequired()
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("vchRemarks");
@@ -1381,6 +1384,10 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.DtUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkUnitName)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("fk_UnitName");
             entity.Property(e => e.IntAge).HasColumnName("intAge");
             entity.Property(e => e.IntCode).HasColumnName("intCode");
             entity.Property(e => e.IntHmscode).HasColumnName("intHMSCode");

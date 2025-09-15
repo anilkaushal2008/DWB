@@ -14,7 +14,7 @@ namespace DWB.APIModel
         public string doccode { get; set; } = string.Empty;
         public string timein { get; set; } = string.Empty;
         public string age { get; set; } = string.Empty;
-        public string sex { get; set; }
+        public string? sex { get; set; }
         public int visit { get; set; }
         public string Pcategory { get; set; } = string.Empty;
         public int CompCode { get; set; }

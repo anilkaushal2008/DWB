@@ -87,6 +87,10 @@ public partial class TblDoctorAssessment
 
     public bool BitUseTemplete { get; set; }
 
+    public int FkUserId { get; set; }
+
+    public string FkUnitName { get; set; }
+
     public virtual TblNsassessment FkAssessment { get; set; }
 
     public virtual ICollection<TblDoctorAssmntLab> TblDoctorAssmntLab { get; set; } = new List<TblDoctorAssmntLab>();
