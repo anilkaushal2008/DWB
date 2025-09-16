@@ -243,23 +243,46 @@ namespace DWB.Report
                             {
                                 columns.RelativeColumn(2); // Medicine
                                 columns.RelativeColumn(1); // Dosage
+                                columns.RelativeColumn(1); // Frequency
                                 columns.RelativeColumn(1); // Duration
+                                columns.RelativeColumn(3); // Timing
                             });
 
                             table.Header(header =>
                             {
                                 header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("MEDICINE").SemiBold();
                                 header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("DOSAGE").SemiBold();
+                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("FREQUENCY").SemiBold();
                                 header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("DURATION").SemiBold();
+                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("TIMING").SemiBold();
                             });
 
                             foreach (var med in medicines)
                             {
                                 table.Cell().Padding(5).Text((med.VchMedicineName ?? "").ToUpper());
                                 table.Cell().Padding(5).Text((med.VchDosage ?? "").ToUpper());
+                                table.Cell().Padding(5).Text((med.VchFrequency ?? "").ToUpper());
                                 table.Cell().Padding(5).Text((med.VchDuration ?? "").ToUpper());
+
+                                // Build Timing String
+                                var timings = new List<string>();
+                                if (med.BitBbf == true) timings.Add("BBF");
+                                if (med.BitAbf == true) timings.Add("ABF");
+                                if (med.BitBl == true) timings.Add("BL");
+                                if (med.BitAl == true) timings.Add("AL");
+                                if (med.BitBd == true) timings.Add("BD");
+                                if (med.BitAd == true) timings.Add("AD");
+
+                                var timingText = timings.Count > 0 ? string.Join(", ", timings) : "N/A";
+
+                                // ✅ Add Timing to the table
+                                table.Cell().Padding(5).Text(timingText);
                             }
                         });
+                        // ✅ Add Abbreviation Legend at the bottom
+                        col.Item().PaddingTop(5).Text("Abbreviations:").Bold();
+                        col.Item().Text("BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch, AL = After Lunch, BD = Before Dinner, AD = After Dinner")
+                            .FontSize(8).FontColor(Colors.Black);
                     }
 
                     col.Item().PaddingVertical(8);
