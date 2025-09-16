@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 //for session
@@ -17,7 +18,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true; // Secure
     options.Cookie.IsEssential = true; // GDPR
 });
-
+// set license
+QuestPDF.Settings.License = LicenseType.Community;
 //connections
 var connection = builder.Configuration.GetConnectionString("DWBDATA");
 builder.Services.AddDbContext<DWBEntity>(options =>

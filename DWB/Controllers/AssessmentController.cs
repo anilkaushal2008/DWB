@@ -14,6 +14,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
+using DWB.Report;
 
 namespace DWB.Controllers
 {
@@ -813,9 +814,21 @@ namespace DWB.Controllers
 
         //Print assessment
         [HttpGet]
-        public IActionResult ViewDocAssessment(int id)
+        public IActionResult ViewDocAssessment(string uhid,string visit, string date)
         {
+            // fetch all data from DB
+            var nursing = _context.TblNsassessment.FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit==Convert.ToInt32(visit));
+            var doctor = _context.TblDoctorAssessment.FirstOrDefault(x => x.FkAssessmentId == nursing.IntAssessmentId);
+            var medicines = _context.TblDoctorAssmntMedicine.Where(x => x.FkDocAssmntId == doctor.IntId).ToList();
+            var labs = _context.TblDoctorAssmntLab.Where(x => x.FkDocAssmntId == doctor.IntId).ToList();
+            var radiologies = _context.TblDoctorAssmntRadiology.Where(x => x.FkDocAssmntId == doctor.IntId).ToList();
+            var procedures = _context.TblDoctorAssmntProcedure.Where(x => x.FkDocAsstId == doctor.IntId).ToList();
 
+            var report = new DoctorAssessmentReport(nursing, doctor, medicines, labs, radiologies, procedures);
+
+            var pdf = report.GeneratePdf();
+
+            return File(pdf, "application/pdf"); // <--- Important
         }
 
 

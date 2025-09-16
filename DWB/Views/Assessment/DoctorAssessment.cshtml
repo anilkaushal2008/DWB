@@ -165,23 +165,38 @@
                 $(this).val('');
             });
         });
-        //For view assessment
-        function loadCompletedAssessment(uhid, visit, jdate) {
-            $.ajax({
-                url: '/Assessment/ViewDocAssessment',
-                data: { uhid: uhid,
-                visit:visit,
-                date:jdate},
-                type: 'GET',
-                success: function (response) {
-                $('#viewAssessmentContent').html(response);
-                var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
-                modal.show();
-            },
-            error: function () {
-                alert('Failed to load completed assessment. Please try again.');
-            }
-            });
+        // //For view assessment
+        // function loadCompletedAssessment(uhid, visit, jdate) {
+        //     $.ajax({
+        //         url: '/Assessment/ViewDocAssessment',
+        //         data: { uhid: uhid,
+        //         visit:visit,
+        //         date:jdate},
+        //         type: 'GET',
+        //         success: function (response) {
+        //         $('#viewAssessmentContent').html(response);
+        //         var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
+        //         modal.show();
+        //     },
+        //     error: function () {
+        //         alert('Failed to load completed assessment. Please try again.');
+        //     }
+        //     });
+        // }
+        //    function loadCompletedAssessment(uhid, visit, jdate) {
+        //     var url = '/Assessment/ViewDocAssessment?uhid=' + uhid + '&visit=' + visit + '&date=' + jdate;
+
+        //     var iframe = '<iframe src="' + url + '" width="100%" height="600px" style="border:none;"></iframe>';
+        //     $('#viewAssessmentContent').html(iframe);
+
+        //     var modal = new bootstrap.Modal(document.getElementById('viewAssessmentModal'));
+        //     modal.show();
+        // }
+        //open print in new tab
+
+                function loadCompletedAssessment(uhid, visit, jdate) {
+            let url = `/Assessment/ViewDocAssessment?uhid=${uhid}&visit=${visit}&date=${jdate}`;
+            window.open(url, '_blank');  // Opens in new browser tab
         }
        
     </script>
