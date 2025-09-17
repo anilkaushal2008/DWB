@@ -823,8 +823,9 @@ namespace DWB.Controllers
             var labs = _context.TblDoctorAssmntLab.Where(x => x.FkDocAssmntId == doctor.IntId).ToList();
             var radiologies = _context.TblDoctorAssmntRadiology.Where(x => x.FkDocAssmntId == doctor.IntId).ToList();
             var procedures = _context.TblDoctorAssmntProcedure.Where(x => x.FkDocAsstId == doctor.IntId).ToList();
+            var userData=_context.TblUsers.FirstOrDefault(x => x.IntUserId == doctor.FkUserId);
 
-            var report = new DoctorAssessmentReport(nursing, doctor, medicines, labs, radiologies, procedures);
+            var report = new DoctorAssessmentReport(nursing, doctor, medicines, labs, radiologies, procedures,userData);
 
             var pdf = report.GeneratePdf();
 

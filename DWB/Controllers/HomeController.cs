@@ -132,6 +132,8 @@ namespace DWB.Controllers
                     new Claim("ProfilePath", user.VchProfileFileName ?? string.Empty),
                     //add doctor code as selected company code
                     new Claim("DoctorCode", doctorCode),
+                    //add user signature
+                    new Claim("SignatureName", user.VchSignFileName ?? string.Empty),
                     //set role
                     new Claim(ClaimTypes.Role, roleName)
                 };
