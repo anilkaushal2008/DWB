@@ -816,6 +816,8 @@ namespace DWB.Controllers
         [HttpGet]
         public IActionResult ViewDocAssessment(string uhid,string visit, string date)
         {
+            //get company id
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
             // fetch all data from DB
             var nursing = _context.TblNsassessment.FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit==Convert.ToInt32(visit));
             var doctor = _context.TblDoctorAssessment.FirstOrDefault(x => x.FkAssessmentId == nursing.IntAssessmentId);
@@ -824,8 +826,9 @@ namespace DWB.Controllers
             var radiologies = _context.TblDoctorAssmntRadiology.Where(x => x.FkDocAssmntId == doctor.IntId).ToList();
             var procedures = _context.TblDoctorAssmntProcedure.Where(x => x.FkDocAsstId == doctor.IntId).ToList();
             var userData=_context.TblUsers.FirstOrDefault(x => x.IntUserId == doctor.FkUserId);
+            var company = _context.IndusCompanies.FirstOrDefault(x => x.IntPk == intUnitcode);
 
-            var report = new DoctorAssessmentReport(nursing, doctor, medicines, labs, radiologies, procedures,userData);
+            var report = new DoctorAssessmentReport(nursing, doctor, medicines, labs, radiologies, procedures,userData,company);
 
             var pdf = report.GeneratePdf();
 
