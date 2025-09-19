@@ -82,9 +82,12 @@
                                             {
                                                 <div class="d-inline-flex gap-2">
                                                     <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')">View</a>
-                                                    @if (p.dtEntry == DateTime.Now.Date)
-                                                    {
-                                                        <a class="btn btn-grd btn-grd-info btn-sm" href="@Url.Action("NassessmentEdit", "Assessment", new { uhid = @p.opdno, visit = @p.visit, date = @p.jdate.ToString() })"> Edit</a>
+                                                    @{
+                                                        DateTime today = DateTime.Now.Date;
+                                                        if (p.dtEntry.Date == today)
+                                                        {
+                                                            <a class="btn btn-grd btn-grd-info btn-sm" href="@Url.Action("DocAssmntEdit", "Assessment", new { uhid = @p.opdno, visit = @p.visit, date = @p.jdate.ToString() })"> Edit</a>
+                                                        }
                                                     }
                                                 </div>
                                             }

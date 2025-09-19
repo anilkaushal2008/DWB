@@ -19,11 +19,11 @@ namespace DWB.Report
         private readonly List<TblDoctorAssmntRadiology> radiologies;
         private readonly List<TblDoctorAssmntProcedure> procedures;
         private readonly TblUsers users;
-        private readonly IndusCompanies companies ;
+        private readonly IndusCompanies companies;
 
         public DoctorAssessmentReport(
             TblNsassessment nursing,
-            TblDoctorAssessment doctor,            
+            TblDoctorAssessment doctor,
             List<TblDoctorAssmntMedicine> medicines,
             List<TblDoctorAssmntLab> labs,
             List<TblDoctorAssmntRadiology> radiologies,
@@ -587,17 +587,29 @@ namespace DWB.Report
                 {
                     headerCol.Item().Row(row =>
                     {
-                        // Centered Hospital Name + Address
-                        row.RelativeColumn().AlignCenter().Column(col =>
+                        // Left: Logo
+                        row.ConstantColumn(60).AlignLeft().Height(50).Element(img =>
+                        {
+                            img.Image("wwwroot/assets/images/INDUS-BW.jpg", ImageScaling.FitHeight);
+                        });
+
+                        // Center: Hospital Name + Address
+                        row.RelativeColumn().Column(col =>
                         {
                             col.Item().Text(companies.Descript)
-                                .FontSize(14).Bold().FontColor(Colors.Black);
+                                .FontSize(14).Bold().FontColor(Colors.Black).AlignCenter();
 
                             col.Item().Text(companies.Add1)
-                                .FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                                .FontSize(8).FontColor(Colors.Black).AlignCenter();
 
                             col.Item().Text(companies.Add2)
-                                .FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                                .FontSize(8).FontColor(Colors.Black).AlignCenter();
+                        });
+
+                        // Right: Contact
+                        row.ConstantColumn(60).AlignRight().Height(50).Element(img =>
+                        {
+                            img.Image("wwwroot/assets/images/NABH-BW.jpeg", ImageScaling.FitHeight);
                         });
                     });
 
@@ -605,19 +617,19 @@ namespace DWB.Report
                     headerCol.Item()
                         .PaddingVertical(4)
                         .LineHorizontal(1)
-                        .LineColor(Colors.Grey.Lighten2);
+                        .LineColor(Colors.Black);
                 });
 
                 // ===== CONTENT =====
                 page.Content().PaddingTop(0).Column(col =>
                 {
                     // Main Title
-                    col.Item().AlignCenter().Text("DOCTOR ASSESSMENT REPORT")
+                    col.Item().PaddingBottom(2).AlignCenter().Text("DOCTOR ASSESSMENT REPORT")
                         .FontSize(12).Bold().FontColor(Colors.Black);
 
                     // ===== Patient Details Card =====
                     col.Item().Background(Colors.White)
-                        .Border(1).BorderColor(Colors.Grey.Lighten2)
+                        .Border(1).BorderColor(Colors.Black)
                         .Padding(10).Column(patient =>
                         {
                             patient.Item().Text("PATIENT DETAILS").Bold().FontSize(9);
@@ -634,7 +646,7 @@ namespace DWB.Report
                     {
                         // Nursing Assessment Card
                         row.RelativeColumn().Background(Colors.White)
-                            .Border(1).BorderColor(Colors.Grey.Lighten2)
+                            .Border(1).BorderColor(Colors.Black)
                             .Padding(10).Column(nursingCard =>
                             {
                                 nursingCard.Item().Text("NURSING ASSESSMENT").Bold().FontSize(9);
@@ -653,7 +665,7 @@ namespace DWB.Report
 
                         // Doctor Assessment Card
                         row.RelativeColumn().Background(Colors.White)
-                            .Border(1).BorderColor(Colors.Grey.Lighten2)
+                            .Border(1).BorderColor(Colors.Black)
                             .Padding(10).Column(docCard =>
                             {
                                 docCard.Item().Text("DOCTOR ASSESSMENT").Bold().FontSize(9);
@@ -669,7 +681,7 @@ namespace DWB.Report
                     if (labs.Any() || radiologies.Any() || procedures.Any())
                     {
                         col.Item().PaddingTop(0).Background(Colors.White)
-                            .Border(1).BorderColor(Colors.Grey.Lighten2)
+                            .Border(1).BorderColor(Colors.Black)
                             .Padding(10).Column(card =>
                             {
                                 // Labs
@@ -707,7 +719,7 @@ namespace DWB.Report
                     if (medicines.Any())
                     {
                         col.Item().Background(Colors.White)
-                            .Border(1).BorderColor(Colors.Grey.Lighten2)
+                            .Border(1).BorderColor(Colors.Black)
                             .Padding(10).Column(docCard =>
                             {
                                 docCard.Item().Text("PRESCRIBED MEDICINES").Bold().FontSize(9);
@@ -723,21 +735,35 @@ namespace DWB.Report
                                         columns.RelativeColumn(3);
                                     });
 
+                                    // ===== Header Row with Borders =====
                                     table.Header(header =>
                                     {
-                                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("MEDICINE").SemiBold();
-                                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("DOSAGE").SemiBold();
-                                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("FREQUENCY").SemiBold();
-                                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("DURATION").SemiBold();
-                                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("TIMING").SemiBold();
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("MEDICINE").SemiBold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("DOSAGE").SemiBold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("FREQUENCY").SemiBold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("DURATION").SemiBold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("TIMING").SemiBold().FontSize(7);
                                     });
 
+                                    // ===== Medicine Rows with Borders =====
                                     foreach (var med in medicines)
                                     {
-                                        table.Cell().Padding(3).Text((med.VchMedicineName ?? "").ToUpper());
-                                        table.Cell().Padding(3).Text((med.VchDosage ?? "").ToUpper());
-                                        table.Cell().Padding(3).Text((med.VchFrequency ?? "").ToUpper());
-                                        table.Cell().Padding(3).Text((med.VchDuration ?? "").ToUpper());
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text((med.VchMedicineName ?? "").ToUpper()).FontSize(7);
+
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text((med.VchDosage ?? "").ToUpper()).FontSize(7);
+
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text((med.VchFrequency ?? "").ToUpper()).FontSize(7);
+
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text((med.VchDuration ?? "").ToUpper()).FontSize(7);
 
                                         var timings = new List<string>();
                                         if (med.BitBbf == true) timings.Add("BBF");
@@ -747,104 +773,174 @@ namespace DWB.Report
                                         if (med.BitBd == true) timings.Add("BD");
                                         if (med.BitAd == true) timings.Add("AD");
 
-                                        table.Cell().Padding(3).Text(timings.Count > 0 ? string.Join(", ", timings) : "N/A");
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text(timings.Count > 0 ? string.Join(", ", timings) : "N/A").FontSize(7);
                                     }
                                 });
 
-                                docCard.Item().PaddingTop(4).Text("Timing Abbreviations:").Bold().FontSize(8);
+                                docCard.Item().PaddingTop(4).Text("Timing Abbreviations:").Bold().FontSize(7);
                                 docCard.Item().Text("BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch, AL = After Lunch, BD = Before Dinner, AD = After Dinner")
-                .FontSize(8).FontColor(Colors.Black);
+                                    .FontSize(7).FontColor(Colors.Black);
                             });
                     }
 
-                    // Nutritional Consultation + Follow Up
-                    docCard.Item().PaddingTop(6).Row(row =>
-                    {
-                        row.RelativeColumn().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Column(card =>
-                        {
-                            card.Item().Text("NUTRITIONAL CONSULTATION").Bold().FontSize(8);
-                            card.Item().Text(doctor?.BitNutritionalConsult == true ? "• YES" : "• NO").FontSize(8);
-                        });
+                    //    // ===== Medicines Card =====
+                    //    if (medicines.Any())
+                    //    {
+                    //        col.Item().Background(Colors.White)
+                    //            .Border(1).BorderColor(Colors.Black)
+                    //            .Padding(10).Column(docCard =>
+                    //            {
+                    //                docCard.Item().Text("PRESCRIBED MEDICINES").Bold().FontSize(9);
 
-                        row.RelativeColumn().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Column(card =>
-                        {
-                            card.Item().Text("FOLLOW UP DATE").Bold().FontSize(8);
-                            card.Item().Text(doctor?.DtFollowUpDate.HasValue == true
-                                ? doctor.DtFollowUpDate.Value.ToString("• dd/MM/yyyy")
-                                : "• NA").FontSize(8);
-                        });
-                    });
+                    //                docCard.Item().Table(table =>
+                    //                {
+                    //                    table.ColumnsDefinition(columns =>
+                    //                    {
+                    //                        columns.RelativeColumn(4);
+                    //                        columns.RelativeColumn(1);
+                    //                        columns.RelativeColumn(1);
+                    //                        columns.RelativeColumn(1);
+                    //                        columns.RelativeColumn(3);
+                    //                    });
 
-                    // ===== Medicines, Labs, Radiology, etc. =====
-                    col.Item().Background(Colors.White).Border(1).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(docCard =>
-                    {
-                        
-                       
+                    //                    table.Header(header =>
+                    //                    {
+                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("MEDICINE").SemiBold();
+                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("DOSAGE").SemiBold();
+                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("FREQUENCY").SemiBold();
+                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("DURATION").SemiBold();
+                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("TIMING").SemiBold();
+                    //                    });
 
-                        // Nutritional Consultation + Follow Up
-                        docCard.Item().PaddingTop(6).Row(row =>
+                    //                    foreach (var med in medicines)
+                    //                    {
+                    //                        table.Cell().Padding(3).Text((med.VchMedicineName ?? "").ToUpper());
+                    //                        table.Cell().Padding(3).Text((med.VchDosage ?? "").ToUpper());
+                    //                        table.Cell().Padding(3).Text((med.VchFrequency ?? "").ToUpper());
+                    //                        table.Cell().Padding(3).Text((med.VchDuration ?? "").ToUpper());
+
+                    //                        var timings = new List<string>();
+                    //                        if (med.BitBbf == true) timings.Add("BBF");
+                    //                        if (med.BitAbf == true) timings.Add("ABF");
+                    //                        if (med.BitBl == true) timings.Add("BL");
+                    //                        if (med.BitAl == true) timings.Add("AL");
+                    //                        if (med.BitBd == true) timings.Add("BD");
+                    //                        if (med.BitAd == true) timings.Add("AD");
+
+                    //                        table.Cell().Padding(3).Text(timings.Count > 0 ? string.Join(", ", timings) : "N/A");
+                    //                    }
+                    //                });
+
+                    //                docCard.Item().PaddingTop(4).Text("Timing Abbreviations:").Bold().FontSize(8);
+                    //                docCard.Item().Text("BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch, AL = After Lunch, BD = Before Dinner, AD = After Dinner")
+                    //.FontSize(8).FontColor(Colors.Black);
+                    //            });
+                    //    }
+
+                    // ===== Nutritional Consultation + Follow Up Card =====
+                    col.Item().PaddingTop(6).Background(Colors.White)
+                        .Border(1).BorderColor(Colors.Black)
+                        .Padding(10).Row(row =>
                         {
-                            row.RelativeColumn().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Column(card =>
+                            // Nutritional Consultation
+                            row.RelativeColumn().Text(text =>
                             {
-                                card.Item().Text("NUTRITIONAL CONSULTATION").Bold().FontSize(8);
-                                card.Item().Text(doctor?.BitNutritionalConsult == true ? "• YES" : "• NO").FontSize(8);
+                                text.Span("NUTRITIONAL CONSULTATION: ").Bold().FontSize(9);
+                                text.Span(doctor?.BitNutritionalConsult == true ? "• YES" : "• NO").FontSize(8);
                             });
 
-                            row.RelativeColumn().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(6).Column(card =>
+                            // Follow Up Date
+                            row.RelativeColumn().AlignRight().Text(text =>
                             {
-                                card.Item().Text("FOLLOW UP DATE").Bold().FontSize(8);
-                                card.Item().Text(doctor?.DtFollowUpDate.HasValue == true
-                                    ? doctor.DtFollowUpDate.Value.ToString("• dd/MM/yyyy")
+                                text.Span("FOLLOW UP DATE: ").Bold().FontSize(9);
+                                text.Span(doctor?.DtFollowUpDate.HasValue == true
+                                    ? doctor.DtFollowUpDate.Value.ToString("• " + "dd/MM/yyyy")
                                     : "• NA").FontSize(8);
                             });
                         });
 
-                        // Explanation + Signature
-                        docCard.Item().PaddingTop(6).Border(1).BorderColor(Colors.Grey.Lighten2).Padding(4).Column(card =>
+
+                    // ===== Explanation + Signature (right-aligned) =====
+                    col.Item().PaddingTop(6)
+                        .Background(Colors.White)
+                        .Border(1).BorderColor(Colors.Black)
+                        .Padding(10).Column(card =>
                         {
-                            card.Item().Text("I have explained to patient the disease process, proposed plan of care and possible side effects in their own language.")
-                                .Italic().FontSize(8);
+                            // Explanation text
+                            card.Item().Text("I have explained to the patient the disease process, proposed plan of care, and possible side effects in their own language.")
+                            .Italic().FontSize(9);
 
-                            card.Item().PaddingVertical(4);
+                            card.Item().PaddingVertical(5);
 
-                            card.Item().AlignCenter().Row(row =>
+                            // Row where signature sits at the right edge
+                            card.Item().Row(row =>
                             {
-                                row.RelativeColumn();
+                                row.RelativeColumn(); // consumes available space, pushing signature to the right
 
-                                row.ConstantColumn(100).Column(sig =>
+                                // Fixed-width column for signature to avoid layout conflicts
+                                row.ConstantColumn(120).Column(sig =>
                                 {
+                                    // Signature image area (fixed height)
                                     sig.Item().Height(50).Element(cell =>
                                     {
                                         if (!string.IsNullOrWhiteSpace(users?.VchSignFileName))
-                                            cell.Image("wwwroot/Uploads/Signature/" + users.VchSignFileName, ImageScaling.FitWidth);
+                                        {
+                                            // align image to the right inside the box and scale to fit the area
+                                            cell.AlignRight().Image("wwwroot/Uploads/Signature/" + users.VchSignFileName, ImageScaling.FitArea);
+                                        }
                                         else
-                                            cell.Text("Signature missing").FontSize(8).Italic().FontColor(Colors.Red.Medium).AlignCenter();
+                                        {
+                                            // Placeholder box centered inside the fixed area
+                                            cell.Border(1).BorderColor(Colors.Red.Medium)
+                                            .AlignCenter().AlignMiddle()
+                                            .Text("Signature Missing")
+                                            .FontSize(8).Italic().FontColor(Colors.Red.Medium);
+                                        }
                                     });
 
-                                    sig.Item().AlignCenter().Text(
-                                        string.IsNullOrWhiteSpace(nursing?.VchHmsconsultant) ? "N/A" : nursing.VchHmsconsultant.ToUpper()
-                                    ).FontSize(8).Bold();
+                                    // Consultant's name aligned right under the signature box
+                                    sig.Item().AlignRight().Text(
+                                    string.IsNullOrWhiteSpace(nursing?.VchHmsconsultant) ? "N/A" : nursing.VchHmsconsultant.ToUpper()).FontSize(8).Bold();
                                 });
                             });
                         });
 
-                        // Important Notes
-                        docCard.Item().PaddingTop(6).Background(Colors.Grey.Lighten4).Padding(6).Column(note =>
-                        {
-                            note.Item().Text("NOTE:").Bold().FontSize(8);
-                            note.Item().Text("• Kindly confirm your appointment one day prior at 01762-512666").FontSize(8);
-                            note.Item().Text("• In case of emergency (Fever >101.5°F / 38.6°C, new/worsening pain, chest pain, breathlessness, vomiting, etc.), please contact 01762-512600 & Dr. Mayank Sharma (Reg No. 9273) at 01762-512600").FontSize(8);
-                        });
+
+                    // ===== Important Notes Card =====
+                    col.Item().PaddingTop(10).AlignCenter().Element(card =>
+                    {
+                        card.Border(1)
+                            .BorderColor(Colors.Black)
+                            .Background(Colors.White)
+                            .Padding(8)
+                            .Width(350) // fixed width
+                            .Column(note =>
+                            {
+                                note.Item().Text("IMPORTANT NOTES")
+                                    .Bold()
+                                    .FontSize(8)
+                                    .FontColor(Colors.Red.Medium);
+
+                                note.Item().PaddingTop(4)
+                                    .Text("• Kindly confirm your appointment one day prior at 01762-512666")
+                                    .FontSize(7);
+
+                                note.Item().Text("• In case of emergency (Fever >101.5°F / 38.6°C, new/worsening pain, chest pain, breathlessness, vomiting, etc.), please contact 01762-512600 & Dr. Mayank Sharma (Reg No. 9273) at 01762-512600")
+                                    .FontSize(7);
+                            });
                     });
                 });
 
-                // ===== FOOTER =====
+                // ===== FOOTER ===== (must be outside content)
                 page.Footer().AlignCenter().Text(txt =>
                 {
                     txt.Span("Print on: ").SemiBold().FontSize(7);
                     txt.Span(DateTime.Now.ToString("dd-MMM-yyyy HH:mm")).FontSize(7);
                 });
             });
-        }
+        }   
+        
     }
 }
+

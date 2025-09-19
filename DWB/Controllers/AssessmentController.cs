@@ -1,20 +1,21 @@
 ﻿using DWB.APIModel;
 using DWB.Models;
+using DWB.Report;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient.DataClassification;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System.Reflection.Emit;
-using System.Reflection.Metadata;
 //for pdf packages
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
 using System.Collections.Generic;
-using DWB.Report;
+using System.ComponentModel;
+using System.Reflection.Emit;
+using System.Reflection.Metadata;
 
 namespace DWB.Controllers
 {
@@ -695,41 +696,41 @@ namespace DWB.Controllers
         }
 
         // GET: Doctor Assessment Edit
-        //public async Task<IActionResult> DocAssmntEdit(int id)
-        //{
-        //    var assessment = await _context.TblDoctorAssessment
-        //        .FirstOrDefaultAsync(x => x.IntId == id);
+        public async Task<IActionResult> DocAssmntEdit(string uhid, int visit)
+        {
+            var assessment = await _context.TblDoctorAssessment
+                .FirstOrDefaultAsync(x => x.FkUhid == uhid && x.FkVisitNo==visit);
 
-        //    if (assessment == null)
-        //        return NotFound();
+            if (assessment == null)
+                return NotFound();
 
-        //    var model = new DoctorAssessmentVM
-        //    {
-        //        DoctorAssessment = new TblDoctorAssessment
-        //        {
-        //            IntId = assessment.IntId,
-        //            FkUhid = assessment.FkUhid,
-        //            FkAssessmentId = assessment.FkAssessmentId,
-        //            VchChiefcomplaints = assessment.VchChiefcomplaints,
-        //            VchDiagnosis = assessment.VchDiagnosis,
-        //            VchMedicalHistory = assessment.VchMedicalHistory,
-        //            VchSystemicexam = assessment.VchSystemicexam,
-        //            VchRemarks = assessment.VchRemarks
-        //        },
-        //        Medicines = await _context.TblDoctorAssmntMedicine
-        //            .Where(m => m.FkDocAssmntId == id).ToListAsync(),
-        //        Labs = await _context.TblDoctorAssmntLab
-        //            .Where(l => l.FkDocAssmntId == id).ToListAsync(),
-        //        Radiology = await _context.TblDoctorAssmntRadiology
-        //            .Where(r => r.FkDocAssmntId == id).ToListAsync(),
-        //        Procedures = await _context.TblDoctorAssmntProcedure
-        //            .Where(p => p.FkDocAsstId == id).ToListAsync(),
-        //        Documents = await _context.TblDoctorAssessmentDoc
-        //            .Where(d => d.IntFkDoctorAssId == id).ToListAsync()
-        //    };
+            var model = new DoctorAssessmentVM
+            {
+                DoctorAssessment = new TblDoctorAssessment
+                {
+                    IntId = assessment.IntId,
+                    FkUhid = assessment.FkUhid,
+                    FkAssessmentId = assessment.FkAssessmentId,
+                    VchChiefcomplaints = assessment.VchChiefcomplaints,
+                    VchDiagnosis = assessment.VchDiagnosis,
+                    VchMedicalHistory = assessment.VchMedicalHistory,
+                    VchSystemicexam = assessment.VchSystemicexam,
+                    VchRemarks = assessment.VchRemarks
+                },
+                Medicines = await _context.TblDoctorAssmntMedicine
+                    .Where(m => m.FkDocAssmntId == assessment.IntId).ToListAsync(),
+                Labs = await _context.TblDoctorAssmntLab
+                    .Where(l => l.FkDocAssmntId == assessment.IntId).ToListAsync(),
+                Radiology = await _context.TblDoctorAssmntRadiology
+                    .Where(r => r.FkDocAssmntId == assessment.IntId).ToListAsync(),
+                Procedures = await _context.TblDoctorAssmntProcedure
+                    .Where(p => p.FkDocAsstId == assessment.IntId).ToListAsync(),
+                Documents = await _context.TblDoctorAssessmentDoc
+                    .Where(d => d.IntFkDoctorAssId == assessment.IntId).ToListAsync()
+            };
 
-        //    return View(model);
-        //}
+            return View("DoctorAssmntCreate", model);
+        }
 
         //// POST: Doctor Assessment Edit
         //[HttpPost]
