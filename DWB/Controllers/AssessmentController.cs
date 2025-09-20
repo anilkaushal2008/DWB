@@ -717,6 +717,7 @@ namespace DWB.Controllers
                     VchSystemicexam = assessment.VchSystemicexam,
                     VchRemarks = assessment.VchRemarks
                 },
+                NursingAssessment = (from e in _context.TblNsassessment where e.IntAssessmentId == assessment.FkAssessmentId select e).FirstOrDefault(),
                 Medicines = await _context.TblDoctorAssmntMedicine
                     .Where(m => m.FkDocAssmntId == assessment.IntId).ToListAsync(),
                 Labs = await _context.TblDoctorAssmntLab

@@ -630,13 +630,33 @@ namespace DWB.Report
                     // ===== Patient Details Card =====
                     col.Item().Background(Colors.White)
                         .Border(1).BorderColor(Colors.Black)
-                        .Padding(10).Column(patient =>
+                        .Padding(8).Table(table =>
                         {
-                            patient.Item().Text("PATIENT DETAILS").Bold().FontSize(9);
-                            patient.Item().Text($"NAME : {nursing?.VchHmsname?.ToUpper() ?? "N/A"}");
-                            patient.Item().Text($"AGE : {nursing?.IntAge ?? 0}  |  GENDER : {nursing?.VchGender?.ToUpper() ?? "N/A"}");
-                            patient.Item().Text($"VISIT : {nursing?.IntIhmsvisit ?? 0} | DATE : {nursing?.DtCreated.Value:dd/MM/yyyy}");
-                            patient.Item().Text($"CONSULTANT : {nursing?.VchHmsconsultant?.ToUpper() ?? "N/A"}");
+                            // Column setup
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn();
+                            });
+
+                            // === Row 1: Headers ===
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("UHID").Bold().FontSize(8);
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("NAME").Bold().FontSize(8);
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("AGE / GENDER").Bold().FontSize(8);
+
+                            // === Row 2: Details ===
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchUhidNo ?? "N/A").FontSize(8);
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsname?.ToUpper() ?? "N/A").FontSize(8);
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{(nursing?.IntAge ?? 0)} / {nursing?.VchGender?.ToUpper() ?? "N/A"}").FontSize(8);
+
+                            // === Row 3: Headers ===
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("DATE").Bold().FontSize(8);
+                            table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("CONSULTANT").Bold().FontSize(8);
+
+                            // === Row 4: Details ===
+                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.DtCreated?.ToString("dd/MM/yyyy") ?? "N/A").FontSize(8);
+                            table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsconsultant?.ToUpper() ?? "N/A").FontSize(8);
                         });
 
                     col.Item().PaddingVertical(4);
@@ -644,35 +664,108 @@ namespace DWB.Report
                     // ===== Nursing & Doctor Assessment Row Cards (consistent border) =====
                     col.Item().Row(row =>
                     {
-                        // Nursing Assessment Card
-                        row.RelativeColumn().Background(Colors.White)
-                            .Border(1).BorderColor(Colors.Black)
-                            .Padding(10).Column(nursingCard =>
+                        // ===== Nursing Assessment Table =====
+                        row.RelativeColumn()
+                            .Padding(0) // removed outer card padding/border
+                            .Table(table =>
                             {
-                                nursingCard.Item().Text("NURSING ASSESSMENT").Bold().FontSize(9);
-                                nursingCard.Item().Text($"BP : {nursing?.VchBloodPressure ?? "N/A"} | SpO2 : {nursing?.DecSpO2 ?? 0}");
-                                nursingCard.Item().Text($"PULSE : {nursing?.VchPulse ?? "N/A"} | HEIGHT : {nursing?.DecHeight ?? 0}");
-                                nursingCard.Item().Text($"TEMP : {nursing?.DecTemperature ?? "N/A"} | RESPIRATORY RATE : {nursing?.DecRespiratoryRate ?? 0}");
-                                nursingCard.Item().Text(nursing?.BitIsAllergical == true
-                                ? $"ALLERGIES : YES | ALLERGY SOURCE : {(string.IsNullOrWhiteSpace(nursing?.VchAllergicalDrugs) ? "N/A" : nursing.VchAllergicalDrugs.ToUpper())}"
-                                : "ALLERGIES : NO");
-                                nursingCard.Item().Text($"ALCOHOL : {(nursing?.BitIsAlcoholic == true ? "YES" : "NO")} | " +
-                                    $"SMOKING : {(nursing?.BitIsSmoking == true ? "YES" : "NO")}");
-                                nursingCard.Item().Text($"FALL RISK : {(nursing?.BitFallRisk == true ? "YES" : "NO")}");
+                                // Column setup
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.RelativeColumn();
+                                    columns.RelativeColumn();
+                                    columns.RelativeColumn();
+                                    columns.RelativeColumn();
+                                });
+
+                                // ===== Title row =====
+                                table.Cell().ColumnSpan(4)
+            .Background(Colors.Grey.Lighten3)
+            .Border(1).BorderColor(Colors.Black).Padding(4)
+            .Text("NURSING ASSESSMENT").Bold().FontSize(9).AlignCenter();
+
+                                // ===== Row 1: Headers =====
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("BP").Bold().FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("SpO2").Bold().FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Pulse").Bold().FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Height").Bold().FontSize(8);
+
+                                // ===== Row 2: Details =====
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchBloodPressure ?? "N/A").FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecSpO2 ?? 0}").FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchPulse ?? "N/A").FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecHeight ?? 0}").FontSize(8);
+
+                                // ===== Row 3: Headers =====
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Temp").Bold().FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Respiratory Rate").Bold().FontSize(8);
+                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("Allergies").Bold().FontSize(8);
+
+                                // ===== Row 4: Details =====
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecTemperature ?? "N/A"}").FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecRespiratoryRate ?? 0}").FontSize(8);
+                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(
+                                 nursing?.BitIsAllergical == true
+                                 ? $"YES ({(string.IsNullOrWhiteSpace(nursing?.VchAllergicalDrugs) ? "N/A" : nursing.VchAllergicalDrugs.ToUpper())})"                              : "NO"
+                      ).FontSize(8);
+
+                                // ===== Row 5: Headers =====
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Alcohol").Bold().FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Smoking").Bold().FontSize(8);
+                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("Fall Risk").Bold().FontSize(8);
+
+                                // ===== Row 6: Details =====
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.BitIsAlcoholic == true ? "YES" : "NO").FontSize(8);
+                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.BitIsSmoking == true ? "YES" : "NO").FontSize(8);
+                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.BitFallRisk == true ? "YES" : "NO").FontSize(8);
                             });
+
+
 
                         row.Spacing(6);
 
-                        // Doctor Assessment Card
+                        // ===== Doctor Assessment Card =====
                         row.RelativeColumn().Background(Colors.White)
                             .Border(1).BorderColor(Colors.Black)
-                            .Padding(10).Column(docCard =>
+                            .Padding(0).Column(docCard =>
                             {
-                                docCard.Item().Text("DOCTOR ASSESSMENT").Bold().FontSize(9);
-                                docCard.Item().Text($"COMPLAINTS: {(doctor?.VchChiefcomplaints ?? "N/A").ToUpper()}");
-                                docCard.Item().Text($"DIAGNOSIS: {(doctor?.VchDiagnosis ?? "N/A").ToUpper()}");
-                                docCard.Item().Text($"REMARKS: {(doctor?.VchRemarks ?? "N/A").ToUpper()}");
+                                docCard.Item().Table(table =>
+                                {
+                                    table.ColumnsDefinition(columns =>
+                                    {
+                                        columns.RelativeColumn(1); // Header
+                                        columns.RelativeColumn(3); // Details
+                                    });
+
+                                    // Title row spanning both columns
+                                    table.Cell().ColumnSpan(2)
+                                        .Background(Colors.Grey.Lighten3)
+                                        .Border(1).BorderColor(Colors.Black).Padding(4)
+                                        .Text("DOCTOR ASSESSMENT").Bold().FontSize(9).AlignCenter();
+
+                                    // Row 1 - Complaints
+                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                                         .Text("COMPLAINTS").Bold().FontSize(8);
+                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                                         .Text($"{doctor?.VchChiefcomplaints?.ToUpper() ?? "N/A"}").FontSize(8);
+
+                                    // Row 2 - Diagnosis
+                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                                         .Text("DIAGNOSIS").Bold().FontSize(8);
+                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                                         .Text($"{doctor?.VchDiagnosis?.ToUpper() ?? "N/A"}").FontSize(8);
+
+                                    // Row 3 - Remarks
+                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                                         .Text("REMARKS").Bold().FontSize(8);
+                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                                         .Text($"{doctor?.VchRemarks?.ToUpper() ?? "N/A"}").FontSize(8);
+                                });
                             });
+
+
+
+
                     });
 
 

@@ -1,6 +1,7 @@
 ﻿@model DWB.Models.DoctorAssessmentVM
 @{ 
     ViewData["Title"] = "DoctorAssessment";
+    string formAction = Model.DoctorAssessment.IntId == 0 ? "Create" : "Edit";
 }
 <style>
     .scale-radio {
@@ -1008,8 +1009,6 @@
                     reIndexLabRows();
                 });
             });
-
-
 
         //Radiology code
         $(document).ready(function () {
