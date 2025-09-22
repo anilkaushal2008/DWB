@@ -43,6 +43,38 @@ namespace DWB.Models
             _context = context;
         }
 
+        public virtual async Task<List<GetDoctorAssmtReportPrintResult>> GetDoctorAssmtReportPrintAsync(int? nasstId, int? docAsstId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "NasstId",
+                    Value = nasstId ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "DocAsstId",
+                    Value = docAsstId ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<GetDoctorAssmtReportPrintResult>("EXEC @returnValue = [dbo].[GetDoctorAssmtReportPrint] @NasstId = @NasstId, @DocAsstId = @DocAsstId", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<spGetLabTestResult>> spGetLabTestAsync(string term, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter

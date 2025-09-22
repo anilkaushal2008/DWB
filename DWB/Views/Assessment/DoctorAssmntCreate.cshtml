@@ -11,7 +11,9 @@
     }</style>
 <main class="main-wrapper py-4">  
    <div class="container-fluid">
-        <h4 class="mb-4 fw-bold text-primary">Doctor Assessment Form</h4>        
+        <h4 class="mb-4 fw-bold text-primary">
+            @(Model.DoctorAssessment.FkAssessmentId > 0 ? "Edit Doctor Assessment" : "New Doctor Assessment")
+        </h4>
         <div class="card p-2 border-0 shadow-sm rounded-3 mb-2 bg-light">
             <div class="d-flex flex-wrap align-items-center small text-dark fw-semibold">
                 <span class="me-3 text-primary" >Selected Patient|UHID: <span class="text-white">@Model.NursingAssessment.VchUhidNo</span></span>
@@ -24,17 +26,22 @@
         <div class="card shadow-sm rounded-4">           
             <div class="card-body">                
                 <form method="post" id="DAssessment" enctype="multipart/form-data"
-                      asp-action="DocAssmntCreate" asp-controller="Assessment">
+                      asp-action="@(Model.DoctorAssessment.FkAssessmentId > 0 ? "DocAssmntEdit" : "DocAssmntCreate")" asp-controller="Assessment">
                       @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
                       @Html.HiddenFor(m => m.DoctorAssessment.FkUhid)
                       @Html.HiddenFor(m => m.DoctorAssessment.FkAssessmentId)                      
                       @Html.HiddenFor(m => m.DoctorAssessment.DtHmsentry)
                       @Html.HiddenFor(m => m.NursingAssessment.IntAssessmentId)
+                    @* for edit assessment *@
+                    @if(Model.DoctorAssessment.IntId != 0)
+                    {
+                        @Html.HiddenFor(mbox=>Model.DoctorAssessment.IntId)
+                    }
 
-                    <!-- Submit -->
+                    <!-- Submit -->                   
                     <div align="right" class="text-end mt-1 my-1">
-                        <button type="submit" align="right" class="btn btn-sm btn-primary px-4 py-2 rounded-pill shadow-sm">
-                            ✅ Save Assessment
+                        <button type="submit" class="btn btn-sm btn-primary px-4 py-2 rounded-pill shadow-sm">
+                            @(Model.DoctorAssessment.FkAssessmentId > 0 ? "✅ Update Assessment" : "✅ Save Assessment")
                         </button>
                     </div>
                     <!-- Nav Tabs -->
@@ -249,82 +256,181 @@
                                         </tr>
                                     </thead>
                                     <tbody id="medicine-list">
-                                        <tr class="medicine-item">
-                                            <!-- Medicine -->
-                                            <td class="position-relative">
-                                                <input type="text"
-                                                       class="form-control form-control-sm medicine-autocomplete"
-                                                       name="Medicines[0].VchMedicineName"
-                                                       placeholder="Search Medicine" autocomplete="off">
-                                                <input type="hidden"
-                                                       name="Medicines[0].VchMedicineCode"
-                                                       class="medicine-code">
-                                                <div class="list-group position-absolute w-100 medicine-suggestions"
-                                                     style="z-index:999; display:none;"></div>
-                                            </td>
+                                        @if (Model.Medicines != null && Model.Medicines.Any())
+                                        {
+                                            for (int i = 0; i < Model.Medicines.Count; i++)
+                                            {
+                                                <tr class="medicine-item">
+                                                    <!-- Medicine -->
+                                                    <td class="position-relative">
+                                                        <input type="text"
+                                                               class="form-control form-control-sm medicine-autocomplete"
+                                                               name="Medicines[@i].VchMedicineName"
+                                                               value="@Model.Medicines[i].VchMedicineName"
+                                                               placeholder="Search Medicine" autocomplete="off" />
+                                                        <input type="hidden"
+                                                               name="Medicines[@i].VchMedicineCode"
+                                                               class="medicine-code"
+                                                               value="@Model.Medicines[i].VchMedicineCode" />
+                                                        <div class="list-group position-absolute w-100 medicine-suggestions"
+                                                             style="z-index:999; display:none;"></div>
+                                                    </td>
 
-                                            <!-- Dosage -->
-                                            <td>
-                                                <input type="text" class="form-control form-control-sm"
-                                                       name="Medicines[0].VchDosage" placeholder="Dosage">
-                                            </td>
+                                                    <!-- Dosage -->
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm"
+                                                               name="Medicines[@i].VchDosage"
+                                                               value="@Model.Medicines[i].VchDosage"
+                                                               placeholder="Dosage" />
+                                                    </td>
 
-                                            <!-- Frequency -->
-                                            <td>
-                                                <input type="text" class="form-control form-control-sm"
-                                                       name="Medicines[0].VchFrequency" placeholder="Frequency">
-                                            </td>
+                                                    <!-- Frequency -->
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm"
+                                                               name="Medicines[@i].VchFrequency"
+                                                               value="@Model.Medicines[i].VchFrequency"
+                                                               placeholder="Frequency" />
+                                                    </td>
 
-                                            <!-- Duration -->
-                                            <td>
-                                                <input type="text" class="form-control form-control-sm"
-                                                       name="Medicines[0].VchDuration" placeholder="Duration">
-                                            </td>
+                                                    <!-- Duration -->
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm"
+                                                               name="Medicines[@i].VchDuration"
+                                                               value="@Model.Medicines[i].VchDuration"
+                                                               placeholder="Duration" />
+                                                    </td>
 
-                                            <!-- Timings -->
-                                            <td>
-                                                <div class="d-flex flex-wrap justify-content-center gap-2 small">
-                                                    <!-- Breakfast -->
-                                                    <label>
-                                                        <input type="radio" class="form-check-input scale-radio"
-                                                               name="Medicines[0].BreakfastTiming" value="BBF"> BBF
-                                                    </label>
-                                                    <label>
-                                                        <input type="radio" class="form-check-input scale-radio"
-                                                               name="Medicines[0].BreakfastTiming" value="ABF"> ABF
-                                                    </label>
-                                                    <!-- Lunch -->
-                                                    <label>
-                                                        <input type="radio" class="form-check-input scale-radio"
-                                                               name="Medicines[0].LunchTiming" value="BL"> BL
-                                                    </label>
-                                                    <label>
-                                                        <input type="radio" class="form-check-input scale-radio"
-                                                               name="Medicines[0].LunchTiming" value="AL"> AL
-                                                    </label>
-                                                    <!-- Dinner -->
-                                                    <label>
-                                                        <input type="radio" class="form-check-input scale-radio"
-                                                               name="Medicines[0].DinnerTiming" value="BD"> BD
-                                                    </label>
-                                                    <label>
-                                                        <input type="radio" class="form-check-input scale-radio"
-                                                               name="Medicines[0].DinnerTiming" value="AD"> AD
-                                                    </label>
-                                                </div>
-                                            </td>
+                                                    <!-- Timings -->
+                                                    <td>
+                                                        <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                                            <!-- Breakfast -->
+                                                                <label>
+                                                                    <input type="radio" class="form-check-input"
+                                                                           name="Medicines[@i].BreakfastTiming" value="BBF"
+                                                                           @(Model.Medicines[i].BitBbf == true ? "checked" : "") /> BBF
+                                                                </label>
+                                                                <label>
+                                                                    <input type="radio" class="form-check-input scale-radio"
+                                                                           name="Medicines[@i].BreakfastTiming" value="ABF"
+                                                                           @(Model.Medicines[i].BitAbf == true ? "checked" : "") /> ABF
+                                                                </label>
 
+                                                            <!-- Lunch -->
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].LunchTiming" value="BL"
+                                                                       @(Model.Medicines[i].BitBl == true ? "checked" : "") /> BL
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].LunchTiming" value="AL"
+                                                                       @(Model.Medicines[i].BitAl == true ? "checked" : "") /> AL
+                                                            </label>
 
-                                            <!-- Action -->
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-danger btn-sm remove-medicine">
-                                                    <i class="bi bi-x-lg text-white"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-success btn-sm add-medicine-row">
-                                                    <i class="bi bi-plus-lg"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                            <!-- Dinner -->
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].DinnerTiming" value="BD"
+                                                                       @(Model.Medicines[i].BitBd == true ? "checked" : "") /> BD
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].DinnerTiming" value="AD"
+                                                                       @(Model.Medicines[i].BitAd == true ? "checked" : "") /> AD
+                                                            </label>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Action -->
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-danger btn-sm remove-medicine">
+                                                            <i class="bi bi-x-lg text-white"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-success btn-sm add-medicine-row">
+                                                            <i class="bi bi-plus-lg"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr class="medicine-item">
+                                                <!-- Medicine -->
+                                                <td class="position-relative">
+                                                    <input type="text"
+                                                           class="form-control form-control-sm medicine-autocomplete"
+                                                           name="Medicines[0].VchMedicineName"
+                                                           placeholder="Search Medicine" autocomplete="off">
+                                                    <input type="hidden"
+                                                           name="Medicines[0].VchMedicineCode"
+                                                           class="medicine-code">
+                                                    <div class="list-group position-absolute w-100 medicine-suggestions"
+                                                         style="z-index:999; display:none;"></div>
+                                                </td>
+
+                                                <!-- Dosage -->
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           name="Medicines[0].VchDosage" placeholder="Dosage">
+                                                </td>
+
+                                                <!-- Frequency -->
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           name="Medicines[0].VchFrequency" placeholder="Frequency">
+                                                </td>
+
+                                                <!-- Duration -->
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           name="Medicines[0].VchDuration" placeholder="Duration">
+                                                </td>
+
+                                                <!-- Timings -->
+                                                <td>
+                                                    <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                                        <!-- Breakfast -->
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].BreakfastTiming" value="BBF"> BBF
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].BreakfastTiming" value="ABF"> ABF
+                                                        </label>
+                                                        <!-- Lunch -->
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].LunchTiming" value="BL"> BL
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].LunchTiming" value="AL"> AL
+                                                        </label>
+                                                        <!-- Dinner -->
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].DinnerTiming" value="BD"> BD
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].DinnerTiming" value="AD"> AD
+                                                        </label>
+                                                    </div>
+                                                </td>
+
+                                                <!-- Action -->
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-medicine">
+                                                        <i class="bi bi-x-lg text-white"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-success btn-sm add-medicine-row">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
 
@@ -350,38 +456,83 @@
                                         </tr>
                                     </thead>
                                     <tbody id="lab-list">
-                                        <tr class="lab-item">
-                                            <!-- Lab Test -->
-                                            <td class="position-relative">
-                                                <input type="text"
-                                                       class="form-control form-control-sm lab-autocomplete"
-                                                       name="Labs[0].VchTestName"
-                                                       placeholder="Search Lab Test" autocomplete="off">
-                                                <input type="hidden"
-                                                       name="Labs[0].VchTestCode"
-                                                       class="lab-code">
-                                                <div class="list-group position-absolute w-100 lab-suggestions"
-                                                     style="z-index:999; display:none;"></div>
-                                            </td>
+                                     @if (Model.Labs != null && Model.Labs.Any())
+                                        {
+                                            for (int i = 0; i < Model.Labs.Count; i++)
+                                            {
+                                                <tr class="lab-item">
+                                                    <!-- Lab Test -->
+                                                    <td class="position-relative">
+                                                        <input type="text"
+                                                        class="form-control form-control-sm lab-autocomplete"
+                                                        name="Labs[@i].VchTestName"
+                                                        placeholder="Search Lab Test"
+                                                        autocomplete="off"
+                                                        value="@Model.Labs[i].VchTestName">
+                                                        <input type="hidden"
+                                                        name="Labs[@i].VchTestCode"
+                                                        class="lab-code"
+                                                        value="@Model.Labs[i].VchTestCode">
+                                                        <div class="list-group position-absolute w-100 lab-suggestions"
+                                                        style="z-index:999; display:none;"></div>
+                                                    </td>
 
-                                            <!-- Priority -->
-                                            <td>
-                                                <select class="form-select form-select-sm" name="Labs[0].VchPriority">
-                                                    <option value="">-- Priority --</option>
-                                                    <option value="Normal">Normal</option>
-                                                    <option value="Urgent">Urgent</option>
-                                                </select>
-                                            </td>
-                                            <!-- Action -->
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-danger btn-sm remove-lab">
-                                                    <i class="bi bi-x-lg text-white"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-success btn-sm add-lab-row">
-                                                    <i class="bi bi-plus-lg"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                    <!-- Priority -->
+                                                    <td>
+                                                        <select class="form-select form-select-sm" name="Labs[@i].VchPriority">
+                                                            <option value="">-- Priority --</option>
+                                                            <option value="Normal" selected="@(Model.Labs[i].VchPriority == "Normal" ? "selected" : null)">Normal</option>
+                                                            <option value="Urgent" selected="@(Model.Labs[i].VchPriority == "Urgent" ? "selected" : null)">Urgent</option>
+                                                        </select>
+                                                    </td>
+
+                                                    <!-- Action -->
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-danger btn-sm remove-lab">
+                                                            <i class="bi bi-x-lg text-white"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-success btn-sm add-lab-row">
+                                                            <i class="bi bi-plus-lg"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr class="lab-item">
+                                                <!-- Lab Test -->
+                                                <td class="position-relative">
+                                                    <input type="text"
+                                                    class="form-control form-control-sm lab-autocomplete"
+                                                    name="Labs[0].VchTestName"
+                                                    placeholder="Search Lab Test" autocomplete="off">
+                                                    <input type="hidden"
+                                                    name="Labs[0].VchTestCode"
+                                                    class="lab-code">
+                                                    <div class="list-group position-absolute w-100 lab-suggestions"
+                                                    style="z-index:999; display:none;"></div>
+                                                </td>
+
+                                                <!-- Priority -->
+                                                <td>
+                                                    <select class="form-select form-select-sm" name="Labs[0].VchPriority">
+                                                        <option value="">-- Priority --</option>
+                                                        <option value="Normal">Normal</option>
+                                                        <option value="Urgent">Urgent</option>
+                                                    </select>
+                                                </td>
+                                                <!-- Action -->
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-lab">
+                                                        <i class="bi bi-x-lg text-white"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-success btn-sm add-lab-row">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -399,39 +550,85 @@
                                         </tr>
                                     </thead>
                                     <tbody id="radio-list">
-                                        <tr class="radio-item">
-                                            <!-- Radiology Test -->
-                                            <td class="position-relative">
-                                                <input type="text"
-                                                       class="form-control form-control-sm radio-autocomplete"
-                                                       name="Radiology[0].VchRadiologyName"
-                                                       placeholder="Search Radiology Test" autocomplete="off">
-                                                <input type="hidden"
-                                                       name="Radiology[0].VchRadiologyCode"
-                                                       class="radio-code">
-                                                <div class="list-group position-absolute w-100 radio-suggestions"
-                                                     style="z-index:999; display:none;"></div>
-                                            </td>
+                                          @if (Model.Radiology != null && Model.Radiology.Any())
+                                        {
+                                            for (int i = 0; i < Model.Radiology.Count; i++)
+                                            {
+                                                <tr class="radio-item">
+                                                    <!-- Radiology Test -->
+                                                    <td class="position-relative">
+                                                        <input type="text"
+                                                        class="form-control form-control-sm radio-autocomplete"
+                                                        name="Radiology[@i].VchRadiologyName"
+                                                        placeholder="Search Radiology Test"
+                                                        autocomplete="off"
+                                                        value="@Model.Radiology[i].VchRadiologyName">
+                                                        <input type="hidden"
+                                                        name="Radiology[@i].VchRadiologyCode"
+                                                        class="radio-code"
+                                                        value="@Model.Radiology[i].VchRadiologyCode">
+                                                        <div class="list-group position-absolute w-100 radio-suggestions"
+                                                        style="z-index:999; display:none;"></div>
+                                                    </td>
 
-                                            <!-- Priority -->
-                                            <td>
-                                                <select class="form-select form-select-sm" name="Radiology[0].VchPriority">
-                                                    <option value="">-- Select --</option>
-                                                    <option value="Normal">Normal</option>
-                                                    <option value="Urgent">Urgent</option>
-                                                </select>
-                                            </td>
+                                                    <!-- Priority -->
+                                                    <td>
+                                                        <select class="form-select form-select-sm" name="Radiology[@i].VchPriority">
+                                                            <option value="">-- Select --</option>
+                                                            
+                                                            <option value="Normal" selected="@(Model.Radiology[i].VchPriority == "Normal" ? "selected" : null)">Normal</option>
+                                                            <option value="Urgent" selected="@(Model.Radiology[i].VchPriority == "Urgent" ? "selected" : null)">Urgent</option>
+                                                        </select>
+                                                    </td>
 
-                                            <!-- Action -->
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-danger btn-sm remove-radio">
-                                                    <i class="bi bi-x-lg text-white"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-success btn-sm add-radio-row">
-                                                    <i class="bi bi-plus-lg"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                    <!-- Action -->
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-danger btn-sm remove-radio">
+                                                            <i class="bi bi-x-lg text-white"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-success btn-sm add-radio-row">
+                                                            <i class="bi bi-plus-lg"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr class="radio-item">
+                                                <!-- Radiology Test -->
+                                                <td class="position-relative">
+                                                    <input type="text"
+                                                    class="form-control form-control-sm radio-autocomplete"
+                                                    name="Radiology[0].VchRadiologyName"
+                                                    placeholder="Search Radiology Test" autocomplete="off">
+                                                    <input type="hidden"
+                                                    name="Radiology[0].VchRadiologyCode"
+                                                    class="radio-code">
+                                                    <div class="list-group position-absolute w-100 radio-suggestions"
+                                                    style="z-index:999; display:none;"></div>
+                                                </td>
+
+                                                <!-- Priority -->
+                                                <td>
+                                                    <select class="form-select form-select-sm" name="Radiology[0].VchPriority">
+                                                        <option value="">-- Select --</option>
+                                                        <option value="Normal">Normal</option>
+                                                        <option value="Urgent">Urgent</option>
+                                                    </select>
+                                                </td>
+
+                                                <!-- Action -->
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-radio">
+                                                        <i class="bi bi-x-lg text-white"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-success btn-sm add-radio-row">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -449,39 +646,84 @@
                                         </tr>
                                     </thead>
                                     <tbody id="procedure-list">
-                                        <tr class="procedure-item">
-                                            <!-- Procedure Name -->
-                                            <td class="position-relative">
-                                                <input type="text"
-                                                       class="form-control form-control-sm procedure-autocomplete"
-                                                       name="Procedures[0].VchProcedureName"
-                                                       placeholder="Search Procedure" autocomplete="off">
-                                                <input type="hidden"
-                                                       name="Procedures[0].VchProcedureCode"
-                                                       class="procedure-code">
-                                                <div class="list-group position-absolute w-100 procedure-suggestions"
-                                                     style="z-index:999; display:none;"></div>
-                                            </td>
+                                         @if (Model.Procedures != null && Model.Procedures.Any())
+                                        {
+                                            for (int i = 0; i < Model.Procedures.Count; i++)
+                                            {
+                                                <tr class="procedure-item">
+                                                    <!-- Procedure Name -->
+                                                    <td class="position-relative">
+                                                        <input type="text"
+                                                        class="form-control form-control-sm procedure-autocomplete"
+                                                        name="Procedures[@i].VchProcedureName"
+                                                        placeholder="Search Procedure"
+                                                        autocomplete="off"
+                                                        value="@Model.Procedures[i].VchProcedureName">
+                                                        <input type="hidden"
+                                                        name="Procedures[@i].VchProcedureCode"
+                                                        class="procedure-code"
+                                                        value="@Model.Procedures[i].VchProcedureCode">
+                                                        <div class="list-group position-absolute w-100 procedure-suggestions"
+                                                        style="z-index:999; display:none;"></div>
+                                                    </td>
 
-                                            <!-- Priority -->
-                                            <td>
-                                                <select class="form-select form-select-sm" name="Procedures[0].VchPriority">
-                                                    <option value="">-- Select --</option>
-                                                    <option value="Normal">Normal</option>
-                                                    <option value="Urgent">Urgent</option>
-                                                </select>
-                                            </td>                                          
+                                                    <!-- Priority -->
+                                                    <td>
+                                                        <select class="form-select form-select-sm" name="Procedures[@i].VchPriority">
+                                                            <option value="">-- Select --</option>                                                            
+                                                            <option value="Normal" selected="@(Model.Procedures[i].VchPriority == "Normal" ? "selected" : null)">Normal</option>
+                                                            <option value="Urgent" selected="@(Model.Procedures[i].VchPriority == "Urgent" ? "selected" : null)">Urgent</option>
+                                                        </select>
+                                                    </td>                                          
 
-                                            <!-- Action -->
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-danger btn-sm remove-procedure">
-                                                    <i class="bi bi-x-lg text-white"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-success btn-sm add-procedure-row">
-                                                    <i class="bi bi-plus-lg"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                    <!-- Action -->
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-danger btn-sm remove-procedure">
+                                                            <i class="bi bi-x-lg text-white"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-success btn-sm add-procedure-row">
+                                                            <i class="bi bi-plus-lg"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr class="procedure-item">
+                                                <!-- Procedure Name -->
+                                                <td class="position-relative">
+                                                    <input type="text"
+                                                    class="form-control form-control-sm procedure-autocomplete"
+                                                    name="Procedures[0].VchProcedureName"
+                                                    placeholder="Search Procedure" autocomplete="off">
+                                                    <input type="hidden"
+                                                    name="Procedures[0].VchProcedureCode"
+                                                    class="procedure-code">
+                                                    <div class="list-group position-absolute w-100 procedure-suggestions"
+                                                    style="z-index:999; display:none;"></div>
+                                                </td>
+
+                                                <!-- Priority -->
+                                                <td>
+                                                    <select class="form-select form-select-sm" name="Procedures[0].VchPriority">
+                                                        <option value="">-- Select --</option>
+                                                        <option value="Normal">Normal</option>
+                                                        <option value="Urgent">Urgent</option>
+                                                    </select>
+                                                </td>                                          
+
+                                                <!-- Action -->
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-procedure">
+                                                        <i class="bi bi-x-lg text-white"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-success btn-sm add-procedure-row">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -493,11 +735,16 @@
                                 <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Follow-up Date</label>
-                                    <input asp-for="DoctorAssessment.DtFollowUpDate" type="date" class="form-control" />
-                                </div>
+                                        <input asp-for="DoctorAssessment.DtFollowUpDate" value="@(Model.DoctorAssessment.DtFollowUpDate.HasValue
+                                    ? Model.DoctorAssessment.DtFollowUpDate.Value.ToString("yyyy-MM-dd"):"")" class="form-control" type="date" />
+                                        <span asp-validation-for="DoctorAssessment.DtFollowUpDate" class="text-danger"></span>
+                                    </div>
+                                   @* value="@Model.DoctorAssessment.DtFollowUpDate" *@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Follow-up Time</label>
-                                    <input asp-for="DoctorAssessment.FollowUpTime" type="time" class="form-control" />
+                                        <input asp-for="DoctorAssessment.FollowUpTime" value="@(Model.DoctorAssessment.FollowUpTime.HasValue
+                                ? Model.DoctorAssessment.FollowUpTime.Value.ToString(@"hh\:mm"): "")" type="time" class="form-control" />
+                                <span asp-validation-for="DoctorAssessment.FollowUpTime" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>  
@@ -533,7 +780,25 @@
                                 </div>
 
                                 <!-- Preview File List -->
-                                <div id="doctor-file-list" class="mt-4"></div>
+                                <div id="doctor-file-list" class="mt-4">
+                                    @* Edit mode: show already uploaded files *@
+                                    @if (Model.Documents != null && Model.Documents.Any())
+                                    {
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var file in Model.Documents)
+                                            {
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <a href="@Url.Content("~/Uploads/DoctorDocs/" + file.VchFileName)" target="_blank">
+                                                        @file.VchFileName
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-danger remove-existing-file" data-file-id="@file.IntId">
+                                                        <i class="bi bi-x-lg text-white"></i>
+                                                    </button>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
                             </div>
                         </div>                       
                     </div>
@@ -1423,7 +1688,7 @@
                  div.innerHTML = `
                      <i class="fas fa-file-alt text-primary me-2"></i>
                      <span class="text-truncate" style="max-width: 160px;">${file.name}</span>
-                     <span class="badge bg-secondary ms-2">${(file.size / 1024).toFixed(1)} KB</span>
+                     <span class="badge bg-secondary ms-auto">${(file.size / 1024).toFixed(1)} KB</span>
                      <button type="button" class="btn btn-sm btn-outline-danger ms-auto remove-file" data-index="${index}">❌</button>
                  `;
                  doctorFileList.appendChild(div);

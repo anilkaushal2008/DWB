@@ -45,5 +45,11 @@ public partial class TblDoctorAssmntMedicine
 
     public bool BitAd { get; set; }
 
+    public string BreakFastTiming { get; set; }
+
+    public string LunchTiming { get; set; }
+
+    public string DinnerTiming { get; set; }
+
     public virtual TblDoctorAssessment FkDocAssmnt { get; set; }
 }

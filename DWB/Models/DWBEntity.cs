@@ -840,7 +840,9 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.BitAsstAssigned).HasColumnName("bitAsstAssigned");
             entity.Property(e => e.BitAsstCompleted).HasColumnName("bitAsstCompleted");
-            entity.Property(e => e.BitCrossConsult).HasColumnName("bitCrossConsult");
+            entity.Property(e => e.BitCrossConsult)
+                .HasDefaultValue(false)
+                .HasColumnName("bitCrossConsult");
             entity.Property(e => e.BitFollowUp)
                 .HasDefaultValue(false)
                 .HasColumnName("bitFollowUp");
@@ -848,7 +850,9 @@ public partial class DWBEntity : DbContext
                 .HasDefaultValue(false)
                 .HasColumnName("bitIPDConversion");
             entity.Property(e => e.BitIsSupportDoc).HasColumnName("bitIsSupportDoc");
-            entity.Property(e => e.BitNutritionalConsult).HasColumnName("bitNutritionalConsult");
+            entity.Property(e => e.BitNutritionalConsult)
+                .HasDefaultValue(false)
+                .HasColumnName("bitNutritionalConsult");
             entity.Property(e => e.BitPrescribeLabTest).HasColumnName("bitPrescribeLabTest");
             entity.Property(e => e.BitPrescribeMedicine).HasColumnName("bitPrescribeMedicine");
             entity.Property(e => e.BitPrescribeProcedure).HasColumnName("bitPrescribeProcedure");
@@ -1055,6 +1059,12 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.BitBd).HasColumnName("bitBD");
             entity.Property(e => e.BitBl).HasColumnName("bitBL");
             entity.Property(e => e.BitIsPrn).HasColumnName("bitIsPRN");
+            entity.Property(e => e.BreakFastTiming)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.DinnerTiming)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.DtCreated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtCreated");
@@ -1062,6 +1072,9 @@ public partial class DWBEntity : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
             entity.Property(e => e.FkDocAssmntId).HasColumnName("fk_DocAssmntID");
+            entity.Property(e => e.LunchTiming)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.VchCreatedBy)
                 .IsRequired()
                 .HasMaxLength(100)
