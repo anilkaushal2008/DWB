@@ -12,7 +12,7 @@
 <main class="main-wrapper py-4">  
    <div class="container-fluid">
         <h4 class="mb-4 fw-bold text-primary">
-            @(Model.DoctorAssessment.FkAssessmentId > 0 ? "Edit Doctor Assessment" : "New Doctor Assessment")
+            @(Model.DoctorAssessment.IntId > 0 ? "Edit Doctor Assessment" : "New Doctor Assessment")
         </h4>
         <div class="card p-2 border-0 shadow-sm rounded-3 mb-2 bg-light">
             <div class="d-flex flex-wrap align-items-center small text-dark fw-semibold">
@@ -26,10 +26,11 @@
         <div class="card shadow-sm rounded-4">           
             <div class="card-body">                
                 <form method="post" id="DAssessment" enctype="multipart/form-data"
-                      asp-action="@(Model.DoctorAssessment.FkAssessmentId > 0 ? "DocAssmntEdit" : "DocAssmntCreate")" asp-controller="Assessment">
+                      asp-action="@(Model.DoctorAssessment.IntId > 0 ? "DocAssmntEdit" : "DocAssmntCreate")" asp-controller="Assessment">
                       @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
                       @Html.HiddenFor(m => m.DoctorAssessment.FkUhid)
                       @Html.HiddenFor(m => m.DoctorAssessment.FkAssessmentId)                      
+                      @Html.HiddenFor(m => m.DoctorAssessment.FkVisitNo)                      
                       @Html.HiddenFor(m => m.DoctorAssessment.DtHmsentry)
                       @Html.HiddenFor(m => m.NursingAssessment.IntAssessmentId)
                     @* for edit assessment *@
@@ -41,7 +42,7 @@
                     <!-- Submit -->                   
                     <div align="right" class="text-end mt-1 my-1">
                         <button type="submit" class="btn btn-sm btn-primary px-4 py-2 rounded-pill shadow-sm">
-                            @(Model.DoctorAssessment.FkAssessmentId > 0 ? "✅ Update Assessment" : "✅ Save Assessment")
+                            @(Model.DoctorAssessment.IntId > 0 ? "✅ Update Assessment" : "✅ Save Assessment")
                         </button>
                     </div>
                     <!-- Nav Tabs -->

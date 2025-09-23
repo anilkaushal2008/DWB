@@ -978,12 +978,10 @@ public partial class DWBEntity : DbContext
                 .IsUnicode(false)
                 .HasColumnName("vchCreatedBy");
             entity.Property(e => e.VchCreatedHost)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("vchCreatedHost");
             entity.Property(e => e.VchCreatedIp)
-                .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("vchCreatedIP");
@@ -997,6 +995,10 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(200)
                 .IsUnicode(false)
                 .HasColumnName("vchFIlePath");
+
+            entity.HasOne(d => d.IntFkDoctorAss).WithMany(p => p.TblDoctorAssessmentDoc)
+                .HasForeignKey(d => d.IntFkDoctorAssId)
+                .HasConstraintName("FK_tblDoctorAssessmentDoc_tblDoctorAssessment");
         });
 
         modelBuilder.Entity<TblDoctorAssmntLab>(entity =>
@@ -1043,7 +1045,6 @@ public partial class DWBEntity : DbContext
 
             entity.HasOne(d => d.FkDocAssmnt).WithMany(p => p.TblDoctorAssmntLab)
                 .HasForeignKey(d => d.FkDocAssmntId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TblDoctorAssmntLab_tblDoctorAssessment");
         });
 
@@ -1116,7 +1117,6 @@ public partial class DWBEntity : DbContext
 
             entity.HasOne(d => d.FkDocAssmnt).WithMany(p => p.TblDoctorAssmntMedicine)
                 .HasForeignKey(d => d.FkDocAssmntId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TblDoctorAssmntMedicine_tblDoctorAssessment");
         });
 
@@ -1164,7 +1164,6 @@ public partial class DWBEntity : DbContext
 
             entity.HasOne(d => d.FkDocAsst).WithMany(p => p.TblDoctorAssmntProcedure)
                 .HasForeignKey(d => d.FkDocAsstId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TblDoctorAssmntRadiology_tblDoctorAssessment");
         });
 
@@ -1214,7 +1213,6 @@ public partial class DWBEntity : DbContext
 
             entity.HasOne(d => d.FkDocAssmnt).WithMany(p => p.TblDoctorAssmntRadiology)
                 .HasForeignKey(d => d.FkDocAssmntId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblDoctorAssmntRadiology_tblDoctorAssessment1");
         });
 

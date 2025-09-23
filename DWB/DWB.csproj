@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <Folder Include="GroupModels\" />
-    <Folder Include="wwwroot\Uploads\DocAssessment\" />
+    <Folder Include="wwwroot\Uploads\DoctorDocs\" />
     <Folder Include="wwwroot\Uploads\NAssessment\" />
     <Folder Include="wwwroot\Uploads\Profile\" />
     <Folder Include="wwwroot\Uploads\Signature\" />

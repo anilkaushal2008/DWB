@@ -1,5 +1,6 @@
 ﻿using DWB.APIModel;
 using DWB.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -627,37 +628,91 @@ namespace DWB.Report
                     col.Item().PaddingBottom(2).AlignCenter().Text("DOCTOR ASSESSMENT REPORT")
                         .FontSize(12).Bold().FontColor(Colors.Black);
 
-                    // ===== Patient Details Card =====
-                    col.Item().Background(Colors.White)
-                        .Border(1).BorderColor(Colors.Black)
-                        .Padding(8).Table(table =>
-                        {
-                            // Column setup
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.RelativeColumn();
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn();
-                            });
+                    //Patient details
+                    col.Item()
+    .Background(Colors.White)
+    .Padding(2) // no outer border
+    .Table(table =>
+    {
+        // === Define columns once ===
+        table.ColumnsDefinition(columns =>
+        {
+            columns.RelativeColumn();   // col 1
+            columns.RelativeColumn(2); // col 2
+            columns.RelativeColumn();   // col 3
+        });
 
-                            // === Row 1: Headers ===
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("UHID").Bold().FontSize(8);
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("NAME").Bold().FontSize(8);
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("AGE / GENDER").Bold().FontSize(8);
+        // === Row 1 ===
+        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(text =>
+        {
+            text.Span("UHID: ").Bold().FontSize(8);
+            text.Span(nursing?.VchUhidNo ?? "N/A").FontSize(8);
+        });
 
-                            // === Row 2: Details ===
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchUhidNo ?? "N/A").FontSize(8);
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsname?.ToUpper() ?? "N/A").FontSize(8);
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{(nursing?.IntAge ?? 0)} / {nursing?.VchGender?.ToUpper() ?? "N/A"}").FontSize(8);
+        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(text =>
+        {
+            text.Span("NAME: ").Bold().FontSize(8);
+            text.Span(nursing?.VchHmsname?.ToUpper() ?? "N/A").FontSize(8);
+        });
 
-                            // === Row 3: Headers ===
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("DATE").Bold().FontSize(8);
-                            table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("CONSULTANT").Bold().FontSize(8);
+        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(text =>
+        {
+            text.Span("AGE / GENDER: ").Bold().FontSize(8);
+            text.Span($"{(nursing?.VchHmsage ?? "0")} / {nursing?.VchGender?.ToUpper() ?? "N/A"}").FontSize(8);
+        });
 
-                            // === Row 4: Details ===
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.DtCreated?.ToString("dd/MM/yyyy") ?? "N/A").FontSize(8);
-                            table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsconsultant?.ToUpper() ?? "N/A").FontSize(8);
-                        });
+        // === Row 2 ===
+        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(text =>
+        {
+            text.Span("DATE TIME: ").Bold().FontSize(8);
+            text.Span(nursing?.DtCreated?.ToString("dd/MM/yyyy hh:mm tt") ?? "N/A").FontSize(8);
+        });
+
+        // CONSULTANT spans 2 columns
+        table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(text =>
+        {
+            text.Span("CONSULTANT: ").Bold().FontSize(8);
+            text.Span($"{(nursing?.VchHmsconsultant ?? "N/A").ToUpper()}").FontSize(8);
+        });
+    });
+
+
+
+
+
+
+
+                    //// ===== Patient Details Card =====
+                    //col.Item().Background(Colors.White)
+                    //    .Border(1).BorderColor(Colors.Black)
+                    //    .Padding(8).Table(table =>
+                    //    {
+                    //        // Column setup
+                    //        table.ColumnsDefinition(columns =>
+                    //        {
+                    //            columns.RelativeColumn();
+                    //            columns.RelativeColumn(2);
+                    //            columns.RelativeColumn();
+                    //        });
+
+                    //        // === Row 1: Headers ===
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("UHID").Bold().FontSize(8);
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("NAME").Bold().FontSize(8);
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("AGE / GENDER").Bold().FontSize(8);
+
+                    //        // === Row 2: Details ===
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchUhidNo ?? "N/A").FontSize(8);
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsname?.ToUpper() ?? "N/A").FontSize(8);
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{(nursing?.VchHmsage ?? "0")} / {nursing?.VchGender?.ToUpper() ?? "N/A"}").FontSize(8);
+
+                    //        // === Row 3: Headers ===
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("DATE TIME").Bold().FontSize(8);
+                    //        table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("CONSULTANT").Bold().FontSize(8);
+
+                    //        // === Row 4: Details ===
+                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.DtCreated?.ToString("dd/MM/yyyy hh:mm tt") ?? "N/A").FontSize(8);
+                    //        table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsconsultant?.ToUpper() ?? "N/A").FontSize(8);
+                    //    });
 
                     col.Item().PaddingVertical(4);
 
@@ -680,9 +735,9 @@ namespace DWB.Report
 
                                 // ===== Title row =====
                                 table.Cell().ColumnSpan(4)
-            .Background(Colors.Grey.Lighten3)
-            .Border(1).BorderColor(Colors.Black).Padding(4)
-            .Text("NURSING ASSESSMENT").Bold().FontSize(9).AlignCenter();
+                                .Background(Colors.Grey.Lighten3)
+                                .Border(1).BorderColor(Colors.Black).Padding(4)
+                                .Text("NURSING ASSESSMENT").Bold().FontSize(9).AlignCenter();
 
                                 // ===== Row 1: Headers =====
                                 table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("BP").Bold().FontSize(8);
@@ -707,7 +762,7 @@ namespace DWB.Report
                                 table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(
                                  nursing?.BitIsAllergical == true
                                  ? $"YES ({(string.IsNullOrWhiteSpace(nursing?.VchAllergicalDrugs) ? "N/A" : nursing.VchAllergicalDrugs.ToUpper())})"                              : "NO"
-                      ).FontSize(8);
+                                 ).FontSize(8);
 
                                 // ===== Row 5: Headers =====
                                 table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Alcohol").Bold().FontSize(8);
@@ -763,9 +818,6 @@ namespace DWB.Report
                                 });
                             });
 
-
-
-
                     });
 
 
@@ -781,8 +833,11 @@ namespace DWB.Report
                                 if (labs.Any())
                                 {
                                     card.Item().Text("LAB TESTS").Bold().FontSize(9);
-                                    foreach (var lab in labs)
-                                        card.Item().Text($"• {(lab.VchTestName ?? "").ToUpper()}").FontSize(8);
+                                    
+                                    string labTestsLine = "• "+string.Join(", ", labs.Select(l => (l.VchTestName ?? "").ToUpper()));
+
+                                    // Display all lab tests in one line
+                                    card.Item().Text(labTestsLine).FontSize(8);
 
                                     card.Item().PaddingBottom(4); // space before next section
                                 }
@@ -791,8 +846,10 @@ namespace DWB.Report
                                 if (radiologies.Any())
                                 {
                                     card.Item().Text("RADIOLOGY").Bold().FontSize(9);
-                                    foreach (var r in radiologies)
-                                        card.Item().Text($"• {(r.VchRadiologyName ?? "").ToUpper()}").FontSize(8);
+                                    string allradiology = "• " + string.Join(", ", radiologies.Select(r => (r.VchRadiologyName ?? "").ToUpper()));
+
+                                    // Display all radiology in one line
+                                    card.Item().Text(allradiology).FontSize(8);                                   
 
                                     card.Item().PaddingBottom(4);
                                 }
@@ -801,8 +858,10 @@ namespace DWB.Report
                                 if (procedures.Any())
                                 {
                                     card.Item().Text("PROCEDURES").Bold().FontSize(9);
-                                    foreach (var p in procedures)
-                                        card.Item().Text($"• {(p.VchProcedureName ?? "").ToUpper()}").FontSize(8);
+                                    string allprocedure = "• " + string.Join(", ", procedures.Select(p => (p.VchProcedureName ?? "").ToUpper()));
+
+                                    // Display all procedures in one line
+                                    card.Item().Text(allprocedure).FontSize(8);
                                 }
                             });
                     }
@@ -875,61 +934,7 @@ namespace DWB.Report
                                 docCard.Item().Text("BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch, AL = After Lunch, BD = Before Dinner, AD = After Dinner")
                                     .FontSize(7).FontColor(Colors.Black);
                             });
-                    }
-
-                    //    // ===== Medicines Card =====
-                    //    if (medicines.Any())
-                    //    {
-                    //        col.Item().Background(Colors.White)
-                    //            .Border(1).BorderColor(Colors.Black)
-                    //            .Padding(10).Column(docCard =>
-                    //            {
-                    //                docCard.Item().Text("PRESCRIBED MEDICINES").Bold().FontSize(9);
-
-                    //                docCard.Item().Table(table =>
-                    //                {
-                    //                    table.ColumnsDefinition(columns =>
-                    //                    {
-                    //                        columns.RelativeColumn(4);
-                    //                        columns.RelativeColumn(1);
-                    //                        columns.RelativeColumn(1);
-                    //                        columns.RelativeColumn(1);
-                    //                        columns.RelativeColumn(3);
-                    //                    });
-
-                    //                    table.Header(header =>
-                    //                    {
-                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("MEDICINE").SemiBold();
-                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("DOSAGE").SemiBold();
-                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("FREQUENCY").SemiBold();
-                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("DURATION").SemiBold();
-                    //                        header.Cell().Background(Colors.Grey.Lighten2).Padding(3).Text("TIMING").SemiBold();
-                    //                    });
-
-                    //                    foreach (var med in medicines)
-                    //                    {
-                    //                        table.Cell().Padding(3).Text((med.VchMedicineName ?? "").ToUpper());
-                    //                        table.Cell().Padding(3).Text((med.VchDosage ?? "").ToUpper());
-                    //                        table.Cell().Padding(3).Text((med.VchFrequency ?? "").ToUpper());
-                    //                        table.Cell().Padding(3).Text((med.VchDuration ?? "").ToUpper());
-
-                    //                        var timings = new List<string>();
-                    //                        if (med.BitBbf == true) timings.Add("BBF");
-                    //                        if (med.BitAbf == true) timings.Add("ABF");
-                    //                        if (med.BitBl == true) timings.Add("BL");
-                    //                        if (med.BitAl == true) timings.Add("AL");
-                    //                        if (med.BitBd == true) timings.Add("BD");
-                    //                        if (med.BitAd == true) timings.Add("AD");
-
-                    //                        table.Cell().Padding(3).Text(timings.Count > 0 ? string.Join(", ", timings) : "N/A");
-                    //                    }
-                    //                });
-
-                    //                docCard.Item().PaddingTop(4).Text("Timing Abbreviations:").Bold().FontSize(8);
-                    //                docCard.Item().Text("BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch, AL = After Lunch, BD = Before Dinner, AD = After Dinner")
-                    //.FontSize(8).FontColor(Colors.Black);
-                    //            });
-                    //    }
+                    }                   
 
                     // ===== Nutritional Consultation + Follow Up Card =====
                     col.Item().PaddingTop(6).Background(Colors.White)
@@ -958,13 +963,12 @@ namespace DWB.Report
                     col.Item().PaddingTop(6)
                         .Background(Colors.White)
                         .Border(1).BorderColor(Colors.Black)
-                        .Padding(10).Column(card =>
+                        .Padding(4).Column(card =>
                         {
                             // Explanation text
-                            card.Item().Text("I have explained to the patient the disease process, proposed plan of care, and possible side effects in their own language.")
-                            .Italic().FontSize(9);
-
-                            card.Item().PaddingVertical(5);
+                            card.Item().PaddingBottom(0).Text("I have explained to the patient the disease process, proposed plan of care, and possible side effects in their own language.")
+                            .Italic().FontSize(9);                            
+                            
 
                             // Row where signature sits at the right edge
                             card.Item().Row(row =>
@@ -972,10 +976,10 @@ namespace DWB.Report
                                 row.RelativeColumn(); // consumes available space, pushing signature to the right
 
                                 // Fixed-width column for signature to avoid layout conflicts
-                                row.ConstantColumn(120).Column(sig =>
+                                row.ConstantColumn(110).Column(sig =>
                                 {
                                     // Signature image area (fixed height)
-                                    sig.Item().Height(50).Element(cell =>
+                                    sig.Item().PaddingTop(0).Height(45).Element(cell =>
                                     {
                                         if (!string.IsNullOrWhiteSpace(users?.VchSignFileName))
                                         {
@@ -991,7 +995,6 @@ namespace DWB.Report
                                             .FontSize(8).Italic().FontColor(Colors.Red.Medium);
                                         }
                                     });
-
                                     // Consultant's name aligned right under the signature box
                                     sig.Item().AlignRight().Text(
                                     string.IsNullOrWhiteSpace(nursing?.VchHmsconsultant) ? "N/A" : nursing.VchHmsconsultant.ToUpper()).FontSize(8).Bold();
@@ -1030,7 +1033,7 @@ namespace DWB.Report
                 {
                     txt.Span("Print on: ").SemiBold().FontSize(7);
                     txt.Span(DateTime.Now.ToString("dd-MMM-yyyy HH:mm")).FontSize(7);
-                });
+                });             
             });
         }   
         

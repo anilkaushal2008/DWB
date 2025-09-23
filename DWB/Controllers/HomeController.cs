@@ -4,6 +4,7 @@ using FluentAssertions.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Net;
 using System.Reflection.Emit;
 using System.Security.Claims;
 
@@ -154,6 +156,50 @@ namespace DWB.Controllers
                 //set identity and principal  
                 var newIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var newPrincipal = new ClaimsPrincipal(newIdentity);
+                //get client detail 
+                // Get IP
+                string? ip = null;
+
+                // Check X-Forwarded-For header
+                if (HttpContext.Request.Headers.ContainsKey("X-Forwarded-For"))
+                {
+                    ip = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+                    if (!string.IsNullOrEmpty(ip))
+                        ip = ip.Split(',').FirstOrDefault()?.Trim();
+                }
+
+                // Fallback to RemoteIpAddress
+                if (string.IsNullOrEmpty(ip) && HttpContext.Connection.RemoteIpAddress != null)
+                {
+                    var remoteIp = HttpContext.Connection.RemoteIpAddress;
+                    // Check if the address is IPv6 loopback (::1)
+                    if (remoteIp.Equals(IPAddress.IPv6Loopback))
+                        remoteIp = IPAddress.Loopback;
+                    ip = remoteIp.ToString();
+                }
+
+                string clientIp = ip ?? "Unknown";
+
+                // Resolve hostname
+                string clientHost = clientIp;
+                try
+                {
+                    if (clientIp != "Unknown")
+                    {
+                        var hostEntry = System.Net.Dns.GetHostEntry(clientIp);
+                        clientHost = hostEntry.HostName;
+                    }
+                }
+                catch
+                {
+                    // fallback to IP if hostname lookup fails
+                    clientHost = clientIp;
+                }
+
+                // Store in Session
+                HttpContext.Session.SetString("ClientHost", clientHost);
+                HttpContext.Session.SetString("ClientIp", clientIp);
+
                 //Sign in  
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, newPrincipal, new AuthenticationProperties
                 {

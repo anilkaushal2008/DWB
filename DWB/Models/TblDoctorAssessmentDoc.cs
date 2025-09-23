@@ -24,4 +24,6 @@ public partial class TblDoctorAssessmentDoc
     public string VchCreatedHost { get; set; }
 
     public bool BitIsForDoctorAssessment { get; set; }
+
+    public virtual TblDoctorAssessment IntFkDoctorAss { get; set; }
 }

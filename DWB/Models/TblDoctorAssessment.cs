@@ -93,6 +93,8 @@ public partial class TblDoctorAssessment
 
     public virtual TblNsassessment FkAssessment { get; set; }
 
+    public virtual ICollection<TblDoctorAssessmentDoc> TblDoctorAssessmentDoc { get; set; } = new List<TblDoctorAssessmentDoc>();
+
     public virtual ICollection<TblDoctorAssmntLab> TblDoctorAssmntLab { get; set; } = new List<TblDoctorAssmntLab>();
 
     public virtual ICollection<TblDoctorAssmntMedicine> TblDoctorAssmntMedicine { get; set; } = new List<TblDoctorAssmntMedicine>();

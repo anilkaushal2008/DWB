@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient.DataClassification;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 //for pdf packages
 using QuestPDF.Fluent;
@@ -113,6 +114,7 @@ namespace DWB.Controllers
                 VchHmscategory = category,
                 DtStartTime = DateTime.Now,
                 IntIhmsvisit = Convert.ToInt32(visit),
+                IntAge=Convert.ToInt32(age),
                 VchCreatedBy = User.Identity.Name,
                 VchIpUsed = HttpContext.Connection.RemoteIpAddress.ToString()
             };
@@ -542,11 +544,11 @@ namespace DWB.Controllers
                     DtEndTime = DateTime.Now,
                     VchCreatedBy = User.Identity.Name,
                     DtCreated = DateTime.Now,
-                    IntCode= Convert.ToInt32(User.FindFirst("UnitId")?.Value),
+                    FkVisitNo=model.DoctorAssessment.FkVisitNo,
+                    IntCode = Convert.ToInt32(User.FindFirst("UnitId")?.Value),
                     FkUserId=Convert.ToInt32(User.FindFirst("UserId")?.Value),
                     FkUnitName= User.FindFirst("CompName")?.Value,
-                    DtHmsentry =model.DoctorAssessment.DtHmsentry
-                    
+                    DtHmsentry =model.DoctorAssessment.DtHmsentry                    
                 };
                 if (nsgAssessment != null)
                 {
@@ -678,7 +680,11 @@ namespace DWB.Controllers
                             {
                                 IntFkDoctorAssId = model.DoctorAssessment.IntId,
                                 VchFileName = fileName,
-                                DtCreated = DateTime.Now
+                                VchFilePath = "/uploads/DoctorDocs/" + fileName,
+                                DtCreated = DateTime.Now,
+                                VchCreatedBy = User.Identity?.Name ?? "System",
+                                VchCreatedHost = HttpContext.Session.GetString("ClientHost"),
+                                VchCreatedIp = HttpContext.Session.GetString("ClientIP")
                             });
                             doctorAssessment.BitIsSupportDoc = true; //mark document uploaded
                             await _context.SaveChangesAsync();
@@ -871,7 +877,7 @@ namespace DWB.Controllers
                                 VchRadiologyCode = radio.VchRadiologyCode,
                                 VchPriority = radio.VchPriority,
                                 DtCreated = DateTime.Now,
-                                VchCreatedBy = User.Identity.Name
+                                VchCreatedBy = User.Identity.Name,                                
                             });
                         }
                     }
@@ -932,17 +938,17 @@ namespace DWB.Controllers
                             {
                                 IntFkDoctorAssId = model.DoctorAssessment.IntId,
                                 VchFileName = fileName,
-                                DtCreated = DateTime.Now
+                                VchFilePath="/uploads/DoctorDocs/"+ fileName,
+                                DtCreated = DateTime.Now,
+                                VchCreatedBy = User.Identity?.Name ?? "System",
+                                VchCreatedHost= HttpContext.Session.GetString("ClientHost"),
+                                VchCreatedIp= HttpContext.Session.GetString("ClientIp")
                             });
                             doctorAssessment.BitIsSupportDoc = true; //mark document uploaded
                             await _context.SaveChangesAsync();
                         }
-                    }
-                    doctorAssessment.BitIsSupportDoc = true;
+                    }                    
                 }
-
-                await _context.SaveChangesAsync();
-
                 TempData["Success"] = "✅ Doctor Assessment updated successfully!";
                 return RedirectToAction("DoctorAssessment");
             }
