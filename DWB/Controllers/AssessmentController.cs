@@ -508,6 +508,19 @@ namespace DWB.Controllers
             return Json(getLabTest);
         }
 
+        //get cheif complaint for doctor assessment
+        [HttpGet]
+        public JsonResult GetChiefComplaints(string term)
+        {
+            var list = _context.TblCheifComplaintMas
+                          .Where(c => c.VchCheifComplaint.Contains(term))
+                          .OrderBy(c => c.VchCheifComplaint)
+                          .Take(20)
+                          .Select(c => c.VchCheifComplaint)
+                          .ToList();
+            return Json(list);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DocAssmntCreate(DoctorAssessmentVM model, IFormFile[] doctorDocs)
@@ -569,7 +582,7 @@ namespace DWB.Controllers
                                 FkDocAssmntId = doctorAssessment.IntId, // use saved assessment PK
                                 VchMedicineName = med.VchMedicineName,
                                 VchMedicineCode = med.VchMedicineCode, // hidden code
-                                VchDosage = med.VchDosage,
+                                IntQuantity = med.IntQuantity,
                                 VchFrequency = med.VchFrequency,
                                 VchDuration = med.VchDuration,
                                 BitBbf = med.BreakFastTiming == "BBF",
@@ -806,7 +819,7 @@ namespace DWB.Controllers
                                 FkDocAssmntId = doctorAssessment.IntId,
                                 VchMedicineName = med.VchMedicineName,
                                 VchMedicineCode = med.VchMedicineCode,
-                                VchDosage = med.VchDosage,
+                                IntQuantity = med.IntQuantity,
                                 VchFrequency = med.VchFrequency,
                                 VchDuration = med.VchDuration,
                                 BitBbf = med.BreakFastTiming == "BBF",
@@ -985,6 +998,11 @@ namespace DWB.Controllers
             return File(pdf, "application/pdf"); // <--- Important
         }
 
+
+        public IActionResult NewDental()
+        { 
+            return View(); 
+        }
 
         #endregion
 

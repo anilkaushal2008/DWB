@@ -615,24 +615,24 @@ namespace DWB.Report
                     });
 
                     // Divider line
-                    headerCol.Item()
-                        .PaddingVertical(4)
-                        .LineHorizontal(1)
-                        .LineColor(Colors.Black);
+                    //headerCol.Item()
+                    //    .PaddingVertical(4)
+                    //    .LineHorizontal(1)
+                    //    .LineColor(Colors.Black);
                 });
 
                 // ===== CONTENT =====
                 page.Content().PaddingTop(0).Column(col =>
                 {
                     // Main Title
-                    col.Item().PaddingBottom(2).AlignCenter().Text("DOCTOR ASSESSMENT REPORT")
-                        .FontSize(12).Bold().FontColor(Colors.Black);
+                    //col.Item().PaddingBottom(2).AlignCenter().Text("DOCTOR ASSESSMENT REPORT")
+                        //.FontSize(12).Bold().FontColor(Colors.Black);
 
                     //Patient details
                     col.Item()
-    .Background(Colors.White)
-    .Padding(2) // no outer border
-    .Table(table =>
+                    .Background(Colors.White)
+                    .Padding(0) // no outer border
+                    .Table(table =>
     {
         // === Define columns once ===
         table.ColumnsDefinition(columns =>
@@ -674,167 +674,186 @@ namespace DWB.Report
             text.Span("CONSULTANT: ").Bold().FontSize(8);
             text.Span($"{(nursing?.VchHmsconsultant ?? "N/A").ToUpper()}").FontSize(8);
         });
-    });
-
-
-
-
-
-
-
-                    //// ===== Patient Details Card =====
-                    //col.Item().Background(Colors.White)
-                    //    .Border(1).BorderColor(Colors.Black)
-                    //    .Padding(8).Table(table =>
-                    //    {
-                    //        // Column setup
-                    //        table.ColumnsDefinition(columns =>
-                    //        {
-                    //            columns.RelativeColumn();
-                    //            columns.RelativeColumn(2);
-                    //            columns.RelativeColumn();
-                    //        });
-
-                    //        // === Row 1: Headers ===
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("UHID").Bold().FontSize(8);
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("NAME").Bold().FontSize(8);
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("AGE / GENDER").Bold().FontSize(8);
-
-                    //        // === Row 2: Details ===
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchUhidNo ?? "N/A").FontSize(8);
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsname?.ToUpper() ?? "N/A").FontSize(8);
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{(nursing?.VchHmsage ?? "0")} / {nursing?.VchGender?.ToUpper() ?? "N/A"}").FontSize(8);
-
-                    //        // === Row 3: Headers ===
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("DATE TIME").Bold().FontSize(8);
-                    //        table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("CONSULTANT").Bold().FontSize(8);
-
-                    //        // === Row 4: Details ===
-                    //        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.DtCreated?.ToString("dd/MM/yyyy hh:mm tt") ?? "N/A").FontSize(8);
-                    //        table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchHmsconsultant?.ToUpper() ?? "N/A").FontSize(8);
-                    //    });
-
+    });                   
                     col.Item().PaddingVertical(4);
 
-                    // ===== Nursing & Doctor Assessment Row Cards (consistent border) =====
-                    col.Item().Row(row =>
+
+                    //Nursing assessment
+                    col.Item().Padding(0).Table(table =>
                     {
-                        // ===== Nursing Assessment Table =====
-                        row.RelativeColumn()
-                            .Padding(0) // removed outer card padding/border
-                            .Table(table =>
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
+
+                        // ===== Title Row =====
+                        table.Cell().ColumnSpan(8)
+                            .Background(Colors.Grey.Lighten3)
+                            .Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text("NURSING ASSESSMENT").Bold().FontSize(9).AlignCenter();
+
+                        // ===== Row 1: Vitals (8 cells) =====
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
                             {
-                                // Column setup
-                                table.ColumnsDefinition(columns =>
-                                {
-                                    columns.RelativeColumn();
-                                    columns.RelativeColumn();
-                                    columns.RelativeColumn();
-                                    columns.RelativeColumn();
-                                });
-
-                                // ===== Title row =====
-                                table.Cell().ColumnSpan(4)
-                                .Background(Colors.Grey.Lighten3)
-                                .Border(1).BorderColor(Colors.Black).Padding(4)
-                                .Text("NURSING ASSESSMENT").Bold().FontSize(9).AlignCenter();
-
-                                // ===== Row 1: Headers =====
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("BP").Bold().FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("SpO2").Bold().FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Pulse").Bold().FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Height").Bold().FontSize(8);
-
-                                // ===== Row 2: Details =====
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchBloodPressure ?? "N/A").FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecSpO2 ?? 0}").FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.VchPulse ?? "N/A").FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecHeight ?? 0}").FontSize(8);
-
-                                // ===== Row 3: Headers =====
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Temp").Bold().FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Respiratory Rate").Bold().FontSize(8);
-                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("Allergies").Bold().FontSize(8);
-
-                                // ===== Row 4: Details =====
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecTemperature ?? "N/A"}").FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text($"{nursing?.DecRespiratoryRate ?? 0}").FontSize(8);
-                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(
-                                 nursing?.BitIsAllergical == true
-                                 ? $"YES ({(string.IsNullOrWhiteSpace(nursing?.VchAllergicalDrugs) ? "N/A" : nursing.VchAllergicalDrugs.ToUpper())})"                              : "NO"
-                                 ).FontSize(8);
-
-                                // ===== Row 5: Headers =====
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Alcohol").Bold().FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text("Smoking").Bold().FontSize(8);
-                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text("Fall Risk").Bold().FontSize(8);
-
-                                // ===== Row 6: Details =====
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.BitIsAlcoholic == true ? "YES" : "NO").FontSize(8);
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.BitIsSmoking == true ? "YES" : "NO").FontSize(8);
-                                table.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(4).Text(nursing?.BitFallRisk == true ? "YES" : "NO").FontSize(8);
+                                t.Span("BP: ").Bold().FontSize(8);
+                                t.Span(nursing?.VchBloodPressure ?? "N/A").FontSize(8);
                             });
 
-
-
-                        row.Spacing(6);
-
-                        // ===== Doctor Assessment Card =====
-                        row.RelativeColumn().Background(Colors.White)
-                            .Border(1).BorderColor(Colors.Black)
-                            .Padding(0).Column(docCard =>
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
                             {
-                                docCard.Item().Table(table =>
-                                {
-                                    table.ColumnsDefinition(columns =>
-                                    {
-                                        columns.RelativeColumn(1); // Header
-                                        columns.RelativeColumn(3); // Details
-                                    });
-
-                                    // Title row spanning both columns
-                                    table.Cell().ColumnSpan(2)
-                                        .Background(Colors.Grey.Lighten3)
-                                        .Border(1).BorderColor(Colors.Black).Padding(4)
-                                        .Text("DOCTOR ASSESSMENT").Bold().FontSize(9).AlignCenter();
-
-                                    // Row 1 - Complaints
-                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
-                                         .Text("COMPLAINTS").Bold().FontSize(8);
-                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
-                                         .Text($"{doctor?.VchChiefcomplaints?.ToUpper() ?? "N/A"}").FontSize(8);
-
-                                    // Row 2 - Diagnosis
-                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
-                                         .Text("DIAGNOSIS").Bold().FontSize(8);
-                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
-                                         .Text($"{doctor?.VchDiagnosis?.ToUpper() ?? "N/A"}").FontSize(8);
-
-                                    // Row 3 - Remarks
-                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
-                                         .Text("REMARKS").Bold().FontSize(8);
-                                    table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
-                                         .Text($"{doctor?.VchRemarks?.ToUpper() ?? "N/A"}").FontSize(8);
-                                });
+                                t.Span("SPO2: ").Bold().FontSize(8);
+                                t.Span($"{nursing?.DecSpO2 ?? 0}").FontSize(8);
                             });
 
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
+                            {
+                                t.Span("PULSE: ").Bold().FontSize(8);
+                                t.Span(nursing?.VchPulse ?? "N/A").FontSize(8);
+                            });
+
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
+                            {
+                                t.Span("HEIGHT: ").Bold().FontSize(8);
+                                t.Span($"{nursing?.DecHeight ?? 0}").FontSize(8);
+                            });
+
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
+                            {
+                                t.Span("TEMP: ").Bold().FontSize(8);
+                                t.Span($"{nursing?.DecTemperature ?? "N/A"}").FontSize(8);
+                            });
+
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
+                            {
+                                t.Span("R RATE: ").Bold().FontSize(8);
+                                t.Span($"{nursing?.DecRespiratoryRate ?? 0}").FontSize(8);
+                            });
+
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
+                            {
+                                t.Span("WEIGHT: ").Bold().FontSize(8);
+                                t.Span($"{nursing?.DecWeight ?? 0}").FontSize(8);
+                            });
+
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Text(t =>
+                            {
+                                t.Span("ALCOHOL: ").Bold().FontSize(8);
+                                t.Span(nursing?.BitIsAlcoholic == true ? "YES" : "NO").FontSize(8);
+                            });
+
+                        col.Item().Table(t =>
+                        {
+                            // Define 3 columns: two equal width for Smoking & Fall Risk, last one takes remaining space for Allergy
+                            t.ColumnsDefinition(c =>
+                            {
+                                c.RelativeColumn(1); // Smoking
+                                c.RelativeColumn(1); // Fall Risk
+                                c.RelativeColumn(6); // Allergy (remaining width)
+                            });
+
+                            // Smoking
+                            t.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(txt =>
+                            {
+                                txt.Span("SMOKING: ").Bold().FontSize(8);
+                                txt.Span(nursing?.BitIsSmoking == true ? "YES" : "NO").FontSize(8);
+                            });
+
+                            // Fall Risk
+                            t.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(txt =>
+                            {
+                                txt.Span("FALL RISK: ").Bold().FontSize(8);
+                                txt.Span(nursing?.BitFallRisk == true ? "YES" : "NO").FontSize(8);
+                            });
+
+                            // Allergy
+                            string allergyText = (nursing?.BitIsAllergical ?? false)
+                                ? $"YES ({(string.IsNullOrWhiteSpace(nursing?.VchAllergicalDrugs) ? "N/A" : nursing.VchAllergicalDrugs.ToUpper())})"
+                                : "NO";
+
+                            t.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(txt =>
+                            {
+                                txt.Span("ALLERGY: ").Bold().FontSize(8);
+                                txt.Span(allergyText).FontSize(8);
+                            });
+                        });
                     });
-
-
                     col.Item().PaddingVertical(4);
-                    // ===== Labs, Radiology & Procedures Combined Card =====
+                    //end nursing assessment table
+
+                    // ===== Doctor Assessment =====
+                    col.Item().Padding(0).Table(table =>
+                    {
+                        // Single column spanning full width
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                        });
+
+                        // ===== Title row =====
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4)
+                            .Background(Colors.Grey.Lighten3)
+                            .Text("DOCTOR ASSESSMENT".ToUpper())
+                            .Bold().FontSize(9).AlignCenter();
+
+                        // ===== Row 1: Complaints =====
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(txt =>
+                        {
+                            txt.Span("COMPLAINTS: ").Bold().FontSize(8);
+                            txt.Span($"{doctor?.VchChiefcomplaints?.ToUpper() ?? "N/A"}").FontSize(8);
+                        });
+
+                        // ===== Row 2: Diagnosis =====
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(txt =>
+                        {
+                            txt.Span("MEDICAL HISTORY: ").Bold().FontSize(8);
+                            txt.Span($"{doctor?.VchMedicalHistory?.ToUpper() ?? "N/A"}").FontSize(8);
+                        });
+
+                        // ===== Row 3: Remarks =====
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(txt =>
+                        {
+                            txt.Span("DIAGNOSIS: ").Bold().FontSize(8);
+                            txt.Span($"{doctor?.VchDiagnosis?.ToUpper() ?? "N/A"}").FontSize(8);
+                        });
+
+                        // ===== Row 4: Prescription =====
+                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(4).Text(txt =>
+                        {
+                            txt.Span("REMARKS: ").Bold().FontSize(8);
+                            txt.Span($"{doctor?.VchRemarks?.ToUpper() ?? "N/A"}").FontSize(8);
+                        });
+                    });
+                    col.Item().PaddingVertical(4);
+
+
+                    //===== Labs, Radiology & Procedures Combined Card =====
                     if (labs.Any() || radiologies.Any() || procedures.Any())
                     {
                         col.Item().PaddingTop(0).Background(Colors.White)
                             .Border(1).BorderColor(Colors.Black)
-                            .Padding(10).Column(card =>
+                            .Padding(5).Column(card =>
                             {
                                 // Labs
                                 if (labs.Any())
                                 {
                                     card.Item().Text("LAB TESTS").Bold().FontSize(9);
-                                    
-                                    string labTestsLine = "• "+string.Join(", ", labs.Select(l => (l.VchTestName ?? "").ToUpper()));
+
+                                    string labTestsLine = "• " + string.Join(", ", labs.Select(l => (l.VchTestName ?? "").ToUpper()));
 
                                     // Display all lab tests in one line
                                     card.Item().Text(labTestsLine).FontSize(8);
@@ -849,7 +868,7 @@ namespace DWB.Report
                                     string allradiology = "• " + string.Join(", ", radiologies.Select(r => (r.VchRadiologyName ?? "").ToUpper()));
 
                                     // Display all radiology in one line
-                                    card.Item().Text(allradiology).FontSize(8);                                   
+                                    card.Item().Text(allradiology).FontSize(8);
 
                                     card.Item().PaddingBottom(4);
                                 }
@@ -865,81 +884,115 @@ namespace DWB.Report
                                 }
                             });
                     }
-
                     col.Item().PaddingVertical(4);
                     // ===== Medicines Card =====
                     if (medicines.Any())
                     {
                         col.Item().Background(Colors.White)
                             .Border(1).BorderColor(Colors.Black)
-                            .Padding(10).Column(docCard =>
+                            .Padding(8).Column(docCard =>
                             {
-                                docCard.Item().Text("PRESCRIBED MEDICINES").Bold().FontSize(9);
+                                // === Title with note ===
+                                docCard.Item().Row(row =>
+                                {
+                                    row.RelativeItem().Text("PRESCRIBED MEDICINES")
+                                        .Bold().FontSize(9).FontColor(Colors.Black);
+
+                                    row.AutoItem().AlignRight()
+                                        .Text("Timing*: BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch, AL = After Lunch, BD = Before Dinner, AD = After Dinner")
+                                        .SemiBold().FontSize(7).FontColor(Colors.Black);
+                                });
 
                                 docCard.Item().Table(table =>
                                 {
                                     table.ColumnsDefinition(columns =>
                                     {
-                                        columns.RelativeColumn(4);
-                                        columns.RelativeColumn(1);
-                                        columns.RelativeColumn(1);
-                                        columns.RelativeColumn(1);
-                                        columns.RelativeColumn(3);
+                                        columns.ConstantColumn(20); // Sr. No.
+                                        columns.RelativeColumn(3); // Medicine
+                                        columns.RelativeColumn(1); // Quantity
+                                        columns.RelativeColumn(1); // Frequency
+                                        columns.RelativeColumn(1); // Duration
+                                                                   // Smaller width for timing columns
+                                        columns.ConstantColumn(20); // BBF
+                                        columns.ConstantColumn(20); // ABF
+                                        columns.ConstantColumn(20); // BL
+                                        columns.ConstantColumn(20); // AL
+                                        columns.ConstantColumn(20); // BD
+                                        columns.ConstantColumn(20); // AD
                                     });
 
-                                    // ===== Header Row with Borders =====
+                                    // ===== Header =====
                                     table.Header(header =>
                                     {
-                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text("MEDICINE").SemiBold().FontSize(7);
-                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text("DOSAGE").SemiBold().FontSize(7);
-                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text("FREQUENCY").SemiBold().FontSize(7);
-                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text("DURATION").SemiBold().FontSize(7);
-                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text("TIMING").SemiBold().FontSize(7);
+                                        // First Row - main header with * mark
+                                        header.Cell().RowSpan(3).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("Sr. No.").Bold().FontSize(7);
+                                        header.Cell().RowSpan(3).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("MEDICINE").Bold().FontSize(7);
+                                        header.Cell().RowSpan(3).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("QUANTITY").Bold().FontSize(7);
+                                        header.Cell().RowSpan(3).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("FREQUENCY").Bold().FontSize(7);
+                                        header.Cell().RowSpan(3).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text("DURATION").Bold().FontSize(7);
+
+                                        header.Cell().ColumnSpan(6).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .AlignCenter().Text("TIMING*").Bold().FontSize(7);
+
+                                        // Second Row - Morning/Afternoon/Night with * mark
+                                        header.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .AlignCenter().Text("Morning (Breakfast)").Bold().FontSize(7);
+                                        header.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .AlignCenter().Text("Afternoon (Lunch)").Bold().FontSize(7);
+                                        header.Cell().ColumnSpan(2).Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .AlignCenter().Text("Night (Dinner)").Bold().FontSize(7);
+
+                                        // Third Row - actual small columns
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3).Text("BBF").Bold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3).Text("ABF").Bold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3).Text("BL").Bold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3).Text("AL").Bold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3).Text("BD").Bold().FontSize(7);
+                                        header.Cell().Border(1).BorderColor(Colors.Black).Padding(3).Text("AD").Bold().FontSize(7);
                                     });
 
-                                    // ===== Medicine Rows with Borders =====
+                                    // ===== Medicine Rows =====
+                                    int sr = 1;
                                     foreach (var med in medicines)
                                     {
                                         table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text((med.VchMedicineName ?? "").ToUpper()).FontSize(7);
-
+                                            .Text(sr++.ToString()).FontSize(7);
                                         table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text((med.VchDosage ?? "").ToUpper()).FontSize(7);
-
+                                            .Text((med.VchMedicineName ?? "").ToUpper()).FontSize(7);
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text((med.IntQuantity)).FontSize(7);
                                         table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
                                             .Text((med.VchFrequency ?? "").ToUpper()).FontSize(7);
-
                                         table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
                                             .Text((med.VchDuration ?? "").ToUpper()).FontSize(7);
 
-                                        var timings = new List<string>();
-                                        if (med.BitBbf == true) timings.Add("BBF");
-                                        if (med.BitAbf == true) timings.Add("ABF");
-                                        if (med.BitBl == true) timings.Add("BL");
-                                        if (med.BitAl == true) timings.Add("AL");
-                                        if (med.BitBd == true) timings.Add("BD");
-                                        if (med.BitAd == true) timings.Add("AD");
-
+                                        // Timing ticks
                                         table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
-                                            .Text(timings.Count > 0 ? string.Join(", ", timings) : "N/A").FontSize(7);
+                                            .Text(med.BitBbf ? "✔" : "").FontSize(9);
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text(med.BitAbf ? "✔" : "").FontSize(9);
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text(med.BitBl ? "✔" : "").FontSize(9);
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text(med.BitAl ? "✔" : "").FontSize(9);
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text(med.BitBd ? "✔" : "").FontSize(9);
+                                        table.Cell().Border(1).BorderColor(Colors.Black).Padding(3)
+                                            .Text(med.BitAd ? "✔" : "").FontSize(9);
                                     }
                                 });
-
-                                docCard.Item().PaddingTop(4).Text("Timing Abbreviations:").Bold().FontSize(7);
-                                docCard.Item().Text("BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch, AL = After Lunch, BD = Before Dinner, AD = After Dinner")
-                                    .FontSize(7).FontColor(Colors.Black);
                             });
-                    }                   
+                    }
 
                     // ===== Nutritional Consultation + Follow Up Card =====
                     col.Item().PaddingTop(6).Background(Colors.White)
                         .Border(1).BorderColor(Colors.Black)
-                        .Padding(10).Row(row =>
+                        .Padding(5).Row(row =>
                         {
                             // Nutritional Consultation
                             row.RelativeColumn().Text(text =>
@@ -963,12 +1016,12 @@ namespace DWB.Report
                     col.Item().PaddingTop(6)
                         .Background(Colors.White)
                         .Border(1).BorderColor(Colors.Black)
-                        .Padding(4).Column(card =>
+                        .Padding(2).Column(card =>
                         {
                             // Explanation text
                             card.Item().PaddingBottom(0).Text("I have explained to the patient the disease process, proposed plan of care, and possible side effects in their own language.")
-                            .Italic().FontSize(9);                            
-                            
+                            .Italic().FontSize(9);
+
 
                             // Row where signature sits at the right edge
                             card.Item().Row(row =>
@@ -1009,7 +1062,7 @@ namespace DWB.Report
                         card.Border(1)
                             .BorderColor(Colors.Black)
                             .Background(Colors.White)
-                            .Padding(8)
+                            .Padding(7)
                             .Width(350) // fixed width
                             .Column(note =>
                             {

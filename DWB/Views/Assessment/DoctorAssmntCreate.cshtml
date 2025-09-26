@@ -216,7 +216,8 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                         <label class="form-label fw-bold">Chief Complaints<span class="text-danger">*</span></label>
-                                        <textarea asp-for="DoctorAssessment.VchChiefcomplaints" class="form-control required-field" rows="2"></textarea>
+                                        <input type="text" id="ChiefComplaintInput" name="DoctorAssessment.VchChiefcomplaints"
+                                               class="form-control required-field" placeholder="Type or select complaint" />
                                         <span class="text-danger small validation-msg"></span>
                                 </div>
                                 <div class="col-md-6">
@@ -249,7 +250,7 @@
                                     <thead class="table bg-primary text-left small">
                                         <tr>
                                             <th style="width: 25%;">Medicine</th>
-                                            <th style="width: 10%;">Dosage</th>
+                                            <th style="width: 10%;">Quantity</th>
                                             <th style="width: 10%;">Frequency</th>
                                             <th style="width: 10%;">Duration</th>
                                             <th class="text-center" style="width: 25%;">Timings</th>
@@ -279,10 +280,10 @@
 
                                                     <!-- Dosage -->
                                                     <td>
-                                                        <input type="text" class="form-control form-control-sm"
-                                                               name="Medicines[@i].VchDosage"
-                                                               value="@Model.Medicines[i].VchDosage"
-                                                               placeholder="Dosage" />
+                                                        <input type="number" class="form-control form-control-sm"
+                                                               name="Medicines[@i].IntQuantity"
+                                                               value="@Model.Medicines[i].IntQuantity"
+                                                               placeholder="Quantity" min="0" step="1" />
                                                     </td>
 
                                                     <!-- Frequency -->
@@ -372,8 +373,8 @@
 
                                                 <!-- Dosage -->
                                                 <td>
-                                                    <input type="text" class="form-control form-control-sm"
-                                                           name="Medicines[0].VchDosage" placeholder="Dosage">
+                                                    <input type="number" class="form-control form-control-sm"
+                                                           name="Medicines[0].IntQuantity" placeholder="Quantity" min="0" step="1">
                                                 </td>
 
                                                 <!-- Frequency -->
@@ -737,15 +738,15 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Follow-up Date</label>
                                         <input asp-for="DoctorAssessment.DtFollowUpDate" value="@(Model.DoctorAssessment.DtFollowUpDate.HasValue
-                                    ? Model.DoctorAssessment.DtFollowUpDate.Value.ToString("yyyy-MM-dd"):"")" class="form-control" type="date" />
-                                        <span asp-validation-for="DoctorAssessment.DtFollowUpDate" class="text-danger"></span>
+                                       ? Model.DoctorAssessment.DtFollowUpDate.Value.ToString("yyyy-MM-dd"):"")" class="form-control required-field" type="date" />
+                                        <span class="text-danger small validation-msg"></span>
                                     </div>
                                    @* value="@Model.DoctorAssessment.DtFollowUpDate" *@
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">Follow-up Time</label>
                                         <input asp-for="DoctorAssessment.FollowUpTime" value="@(Model.DoctorAssessment.FollowUpTime.HasValue
-                                ? Model.DoctorAssessment.FollowUpTime.Value.ToString(@"hh\:mm"): "")" type="time" class="form-control" />
-                                <span asp-validation-for="DoctorAssessment.FollowUpTime" class="text-danger"></span>
+                                      ? Model.DoctorAssessment.FollowUpTime.Value.ToString(@"hh\:mm"): "")" type="time" class="form-control required-field" />
+                                        <span class="text-danger small validation-msg"></span>
                                 </div>
                             </div>
                         </div>  
@@ -818,6 +819,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script>
+        //get cheif complaints
+         $(function() {
+            $("#ChiefComplaintInput").autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: '@Url.Action("GetChiefComplaints", "Assessment")',
+                        type: 'GET',
+                        data: { term: request.term },
+                        success: function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2
+            });
+        });
         //Validations for second tab clinical
         $(document).ready(function () {
             $("form").on("submit", function (e) {
@@ -836,7 +853,7 @@
 
                 if (!isValid) {
                     e.preventDefault(); // stop form submission
-                    alert("⚠️ Please fill all required fields.");
+                    alert("⚠️ Please fill all required fields, check all tabs.");
                 }
             });
         });    
@@ -864,8 +881,8 @@
 
                  <!-- Dosage -->
                  <td>
-                     <input type="text" class="form-control form-control-sm"
-                            name="Medicines[${index}].VchDosage" placeholder="Dosage">
+                     <input type="number" class="form-control form-control-sm"
+                                name="Medicines[${index}].IntQuantity" placeholder="Quantity" min="0" step="1">
                  </td>
 
                  <!-- Frequency -->
@@ -1098,8 +1115,8 @@
                 // Generate new Lab row
                 function getNewLabRow(index) {
                     return `
-                        <tr class="lab-item">
-            <td class="position-relative">
+                <tr class="lab-item">
+                <td class="position-relative">
                 <input type="text"
                        class="form-control form-control-sm lab-autocomplete"
                        name="Labs[${index}].VchTestName"
@@ -1109,8 +1126,8 @@
                        class="lab-code">
                 <div class="list-group position-absolute w-100 lab-suggestions"
                      style="z-index:999; display:none;"></div>
-            </td>
-            <td>
+                </td>
+                <td>
                 <select class="form-select form-select-sm"
                         name="Labs[${index}].VchPriority">
                     <option value="">-- Select --</option>
@@ -1267,13 +1284,14 @@
                 });
 
                 // Remove empty Lab rows before submit
-                $("form").on("submit", function () {
-                    $("#lab-list tr.lab-item").filter(function () {
-                        let code = $(this).find(".lab-code").val();
-                        return !code || code.trim() === "";
-                    }).remove();
-                    reIndexLabRows();
-                });
+                // $("form").on("submit", function () {
+                //     $("#lab-list tr.lab-item").filter(function () {
+                //         let code = $(this).find(".lab-code").val();
+                //         return !code || code.trim() === "";
+                //     }).remove();
+                //     reIndexLabRows();
+                // });
+                  
             });
 
         //Radiology code

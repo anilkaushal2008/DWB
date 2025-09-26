@@ -15,7 +15,7 @@ public partial class TblDoctorAssmntMedicine
 
     public string VchMedicineName { get; set; }
 
-    public string VchDosage { get; set; }
+    public int IntQuantity { get; set; }
 
     public string VchFrequency { get; set; }
 

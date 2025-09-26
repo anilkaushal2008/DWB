@@ -31,6 +31,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[tblCheifComplaintMas]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblDiagnoseMas]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblDietMaster]",
          "ObjectType": 0
       },
@@ -63,6 +71,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[tblMedicalHistoryMas]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblModules]",
          "ObjectType": 0
       },
@@ -84,6 +96,10 @@
       },
       {
          "Name": "[dbo].[tblRoomMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblSystemicExamMas]",
          "ObjectType": 0
       },
       {

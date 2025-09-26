@@ -21,6 +21,10 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<ServiceMaster> ServiceMaster { get; set; }
 
+    public virtual DbSet<TblCheifComplaintMas> TblCheifComplaintMas { get; set; }
+
+    public virtual DbSet<TblDiagnoseMas> TblDiagnoseMas { get; set; }
+
     public virtual DbSet<TblDietMaster> TblDietMaster { get; set; }
 
     public virtual DbSet<TblDoctorAssessment> TblDoctorAssessment { get; set; }
@@ -37,6 +41,8 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblFloorMaster> TblFloorMaster { get; set; }
 
+    public virtual DbSet<TblMedicalHistoryMas> TblMedicalHistoryMas { get; set; }
+
     public virtual DbSet<TblModules> TblModules { get; set; }
 
     public virtual DbSet<TblNassessmentDoc> TblNassessmentDoc { get; set; }
@@ -48,6 +54,8 @@ public partial class DWBEntity : DbContext
     public virtual DbSet<TblRoleModuleMap> TblRoleModuleMap { get; set; }
 
     public virtual DbSet<TblRoomMaster> TblRoomMaster { get; set; }
+
+    public virtual DbSet<TblSystemicExamMas> TblSystemicExamMas { get; set; }
 
     public virtual DbSet<TblUserCompany> TblUserCompany { get; set; }
 
@@ -787,6 +795,68 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("upc_name");
         });
 
+        modelBuilder.Entity<TblCheifComplaintMas>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblCheifComplaintMas");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkUpUser).HasColumnName("fk_UpUser");
+            entity.Property(e => e.FkUserid).HasColumnName("fk_Userid");
+            entity.Property(e => e.VchCheifComplaint)
+                .IsRequired()
+                .HasMaxLength(200)
+                .IsUnicode(false)
+                .HasColumnName("vchCheifComplaint");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblDiagnoseMas>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblDiagnoseMas");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkUpUser).HasColumnName("fk_UpUser");
+            entity.Property(e => e.FkUserid).HasColumnName("fk_Userid");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchDiagnose)
+                .IsRequired()
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasColumnName("vchDiagnose");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+        });
+
         modelBuilder.Entity<TblDietMaster>(entity =>
         {
             entity.HasKey(e => new { e.IntId, e.IntUnitCode });
@@ -1073,6 +1143,7 @@ public partial class DWBEntity : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
             entity.Property(e => e.FkDocAssmntId).HasColumnName("fk_DocAssmntID");
+            entity.Property(e => e.IntQuantity).HasColumnName("intQuantity");
             entity.Property(e => e.LunchTiming)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -1081,11 +1152,6 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("vchCreatedBy");
-            entity.Property(e => e.VchDosage)
-                .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("vchDosage");
             entity.Property(e => e.VchDuration)
                 .IsRequired()
                 .HasMaxLength(50)
@@ -1252,6 +1318,37 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchIpUsed");
             entity.Property(e => e.VchUpdatedBy)
                 .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblMedicalHistoryMas>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblMedicalHistoryMas");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkUpUser).HasColumnName("fk_UpUser");
+            entity.Property(e => e.FkUserid).HasColumnName("fk_Userid");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchMedicalHistory)
+                .IsRequired()
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasColumnName("vchMedicalHistory");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
         });
@@ -1631,6 +1728,37 @@ public partial class DWBEntity : DbContext
                 .HasForeignKey(d => new { d.FkIntFloorId, d.IntUnitCode })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblRoomMaster_tblFloorMaster");
+        });
+
+        modelBuilder.Entity<TblSystemicExamMas>(entity =>
+        {
+            entity.HasKey(e => e.IntId);
+
+            entity.ToTable("tblSystemicExamMas");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkUpUser).HasColumnName("fk_UpUser");
+            entity.Property(e => e.FkUserid).HasColumnName("fk_Userid");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchSystemicExamination)
+                .IsRequired()
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasColumnName("vchSystemicExamination");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
         });
 
         modelBuilder.Entity<TblUserCompany>(entity =>
