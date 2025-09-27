@@ -24,7 +24,8 @@
             </div>
         </div>
         <div class="card shadow-sm rounded-4">           
-            <div class="card-body">                
+            <div class="card-body">
+                
                 <form method="post" id="DAssessment" enctype="multipart/form-data"
                       asp-action="@(Model.DoctorAssessment.IntId > 0 ? "DocAssmntEdit" : "DocAssmntCreate")" asp-controller="Assessment">
                       @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
@@ -41,8 +42,11 @@
 
                     <!-- Submit -->                   
                     <div align="right" class="text-end mt-1 my-1">
-                        <button type="submit" class="btn btn-sm btn-primary px-4 py-2 rounded-pill shadow-sm">
-                            @(Model.DoctorAssessment.IntId > 0 ? "✅ Update Assessment" : "✅ Save Assessment")
+                        <button type="button" id="btnSaveTemplate" class="btn btn-warning btn-sm shadow-sm " data-bs-toggle="modal" data-bs-target="#saveTemplateModal">
+                            💾 Save as Template
+                        </button> &nbsp;
+                        <button type="submit" class="btn btn-primary btn-sm shadow-sm">
+                            @(Model.DoctorAssessment.IntId > 0 ? " 💾 Update Assessment" : " 💾 Save Assessment")
                         </button>
                     </div>
                     <!-- Nav Tabs -->
@@ -216,8 +220,7 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                         <label class="form-label fw-bold">Chief Complaints<span class="text-danger">*</span></label>
-                                        <input type="text" id="ChiefComplaintInput" name="DoctorAssessment.VchChiefcomplaints"
-                                               class="form-control required-field" placeholder="Type or select complaint" />
+                                        <textarea asp-for="DoctorAssessment.VchChiefcomplaints" class="form-control required-field" rows="2"></textarea>
                                         <span class="text-danger small validation-msg"></span>
                                 </div>
                                 <div class="col-md-6">
@@ -809,6 +812,31 @@
             </div>
         </div>
      </div>
+     @* modal for templete *@
+    <!-- Modal should be here at the end of <main> -->
+    <div class="modal fade" id="saveTemplateModal" tabindex="-1" aria-labelledby="saveTemplateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="saveTemplateForm" method="post" asp-action="SaveAsTemplate" asp-controller="Assessment">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="saveTemplateModalLabel">Save Assessment as Template</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="TemplateName" class="form-label">Template Name</label>
+                            <input type="text" class="form-control" id="TemplateName" name="TemplateName" required>
+                        </div>
+                        <input type="hidden" name="DoctorAssessmentId" value="@Model.DoctorAssessment.IntId">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="btnSaveTemplateModal" class="btn btn-primary">Save Template</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </main>
 
 @section scripts{
@@ -835,9 +863,22 @@
                 minLength: 2
             });
         });
-        //Validations for second tab clinical
+
+        //function for validation follow ups and bye pass it on save as template
         $(document).ready(function () {
+            let bypassValidation = false;
+
+            // When Save as Template button is clicked, set the flag
+            $("#btnSaveTemplate").on("click", function () {
+                bypassValidation = true;
+            });
+
             $("form").on("submit", function (e) {
+                // If bypass flag is set, allow submission
+                if (bypassValidation) {
+                    bypassValidation = false; // reset flag for next submit
+                    return true;
+                }
                 let isValid = true;
 
                 // Clear previous messages
@@ -856,9 +897,61 @@
                     alert("⚠️ Please fill all required fields, check all tabs.");
                 }
             });
-        });    
+        });
 
-         //Medicine searching / adding
+        //Save as template modal post method
+        $(document).ready(function () {
+              $("#btnSaveTemplateModal").on("click", function (e) {
+                e.preventDefault();
+
+                // 1. Get template name from modal
+                let templateName = $("#TemplateName").val();
+
+                if (!templateName || templateName.trim() === "") {
+                    alert("⚠️ Please enter a template name.");
+                    return;
+                }
+
+                // 2. Serialize the main assessment form
+                let formData = $("#DAssessment").serializeArray();
+
+                // Convert form data to key-value object
+                let assessmentObj = {};
+                $.each(formData, function (i, field) {
+                    assessmentObj[field.name] = field.value;
+                });
+
+                // 3. Prepare final payload
+                let payload = {
+                    TemplateName: templateName,
+                    Assessment: assessmentObj
+                };
+
+                console.log("🚀 Payload to server: ", payload);
+
+                // 4. Send AJAX to your SaveTemplate action
+                $.ajax({
+                    url: '/Assessment/SaveAsTemplate',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (response) {
+                        alert("✅ Template saved successfully!");
+                        $("#saveTemplateModal").modal("hide");
+                    },
+                    error: function (xhr) {
+                        alert("❌ Failed to save template.");
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+        });
+
+
+
+
+
+                 //Medicine searching / adding
          $(document).ready(function () {
              let medIndex = 1; // start from 1 since 0 already exists
 

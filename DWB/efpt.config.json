@@ -43,6 +43,26 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[tblDocAssessmentTemplete]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblDocTempleteLab]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblDocTempleteMedicine]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblDocTempleteProcedure]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[tblDocTempleteRadiology]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[tblDoctorAssessment]",
          "ObjectType": 0
       },

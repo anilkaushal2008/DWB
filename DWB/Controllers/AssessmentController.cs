@@ -998,13 +998,102 @@ namespace DWB.Controllers
             return File(pdf, "application/pdf"); // <--- Important
         }
 
+        // for template save 
+        [HttpPost]
+        public IActionResult SaveAsTemplate([FromBody] DoctorAssessmentTemplateVM model,DoctorAssessmentVM objdoc)
+        {
+            if (model == null || string.IsNullOrEmpty(model.TemplateName))
+                return BadRequest("Invalid template data");
 
-        public IActionResult NewDental()
-        { 
-            return View(); 
+            var template = new TblDocAssessmentTemplete
+            {
+                VchTempleteName = model.TemplateName,
+                DataJson = JsonConvert.SerializeObject(model.Assessment),
+                DtCreated = DateTime.Now,
+                VchCreatedBy = User.Identity?.Name ?? "NA",
+                IntFkuserid = int.TryParse(User.FindFirst("UserId")?.Value, out var uid) ? uid : 0
+            };
+
+            _context.TblDocAssessmentTemplete.Add(template);
+            _context.SaveChanges();
+
+            return Ok(new { success = true, id = template.Intid });
         }
 
         #endregion
-
     }
 }
+
+
+//[HttpPost]
+//public IActionResult SaveAsTemplate([FromBody] SaveTemplateVM model)
+//{
+//    // 1. Save Template Master
+//    var template = new TblDocAssessmentTemplete
+//    {
+//        VchTempleteName = model.TemplateName,
+//        VchChiefComplaints = model.Assessment.AssessmentForm["DoctorAssessment.VchChiefComplaints"]?.ToString(),
+//        VchDiagnosis = model.Assessment.AssessmentForm["DoctorAssessment.VchDiagnosis"]?.ToString(),
+//        DtCreated = DateTime.Now,
+//        VchCreatedBy = User.Identity?.Name ?? "NA",
+//        IntFkuserid = int.TryParse(User.FindFirst("UserId")?.Value, out var uid) ? uid : 0
+//    };
+
+//    _context.TblDocAssessmentTemplete.Add(template);
+//    _context.SaveChanges();
+
+//    int templateId = template.Intid;
+
+//    // 2. Save Medicines
+//    foreach (var med in model.Assessment.Medicines)
+//    {
+//        var m = new TblDocTempleteMedicine
+//        {
+//            IntFkTempleteId = templateId,
+//            VchMedicineName = med.VchName,
+//            VchDose = med.VchDose,
+//            VchFrequency = med.VchFrequency
+//        };
+//        _context.TblDocTempleteMedicine.Add(m);
+//    }
+
+//    // 3. Save Labs
+//    foreach (var lab in model.Assessment.Labs)
+//    {
+//        var l = new TblDocTempleteLab
+//        {
+//            IntFkTempleteId = templateId,
+//            VchTestName = lab.TestName,
+//            VchNotes = lab.Notes
+//        };
+//        _context.TblDocTempleteLab.Add(l);
+//    }
+
+//    // 4. Save Procedures
+//    foreach (var proc in model.Assessment.Procedures)
+//    {
+//        var p = new TblDocTempleteProcedure
+//        {
+//            IntFkTempleteId = templateId,
+//            VchProcedureName = proc.Procedure,
+//            VchNotes = proc.Notes
+//        };
+//        _context.TblDocTempleteProcedure.Add(p);
+//    }
+
+//    // 5. Save Radiology
+//    foreach (var rad in model.Assessment.Radiology)
+//    {
+//        var r = new TblDocTempleteRadiology
+//        {
+//            IntFkTempleteId = templateId,
+//            VchProcedureName = rad.Procedure,
+//            VchNotes = rad.Notes
+//        };
+//        _context.TblDocTempleteRadiology.Add(r);
+//    }
+
+//    _context.SaveChanges();
+
+//    return Json(new { success = true });
+//}

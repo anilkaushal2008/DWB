@@ -30,6 +30,8 @@ builder.Services.AddDbContext<GroupEntity>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+//builder.Services.AddRazorPages();
+//builder.Services.AddServerSideBlazor();
 
 
 

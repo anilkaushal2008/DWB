@@ -27,6 +27,16 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblDietMaster> TblDietMaster { get; set; }
 
+    public virtual DbSet<TblDocAssessmentTemplete> TblDocAssessmentTemplete { get; set; }
+
+    public virtual DbSet<TblDocTempleteLab> TblDocTempleteLab { get; set; }
+
+    public virtual DbSet<TblDocTempleteMedicine> TblDocTempleteMedicine { get; set; }
+
+    public virtual DbSet<TblDocTempleteProcedure> TblDocTempleteProcedure { get; set; }
+
+    public virtual DbSet<TblDocTempleteRadiology> TblDocTempleteRadiology { get; set; }
+
     public virtual DbSet<TblDoctorAssessment> TblDoctorAssessment { get; set; }
 
     public virtual DbSet<TblDoctorAssessmentDoc> TblDoctorAssessmentDoc { get; set; }
@@ -898,6 +908,279 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchIpUsed");
             entity.Property(e => e.VchUpdatedBy)
                 .HasMaxLength(50)
+                .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblDocAssessmentTemplete>(entity =>
+        {
+            entity.HasKey(e => e.Intid);
+
+            entity.ToTable("tblDocAssessmentTemplete");
+
+            entity.Property(e => e.Intid).HasColumnName("intid");
+            entity.Property(e => e.BitDeactivated)
+                .HasDefaultValue(false)
+                .HasColumnName("bitDeactivated");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.IntFkuserid).HasColumnName("int_Fkuserid");
+            entity.Property(e => e.VchChiefComplaints)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchChiefComplaints");
+            entity.Property(e => e.VchCreatdeHost)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatdeHost");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchDiagnosis)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchDiagnosis");
+            entity.Property(e => e.VchMedicalHistory)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchMedicalHistory");
+            entity.Property(e => e.VchRemarks)
+                .HasMaxLength(250)
+                .IsUnicode(false)
+                .HasColumnName("vchRemarks");
+            entity.Property(e => e.VchSystemicExam)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchSystemicExam");
+            entity.Property(e => e.VchTempleteName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchTempleteName");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+            entity.Property(e => e.VchUpdatedHost)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedHost");
+
+            entity.HasOne(d => d.IntFkuser).WithMany(p => p.TblDocAssessmentTemplete)
+                .HasForeignKey(d => d.IntFkuserid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblDocAssessmentTemplete_tblUsers");
+        });
+
+        modelBuilder.Entity<TblDocTempleteLab>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("tblDocTempleteLab");
+
+            entity.Property(e => e.BitIscompleted).HasColumnName("bitISCompleted");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdted)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdted");
+            entity.Property(e => e.FkTempId)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("fk_TempID");
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchPriority)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchPriority");
+            entity.Property(e => e.VchRemarks)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchRemarks");
+            entity.Property(e => e.VchTestCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchTestCode");
+            entity.Property(e => e.VchTestName)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchTestName");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblDocTempleteMedicine>(entity =>
+        {
+            entity.HasKey(e => e.IntId).HasName("PK_tblTempleteMedicine");
+
+            entity.ToTable("tblDocTempleteMedicine");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.BitAbf).HasColumnName("bitABF");
+            entity.Property(e => e.BitAd).HasColumnName("bitAD");
+            entity.Property(e => e.BitAl).HasColumnName("bitAL");
+            entity.Property(e => e.BitBbf).HasColumnName("bitBBF");
+            entity.Property(e => e.BitBd).HasColumnName("bitBD");
+            entity.Property(e => e.BitBl).HasColumnName("bitBL");
+            entity.Property(e => e.BitIsPrn).HasColumnName("bitIsPRN");
+            entity.Property(e => e.BreakFastTiming)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.DinnerTiming)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.IntFkTempleteId).HasColumnName("intFkTempleteID");
+            entity.Property(e => e.IntQuantity).HasColumnName("intQuantity");
+            entity.Property(e => e.LunchTiming)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchDuration)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchDuration");
+            entity.Property(e => e.VchFrequency)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchFrequency");
+            entity.Property(e => e.VchInstruction)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchInstruction");
+            entity.Property(e => e.VchMedicineCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchMedicineCode");
+            entity.Property(e => e.VchMedicineName)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchMedicineName");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+
+            entity.HasOne(d => d.IntFkTemplete).WithMany(p => p.TblDocTempleteMedicine)
+                .HasForeignKey(d => d.IntFkTempleteId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tblTempleteMedicine_tblDocAssessmentTemplete");
+        });
+
+        modelBuilder.Entity<TblDocTempleteProcedure>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("tblDocTempleteProcedure");
+
+            entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkTempId).HasColumnName("fk_TempID");
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchPriority)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchPriority");
+            entity.Property(e => e.VchProcedureCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchProcedureCode");
+            entity.Property(e => e.VchProcedureName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchProcedureName");
+            entity.Property(e => e.VchRemarks)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchRemarks");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
+        });
+
+        modelBuilder.Entity<TblDocTempleteRadiology>(entity =>
+        {
+            entity.HasKey(e => e.IntId).HasName("PK_tblTempleteRadiology");
+
+            entity.ToTable("tblDocTempleteRadiology");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
+            entity.Property(e => e.FkTempId).HasColumnName("fk_TempID");
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchPriority)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchPriority");
+            entity.Property(e => e.VchRadiologyCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchRadiologyCode");
+            entity.Property(e => e.VchRadiologyName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("vchRadiologyName");
+            entity.Property(e => e.VchRemarks)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchRemarks");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(150)
+                .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
         });
 
