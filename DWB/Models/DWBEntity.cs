@@ -27,15 +27,15 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<TblDietMaster> TblDietMaster { get; set; }
 
-    public virtual DbSet<TblDocAssessmentTemplete> TblDocAssessmentTemplete { get; set; }
+    public virtual DbSet<TblDocTemplateAssessment> TblDocTemplateAssessment { get; set; }
 
-    public virtual DbSet<TblDocTempleteLab> TblDocTempleteLab { get; set; }
+    public virtual DbSet<TblDocTemplateLab> TblDocTemplateLab { get; set; }
 
-    public virtual DbSet<TblDocTempleteMedicine> TblDocTempleteMedicine { get; set; }
+    public virtual DbSet<TblDocTemplateMedicine> TblDocTemplateMedicine { get; set; }
 
-    public virtual DbSet<TblDocTempleteProcedure> TblDocTempleteProcedure { get; set; }
+    public virtual DbSet<TblDocTemplateProcedure> TblDocTemplateProcedure { get; set; }
 
-    public virtual DbSet<TblDocTempleteRadiology> TblDocTempleteRadiology { get; set; }
+    public virtual DbSet<TblDocTemplateRadiology> TblDocTemplateRadiology { get; set; }
 
     public virtual DbSet<TblDoctorAssessment> TblDoctorAssessment { get; set; }
 
@@ -911,11 +911,11 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchUpdatedBy");
         });
 
-        modelBuilder.Entity<TblDocAssessmentTemplete>(entity =>
+        modelBuilder.Entity<TblDocTemplateAssessment>(entity =>
         {
-            entity.HasKey(e => e.Intid);
+            entity.HasKey(e => e.Intid).HasName("PK_tblDocAssessmentTemplete");
 
-            entity.ToTable("tblDocAssessmentTemplete");
+            entity.ToTable("tblDocTemplateAssessment");
 
             entity.Property(e => e.Intid).HasColumnName("intid");
             entity.Property(e => e.BitDeactivated)
@@ -970,18 +970,19 @@ public partial class DWBEntity : DbContext
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedHost");
 
-            entity.HasOne(d => d.IntFkuser).WithMany(p => p.TblDocAssessmentTemplete)
+            entity.HasOne(d => d.IntFkuser).WithMany(p => p.TblDocTemplateAssessment)
                 .HasForeignKey(d => d.IntFkuserid)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblDocAssessmentTemplete_tblUsers");
         });
 
-        modelBuilder.Entity<TblDocTempleteLab>(entity =>
+        modelBuilder.Entity<TblDocTemplateLab>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("tblDocTempleteLab");
+            entity.HasKey(e => e.IntId);
 
+            entity.ToTable("tblDocTemplateLab");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.BitIscompleted).HasColumnName("bitISCompleted");
             entity.Property(e => e.DtCreated)
                 .HasColumnType("datetime")
@@ -989,10 +990,7 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.DtUpdted)
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdted");
-            entity.Property(e => e.FkTempId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("fk_TempID");
-            entity.Property(e => e.IntId).HasColumnName("intID");
+            entity.Property(e => e.FkTempId).HasColumnName("fk_TempID");
             entity.Property(e => e.VchCreatedBy)
                 .IsRequired()
                 .HasMaxLength(150)
@@ -1023,11 +1021,11 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchUpdatedBy");
         });
 
-        modelBuilder.Entity<TblDocTempleteMedicine>(entity =>
+        modelBuilder.Entity<TblDocTemplateMedicine>(entity =>
         {
             entity.HasKey(e => e.IntId).HasName("PK_tblTempleteMedicine");
 
-            entity.ToTable("tblDocTempleteMedicine");
+            entity.ToTable("tblDocTemplateMedicine");
 
             entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.BitAbf).HasColumnName("bitABF");
@@ -1088,18 +1086,19 @@ public partial class DWBEntity : DbContext
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
 
-            entity.HasOne(d => d.IntFkTemplete).WithMany(p => p.TblDocTempleteMedicine)
+            entity.HasOne(d => d.IntFkTemplete).WithMany(p => p.TblDocTemplateMedicine)
                 .HasForeignKey(d => d.IntFkTempleteId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblTempleteMedicine_tblDocAssessmentTemplete");
         });
 
-        modelBuilder.Entity<TblDocTempleteProcedure>(entity =>
+        modelBuilder.Entity<TblDocTemplateProcedure>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("tblDocTempleteProcedure");
+            entity.HasKey(e => e.IntId);
 
+            entity.ToTable("tblDocTemplateProcedure");
+
+            entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
             entity.Property(e => e.DtCreated)
                 .HasColumnType("datetime")
@@ -1108,7 +1107,6 @@ public partial class DWBEntity : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
             entity.Property(e => e.FkTempId).HasColumnName("fk_TempID");
-            entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.VchCreatedBy)
                 .IsRequired()
                 .HasMaxLength(150)
@@ -1139,11 +1137,11 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchUpdatedBy");
         });
 
-        modelBuilder.Entity<TblDocTempleteRadiology>(entity =>
+        modelBuilder.Entity<TblDocTemplateRadiology>(entity =>
         {
             entity.HasKey(e => e.IntId).HasName("PK_tblTempleteRadiology");
 
-            entity.ToTable("tblDocTempleteRadiology");
+            entity.ToTable("tblDocTemplateRadiology");
 
             entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");

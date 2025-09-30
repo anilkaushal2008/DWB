@@ -12,11 +12,13 @@ using Newtonsoft.Json;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using SixLabors.ImageSharp.Processing.Processors.Convolution;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
+using static QuestPDF.Helpers.Colors;
 
 namespace DWB.Controllers
 {
@@ -896,7 +898,6 @@ namespace DWB.Controllers
                     }
                     doctorAssessment.BitRadioInvestigation = model.Radiology.Any();
                     await _context.SaveChangesAsync();
-
                 }
 
                 // ======== PROCEDURES ========
@@ -1000,12 +1001,12 @@ namespace DWB.Controllers
 
         // for template save 
         [HttpPost]
-        public IActionResult SaveAsTemplate([FromBody] DoctorAssessmentTemplateVM model,DoctorAssessmentVM objdoc)
+        public IActionResult SaveAsTemplate([FromBody] DoctorAssessmentTemplateVM model, DoctorAssessmentVM objdoc)
         {
             if (model == null || string.IsNullOrEmpty(model.TemplateName))
                 return BadRequest("Invalid template data");
 
-            var template = new TblDocAssessmentTemplete
+            var template = new TblDocTemplateAssessment
             {
                 VchTempleteName = model.TemplateName,
                 DataJson = JsonConvert.SerializeObject(model.Assessment),
@@ -1014,9 +1015,169 @@ namespace DWB.Controllers
                 IntFkuserid = int.TryParse(User.FindFirst("UserId")?.Value, out var uid) ? uid : 0
             };
 
-            _context.TblDocAssessmentTemplete.Add(template);
+            _context.TblDocTemplateAssessment.Add(template);
             _context.SaveChanges();
 
+            //deserliased data to save in other medications
+            Dictionary<string, string> fullData = JsonConvert.DeserializeObject<Dictionary<string, string>>(model.Assessment.ToString());
+            // 3. Save Medicines
+            //get from json medicine only
+            var medicineGroups = fullData
+            .Where(kv => kv.Key.StartsWith("Medicines["))
+            .GroupBy(kv => kv.Key.Split(']')[0]).ToList();
+
+            if (medicineGroups.Any())
+            {
+                // Iterate through each medicine group (e.g., Medicines[0], Medicines[1])
+                foreach (var group in medicineGroups)
+                {
+                    // 1. Create a dictionary from the current group for easy lookup of properties
+                    var medicineData = group.ToDictionary(kv => kv.Key.Split('[', ']')[2], kv => kv.Value);
+
+                    // 2. Safely extract properties from the medicineData dictionary
+                    medicineData.TryGetValue("VchMedicineName", out var name);
+                    medicineData.TryGetValue("VchMedicineCode", out var code);                   
+                    medicineData.TryGetValue("IntQuantity", out var quantityStr);
+                    medicineData.TryGetValue("VchFrequency", out var frequency);
+                    medicineData.TryGetValue("vchDuration", out var duration);
+                    medicineData.TryGetValue("BreakFastTiming", out var bfTiming);
+                    medicineData.TryGetValue("LunchTiming", out var lunchTiming);
+                    medicineData.TryGetValue("DinnerTiming", out var dinnerTiming);
+
+                    // 3. Convert types and handle nulls/missing values
+                    int.TryParse(quantityStr, out int quantity);
+
+                    // 4. Create and add the new entity
+                    _context.TblDocTemplateMedicine.Add(new TblDocTemplateMedicine
+                    {
+                        IntFkTempleteId = template.Intid,
+                        VchMedicineName = name ?? "", // Use null-coalescing
+                        VchMedicineCode=code ?? "",
+                        VchFrequency = frequency ?? "",
+                        IntQuantity = quantity,
+                        VchDuration = duration ?? "",
+
+                        // Timing flags using simple string comparison
+                        BitBbf = bfTiming == "BBF",
+                        BitAbf = bfTiming == "AFB",
+                        BitAl = lunchTiming == "AL",
+                        BitBl = lunchTiming == "BL",
+                        BitBd = dinnerTiming == "BD",
+                        BitAd = dinnerTiming == "AD",
+
+                        VchCreatedBy = User.Identity?.Name ?? "NA",
+                        DtCreated = DateTime.Now
+                    });
+
+                }
+            }
+            // 4. Save Labs
+            //check lab from json
+            var labGroups = fullData
+                .Where(kv => kv.Key.StartsWith("Labs["))
+                .GroupBy(kv => kv.Key.Split(']')[0]) // Groups like Labs[0], Labs[1]
+                .ToList();
+            if (labGroups.Any())
+            {
+                // Iterate through each lab group (e.g., Labs[0], Labs[1])
+                foreach (var group in labGroups)
+                {
+
+                    //1 The split is based on the assumption the key is "Labs[N][PropertyName]"
+                    var labData = group.ToDictionary(
+                        kv => kv.Key.Split('[', ']')[2],
+                        kv => kv.Value
+                    );
+
+                    // 2. Safely extract properties
+                    labData.TryGetValue("VchTestName", out var testName);
+                    labData.TryGetValue("VchTestCode", out var testCode);
+                    labData.TryGetValue("VchPriority", out var priority);
+
+                    // 3. Create and add the new entity
+                    _context.TblDocTemplateLab.Add(new TblDocTemplateLab
+                    {
+                        FkTempId = template.Intid,
+                        VchTestName = testName ?? "",
+                        VchTestCode = testCode ?? "",
+                        VchPriority = priority ?? "",
+                        VchCreatedBy = User.Identity?.Name ?? "NA",
+                        DtCreated = DateTime.Now
+                    });
+                }
+            }
+
+            // 5. Save Procedures
+            // get procedure from json
+            var procedureGroups = fullData
+            .Where(kv => kv.Key.StartsWith("Procedures["))
+            .GroupBy(kv => kv.Key.Split(']')[0]) // Groups like Procedures[0], Procedures[1]
+            .ToList();
+            if (procedureGroups.Any())
+            {
+                // Iterate through each procedure group (e.g., Procedures[0], Procedures[1])
+                foreach (var group in procedureGroups)
+                {
+                    // 1. Create a dictionary from the current group for easy lookup of properties
+                    // The split extracts the property name (e.g., "Procedure" or "Priority")
+                    var procedureData = group.ToDictionary(
+                        kv => kv.Key.Split('[', ']')[2],
+                        kv => kv.Value
+                    );
+
+                    // 2. Safely extract properties
+                    procedureData.TryGetValue("VchProcedureName", out var procedureName);
+                    procedureData.TryGetValue("VchProcedureCode", out var procedureCode);
+                    procedureData.TryGetValue("VchPriority", out var priority);
+
+                    // 3. Create and add the new entity
+                    _context.TblDocTemplateProcedure.Add(new TblDocTemplateProcedure
+                    {
+                        FkTempId = template.Intid,
+                        VchProcedureName = procedureName ?? "",
+                        VchProcedureCode = procedureCode ?? "",
+                        VchPriority = priority ?? "",
+                        DtCreated = DateTime.Now,
+                        VchCreatedBy = User.Identity?.Name ?? "NA",
+                    });
+                }
+            }
+            // 6. Save Radiology
+            var radiologyGroups = fullData
+            .Where(kv => kv.Key.StartsWith("Radiology["))
+            .GroupBy(kv => kv.Key.Split(']')[0]) // Groups like Radiology[0], Radiology[1]
+            .ToList();
+            if (radiologyGroups.Any())
+            {
+                // Iterate through each radiology group
+                foreach (var group in radiologyGroups)
+                {
+                    // 1. Create a dictionary from the current group for easy property lookup
+                    // The split extracts the property name (e.g., "VchRadiologyName")
+                    var radiologyData = group.ToDictionary(
+                        kv => kv.Key.Split('[', ']')[2],
+                        kv => kv.Value
+                    );
+
+                    // 2. Safely extract properties
+                    // Note: I've made the key lookup case-sensitive based on your original properties.
+                    radiologyData.TryGetValue("VchRadiologyName", out var radiologyName);
+                    radiologyData.TryGetValue("VchRadiologyCode", out var radiologyCode);
+                    radiologyData.TryGetValue("VchPriority", out var priority);
+
+                    // 3. Create and add the new entity
+                    _context.TblDocTemplateRadiology.Add(new TblDocTemplateRadiology
+                    {
+                        FkTempId = template.Intid,
+                        VchRadiologyName = radiologyName ?? "",
+                        VchRadiologyCode = radiologyCode ?? "",
+                        VchPriority = priority ?? "",
+                        DtCreated = DateTime.Now,
+                        VchCreatedBy = User.Identity?.Name ?? "NA",
+                    });
+                }
+            }
+            _context.SaveChanges();
             return Ok(new { success = true, id = template.Intid });
         }
 
@@ -1025,75 +1186,4 @@ namespace DWB.Controllers
 }
 
 
-//[HttpPost]
-//public IActionResult SaveAsTemplate([FromBody] SaveTemplateVM model)
-//{
-//    // 1. Save Template Master
-//    var template = new TblDocAssessmentTemplete
-//    {
-//        VchTempleteName = model.TemplateName,
-//        VchChiefComplaints = model.Assessment.AssessmentForm["DoctorAssessment.VchChiefComplaints"]?.ToString(),
-//        VchDiagnosis = model.Assessment.AssessmentForm["DoctorAssessment.VchDiagnosis"]?.ToString(),
-//        DtCreated = DateTime.Now,
-//        VchCreatedBy = User.Identity?.Name ?? "NA",
-//        IntFkuserid = int.TryParse(User.FindFirst("UserId")?.Value, out var uid) ? uid : 0
-//    };
 
-//    _context.TblDocAssessmentTemplete.Add(template);
-//    _context.SaveChanges();
-
-//    int templateId = template.Intid;
-
-//    // 2. Save Medicines
-//    foreach (var med in model.Assessment.Medicines)
-//    {
-//        var m = new TblDocTempleteMedicine
-//        {
-//            IntFkTempleteId = templateId,
-//            VchMedicineName = med.VchName,
-//            VchDose = med.VchDose,
-//            VchFrequency = med.VchFrequency
-//        };
-//        _context.TblDocTempleteMedicine.Add(m);
-//    }
-
-//    // 3. Save Labs
-//    foreach (var lab in model.Assessment.Labs)
-//    {
-//        var l = new TblDocTempleteLab
-//        {
-//            IntFkTempleteId = templateId,
-//            VchTestName = lab.TestName,
-//            VchNotes = lab.Notes
-//        };
-//        _context.TblDocTempleteLab.Add(l);
-//    }
-
-//    // 4. Save Procedures
-//    foreach (var proc in model.Assessment.Procedures)
-//    {
-//        var p = new TblDocTempleteProcedure
-//        {
-//            IntFkTempleteId = templateId,
-//            VchProcedureName = proc.Procedure,
-//            VchNotes = proc.Notes
-//        };
-//        _context.TblDocTempleteProcedure.Add(p);
-//    }
-
-//    // 5. Save Radiology
-//    foreach (var rad in model.Assessment.Radiology)
-//    {
-//        var r = new TblDocTempleteRadiology
-//        {
-//            IntFkTempleteId = templateId,
-//            VchProcedureName = rad.Procedure,
-//            VchNotes = rad.Notes
-//        };
-//        _context.TblDocTempleteRadiology.Add(r);
-//    }
-
-//    _context.SaveChanges();
-
-//    return Json(new { success = true });
-//}

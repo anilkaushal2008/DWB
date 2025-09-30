@@ -45,7 +45,7 @@ public partial class TblUsers
 
     public virtual TblRoleMas FkRole { get; set; }
 
-    public virtual ICollection<TblDocAssessmentTemplete> TblDocAssessmentTemplete { get; set; } = new List<TblDocAssessmentTemplete>();
+    public virtual ICollection<TblDocTemplateAssessment> TblDocTemplateAssessment { get; set; } = new List<TblDocTemplateAssessment>();
 
     public virtual ICollection<TblUserCompany> TblUserCompany { get; set; } = new List<TblUserCompany>();
 }

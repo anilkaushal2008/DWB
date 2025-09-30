@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace DWB.Models;
 
-public partial class TblDocTempleteMedicine
+public partial class TblDocTemplateMedicine
 {
     public int IntId { get; set; }
 
@@ -51,5 +51,5 @@ public partial class TblDocTempleteMedicine
 
     public string DinnerTiming { get; set; }
 
-    public virtual TblDocAssessmentTemplete IntFkTemplete { get; set; }
+    public virtual TblDocTemplateAssessment IntFkTemplete { get; set; }
 }

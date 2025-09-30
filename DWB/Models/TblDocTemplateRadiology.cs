@@ -5,27 +5,27 @@ using System.Collections.Generic;
 
 namespace DWB.Models;
 
-public partial class TblDocTempleteLab
+public partial class TblDocTemplateRadiology
 {
     public int IntId { get; set; }
 
     public int FkTempId { get; set; }
 
-    public string VchTestCode { get; set; }
+    public string VchRadiologyCode { get; set; }
 
-    public string VchTestName { get; set; }
+    public string VchRadiologyName { get; set; }
 
     public string VchPriority { get; set; }
 
     public string VchRemarks { get; set; }
 
-    public bool BitIscompleted { get; set; }
+    public bool BitIsCompleted { get; set; }
 
     public DateTime DtCreated { get; set; }
 
     public string VchCreatedBy { get; set; }
 
-    public DateTime? DtUpdted { get; set; }
+    public DateTime? DtUpdated { get; set; }
 
     public string VchUpdatedBy { get; set; }
 }

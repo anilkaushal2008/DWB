@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace DWB.Models;
 
-public partial class TblDocTempleteRadiology
+public partial class TblDocTemplateProcedure
 {
     public int IntId { get; set; }
 
     public int FkTempId { get; set; }
 
-    public string VchRadiologyCode { get; set; }
+    public string VchProcedureCode { get; set; }
 
-    public string VchRadiologyName { get; set; }
+    public string VchProcedureName { get; set; }
 
     public string VchPriority { get; set; }
 

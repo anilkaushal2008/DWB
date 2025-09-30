@@ -43,23 +43,23 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tblDocAssessmentTemplete]",
+         "Name": "[dbo].[tblDocTemplateAssessment]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tblDocTempleteLab]",
+         "Name": "[dbo].[tblDocTemplateLab]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tblDocTempleteMedicine]",
+         "Name": "[dbo].[tblDocTemplateMedicine]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tblDocTempleteProcedure]",
+         "Name": "[dbo].[tblDocTemplateProcedure]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[tblDocTempleteRadiology]",
+         "Name": "[dbo].[tblDocTemplateRadiology]",
          "ObjectType": 0
       },
       {

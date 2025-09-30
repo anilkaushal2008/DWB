@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace DWB.Models;
 
-public partial class TblDocAssessmentTemplete
+public partial class TblDocTemplateAssessment
 {
     public int Intid { get; set; }
 
@@ -41,5 +41,5 @@ public partial class TblDocAssessmentTemplete
 
     public virtual TblUsers IntFkuser { get; set; }
 
-    public virtual ICollection<TblDocTempleteMedicine> TblDocTempleteMedicine { get; set; } = new List<TblDocTempleteMedicine>();
+    public virtual ICollection<TblDocTemplateMedicine> TblDocTemplateMedicine { get; set; } = new List<TblDocTemplateMedicine>();
 }
