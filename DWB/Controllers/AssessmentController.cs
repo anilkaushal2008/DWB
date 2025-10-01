@@ -724,7 +724,7 @@ namespace DWB.Controllers
         }
 
         // GET: Doctor Assessment Edit
-        public async Task<IActionResult> DocAssmntEdit(string uhid, int visit)
+        public async Task<IActionResult> DocAssmntEdit(string uhid, int visit, int templateID) //passing template id for load existing template in the current assessment
         {
             var assessment = await _context.TblDoctorAssessment
                 .FirstOrDefaultAsync(x => x.FkUhid == uhid && x.FkVisitNo==visit);
@@ -1005,6 +1005,13 @@ namespace DWB.Controllers
         {
             if (model == null || string.IsNullOrEmpty(model.TemplateName))
                 return BadRequest("Invalid template data");
+            //check Name of template duplication
+            bool isDuplicate = _context.TblDocTemplateAssessment
+            .Any(t => t.VchTempleteName.ToLower() == model.TemplateName.ToLower());
+            if (isDuplicate)
+            {
+                return BadRequest($"Template name '{model.TemplateName}' already exists.");
+            }
 
             var template = new TblDocTemplateAssessment
             {
@@ -1020,39 +1027,28 @@ namespace DWB.Controllers
 
             //deserliased data to save in other medications
             Dictionary<string, string> fullData = JsonConvert.DeserializeObject<Dictionary<string, string>>(model.Assessment.ToString());
-            // 3. Save Medicines
-            //get from json medicine only
-            var medicineGroups = fullData
-            .Where(kv => kv.Key.StartsWith("Medicines["))
-            .GroupBy(kv => kv.Key.Split(']')[0]).ToList();
-
+           
+            // 1. Save Medicines
+            var medicineGroups = ExtractGroups(fullData, "Medicines");
             if (medicineGroups.Any())
             {
-                // Iterate through each medicine group (e.g., Medicines[0], Medicines[1])
-                foreach (var group in medicineGroups)
+                foreach (var medicineData in medicineGroups)
                 {
-                    // 1. Create a dictionary from the current group for easy lookup of properties
-                    var medicineData = group.ToDictionary(kv => kv.Key.Split('[', ']')[2], kv => kv.Value);
-
-                    // 2. Safely extract properties from the medicineData dictionary
                     medicineData.TryGetValue("VchMedicineName", out var name);
-                    medicineData.TryGetValue("VchMedicineCode", out var code);                   
+                    medicineData.TryGetValue("VchMedicineCode", out var code);
                     medicineData.TryGetValue("IntQuantity", out var quantityStr);
                     medicineData.TryGetValue("VchFrequency", out var frequency);
-                    medicineData.TryGetValue("vchDuration", out var duration);
+                    medicineData.TryGetValue("VchDuration", out var duration);
                     medicineData.TryGetValue("BreakFastTiming", out var bfTiming);
                     medicineData.TryGetValue("LunchTiming", out var lunchTiming);
                     medicineData.TryGetValue("DinnerTiming", out var dinnerTiming);
 
-                    // 3. Convert types and handle nulls/missing values
                     int.TryParse(quantityStr, out int quantity);
-
-                    // 4. Create and add the new entity
                     _context.TblDocTemplateMedicine.Add(new TblDocTemplateMedicine
                     {
                         IntFkTempleteId = template.Intid,
                         VchMedicineName = name ?? "", // Use null-coalescing
-                        VchMedicineCode=code ?? "",
+                        VchMedicineCode = code ?? "",
                         VchFrequency = frequency ?? "",
                         IntQuantity = quantity,
                         VchDuration = duration ?? "",
@@ -1068,33 +1064,25 @@ namespace DWB.Controllers
                         VchCreatedBy = User.Identity?.Name ?? "NA",
                         DtCreated = DateTime.Now
                     });
-
                 }
             }
+
             // 4. Save Labs
             //check lab from json
-            var labGroups = fullData
-                .Where(kv => kv.Key.StartsWith("Labs["))
-                .GroupBy(kv => kv.Key.Split(']')[0]) // Groups like Labs[0], Labs[1]
-                .ToList();
-            if (labGroups.Any())
-            {
-                // Iterate through each lab group (e.g., Labs[0], Labs[1])
+            var labGroups = ExtractGroups(fullData, "Labs");
+            if(labGroups.Any())
+            { 
                 foreach (var group in labGroups)
                 {
-
-                    //1 The split is based on the assumption the key is "Labs[N][PropertyName]"
                     var labData = group.ToDictionary(
-                        kv => kv.Key.Split('[', ']')[2],
+                        kv => kv.Key.Substring(kv.Key.LastIndexOf('.') + 1), // → property name only
                         kv => kv.Value
                     );
 
-                    // 2. Safely extract properties
                     labData.TryGetValue("VchTestName", out var testName);
                     labData.TryGetValue("VchTestCode", out var testCode);
                     labData.TryGetValue("VchPriority", out var priority);
 
-                    // 3. Create and add the new entity
                     _context.TblDocTemplateLab.Add(new TblDocTemplateLab
                     {
                         FkTempId = template.Intid,
@@ -1107,65 +1095,38 @@ namespace DWB.Controllers
                 }
             }
 
-            // 5. Save Procedures
-            // get procedure from json
-            var procedureGroups = fullData
-            .Where(kv => kv.Key.StartsWith("Procedures["))
-            .GroupBy(kv => kv.Key.Split(']')[0]) // Groups like Procedures[0], Procedures[1]
-            .ToList();
-            if (procedureGroups.Any())
+
+            // 5. Save Procedures using helper method
+            var procedureGroups = ExtractGroups(fullData, "Procedures");
+
+            foreach (var proc in procedureGroups)
             {
-                // Iterate through each procedure group (e.g., Procedures[0], Procedures[1])
-                foreach (var group in procedureGroups)
+                proc.TryGetValue("VchProcedureName", out var procedureName);
+                proc.TryGetValue("VchProcedureCode", out var procedureCode);
+                proc.TryGetValue("VchPriority", out var priority);
+
+                _context.TblDocTemplateProcedure.Add(new TblDocTemplateProcedure
                 {
-                    // 1. Create a dictionary from the current group for easy lookup of properties
-                    // The split extracts the property name (e.g., "Procedure" or "Priority")
-                    var procedureData = group.ToDictionary(
-                        kv => kv.Key.Split('[', ']')[2],
-                        kv => kv.Value
-                    );
-
-                    // 2. Safely extract properties
-                    procedureData.TryGetValue("VchProcedureName", out var procedureName);
-                    procedureData.TryGetValue("VchProcedureCode", out var procedureCode);
-                    procedureData.TryGetValue("VchPriority", out var priority);
-
-                    // 3. Create and add the new entity
-                    _context.TblDocTemplateProcedure.Add(new TblDocTemplateProcedure
-                    {
-                        FkTempId = template.Intid,
-                        VchProcedureName = procedureName ?? "",
-                        VchProcedureCode = procedureCode ?? "",
-                        VchPriority = priority ?? "",
-                        DtCreated = DateTime.Now,
-                        VchCreatedBy = User.Identity?.Name ?? "NA",
-                    });
-                }
+                    FkTempId = template.Intid,
+                    VchProcedureName = procedureName ?? "",
+                    VchProcedureCode = procedureCode ?? "",
+                    VchPriority = priority ?? "",
+                    DtCreated = DateTime.Now,
+                    VchCreatedBy = User.Identity?.Name ?? "NA",
+                });
             }
+
             // 6. Save Radiology
-            var radiologyGroups = fullData
-            .Where(kv => kv.Key.StartsWith("Radiology["))
-            .GroupBy(kv => kv.Key.Split(']')[0]) // Groups like Radiology[0], Radiology[1]
-            .ToList();
+            var radiologyGroups = ExtractGroups(fullData, "Radiology");
+           
             if (radiologyGroups.Any())
             {
                 // Iterate through each radiology group
-                foreach (var group in radiologyGroups)
-                {
-                    // 1. Create a dictionary from the current group for easy property lookup
-                    // The split extracts the property name (e.g., "VchRadiologyName")
-                    var radiologyData = group.ToDictionary(
-                        kv => kv.Key.Split('[', ']')[2],
-                        kv => kv.Value
-                    );
-
-                    // 2. Safely extract properties
-                    // Note: I've made the key lookup case-sensitive based on your original properties.
+                foreach (var radiologyData in radiologyGroups)
+                {                    
                     radiologyData.TryGetValue("VchRadiologyName", out var radiologyName);
                     radiologyData.TryGetValue("VchRadiologyCode", out var radiologyCode);
-                    radiologyData.TryGetValue("VchPriority", out var priority);
-
-                    // 3. Create and add the new entity
+                    radiologyData.TryGetValue("VchPriority", out var priority);                   
                     _context.TblDocTemplateRadiology.Add(new TblDocTemplateRadiology
                     {
                         FkTempId = template.Intid,
@@ -1179,6 +1140,70 @@ namespace DWB.Controllers
             }
             _context.SaveChanges();
             return Ok(new { success = true, id = template.Intid });
+        }
+
+        //get all template on assessment
+        [HttpGet]
+        public IActionResult GetTemplates()
+        {
+            var templates = _context.TblDocTemplateAssessment
+                                    .Select(t => new
+                                    {
+                                        t.Intid,
+                                        t.VchTempleteName
+                                    })
+                                    .ToList();
+
+            return Json(templates); // ya View me send kar sakte ho
+        }
+
+        // load selecetd template
+        public IActionResult LoadTemplate(int id)
+        {
+            var template = _context.TblDocTemplateAssessment
+                                   .FirstOrDefault(t => t.Intid == id);
+
+            if (template == null)
+                return NotFound();
+
+            return Json(new { dataJson = template.DataJson });
+        }
+
+
+        #endregion
+
+        #region helper groups
+        //add all medicine, radiology, lab, Procedure using it
+        private static List<Dictionary<string, string>> ExtractGroups(
+        Dictionary<string, string> fullData,
+        string prefix // "Medicines", "LabTests", "Procedures", "Radiology"
+            )
+        {
+            // Step 1: Get groups by prefix
+            var groups = fullData
+                .Where(kv => kv.Key.StartsWith(prefix + "["))
+                .GroupBy(kv => kv.Key.Split(']')[0]) // Groups like Medicines[0], Procedures[1]
+                .ToList();
+
+            var result = new List<Dictionary<string, string>>();
+
+            // Step 2: Iterate groups
+            foreach (var group in groups)
+            {
+                // Convert each group into a property dictionary
+                var dict = group.ToDictionary(
+                    kv =>
+                    {
+                        var parts = kv.Key.Split('[', ']');
+                        return parts.Length > 2 ? parts[2].TrimStart('.') : "";
+                    },
+                    kv => kv.Value
+                );
+
+                result.Add(dict);
+            }
+
+            return result;
         }
 
         #endregion

@@ -20,7 +20,8 @@
                 <span class="me-3 text-primary">Name: <span class="text-white">@Model.NursingAssessment.VchHmsname</span></span>
                 <span class="me-3 text-primary">Visit No: <span class="text-white">@Model.NursingAssessment.IntIhmsvisit</span></span>
                 <span><a class="btn btn-sm btn-grd-primary">View History</a> </span>&nbsp;
-                <span><a class="btn btn-sm btn-grd-danger">Use last history</a> </span>
+                <span><a class="btn btn-sm btn-grd-danger">Use last history</a> </span>&nbsp;
+                <span><a class="btn btn-sm btn-grd-success" data-bs-toggle="modal" data-bs-target="#templateModal">Use Template</a> </span>
             </div>
         </div>
         <div class="card shadow-sm rounded-4">           
@@ -837,7 +838,33 @@
             </div>
         </div>
     </div>
+
+    <!-- Template Modal to load template in current assessment -->
+    <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="templateModalLabel">Select Template</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <label>Select Template</label>
+                    <select id="ddlTemplates" class="form-select mb-3">
+                        <option value="">-- Select Template --</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btnLoadTemplate" class="btn btn-success">Load Template</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
+
 
 @section scripts{
     <script src="/assets/js/dashboard1.js"></script>
@@ -946,10 +973,6 @@
                 });
             });
         });
-
-
-
-
 
                  //Medicine searching / adding
          $(document).ready(function () {
@@ -1818,5 +1841,65 @@
                  displayDoctorFiles();
              }
          });
+
+         //function to load template assessment
+                 $(document).ready(function(){
+
+            // Modal open hone pe dropdown fill karo
+            $('#templateModal').on('show.bs.modal', function () {
+                $('#ddlTemplates').empty().append('<option value="">-- Select Template --</option>');
+                $.getJSON('/Assessment/GetTemplates', function(data){
+                    $.each(data, function(i, item){
+                        $('#ddlTemplates').append($('<option>', {
+                            value: item.intid,
+                            text: item.vchTempleteName
+                        }));
+                    });
+                });
+            });
+
+            // Load Template button click
+            $('#btnLoadTemplate').click(function(){
+                var templateId = $('#ddlTemplates').val();
+                if(!templateId) {
+                    alert("Please select a template");
+                    return;
+                }
+
+                $.getJSON('/Assessment/LoadTemplate/' + templateId, function(templateData){
+                    var data = JSON.parse(templateData.dataJson);
+
+                    // Fill Doctor Assessment fields
+                    $('#DoctorAssessment_VchChiefcomplaints').val(data.DoctorAssessment.VchChiefcomplaints);
+                    $('#DoctorAssessment_VchMedicalHistory').val(data.DoctorAssessment.VchMedicalHistory);
+                    $('#DoctorAssessment_VchSystemicexam').val(data.DoctorAssessment.VchSystemicexam);
+                    $('#DoctorAssessment_VchDiagnosis').val(data.DoctorAssessment.VchDiagnosis);
+                    $('#DoctorAssessment_VchRemarks').val(data.DoctorAssessment.VchRemarks);
+
+                    // Fill medicines, labs, etc
+                    populateMedicines(data.Medicines);
+                    populateLabs(data.Labs);
+                    populateRadiology(data.Radiology);
+                    populateProcedures(data.Procedures);
+
+                    // Close modal
+                    $('#templateModal').modal('hide');
+                });
+            function populateMedicines(meds) {
+            $('#medicineTable tbody').empty();
+            if(!meds) return;
+            $.each(meds, function(i, med){
+                var row = `<tr>
+                    <td>${med.VchMedicineName}</td>
+                    <td>${med.VchMedicineCode}</td>
+                    <td>${med.IntQuantity}</td>
+                    <td>${med.VchFrequency}</td>
+                    <td>${med.VchDuration}</td>
+                </tr>`;
+                $('#medicineTable tbody').append(row);
+            });
+        }
+            });
+        });
     </script>
 }
