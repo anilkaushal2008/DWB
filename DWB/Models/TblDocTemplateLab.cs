@@ -28,4 +28,6 @@ public partial class TblDocTemplateLab
     public DateTime? DtUpdted { get; set; }
 
     public string VchUpdatedBy { get; set; }
+
+    public virtual TblDocTemplateAssessment FkTemp { get; set; }
 }

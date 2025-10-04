@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QuestPDF.Helpers.Colors;
 
 namespace DWB.Controllers
@@ -727,7 +728,7 @@ namespace DWB.Controllers
         public async Task<IActionResult> DocAssmntEdit(string uhid, int visit, int templateID) //passing template id for load existing template in the current assessment
         {
             var assessment = await _context.TblDoctorAssessment
-                .FirstOrDefaultAsync(x => x.FkUhid == uhid && x.FkVisitNo==visit);
+                .FirstOrDefaultAsync(x => x.FkUhid == uhid && x.FkVisitNo == visit);
 
             if (assessment == null)
                 return NotFound();
@@ -745,7 +746,7 @@ namespace DWB.Controllers
                 //    VchSystemicexam = assessment.VchSystemicexam,
                 //    VchRemarks = assessment.VchRemarks,                    
                 //},
-                DoctorAssessment=assessment,
+                DoctorAssessment = assessment,
                 NursingAssessment = (from e in _context.TblNsassessment where e.IntAssessmentId == assessment.FkAssessmentId select e).FirstOrDefault(),
 
                 Medicines = await _context.TblDoctorAssmntMedicine
@@ -1144,7 +1145,7 @@ namespace DWB.Controllers
 
         //get all template on assessment
         [HttpGet]
-        public IActionResult GetTemplates()
+        public IActionResult GetAllTemplates()
         {
             var templates = _context.TblDocTemplateAssessment
                                     .Select(t => new
@@ -1156,18 +1157,129 @@ namespace DWB.Controllers
 
             return Json(templates); // ya View me send kar sakte ho
         }
-
-        // load selecetd template
-        public IActionResult LoadTemplate(int id)
+        
+        //load selected template
+        [HttpGet]
+        public async Task<IActionResult> LoadTemplateData(int templateId)
         {
-            var template = _context.TblDocTemplateAssessment
-                                   .FirstOrDefault(t => t.Intid == id);
+            // 1️⃣ Get template record
+            var selectedTemplate = _context.TblDocTemplateAssessment.FirstOrDefault(t => t.Intid == templateId);
+            if (selectedTemplate == null)
+                return NotFound("Template not found.");
+
+            var jsonData = selectedTemplate.DataJson;
+
+           
+
+
 
             if (template == null)
-                return NotFound();
+                return NotFound("Template not found.");
 
-            return Json(new { dataJson = template.DataJson });
+            // 2️⃣ Deserialize DataJson into dynamic object
+            var jsonData = template.DataJson;
+            if (string.IsNullOrEmpty(jsonData))
+                return BadRequest("Template data is empty.");
+
+            // 3️⃣ Convert JSON to DoctorAssessmentVM
+            try
+            {
+                var vm = JsonConvert.DeserializeObject<DoctorAssessmentVM>(jsonData);
+                if (vm == null) throw new Exception("Deserialized object is null");
+                return Json(vm);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Deserialization failed: " + ex.Message);
+                return Json(ex.Message);
+            }
+
+            // 4️⃣ Return it as JSON response
+            //return Json(vm);
         }
+
+        // load selecetd template
+        //public IActionResult LoadTemplate(int patientId, int visit, int templateId)
+        //{
+
+        //    // 🔹 If template selected → preload template data
+        //    if (templateID != 0)
+        //    {
+        //        model.NursingAssessment = (from e in _context.TblNsassessment where e.IntAssessmentId == assessment.FkAssessmentId select e).FirstOrDefault();
+        //        var template = await _context.TblDocTemplateAssessment
+        //            .Include(t => t.TblDocTemplateMedicine)
+        //            .Include(t => t.TblDocTemplateLab)
+        //            .Include(t => t.TblDocTemplateRadiology)
+        //            .Include(t => t.TblDocTemplateProcedure)
+        //            //.Include(t => t.TemplateFields) //assessment fields
+        //            .FirstOrDefaultAsync(t => t.Intid == templateID);
+
+        //        if (template != null)
+        //        {
+        //            if (template.VchChiefComplaints != null)
+        //                model.DoctorAssessment.VchChiefcomplaints = template.VchChiefComplaints;
+        //            if (template.VchDiagnosis != null)
+        //                model.DoctorAssessment.VchDiagnosis = template.VchDiagnosis;
+        //            if (template.VchMedicalHistory != null)
+        //                model.DoctorAssessment.VchMedicalHistory = template.VchMedicalHistory;
+        //            if (template.VchSystemicExam != null)
+        //                model.DoctorAssessment.VchSystemicexam = template.VchSystemicExam;
+        //            if (template.VchRemarks != null)
+        //                model.DoctorAssessment.VchRemarks = template.VchRemarks;
+
+        //            // Medicines
+        //            if (template.TblDocTemplateMedicine?.Any() == true)
+        //            {
+        //                model.Medicines.AddRange(template.TblDocTemplateMedicine.Select(m => new TblDoctorAssmntMedicine
+        //                {
+        //                    VchMedicineName = m.VchMedicineName,
+        //                    IntQuantity = m.IntQuantity,
+        //                    VchFrequency = m.VchFrequency,
+        //                    VchDuration = m.VchDuration,
+        //                    BitBbf = m.BitBbf,
+        //                    BitAbf = m.BitAbf,
+        //                    BitBl = m.BitBl,
+        //                    BitAl = m.BitAl,
+        //                    BitBd = m.BitBd,
+        //                    BitAd = m.BitAd
+        //                }));
+        //            }
+
+        //            // Labs
+        //            if (template.TblDocTemplateLab?.Any() == true)
+        //            {
+        //                model.Labs.AddRange(template.TblDocTemplateLab.Select(l => new TblDoctorAssmntLab
+        //                {
+        //                    VchTestName = l.VchTestName,
+        //                    VchTestCode = l.VchTestCode,
+        //                    VchPriority = l.VchPriority
+        //                }));
+        //            }
+
+        //            // Radiology
+        //            if (template.TblDocTemplateRadiology?.Any() == true)
+        //            {
+        //                model.Radiology.AddRange(template.TblDocTemplateRadiology.Select(r => new TblDoctorAssmntRadiology
+        //                {
+        //                    VchRadiologyName = r.VchRadiologyName,
+        //                    VchRadiologyCode = r.VchRadiologyCode,
+        //                    VchPriority = r.VchPriority
+        //                }));
+        //            }
+
+        //            // Procedures
+        //            if (template.TblDocTemplateProcedure?.Any() == true)
+        //            {
+        //                model.Procedures.AddRange(template.TblDocTemplateProcedure.Select(p => new TblDoctorAssmntProcedure
+        //                {
+        //                    VchProcedureName = p.VchProcedureName,
+        //                    VchProcedureCode = p.VchProcedureCode,
+        //                    VchPriority = p.VchPriority
+        //                }));
+        //            }
+        //        }
+        //    }
+        //}
 
 
         #endregion
@@ -1199,10 +1311,8 @@ namespace DWB.Controllers
                     },
                     kv => kv.Value
                 );
-
-                result.Add(dict);
+               result.Add(dict);
             }
-
             return result;
         }
 

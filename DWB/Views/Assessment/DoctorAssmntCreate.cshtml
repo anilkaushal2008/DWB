@@ -16,7 +16,7 @@
         </h4>
         <div class="card p-2 border-0 shadow-sm rounded-3 mb-2 bg-light">
             <div class="d-flex flex-wrap align-items-center small text-dark fw-semibold">
-                <span class="me-3 text-primary" >Selected Patient|UHID: <span class="text-white">@Model.NursingAssessment.VchUhidNo</span></span>
+                <span class="me-3 text-primary">Selected Patient|UHID: <span class="text-white">@Model.NursingAssessment.VchUhidNo</span></span>
                 <span class="me-3 text-primary">Name: <span class="text-white">@Model.NursingAssessment.VchHmsname</span></span>
                 <span class="me-3 text-primary">Visit No: <span class="text-white">@Model.NursingAssessment.IntIhmsvisit</span></span>
                 <span><a class="btn btn-sm btn-grd-primary">View History</a> </span>&nbsp;
@@ -29,11 +29,11 @@
                 
                 <form method="post" id="DAssessment" enctype="multipart/form-data"
                       asp-action="@(Model.DoctorAssessment.IntId > 0 ? "DocAssmntEdit" : "DocAssmntCreate")" asp-controller="Assessment">
-                      @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
-                      @Html.HiddenFor(m => m.DoctorAssessment.FkUhid)
-                      @Html.HiddenFor(m => m.DoctorAssessment.FkAssessmentId)                      
-                      @Html.HiddenFor(m => m.DoctorAssessment.FkVisitNo)                      
-                      @Html.HiddenFor(m => m.DoctorAssessment.DtHmsentry)
+                    @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
+                    @Html.HiddenFor(m => m.DoctorAssessment.FkUhid, new { id = "PatientId"})
+                    @Html.HiddenFor(m => m.DoctorAssessment.FkAssessmentId)
+                    @Html.HiddenFor(m => m.DoctorAssessment.FkVisitNo, new { id = "VisitNo"})
+                    @Html.HiddenFor(m => m.DoctorAssessment.DtHmsentry)
                       @Html.HiddenFor(m => m.NursingAssessment.IntAssessmentId)
                     @* for edit assessment *@
                     @if(Model.DoctorAssessment.IntId != 0)
@@ -839,29 +839,28 @@
         </div>
     </div>
 
-    <!-- Template Modal to load template in current assessment -->
-    <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
+    <!-- Template Modal for selection -->
+    <div class="modal fade" id="templateModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="templateModalLabel">Select Template</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Use Template</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-
                 <div class="modal-body">
-                    <label>Select Template</label>
-                    <select id="ddlTemplates" class="form-select mb-3">
+                    <label for="ddlTemplates" class="form-label">Choose Template</label>
+                    <select id="ddlTemplates" class="form-select">
                         <option value="">-- Select Template --</option>
                     </select>
                 </div>
-
                 <div class="modal-footer">
-                    <button type="button" id="btnLoadTemplate" class="btn btn-success">Load Template</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="btnLoadTemplate" class="btn btn-primary">Load Template</button>
                 </div>
             </div>
         </div>
     </div>
+
+
 
 </main>
 
@@ -974,7 +973,7 @@
             });
         });
 
-                 //Medicine searching / adding
+        //Medicine searching / adding
          $(document).ready(function () {
              let medIndex = 1; // start from 1 since 0 already exists
 
@@ -1841,65 +1840,81 @@
                  displayDoctorFiles();
              }
          });
+       
 
-         //function to load template assessment
-                 $(document).ready(function(){
+         //function to load template assessment                  
+         $(document).ready(function () {
 
-            // Modal open hone pe dropdown fill karo
+            //Load templates into dropdown when modal opens
             $('#templateModal').on('show.bs.modal', function () {
-                $('#ddlTemplates').empty().append('<option value="">-- Select Template --</option>');
-                $.getJSON('/Assessment/GetTemplates', function(data){
-                    $.each(data, function(i, item){
-                        $('#ddlTemplates').append($('<option>', {
-                            value: item.intid,
-                            text: item.vchTempleteName
-                        }));
+                $.getJSON('/Assessment/GetAllTemplates', function (data) {
+                    var ddl = $('#ddlTemplates');
+                    ddl.empty().append('<option value="">-- Select Template --</option>');
+                    $.each(data, function (i, item) {
+                        ddl.append('<option value="' + item.intid + '">' + item.vchTempleteName + '</option>');
                     });
                 });
             });
 
-            // Load Template button click
-            $('#btnLoadTemplate').click(function(){
+        //When "Load Template" button clicked
+           $('#btnLoadTemplate').click(function () {
                 var templateId = $('#ddlTemplates').val();
-                if(!templateId) {
-                    alert("Please select a template");
+                if (!templateId) {
+                    alert("Please select a template.");
                     return;
+            }
+
+            $.ajax({
+                url: '/Assessment/LoadTemplateData',
+                type: 'GET',
+                data: { templateId: templateId },
+                success: function (vm) {
+                    if (vm) {
+                        // 1️⃣ Fill doctor assessment basic info
+                        $('#DoctorAssessment_VchChiefcomplaints').val(vm.doctorAssessment?.vchChiefcomplaints || '');
+                        $('#DoctorAssessment_VchMedicalHistory').val(vm.doctorAssessment?.vchMedicalHistory || '');
+                        $('#DoctorAssessment_VchSystemicexam').val(vm.doctorAssessment?.vchSystemicexam || '');
+                        $('#DoctorAssessment_VchDiagnosis').val(vm.doctorAssessment?.vchDiagnosis || '');
+                        $('#DoctorAssessment_VchRemarks').val(vm.doctorAssessment?.vchRemarks || '');
+
+                        // 2️⃣ Fill Medicines (if any)
+                        if (vm.medicines && vm.medicines.length > 0) {
+                            $('#tblMedicines tbody').empty();
+                            $.each(vm.medicines, function (i, med) {
+                                $('#tblMedicines tbody').append(`
+                                    <tr>
+                                        <td>${med.vchMedicineName || ''}</td>
+                                        <td>${med.vchFrequency || ''}</td>
+                                        <td>${med.vchDuration || ''}</td>
+                                        <td>${med.intQuantity || ''}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+
+                        // 3️⃣ Labs (optional)
+                        if (vm.labs && vm.labs.length > 0) {
+                            $('#tblLabs tbody').empty();
+                            $.each(vm.labs, function (i, lab) {
+                                $('#tblLabs tbody').append(`
+                                    <tr>
+                                        <td>${lab.vchTestName || ''}</td>
+                                        <td>${lab.vchPriority || ''}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+
+                        // ✅ Finally close modal
+                        $('#templateModal').modal('hide');
+                        alert("Template loaded successfully ✅");
+                    }
+                },
+                error: function (xhr) {
+                    alert("Error loading template: " + xhr.responseText);
                 }
-
-                $.getJSON('/Assessment/LoadTemplate/' + templateId, function(templateData){
-                    var data = JSON.parse(templateData.dataJson);
-
-                    // Fill Doctor Assessment fields
-                    $('#DoctorAssessment_VchChiefcomplaints').val(data.DoctorAssessment.VchChiefcomplaints);
-                    $('#DoctorAssessment_VchMedicalHistory').val(data.DoctorAssessment.VchMedicalHistory);
-                    $('#DoctorAssessment_VchSystemicexam').val(data.DoctorAssessment.VchSystemicexam);
-                    $('#DoctorAssessment_VchDiagnosis').val(data.DoctorAssessment.VchDiagnosis);
-                    $('#DoctorAssessment_VchRemarks').val(data.DoctorAssessment.VchRemarks);
-
-                    // Fill medicines, labs, etc
-                    populateMedicines(data.Medicines);
-                    populateLabs(data.Labs);
-                    populateRadiology(data.Radiology);
-                    populateProcedures(data.Procedures);
-
-                    // Close modal
-                    $('#templateModal').modal('hide');
-                });
-            function populateMedicines(meds) {
-            $('#medicineTable tbody').empty();
-            if(!meds) return;
-            $.each(meds, function(i, med){
-                var row = `<tr>
-                    <td>${med.VchMedicineName}</td>
-                    <td>${med.VchMedicineCode}</td>
-                    <td>${med.IntQuantity}</td>
-                    <td>${med.VchFrequency}</td>
-                    <td>${med.VchDuration}</td>
-                </tr>`;
-                $('#medicineTable tbody').append(row);
-            });
-        }
             });
         });
-    </script>
+    });
+  </script>
 }

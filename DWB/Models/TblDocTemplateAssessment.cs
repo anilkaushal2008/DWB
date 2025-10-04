@@ -41,5 +41,11 @@ public partial class TblDocTemplateAssessment
 
     public virtual TblUsers IntFkuser { get; set; }
 
+    public virtual ICollection<TblDocTemplateLab> TblDocTemplateLab { get; set; } = new List<TblDocTemplateLab>();
+
     public virtual ICollection<TblDocTemplateMedicine> TblDocTemplateMedicine { get; set; } = new List<TblDocTemplateMedicine>();
+
+    public virtual ICollection<TblDocTemplateProcedure> TblDocTemplateProcedure { get; set; } = new List<TblDocTemplateProcedure>();
+
+    public virtual ICollection<TblDocTemplateRadiology> TblDocTemplateRadiology { get; set; } = new List<TblDocTemplateRadiology>();
 }

@@ -1019,6 +1019,10 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
+
+            entity.HasOne(d => d.FkTemp).WithMany(p => p.TblDocTemplateLab)
+                .HasForeignKey(d => d.FkTempId)
+                .HasConstraintName("FK_tblDocTemplateLab_tblDocTemplateAssessment");
         });
 
         modelBuilder.Entity<TblDocTemplateMedicine>(entity =>
@@ -1088,7 +1092,6 @@ public partial class DWBEntity : DbContext
 
             entity.HasOne(d => d.IntFkTemplete).WithMany(p => p.TblDocTemplateMedicine)
                 .HasForeignKey(d => d.IntFkTempleteId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblTempleteMedicine_tblDocAssessmentTemplete");
         });
 
@@ -1135,6 +1138,10 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
+
+            entity.HasOne(d => d.FkTemp).WithMany(p => p.TblDocTemplateProcedure)
+                .HasForeignKey(d => d.FkTempId)
+                .HasConstraintName("FK_tblDocTemplateProcedure_tblDocTemplateAssessment");
         });
 
         modelBuilder.Entity<TblDocTemplateRadiology>(entity =>
@@ -1180,6 +1187,10 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(150)
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
+
+            entity.HasOne(d => d.FkTemp).WithMany(p => p.TblDocTemplateRadiology)
+                .HasForeignKey(d => d.FkTempId)
+                .HasConstraintName("FK_tblDocTemplateRadiology_tblDocTemplateAssessment");
         });
 
         modelBuilder.Entity<TblDoctorAssessment>(entity =>
