@@ -4,6 +4,7 @@ using DWB.Report;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient.DataClassification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -459,6 +460,18 @@ namespace DWB.Controllers
                 Radiology = new List<TblDoctorAssmntRadiology>(),
                 Procedures = new List<TblDoctorAssmntProcedure>()
             };
+            // Fetch the list of templates
+            //var templates = _context.TblDocTemplateAssessment
+            //                        .Select(t => new
+            //                        {
+            //                            TempId = t.Intid,
+            //                            TempName = t.VchTempleteName
+            //                        })
+            //                        .ToList();
+
+            //// Store the list directly in the dynamic ViewBag object
+            //// You are storing a List<anonymous object> here.
+            //ViewBag.TemplateList = templates;
             return View(vm);
         }
 
@@ -1000,7 +1013,7 @@ namespace DWB.Controllers
             return File(pdf, "application/pdf"); // <--- Important
         }
 
-        // for template save 
+        //for template save 
         [HttpPost]
         public IActionResult SaveAsTemplate([FromBody] DoctorAssessmentTemplateVM model, DoctorAssessmentVM objdoc)
         {
@@ -1143,143 +1156,84 @@ namespace DWB.Controllers
             return Ok(new { success = true, id = template.Intid });
         }
 
-        //get all template on assessment
-        [HttpGet]
+        //This method returns the list of templates for the dropdown        
         public IActionResult GetAllTemplates()
         {
-            var templates = _context.TblDocTemplateAssessment
-                                    .Select(t => new
-                                    {
-                                        t.Intid,
-                                        t.VchTempleteName
-                                    })
-                                    .ToList();
-
-            return Json(templates); // ya View me send kar sakte ho
-        }
-        
-        //load selected template
-        [HttpGet]
-        public async Task<IActionResult> LoadTemplateData(int templateId)
-        {
-            // 1️⃣ Get template record
-            var selectedTemplate = _context.TblDocTemplateAssessment.FirstOrDefault(t => t.Intid == templateId);
-            if (selectedTemplate == null)
-                return NotFound("Template not found.");
-
-            var jsonData = selectedTemplate.DataJson;
-
-           
-
-
-
-            if (template == null)
-                return NotFound("Template not found.");
-
-            // 2️⃣ Deserialize DataJson into dynamic object
-            var jsonData = template.DataJson;
-            if (string.IsNullOrEmpty(jsonData))
-                return BadRequest("Template data is empty.");
-
-            // 3️⃣ Convert JSON to DoctorAssessmentVM
             try
             {
-                var vm = JsonConvert.DeserializeObject<DoctorAssessmentVM>(jsonData);
-                if (vm == null) throw new Exception("Deserialized object is null");
-                return Json(vm);
+                var templates = _context.TblDocTemplateAssessment
+              .Select(t => new SelectListItem
+              {
+                  Value = t.Intid.ToString(),
+                  Text = t.VchTempleteName
+              })
+              .ToList(); 
+               return Json(new { success = true, templates = templates });
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Deserialization failed: " + ex.Message);
-                return Json(ex.Message);
-            }
+                // TEMPORARILY change the return to expose the specific error message
+                Console.WriteLine("Server-Side Error: " + ex.Message);
 
-            // 4️⃣ Return it as JSON response
-            //return Json(vm);
+                // This is the CRUCIAL line to change:
+                return Ok(new { success = false, message = "ERROR: " + ex.Message, templates = new List<object>() });
+            }
         }
 
-        // load selecetd template
-        //public IActionResult LoadTemplate(int patientId, int visit, int templateId)
-        //{
 
-        //    // 🔹 If template selected → preload template data
-        //    if (templateID != 0)
-        //    {
-        //        model.NursingAssessment = (from e in _context.TblNsassessment where e.IntAssessmentId == assessment.FkAssessmentId select e).FirstOrDefault();
-        //        var template = await _context.TblDocTemplateAssessment
-        //            .Include(t => t.TblDocTemplateMedicine)
-        //            .Include(t => t.TblDocTemplateLab)
-        //            .Include(t => t.TblDocTemplateRadiology)
-        //            .Include(t => t.TblDocTemplateProcedure)
-        //            //.Include(t => t.TemplateFields) //assessment fields
-        //            .FirstOrDefaultAsync(t => t.Intid == templateID);
+        //Load selected templates in current assessment
+        [HttpGet]
+        public IActionResult LoadTemplateData(int id)
+        {
+            var template = _context.TblDocTemplateAssessment
+                .Include(t => t.TblDocTemplateMedicine)
+                .Include(t => t.TblDocTemplateLab)
+                .Include(t => t.TblDocTemplateRadiology)
+                .Include(t => t.TblDocTemplateProcedure)
+                .FirstOrDefault(t => t.Intid == id);
 
-        //        if (template != null)
-        //        {
-        //            if (template.VchChiefComplaints != null)
-        //                model.DoctorAssessment.VchChiefcomplaints = template.VchChiefComplaints;
-        //            if (template.VchDiagnosis != null)
-        //                model.DoctorAssessment.VchDiagnosis = template.VchDiagnosis;
-        //            if (template.VchMedicalHistory != null)
-        //                model.DoctorAssessment.VchMedicalHistory = template.VchMedicalHistory;
-        //            if (template.VchSystemicExam != null)
-        //                model.DoctorAssessment.VchSystemicexam = template.VchSystemicExam;
-        //            if (template.VchRemarks != null)
-        //                model.DoctorAssessment.VchRemarks = template.VchRemarks;
+            if (template == null)
+                return Json(new { success = false, message = "Template not found" });
 
-        //            // Medicines
-        //            if (template.TblDocTemplateMedicine?.Any() == true)
-        //            {
-        //                model.Medicines.AddRange(template.TblDocTemplateMedicine.Select(m => new TblDoctorAssmntMedicine
-        //                {
-        //                    VchMedicineName = m.VchMedicineName,
-        //                    IntQuantity = m.IntQuantity,
-        //                    VchFrequency = m.VchFrequency,
-        //                    VchDuration = m.VchDuration,
-        //                    BitBbf = m.BitBbf,
-        //                    BitAbf = m.BitAbf,
-        //                    BitBl = m.BitBl,
-        //                    BitAl = m.BitAl,
-        //                    BitBd = m.BitBd,
-        //                    BitAd = m.BitAd
-        //                }));
-        //            }
+            return Json(new
+            {
+                success = true,
+                template = new
+                {
+                    tname = template.VchTempleteName,
+                    medicines = template.TblDocTemplateMedicine.Select(m => new
+                    {
+                        m.IntId,
+                        m.VchMedicineName,
+                        m.IntQuantity,
+                        m.VchFrequency,
+                        m.VchDuration,
+                        m.BitBbf,
+                        m.BitAbf,
+                        m.BitBl,
+                        m.BitAl,
+                        m.BitBd,
+                        m.BitAd
+                    }),
+                    labs = template.TblDocTemplateLab.Select(l => new
+                    {
+                        l.VchTestCode,
+                        l.VchTestName
+                    }),
+                    radiology = template.TblDocTemplateRadiology.Select(r => new
+                    {
+                        r.VchRadiologyCode,
+                        r.VchRadiologyName
+                    }),
+                    procedures = template.TblDocTemplateProcedure.Select(p => new
+                    {
+                        p.VchProcedureCode,
+                        p.VchProcedureName
+                    })
+                }
+            });
+        }
 
-        //            // Labs
-        //            if (template.TblDocTemplateLab?.Any() == true)
-        //            {
-        //                model.Labs.AddRange(template.TblDocTemplateLab.Select(l => new TblDoctorAssmntLab
-        //                {
-        //                    VchTestName = l.VchTestName,
-        //                    VchTestCode = l.VchTestCode,
-        //                    VchPriority = l.VchPriority
-        //                }));
-        //            }
-
-        //            // Radiology
-        //            if (template.TblDocTemplateRadiology?.Any() == true)
-        //            {
-        //                model.Radiology.AddRange(template.TblDocTemplateRadiology.Select(r => new TblDoctorAssmntRadiology
-        //                {
-        //                    VchRadiologyName = r.VchRadiologyName,
-        //                    VchRadiologyCode = r.VchRadiologyCode,
-        //                    VchPriority = r.VchPriority
-        //                }));
-        //            }
-
-        //            // Procedures
-        //            if (template.TblDocTemplateProcedure?.Any() == true)
-        //            {
-        //                model.Procedures.AddRange(template.TblDocTemplateProcedure.Select(p => new TblDoctorAssmntProcedure
-        //                {
-        //                    VchProcedureName = p.VchProcedureName,
-        //                    VchProcedureCode = p.VchProcedureCode,
-        //                    VchPriority = p.VchPriority
-        //                }));
-        //            }
-        //        }
-        //    }
-        //}
 
 
         #endregion

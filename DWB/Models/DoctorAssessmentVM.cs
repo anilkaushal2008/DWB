@@ -17,6 +17,9 @@ namespace DWB.Models
         //for get upload document
         public List<TblDoctorAssessmentDoc> Documents { get; set; } = new List<TblDoctorAssessmentDoc>();
 
+        //for templates
+       // public List<TblDocTemplateAssessment> Templates { get; set; }
+
     }
 }
 

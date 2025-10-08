@@ -840,21 +840,20 @@
     </div>
 
     <!-- Template Modal for selection -->
-    <div class="modal fade" id="templateModal" tabindex="-1">
+    <div class="modal fade small" id="templateModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Use Template</h5>
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title">Select Template</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <label for="ddlTemplates" class="form-label">Choose Template</label>
-                    <select id="ddlTemplates" class="form-select">
+                    <select id="templateDropdown" class="form-select">
                         <option value="">-- Select Template --</option>
                     </select>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="btnLoadTemplate" class="btn btn-primary">Load Template</button>
+                    <button type="button" class="btn btn-primary" id="applyTemplate">Apply Template</button>
                 </div>
             </div>
         </div>
@@ -871,10 +870,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    @* <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> *@
     <script>
         //get cheif complaints
-         $(function() {
+        $(function() {
             $("#ChiefComplaintInput").autocomplete({
                 source: function(request, response) {
                     $.ajax({
@@ -962,8 +961,8 @@
                     contentType: 'application/json',
                     data: JSON.stringify(payload),
                     success: function (response) {
-                        alert("✅ Template saved successfully!");
                         $("#saveTemplateModal").modal("hide");
+                        alert("✅ Template saved successfully!");                       
                     },
                     error: function (xhr) {
                         alert("❌ Failed to save template.");
@@ -973,7 +972,99 @@
             });
         });
 
-        //Medicine searching / adding
+        //Function for load existing template in current assessment
+        $(function () {
+            // Bind only once globally
+            const modal = $('#templateModal');
+            const dropdown = $("#templateDropdown");
+
+            // If already bound, skip
+            if (!modal.data('bound')) {
+
+                modal.on('show.bs.modal', function () {
+                    console.log("Template modal opened...");
+
+                    dropdown.empty().append('<option value="">-- Select Template --</option>');
+
+                    $.ajax({
+                        url: "/Assessment/GetAllTemplates",
+                        type: "GET",
+                        dataType: "json",
+                        cache: false,
+                        success: function (data) {
+                            console.log("Data received:", data);
+
+                            if (data && data.success && data.templates && data.templates.$values) {
+                                dropdown.empty().append('<option value="">-- Select Template --</option>');
+                                data.templates.$values.forEach(item => {
+                                    if (item && item.value && item.text) {
+                                        dropdown.append(`<option value="${item.value}">${item.text}</option>`);
+                                    }
+                                });
+                            } else {
+                                dropdown.append('<option value="">No templates found</option>');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error fetching templates:", error);
+                            dropdown.append('<option value="">Error loading templates</option>');
+                        }
+                    });
+                });
+
+                // Mark as bound so this event never attaches again
+                modal.data('bound', true);
+            }
+        });
+       
+        //Load template data to assessment form when clicked load from modal template
+           $("#applyTemplate").on("click", function () {
+                let templateId = $("#templateDropdown").val();
+            if (!templateId) return;
+
+            $.getJSON(`/Assessment/LoadTemplateData?id=${templateId}`, function (data) {
+                if (data.success) {
+                    let t = data.template;
+
+                    // Clear existing rows
+                    $("#medicineTable tbody").empty();
+                    $("#labTable tbody").empty();
+                    $("#radiologyTable tbody").empty();
+                    $("#procedureTable tbody").empty();
+
+                    // Add medicines
+                    t.medicines.forEach((m, i) => {
+                        addMedicineRow(i + 1, m.MedicineName, m.Dose, m.Frequency, m.Duration);
+                    });
+
+                    // Add lab tests
+                    t.labs.forEach((l, i) => {
+                        addLabRow(i + 1, l.LabTestName);
+                    });
+
+                    // Add radiology tests
+                    t.radiology.forEach((r, i) => {
+                        addRadiologyRow(i + 1, r.RadiologyName);
+                    });
+
+                    // Add procedures
+                    t.procedures.forEach((p, i) => {
+                        addProcedureRow(i + 1, p.ProcedureName);
+                    });
+
+                    $("#templateModal").modal("hide");
+                } else {
+                    alert("Template data not found!");
+                }
+            });
+        });
+
+
+
+
+
+
+         //Medicine searching / adding
          $(document).ready(function () {
              let medIndex = 1; // start from 1 since 0 already exists
 
@@ -1108,9 +1199,10 @@
                      type: "GET",
                      data: { term: query },
                      success: function (data) {
+                             let list = data?.$values || data; // 👈 Use $values if present, else fallback
                          suggestionBox.empty();
-                         if (data.length > 0) {
-                             data.forEach(item => {
+                             if (data.$values && data.$values.length > 0) {
+                                 data.$values.forEach(item => {
                                  suggestionBox.append(
                                      `<a href="#" class="list-group-item list-group-item-action"
                                          data-name="${item.descript}"
@@ -1318,9 +1410,10 @@
                             type: "GET",
                             data: { term: query },
                             success: function (data) {
+                                let list = data?.$values || data; // 👈 Use $values if present, else fallback                            
                                 $box.empty();
-                                if (data.length > 0) {
-                                    data.forEach(item => {
+                                    if (data.$values && data.$values.length > 0) {
+                                    data.$values.forEach(item => {
                                         $box.append(`<a href="#" class="list-group-item list-group-item-action"
                                                      data-name="${item.descript}" data-code="${item.tcode}">
                                                      ${item.descript} <small class="text-muted">(${item.tcode})</small>
@@ -1396,17 +1489,7 @@
                     let $input = $(this);
                     let $hidden = $input.siblings(".lab-code");
                     if ($input.val().trim() !== "" && !$hidden.val()) $input.val("");
-                });
-
-                // Remove empty Lab rows before submit
-                // $("form").on("submit", function () {
-                //     $("#lab-list tr.lab-item").filter(function () {
-                //         let code = $(this).find(".lab-code").val();
-                //         return !code || code.trim() === "";
-                //     }).remove();
-                //     reIndexLabRows();
-                // });
-                  
+                });              
             });
 
         //Radiology code
@@ -1499,9 +1582,10 @@
                         type: "GET",
                         data: { term: query, type: "Radio" },
                         success: function (data) {
+                           let list = data?.$values || data; // 👈 Use $values if present, else fallback
                             $box.empty();
-                            if (data.length > 0) {
-                                data.forEach(item => {
+                                if(data.$values && data.$values.length > 0) {
+                                    data.$values.forEach(item => {
                                     $box.append(`<a href="#" class="list-group-item list-group-item-action"
                                                  data-name="${item.service}" data-code="${item.scode}">
                                                  ${item.service} <small class="text-muted">(${item.scode})</small>
@@ -1681,9 +1765,10 @@
                          type: "GET",
                          data: { term: query, type:"Procedure" },
                          success: function (data) {
-                             suggestionBox.empty();
-                             if (data.length > 0) {
-                                 data.forEach(item => {
+                             let list = data?.$values || data; // 👈 Use $values if present, else fallback
+                                 suggestionBox.empty();
+                                if(data.$values && data.$values.length > 0) {
+                                    data.$values.forEach(item => {
                                      suggestionBox.append(
                                          `<a href="#" class="list-group-item list-group-item-action"
                                              data-name="${item.service}"
@@ -1840,81 +1925,5 @@
                  displayDoctorFiles();
              }
          });
-       
-
-         //function to load template assessment                  
-         $(document).ready(function () {
-
-            //Load templates into dropdown when modal opens
-            $('#templateModal').on('show.bs.modal', function () {
-                $.getJSON('/Assessment/GetAllTemplates', function (data) {
-                    var ddl = $('#ddlTemplates');
-                    ddl.empty().append('<option value="">-- Select Template --</option>');
-                    $.each(data, function (i, item) {
-                        ddl.append('<option value="' + item.intid + '">' + item.vchTempleteName + '</option>');
-                    });
-                });
-            });
-
-        //When "Load Template" button clicked
-           $('#btnLoadTemplate').click(function () {
-                var templateId = $('#ddlTemplates').val();
-                if (!templateId) {
-                    alert("Please select a template.");
-                    return;
-            }
-
-            $.ajax({
-                url: '/Assessment/LoadTemplateData',
-                type: 'GET',
-                data: { templateId: templateId },
-                success: function (vm) {
-                    if (vm) {
-                        // 1️⃣ Fill doctor assessment basic info
-                        $('#DoctorAssessment_VchChiefcomplaints').val(vm.doctorAssessment?.vchChiefcomplaints || '');
-                        $('#DoctorAssessment_VchMedicalHistory').val(vm.doctorAssessment?.vchMedicalHistory || '');
-                        $('#DoctorAssessment_VchSystemicexam').val(vm.doctorAssessment?.vchSystemicexam || '');
-                        $('#DoctorAssessment_VchDiagnosis').val(vm.doctorAssessment?.vchDiagnosis || '');
-                        $('#DoctorAssessment_VchRemarks').val(vm.doctorAssessment?.vchRemarks || '');
-
-                        // 2️⃣ Fill Medicines (if any)
-                        if (vm.medicines && vm.medicines.length > 0) {
-                            $('#tblMedicines tbody').empty();
-                            $.each(vm.medicines, function (i, med) {
-                                $('#tblMedicines tbody').append(`
-                                    <tr>
-                                        <td>${med.vchMedicineName || ''}</td>
-                                        <td>${med.vchFrequency || ''}</td>
-                                        <td>${med.vchDuration || ''}</td>
-                                        <td>${med.intQuantity || ''}</td>
-                                    </tr>
-                                `);
-                            });
-                        }
-
-                        // 3️⃣ Labs (optional)
-                        if (vm.labs && vm.labs.length > 0) {
-                            $('#tblLabs tbody').empty();
-                            $.each(vm.labs, function (i, lab) {
-                                $('#tblLabs tbody').append(`
-                                    <tr>
-                                        <td>${lab.vchTestName || ''}</td>
-                                        <td>${lab.vchPriority || ''}</td>
-                                    </tr>
-                                `);
-                            });
-                        }
-
-                        // ✅ Finally close modal
-                        $('#templateModal').modal('hide');
-                        alert("Template loaded successfully ✅");
-                    }
-                },
-                error: function (xhr) {
-                    alert("Error loading template: " + xhr.responseText);
-                }
-            });
-        });
-    });
   </script>
 }
