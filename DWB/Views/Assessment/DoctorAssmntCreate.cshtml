@@ -813,54 +813,40 @@
             </div>
         </div>
      </div>
-     @* modal for templete *@
-    <!-- Modal should be here at the end of <main> -->
-    <div class="modal fade" id="saveTemplateModal" tabindex="-1" aria-labelledby="saveTemplateModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="saveTemplateForm" method="post" asp-action="SaveAsTemplate" asp-controller="Assessment">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="saveTemplateModalLabel">Save Assessment as Template</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="TemplateName" class="form-label">Template Name</label>
-                            <input type="text" class="form-control" id="TemplateName" name="TemplateName" required>
-                        </div>
-                        <input type="hidden" name="DoctorAssessmentId" value="@Model.DoctorAssessment.IntId">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="btnSaveTemplateModal" class="btn btn-primary">Save Template</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+     @* modal for templete loading *@
+    <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <!-- 🔹 Changed from modal-sm to modal-md -->
+            <div class="modal-content shadow-lg border-0 rounded-4">
 
-    <!-- Template Modal for selection -->
-    <div class="modal fade small" id="templateModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title">Select Template</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <!-- Header -->
+                <div class="modal-header bg-primary bg-gradient text-white py-2 px-3">
+                    <h6 class="modal-title fw-semibold" id="templateModalLabel" style="font-size: 0.95rem;">
+                        <i class="bi bi-layout-text-sidebar-reverse me-1"></i> Choose Template
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <select id="templateDropdown" class="form-select">
+
+                <!-- Body -->
+                <div class="modal-body py-3">
+                    <label for="templateDropdown" class="form-label fw-semibold small text-secondary">Available Templates</label>
+                    <select id="templateDropdown" class="form-select form-select-sm rounded-3 shadow-sm border-primary-subtle">
                         <option value="">-- Select Template --</option>
                     </select>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="applyTemplate">Apply Template</button>
+
+                <!-- Footer -->
+                <div class="modal-footer py-2 border-0 d-flex justify-content-between">
+                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm px-3" id="applyTemplate">
+                        <i class="bi bi-check2-circle me-1"></i> Apply
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-
-
 </main>
 
 
@@ -972,100 +958,53 @@
             });
         });
 
-        //Function for load existing template in current assessment
-        $(function () {
-            // Bind only once globally
-            const modal = $('#templateModal');
-            const dropdown = $("#templateDropdown");
+        //Function for load existing template in current assessment(use template button)
+        // $(function () {
+        //     // Bind only once globally
+        //     const modal = $('#templateModal');
+        //     const dropdown = $("#templateDropdown");
 
-            // If already bound, skip
-            if (!modal.data('bound')) {
+        //     // If already bound, skip
+        //     if (!modal.data('bound')) {
 
-                modal.on('show.bs.modal', function () {
-                    console.log("Template modal opened...");
+        //         modal.on('show.bs.modal', function () {
+        //             console.log("Template modal opened...");
 
-                    dropdown.empty().append('<option value="">-- Select Template --</option>');
+        //             dropdown.empty().append('<option value="">-- Select Template --</option>');
 
-                    $.ajax({
-                        url: "/Assessment/GetAllTemplates",
-                        type: "GET",
-                        dataType: "json",
-                        cache: false,
-                        success: function (data) {
-                            console.log("Data received:", data);
+        //             $.ajax({
+        //                 url: "/Assessment/GetAllTemplates",
+        //                 type: "GET",
+        //                 dataType: "json",
+        //                 cache: false,
+        //                 success: function (data) {
+        //                     console.log("Data received:", data);
 
-                            if (data && data.success && data.templates && data.templates.$values) {
-                                dropdown.empty().append('<option value="">-- Select Template --</option>');
-                                data.templates.$values.forEach(item => {
-                                    if (item && item.value && item.text) {
-                                        dropdown.append(`<option value="${item.value}">${item.text}</option>`);
-                                    }
-                                });
-                            } else {
-                                dropdown.append('<option value="">No templates found</option>');
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error("Error fetching templates:", error);
-                            dropdown.append('<option value="">Error loading templates</option>');
-                        }
-                    });
-                });
+        //                     if (data && data.success && data.templates && data.templates.$values) {
+        //                         dropdown.empty().append('<option value="">-- Select Template --</option>');
+        //                         data.templates.$values.forEach(item => {
+        //                             if (item && item.value && item.text) {
+        //                                 dropdown.append(`<option value="${item.value}">${item.text}</option>`);
+        //                             }
+        //                         });
+        //                     } else {
+        //                         dropdown.append('<option value="">No templates found</option>');
+        //                     }
+        //                 },
+        //                 error: function (xhr, status, error) {
+        //                     console.error("Error fetching templates:", error);
+        //                     dropdown.append('<option value="">Error loading templates</option>');
+        //                 }
+        //             });
+        //         });
 
-                // Mark as bound so this event never attaches again
-                modal.data('bound', true);
-            }
-        });
-       
-        //Load template data to assessment form when clicked load from modal template
-           $("#applyTemplate").on("click", function () {
-                let templateId = $("#templateDropdown").val();
-            if (!templateId) return;
+        //         // Mark as bound so this event never attaches again
+        //         modal.data('bound', true);
+        //     }
+        // });       
 
-            $.getJSON(`/Assessment/LoadTemplateData?id=${templateId}`, function (data) {
-                if (data.success) {
-                    let t = data.template;
-
-                    // Clear existing rows
-                    $("#medicineTable tbody").empty();
-                    $("#labTable tbody").empty();
-                    $("#radiologyTable tbody").empty();
-                    $("#procedureTable tbody").empty();
-
-                    // Add medicines
-                    t.medicines.forEach((m, i) => {
-                        addMedicineRow(i + 1, m.MedicineName, m.Dose, m.Frequency, m.Duration);
-                    });
-
-                    // Add lab tests
-                    t.labs.forEach((l, i) => {
-                        addLabRow(i + 1, l.LabTestName);
-                    });
-
-                    // Add radiology tests
-                    t.radiology.forEach((r, i) => {
-                        addRadiologyRow(i + 1, r.RadiologyName);
-                    });
-
-                    // Add procedures
-                    t.procedures.forEach((p, i) => {
-                        addProcedureRow(i + 1, p.ProcedureName);
-                    });
-
-                    $("#templateModal").modal("hide");
-                } else {
-                    alert("Template data not found!");
-                }
-            });
-        });
-
-
-
-
-
-
-         //Medicine searching / adding
-         $(document).ready(function () {
+        //Medicine searching / adding
+        $(document).ready(function () {
              let medIndex = 1; // start from 1 since 0 already exists
 
              // Function to generate new row
@@ -1166,7 +1105,7 @@
                  }
              });
              //renumbering of row after deletion and addations
-            function reIndexMedicineRows() {
+             function reIndexMedicineRows() {
              $("#medicine-list tr.medicine-item").each(function (i, row) {
                  $(row).find("input").each(function () {
                      let name = $(this).attr("name");
@@ -1300,8 +1239,8 @@
              });
          });
 
-         //for medicine check boxes select unselect
-         $(document).on("click", "input[type=radio]", function () {
+        //for medicine check boxes select unselect
+        $(document).on("click", "input[type=radio]", function () {
              let $radio = $(this);
 
              // If already checked, uncheck it
@@ -1316,7 +1255,7 @@
          });
 
         //Code for Lab
-         $(document).ready(function () {
+        $(document).ready(function () {
                 let labIndex = 1; // start from 1 since [0] already exists
 
                 // Generate new Lab row
@@ -1925,5 +1864,584 @@
                  displayDoctorFiles();
              }
          });
+
+
+
+              // --- FUNCTION: Safe modal open (always works from any tab) ---
+        function openTemplateModal(e) {
+            e.preventDefault();
+
+            // 1️⃣ Blur any active field (avoids focus trap bug)
+            document.activeElement?.blur();
+
+            // 2️⃣ Remove any old backdrops or stuck states
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open').css('overflow', 'auto');
+
+            // 3️⃣ Fully dispose previous Bootstrap modal instance
+            let oldInstance = bootstrap.Modal.getInstance(modalEl);
+            if (oldInstance) oldInstance.dispose();
+
+            // 4️⃣ Recreate fresh instance and open
+            const modalInstance = new bootstrap.Modal(modalEl);
+            modalInstance.show();
+
+            // 5️⃣ Reload dropdown content every time modal opens
+            loadTemplatesDropdown();
+        }
+                // ✅ UNIVERSAL MODAL MANAGER for "Use Template" in Assessment
+        $(function () {
+
+            const modalEl = document.getElementById('templateModal');
+            const useTemplateBtn = $('[data-bs-target="#templateModal"]');
+
+            // --- CORE FUNCTION: Load dropdown each time modal opens ---
+            function loadTemplatesDropdown() {
+                const dropdown = $("#templateDropdown");
+                dropdown.empty().append('<option value="">-- Loading Templates... --</option>');
+
+                $.ajax({
+                    url: "/Assessment/GetAllTemplates",
+                    type: "GET",
+                    dataType: "json",
+                    cache: false,
+                    success: function (data) {
+                        dropdown.empty().append('<option value="">-- Select Template --</option>');
+                        if (data && data.success && data.templates && data.templates.$values) {
+                            data.templates.$values.forEach(item => {
+                                if (item && item.value && item.text) {
+                                    dropdown.append(`<option value="${item.value}">${item.text}</option>`);
+                                }
+                            });
+                        } else {
+                            dropdown.append('<option value="">No templates found</option>');
+                        }
+                    },
+                    error: function () {
+                        dropdown.empty().append('<option value="">⚠️ Error loading templates</option>');
+                    }
+                });
+            }
+
+            // --- FUNCTION: Safe modal open (always works from any tab) ---
+                    function openTemplateModal(e) {
+            e.preventDefault();
+
+            // 1️⃣ Blur any active input
+            document.activeElement?.blur();
+
+            // 2️⃣ Clean up any old Bootstrap state
+            const modalEl = document.getElementById('templateModal');
+            const existingInstance = bootstrap.Modal.getInstance(modalEl);
+            if (existingInstance) {
+                // Hide & fully reset old modal safely
+                existingInstance.hide();
+                modalEl.removeEventListener('hidden.bs.modal', handleHiddenListener);
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css('overflow', 'auto');
+            }
+
+            // 3️⃣ Define a named listener for reuse
+            function handleHiddenListener() {
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css('overflow', 'auto');
+                modalEl.removeEventListener('hidden.bs.modal', handleHiddenListener);
+            }
+
+            // 4️⃣ Create or reuse modal instance cleanly
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modalEl.addEventListener('hidden.bs.modal', handleHiddenListener);
+
+            // 5️⃣ Always reload dropdown before showing
+            loadTemplatesDropdown();
+
+            // 6️⃣ Show modal safely
+            modalInstance.show();
+        }
+
+
+            // --- FUNCTION: Close modal safely after Apply ---
+            function closeTemplateModalWithSuccess() {
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open').css('overflow', 'auto');
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+
+                    // Delay alert slightly (avoids Bootstrap freeze)
+                    setTimeout(() => alert("✅ Template loaded successfully!"), 200);
+                });
+            }
+
+            // --- EVENT: Always handle modal open using safe click ---
+            $(document).off('click.useTemplate').on('click.useTemplate', '[data-bs-target="#templateModal"]', openTemplateModal);
+
+            // --- EVENT: Apply Template button inside modal ---
+            $("#applyTemplate").on("click", function () {
+                const templateId = $("#templateDropdown").val();
+                if (!templateId) {
+                    alert("⚠️ Please select a template first!");
+                    return;
+                }
+
+                $.getJSON(`/Assessment/LoadTemplateData?id=${templateId}`, function (data) {
+                    if (data.success) {
+                        const t = data.template;
+
+                        // 🧹 Clear old data first
+                        $("textarea[name^='DoctorAssessment.']").val("");
+                        $("#medicine-list, #lab-list, #radio-list, #procedure-list").empty();
+
+                        // --- Clinical Text Fields ---
+                        const setOrClearField = (selector, value) => {
+                            $(selector).val(value && value.trim() !== "" ? value : "");
+                        };
+
+                        setOrClearField("textarea[name='DoctorAssessment.VchChiefcomplaints']", t.vchChiefcomplaints);
+                        setOrClearField("textarea[name='DoctorAssessment.VchMedicalHistory']", t.vchMedicalHistory);
+                        setOrClearField("textarea[name='DoctorAssessment.VchSystemicexam']", t.vchSystemicexam);
+                        setOrClearField("textarea[name='DoctorAssessment.VchDiagnosis']", t.vchDiagnosis);
+                        setOrClearField("textarea[name='DoctorAssessment.VchRemarks']", t.vchRemarks);
+
+                        // --- Medicines ---
+                        const meds = t.medicines?.$values || t.medicines || [];
+                        meds.forEach((m, i) => {
+                            $("#medicine-list").append(`
+                                <tr class="medicine-item">
+                                    <td class="position-relative">
+                                        <input type="text" class="form-control form-control-sm medicine-autocomplete"
+                                            name="Medicines[${i}].VchMedicineName"
+                                            value="${m.vchMedicineName || ''}" autocomplete="off">
+                                        <input type="hidden" name="Medicines[${i}].VchMedicineCode"
+                                            class="medicine-code" value="${m.vchMedicineCode || ''}">
+                                        <div class="list-group position-absolute w-100 medicine-suggestions"
+                                            style="z-index:999; display:none;"></div>
+                                    </td>
+                                    <td><input type="number" class="form-control form-control-sm"
+                                        name="Medicines[${i}].IntQuantity" value="${m.intQuantity || ''}"></td>
+                                    <td><input type="text" class="form-control form-control-sm"
+                                        name="Medicines[${i}].VchFrequency" value="${m.vchFrequency || ''}"></td>
+                                    <td><input type="text" class="form-control form-control-sm"
+                                        name="Medicines[${i}].VchDuration" value="${m.vchDuration || ''}"></td>
+                                            <td>
+                                    <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="BBF" ${m.bitBbf ? 'checked' : ''}> BBF</label>
+                                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="ABF" ${m.bitAbf ? 'checked' : ''}> ABF</label>
+                                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="BL" ${m.bitBl ? 'checked' : ''}> BL</label>
+                                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="AL" ${m.bitAl ? 'checked' : ''}> AL</label>
+                                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="BD" ${m.bitBd ? 'checked' : ''}> BD</label>
+                                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="AD" ${m.bitAd ? 'checked' : ''}> AD</label>
+                                    </div>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-medicine"><i class="bi bi-x-lg text-white"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm add-medicine-row"><i class="bi bi-plus-lg"></i></button>
+                                    </td>
+                                         <!-- Timings -->
+                            
+                                </tr>
+                            `);
+                        });
+
+                        // --- Labs ---
+                        const labs = t.labs?.$values || t.labs || [];
+                        labs.forEach((l, i) => {
+                            $("#lab-list").append(`
+                                <tr class="lab-item">
+                                    <td class="position-relative">
+                                        <input type="text" class="form-control form-control-sm lab-autocomplete"
+                                            name="Labs[${i}].VchTestName" value="${l.vchTestName || ''}" autocomplete="off">
+                                        <input type="hidden" class="lab-code" name="Labs[${i}].VchTestCode"
+                                            value="${l.vchTestCode || ''}">
+                                        <div class="list-group position-absolute w-100 lab-suggestions" style="z-index:999;display:none;"></div>
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm" name="Labs[${i}].VchPriority">
+                                            <option value="">-- Priority --</option>
+                                            <option value="Normal" ${l.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                            <option value="Urgent" ${l.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                        </select>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-lab"><i class="bi bi-x-lg text-white"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm add-lab-row"><i class="bi bi-plus-lg"></i></button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+
+                        // --- Radiology ---
+                        const radios = t.radiology?.$values || t.radiology || [];
+                        radios.forEach((r, i) => {
+                            $("#radio-list").append(`
+                                <tr class="radio-item">
+                                    <td class="position-relative">
+                                        <input type="text" class="form-control form-control-sm radio-autocomplete"
+                                            name="Radiology[${i}].VchRadiologyName" value="${r.vchRadiologyName || ''}" autocomplete="off">
+                                        <input type="hidden" class="radio-code" name="Radiology[${i}].VchRadiologyCode"
+                                            value="${r.vchRadiologyCode || ''}">
+                                        <div class="list-group position-absolute w-100 radio-suggestions" style="z-index:999;display:none;"></div>
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm" name="Radiology[${i}].VchPriority">
+                                            <option value="">-- Priority --</option>
+                                            <option value="Normal" ${r.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                            <option value="Urgent" ${r.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                        </select>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-radio"><i class="bi bi-x-lg text-white"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm add-radio-row"><i class="bi bi-plus-lg"></i></button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+
+                        // --- Procedures ---
+                        const procs = t.procedures?.$values || t.procedures || [];
+                        procs.forEach((p, i) => {
+                            $("#procedure-list").append(`
+                                <tr class="procedure-item">
+                                    <td class="position-relative">
+                                        <input type="text" class="form-control form-control-sm procedure-autocomplete"
+                                            name="Procedures[${i}].VchProcedureName" value="${p.vchProcedureName || ''}" autocomplete="off">
+                                        <input type="hidden" class="procedure-code" name="Procedures[${i}].VchProcedureCode"
+                                            value="${p.vchProcedureCode || ''}">
+                                        <div class="list-group position-absolute w-100 procedure-suggestions" style="z-index:999;display:none;"></div>
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm" name="Procedures[${i}].VchPriority">
+                                            <option value="">-- Priority --</option>
+                                            <option value="Normal" ${p.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                            <option value="Urgent" ${p.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                        </select>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-procedure"><i class="bi bi-x-lg text-white"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm add-procedure-row"><i class="bi bi-plus-lg"></i></button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+
+                        // ✅ Close modal safely
+                        closeTemplateModalWithSuccess();
+                    } else {
+                        alert("⚠️ Template data not found!");
+                    }
+                });
+            });
+        });
+
+
+
+
+        //On click button, Load template to current assessment               
+        // $(document).on("click", "#applyTemplate", function () {
+        //     const templateId = $("#templateDropdown").val();
+        //     if (!templateId) {
+        //         alert("⚠️ Please select a template first.");
+        //         return;
+        //     }
+
+        //     $.ajax({
+        //         url: `/Assessment/LoadTemplateData?id=${templateId}`,
+        //         type: "GET",
+        //         success: function (data) {
+        //             if (!data.success) {
+        //                 alert("❌ Template not found!");
+        //                 return;
+        //             }
+
+        //             const t = data.template;
+
+        //             //Clear existing rows
+        //             $("#medicine-list").empty();
+        //             $("#lab-list").empty();
+        //             $("#radio-list").empty();
+        //             $("#procedure-list").empty();
+
+        // //Clinical fields
+        // if (t.vchChiefcomplaints) {
+        //     $("textarea[name='DoctorAssessment.VchChiefcomplaints']").val(t.vchChiefcomplaints);
+        // }       
+        // if (t.vchMedicalHistory) {
+        //     $("textarea[name='DoctorAssessment.VchMedicalHistory']").val(t.vchMedicalHistory);
+        // }
+        // if (t.vchSystemicexam) {
+        //     $("textarea[name='DoctorAssessment.VchSystemicexam']").val(t.vchSystemicexam);
+        // }
+        // if (t.vchDiagnosis) {
+        //     $("textarea[name='DoctorAssessment.VchDiagnosis']").val(t.vchDiagnosis);
+        // }
+        // if (t.vchRemarks) {
+        //     $("textarea[name='DoctorAssessment.VchRemarks']").val(t.vchRemarks);
+        // }
+        //     //Medicines                          
+        //     if (t.medicines && ((t.medicines.$values && t.medicines.$values.length > 0) || t.medicines.length > 0)){
+        //     $("#medicine-list").empty(); // clear tbody
+        //     t.medicines.$values.forEach((m, i) => {
+        //         $("#medicine-list").append(`
+        //             <tr class="medicine-item">
+        //                 <!-- Medicine -->
+        //                 <td class="position-relative">
+        //                     <input type="text"
+        //                            class="form-control form-control-sm medicine-autocomplete"
+        //                            name="Medicines[${i}].VchMedicineName"
+        //                            value="${m.vchMedicineName ?? ''}"
+        //                            placeholder="Search Medicine" autocomplete="off" />
+        //                     <input type="hidden"
+        //                            name="Medicines[${i}].VchMedicineCode"
+        //                            class="medicine-code"
+        //                            value="${m.vchMedicineCode ?? ''}" />
+        //                     <div class="list-group position-absolute w-100 medicine-suggestions"
+        //                          style="z-index:999; display:none;"></div>
+        //                 </td>
+
+        //                 <!-- Quantity -->
+        //                 <td>
+        //                     <input type="number" class="form-control form-control-sm"
+        //                            name="Medicines[${i}].IntQuantity"
+        //                            value="${m.intQuantity ?? ''}" min="0" step="1">
+        //                 </td>
+
+        //                 <!-- Frequency -->
+        //                 <td>
+        //                     <input type="text" class="form-control form-control-sm"
+        //                            name="Medicines[${i}].VchFrequency"
+        //                            value="${m.vchFrequency ?? ''}">
+        //                 </td>
+
+        //                 <!-- Duration -->
+        //                 <td>
+        //                     <input type="text" class="form-control form-control-sm"
+        //                            name="Medicines[${i}].VchDuration"
+        //                            value="${m.vchDuration ?? ''}">
+        //                 </td>
+
+        //                 <!-- Timings -->
+        //                 <td>
+        //                     <div class="d-flex flex-wrap justify-content-center gap-2 small">
+        //                         <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="BBF" ${m.bitBbf ? 'checked' : ''}> BBF</label>
+        //                         <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="ABF" ${m.bitAbf ? 'checked' : ''}> ABF</label>
+        //                         <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="BL" ${m.bitBl ? 'checked' : ''}> BL</label>
+        //                         <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="AL" ${m.bitAl ? 'checked' : ''}> AL</label>
+        //                         <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="BD" ${m.bitBd ? 'checked' : ''}> BD</label>
+        //                         <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="AD" ${m.bitAd ? 'checked' : ''}> AD</label>
+        //                     </div>
+        //                 </td>
+
+        //                 <!-- Action -->
+        //                 <td class="text-center">
+        //                     <button type="button" class="btn btn-danger btn-sm remove-medicine">
+        //                         <i class="bi bi-x-lg text-white"></i>
+        //                     </button>
+        //                     <button type="button" class="btn btn-success btn-sm add-medicine-row">
+        //                         <i class="bi bi-plus-lg"></i>
+        //                     </button>
+        //                 </td>
+        //             </tr>
+        //         `);
+        //     });
+        // } else {
+        //     $("#medicine-list").html(`<tr><td colspan="6" class="text-center text-muted">No medicines in this template</td></tr>`);
+        //     }
+
+
+        //    // Labs
+        //    const labs = (t.labs?.$values || t.labs || []);
+        //    $("#lab-list").empty();
+        //     if (labs.length > 0) {
+        //     labs.forEach((l, i) => {
+        //         $("#lab-list").append(`
+        //             <tr class="lab-item">
+        //                 <!-- Lab Test -->
+        //                 <td class="position-relative">
+        //                     <input type="text"
+        //                            class="form-control form-control-sm lab-autocomplete"
+        //                            name="Labs[${i}].VchTestName"
+        //                            placeholder="Search Lab Test"
+        //                            autocomplete="off"
+        //                            value="${l.vchTestName || ''}">
+        //                     <input type="hidden"
+        //                            name="Labs[${i}].VchTestCode"
+        //                            class="lab-code"
+        //                            value="${l.vchTestCode || ''}">
+        //                     <div class="list-group position-absolute w-100 lab-suggestions"
+        //                          style="z-index:999; display:none;"></div>
+        //                 </td>
+
+        //                 <!-- Priority -->
+        //                 <td>
+        //                     <select class="form-select form-select-sm" name="Labs[${i}].vchPriority">
+        //                         <option value="">-- Priority --</option>
+        //                         <option value="Normal" ${l.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+        //                         <option value="Urgent" ${l.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+        //                     </select>
+        //                 </td>
+
+        //                 <!-- Action -->
+        //                 <td class="text-center">
+        //                     <button type="button" class="btn btn-danger btn-sm remove-lab">
+        //                         <i class="bi bi-x-lg text-white"></i>
+        //                     </button>
+        //                     <button type="button" class="btn btn-success btn-sm add-lab-row">
+        //                         <i class="bi bi-plus-lg"></i>
+        //                     </button>
+        //                 </td>
+        //             </tr>
+        //         `);
+        //     });
+        // } else {
+        //     $("#lab-list").append(`
+        //         <tr><td colspan="3" class="text-center text-muted">No lab tests in this template</td></tr>
+        //     `);
+        // }
+
+        // //Radiology
+        // const radios = (t.radiology?.$values || t.radiology || []);
+        // $("#radio-list").empty();
+
+        // if (radios.length > 0) {
+        //     radios.forEach((r, i) => {
+        //         $("#radio-list").append(`
+        //             <tr class="radio-item">
+        //                 <!-- Radiology Test -->
+        //                 <td class="position-relative">
+        //                     <input type="text"
+        //                            class="form-control form-control-sm radio-autocomplete"
+        //                            name="Radiology[${i}].VchRadiologyName"
+        //                            placeholder="Search Radiology Test"
+        //                            autocomplete="off"
+        //                            value="${r.vchRadiologyName || ''}">
+        //                     <input type="hidden"
+        //                            name="Radiology[${i}].VchRadiologyCode"
+        //                            class="radio-code"
+        //                            value="${r.vchRadiologyCode || ''}">
+        //                     <div class="list-group position-absolute w-100 radio-suggestions"
+        //                          style="z-index:999; display:none;"></div>
+        //                 </td>
+
+        //                 <!-- Priority -->
+        //                 <td>
+        //                     <select class="form-select form-select-sm" name="Radiology[${i}].VchPriority">
+        //                         <option value="">-- Priority --</option>
+        //                         <option value="Normal" ${r.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+        //                         <option value="Urgent" ${r.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+        //                     </select>
+        //                 </td>
+
+        //                 <!-- Action -->
+        //                 <td class="text-center">
+        //                     <button type="button" class="btn btn-danger btn-sm remove-radio">
+        //                         <i class="bi bi-x-lg text-white"></i>
+        //                     </button>
+        //                     <button type="button" class="btn btn-success btn-sm add-radio-row">
+        //                         <i class="bi bi-plus-lg"></i>
+        //                     </button>
+        //                 </td>
+        //             </tr>
+        //         `);
+        //     });
+        // } 
+        // else {
+        //     $("#radio-list").append(`
+        //         <tr><td colspan="3" class="text-center text-muted">No radiology tests in this template</td></tr>
+        //     `);
+        // }
+
+
+        // //Procedures
+        // const procs = (t.procedures?.$values || t.procedures || []);
+        // $("#procedure-list").empty();
+
+        // if (procs.length > 0) {
+        //     procs.forEach((p, i) => {
+        //         $("#procedure-list").append(`
+        //             <tr class="procedure-item">
+        //                 <!-- Procedure Name -->
+        //                 <td class="position-relative">
+        //                     <input type="text"
+        //                            class="form-control form-control-sm procedure-autocomplete"
+        //                            name="Procedures[${i}].VchProcedureName"
+        //                            placeholder="Search Procedure"
+        //                            autocomplete="off"
+        //                            value="${p.vchProcedureName || ''}">
+        //                     <input type="hidden"
+        //                            name="Procedures[${i}].VchProcedureCode"
+        //                            class="procedure-code"
+        //                            value="${p.vchProcedureCode || ''}">
+        //                     <div class="list-group position-absolute w-100 procedure-suggestions"
+        //                          style="z-index:999; display:none;"></div>
+        //                 </td>
+
+        //                 <!-- Priority -->
+        //                 <td>
+        //                     <select class="form-select form-select-sm" name="Procedures[${i}].VchPriority">
+        //                         <option value="">-- Select --</option>
+        //                         <option value="Normal" ${p.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+        //                         <option value="Urgent" ${p.vhPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+        //                     </select>
+        //                 </td>
+
+        //                 <!-- Action -->
+        //                 <td class="text-center">
+        //                     <button type="button" class="btn btn-danger btn-sm remove-procedure">
+        //                         <i class="bi bi-x-lg text-white"></i>
+        //                     </button>
+        //                     <button type="button" class="btn btn-success btn-sm add-procedure-row">
+        //                         <i class="bi bi-plus-lg"></i>
+        //                     </button>
+        //                 </td>
+        //             </tr>
+        //         `);
+        //     });
+        // } 
+        // else {
+        //     $("#procedure-list").append(`
+        //         <tr><td colspan="3" class="text-center text-muted">No procedures in this template</td></tr>
+        //     `);
+        // }
+        //         //  Hide modal properly after template loaded
+        // const modalEl = document.getElementById('templateModal');
+        // const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+
+        // // Hide the modal using Bootstrap
+        // modalInstance.hide();
+
+        // //Wait for it to fully close before cleaning up
+        //  modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+        // //Make sure backdrop is removed
+        //     $('.modal-backdrop').remove();
+
+        //     //Restore page scroll and UI
+        //     $('body').removeClass('modal-open').css('overflow', 'auto');
+
+        //     //Ensure button reopens modal next time (re-initialize)
+        //     const useTemplateBtn = document.querySelector('[data-bs-target="#templateModal"]');
+        //     if (useTemplateBtn) {
+        //         useTemplateBtn.addEventListener('click', function () {
+        //             const newInstance = new bootstrap.Modal(modalEl);
+        //             newInstance.show();
+        //         }, { once: true }); // ensures it only binds once per close
+        //     }
+
+        //     // Remove this event handler after one use
+        //     modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+        // });
+        //         //  Let user know template was loaded
+        // setTimeout(() => {
+        //     alert("✅ Template loaded successfully!");
+        // }, 300);
+        // },
+        //                 error: function (xhr, status, error) {
+        //                 console.error("Error loading template:", error);
+        //                 alert("❌ Failed to load template.");
+        //         }
+        //     });
+        // });
+
+        
   </script>
 }

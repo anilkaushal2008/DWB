@@ -1201,10 +1201,17 @@ namespace DWB.Controllers
                 template = new
                 {
                     tname = template.VchTempleteName,
+                    // ✅ Clinical fields
+                    VchChiefcomplaints = template.VchChiefComplaints,
+                    VchMedicalHistory = template.VchMedicalHistory,
+                    VchSystemicexam = template.VchSystemicExam,
+                    VchDiagnosis = template.VchDiagnosis,
+                    VchRemarks = template.VchRemarks,
                     medicines = template.TblDocTemplateMedicine.Select(m => new
                     {
                         m.IntId,
                         m.VchMedicineName,
+                        m.VchMedicineCode,
                         m.IntQuantity,
                         m.VchFrequency,
                         m.VchDuration,
@@ -1218,18 +1225,22 @@ namespace DWB.Controllers
                     labs = template.TblDocTemplateLab.Select(l => new
                     {
                         l.VchTestCode,
-                        l.VchTestName
+                        l.VchTestName,
+                        l.VchPriority
                     }),
                     radiology = template.TblDocTemplateRadiology.Select(r => new
                     {
                         r.VchRadiologyCode,
-                        r.VchRadiologyName
+                        r.VchRadiologyName,
+                        r.VchPriority
                     }),
                     procedures = template.TblDocTemplateProcedure.Select(p => new
                     {
                         p.VchProcedureCode,
-                        p.VchProcedureName
+                        p.VchProcedureName,
+                        p.VchPriority
                     })
+                    
                 }
             });
         }
