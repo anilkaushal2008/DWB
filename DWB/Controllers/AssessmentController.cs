@@ -35,7 +35,6 @@ namespace DWB.Controllers
             _context = dWBEntity;
             _webHostEnvironment = webHostEnvironment;
         }
-
         #region Nursing Assessment Actions ADD,EDIT,VIEW
         [Authorize(Roles = "Admin, Nursing")]
         public async Task<IActionResult> NursingAssessment(string dateRange)
@@ -1180,72 +1179,243 @@ namespace DWB.Controllers
             }
         }
 
-
-        //Load selected templates in current assessment
+        //Load selected templates in current assessment       
         [HttpGet]
-        public IActionResult LoadTemplateData(int id)
+        public IActionResult LoadTemplateData(string type, int? id, string uhid)
         {
-            var template = _context.TblDocTemplateAssessment
-                .Include(t => t.TblDocTemplateMedicine)
-                .Include(t => t.TblDocTemplateLab)
-                .Include(t => t.TblDocTemplateRadiology)
-                .Include(t => t.TblDocTemplateProcedure)
-                .FirstOrDefault(t => t.Intid == id);
-
-            if (template == null)
-                return Json(new { success = false, message = "Template not found" });
-
-            return Json(new
+            if (type == "template")
             {
-                success = true,
-                template = new
+                // 🔹 Load Template
+                var template = _context.TblDocTemplateAssessment
+                    .Include(t => t.TblDocTemplateMedicine)
+                    .Include(t => t.TblDocTemplateLab)
+                    .Include(t => t.TblDocTemplateRadiology)
+                    .Include(t => t.TblDocTemplateProcedure)
+                    .FirstOrDefault(t => t.Intid == id);
+
+                if (template == null)
+                    return Json(new { success = false, message = "Template not found" });
+
+                return Json(new
                 {
-                    tname = template.VchTempleteName,
-                    // ✅ Clinical fields
-                    VchChiefcomplaints = template.VchChiefComplaints,
-                    VchMedicalHistory = template.VchMedicalHistory,
-                    VchSystemicexam = template.VchSystemicExam,
-                    VchDiagnosis = template.VchDiagnosis,
-                    VchRemarks = template.VchRemarks,
-                    medicines = template.TblDocTemplateMedicine.Select(m => new
+                    success = true,
+                    data = new
                     {
-                        m.IntId,
-                        m.VchMedicineName,
-                        m.VchMedicineCode,
-                        m.IntQuantity,
-                        m.VchFrequency,
-                        m.VchDuration,
-                        m.BitBbf,
-                        m.BitAbf,
-                        m.BitBl,
-                        m.BitAl,
-                        m.BitBd,
-                        m.BitAd
-                    }),
-                    labs = template.TblDocTemplateLab.Select(l => new
+                        source = "template",
+                        tname = template.VchTempleteName,
+                        VchChiefcomplaints = template.VchChiefComplaints,
+                        VchMedicalHistory = template.VchMedicalHistory,
+                        VchSystemicexam = template.VchSystemicExam,
+                        VchDiagnosis = template.VchDiagnosis,
+                        VchRemarks = template.VchRemarks,
+                        medicines = template.TblDocTemplateMedicine.Select(m => new
+                        {
+                            m.IntId,
+                            m.VchMedicineName,
+                            m.VchMedicineCode,
+                            m.IntQuantity,
+                            m.VchFrequency,
+                            m.VchDuration,
+                            m.BitBbf,
+                            m.BitAbf,
+                            m.BitBl,
+                            m.BitAl,
+                            m.BitBd,
+                            m.BitAd
+                        }),
+                        labs = template.TblDocTemplateLab.Select(l => new
+                        {
+                            l.VchTestCode,
+                            l.VchTestName,
+                            l.VchPriority
+                        }),
+                        radiology = template.TblDocTemplateRadiology.Select(r => new
+                        {
+                            r.VchRadiologyCode,
+                            r.VchRadiologyName,
+                            r.VchPriority
+                        }),
+                        procedures = template.TblDocTemplateProcedure.Select(p => new
+                        {
+                            p.VchProcedureCode,
+                            p.VchProcedureName,
+                            p.VchPriority
+                        })
+                    }
+                });
+            }
+            else if (type == "history")
+            {
+                // 🔹 Load Last Assessment History
+                var lastAssessment = _context.TblDoctorAssessment
+                    .Include(a => a.TblDoctorAssmntMedicine)
+                    .Include(a => a.TblDoctorAssmntLab)
+                    .Include(a => a.TblDoctorAssmntRadiology)
+                    .Include(a => a.TblDoctorAssmntProcedure)
+                    .Where(a => a.FkUhid == uhid)
+                    .OrderByDescending(a => a.DtCreated)
+                    .FirstOrDefault();
+
+                if (lastAssessment == null)
+                    return Json(new { success = false, message = "No previous assessment found" });
+
+                return Json(new
+                {
+                    success = true,
+                    data = new
                     {
-                        l.VchTestCode,
-                        l.VchTestName,
-                        l.VchPriority
-                    }),
-                    radiology = template.TblDocTemplateRadiology.Select(r => new
-                    {
-                        r.VchRadiologyCode,
-                        r.VchRadiologyName,
-                        r.VchPriority
-                    }),
-                    procedures = template.TblDocTemplateProcedure.Select(p => new
-                    {
-                        p.VchProcedureCode,
-                        p.VchProcedureName,
-                        p.VchPriority
-                    })
-                    
-                }
-            });
+                        source = "history",
+                        VchChiefcomplaints = lastAssessment.VchChiefcomplaints,
+                        VchMedicalHistory = lastAssessment.VchMedicalHistory,
+                        VchSystemicexam = lastAssessment.VchSystemicexam,
+                        VchDiagnosis = lastAssessment.VchDiagnosis,
+                        VchRemarks = lastAssessment.VchRemarks,
+                        medicines = lastAssessment.TblDoctorAssmntMedicine.Select(m => new
+                        {
+                            m.VchMedicineName,
+                            m.VchMedicineCode,
+                            m.IntQuantity,
+                            m.VchFrequency,
+                            m.VchDuration,
+                            m.BitBbf,
+                            m.BitAbf,
+                            m.BitBl,
+                            m.BitAl,
+                            m.BitBd,
+                            m.BitAd
+                        }),
+                        labs = lastAssessment.TblDoctorAssmntLab.Select(l => new
+                        {
+                            l.VchTestCode,
+                            l.VchTestName,
+                            l.VchPriority
+                        }),
+                        radiology = lastAssessment.TblDoctorAssmntRadiology.Select(r => new
+                        {
+                            r.VchRadiologyCode,
+                            r.VchRadiologyName,
+                            r.VchPriority
+                        }),
+                        procedures = lastAssessment.TblDoctorAssmntProcedure.Select(p => new
+                        {
+                            p.VchProcedureCode,
+                            p.VchProcedureName,
+                            p.VchPriority
+                        })
+                    }
+                });
+            }
+
+            return Json(new { success = false, message = "Invalid type parameter" });
         }
 
 
+
+        //public IActionResult LoadTemplateData(int id)
+        //{
+        //    var template = _context.TblDocTemplateAssessment
+        //        .Include(t => t.TblDocTemplateMedicine)
+        //        .Include(t => t.TblDocTemplateLab)
+        //        .Include(t => t.TblDocTemplateRadiology)
+        //        .Include(t => t.TblDocTemplateProcedure)
+        //        .FirstOrDefault(t => t.Intid == id);
+
+        //    if (template == null)
+        //        return Json(new { success = false, message = "Template not found" });
+
+        //    return Json(new
+        //    {
+        //        success = true,
+        //        template = new
+        //        {
+        //            tname = template.VchTempleteName,
+        //            //Clinical fields
+        //            VchChiefcomplaints = template.VchChiefComplaints,
+        //            VchMedicalHistory = template.VchMedicalHistory,
+        //            VchSystemicexam = template.VchSystemicExam,
+        //            VchDiagnosis = template.VchDiagnosis,
+        //            VchRemarks = template.VchRemarks,
+        //            medicines = template.TblDocTemplateMedicine.Select(m => new
+        //            {
+        //                m.IntId,
+        //                m.VchMedicineName,
+        //                m.VchMedicineCode,
+        //                m.IntQuantity,
+        //                m.VchFrequency,
+        //                m.VchDuration,
+        //                m.BitBbf,
+        //                m.BitAbf,
+        //                m.BitBl,
+        //                m.BitAl,
+        //                m.BitBd,
+        //                m.BitAd
+        //            }),
+        //            labs = template.TblDocTemplateLab.Select(l => new
+        //            {
+        //                l.VchTestCode,
+        //                l.VchTestName,
+        //                l.VchPriority
+        //            }),
+        //            radiology = template.TblDocTemplateRadiology.Select(r => new
+        //            {
+        //                r.VchRadiologyCode,
+        //                r.VchRadiologyName,
+        //                r.VchPriority
+        //            }),
+        //            procedures = template.TblDocTemplateProcedure.Select(p => new
+        //            {
+        //                p.VchProcedureCode,
+        //                p.VchProcedureName,
+        //                p.VchPriority
+        //            })
+
+        //        }
+        //    });
+        //}
+
+        [HttpGet]
+        public IActionResult AllHistory(string uhid)
+        {
+            var assessments = _context.TblDoctorAssessment
+                .Where(a => a.FkUhid == uhid)
+                .OrderByDescending(a => a.DtCreated)
+                .Select(a => new
+                {
+                    a.IntId,
+                    a.FkVisitNo,
+                    CreatedDate = a.DtCreated.Value.ToString("dd/MM/yyyy"),
+                    FollowUpDate = a.DtFollowUpDate.HasValue ? a.DtFollowUpDate.Value.ToString("dd/MM/yyyy") : "N/A",
+                    a.VchChiefcomplaints,
+                    a.VchDiagnosis,
+                    a.VchRemarks
+                })
+                .ToList();
+            return Json(new { data = assessments });
+        }
+
+        [HttpGet]
+        public IActionResult LoadLastHistory(string uhid)
+        {
+            var lastAssessment = _context.TblDoctorAssessment
+           .Where(a => a.FkUhid == uhid)
+           .OrderByDescending(a => a.DtCreated)
+           .Select(a => new
+        {
+         a.IntId,
+         a.FkVisitNo,
+         CreatedDate = a.DtCreated.HasValue ? a.DtCreated.Value.ToString("dd/MM/yyyy") : "N/A",
+         FollowUpDate = a.DtFollowUpDate.HasValue ? a.DtFollowUpDate.Value.ToString("dd/MM/yyyy") : "N/A",
+         a.VchChiefcomplaints,
+         a.VchDiagnosis,
+         a.VchRemarks
+     })
+     .FirstOrDefault();
+            if (lastAssessment == null)
+            {
+                return Json(new { success = false, message = "No previous assessments found." });
+            }
+            return Json(new { success = true, assessment = lastAssessment });
+        }
 
         #endregion
 
