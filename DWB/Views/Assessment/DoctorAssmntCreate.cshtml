@@ -852,7 +852,6 @@
     <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-sm rounded-3">
-
                 <!-- Header -->
                 <div class="modal-header bg-primary text-white py-2">
                     <h5 class="modal-title fw-semibold mb-0" id="historyModalLabel">
@@ -860,18 +859,18 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
                 <!-- Body -->
                 <div class="modal-body p-0">
                     <div class="table-responsive">
                         <table id="historyTable" class="table table-bordered table-striped table-hover table-sm align-middle mb-0">
                             <thead class="table-light">
                                 <tr class="small text-dark text-center">
-                                    <th scope="col">Sr. No.</th>
-                                    <th scope="col">Visit Date</th>
+                                    <th scope="col">Sr.No.</th>
+                                    <th scope="col">Visit.No.</th>                                    
                                     <th scope="col">UHID</th>
                                     <th scope="col">Patient Name</th>
                                     <th scope="col">Diagnosis</th>
+                                    <th scope="col">Visit Date</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -885,7 +884,6 @@
                         </table>
                     </div>
                 </div>
-
                 <!-- Footer -->
                 <div class="modal-footer bg-light py-2 d-flex justify-content-between align-items-center">
                     <small class="text-muted">Viewing previous assessments for this patient</small>
@@ -893,7 +891,6 @@
                         <i class="bi bi-x-circle me-1"></i> Close
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
@@ -1873,6 +1870,7 @@
 
         //Global modal reference
         const modalEl = document.getElementById('templateModal');
+       
         //Function for load template and Last history too
         $(function () {
 
@@ -1904,8 +1902,8 @@
                 });
             }
 
-            // --- Safe modal open (for templates) ---
-            function openTemplateModal(e) {
+           // --- Safe modal open (for templates) ---
+           function openTemplateModal(e) {
                 e.preventDefault();
                 document.activeElement?.blur();
 
@@ -1925,8 +1923,8 @@
                 modalInstance.show();
             }
 
-            // --- Close modal with success message ---
-            function closeTemplateModalWithSuccess(message = "✅ Data loaded successfully!") {
+           // --- Close modal with success message ---
+           function closeTemplateModalWithSuccess(message = "✅ Data loaded successfully!") {
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (!modalInstance) return;
 
@@ -1940,7 +1938,7 @@
                 modalInstance.hide();
             }
 
-                function renderAssessmentData(t) {
+           function renderAssessmentData(t) {
             // Clear existing data
             $("textarea[name^='DoctorAssessment.']").val("");
             $("#medicine-list, #lab-list, #radio-list, #procedure-list").empty();
@@ -2087,7 +2085,7 @@
             $.getJSON(`/Assessment/LoadTemplateData?type=template&id=${templateId}`, function (data) {
                 if (data.success && data.data) {
                     renderAssessmentData(data.data);
-                    closeTemplateModalWithSuccess();
+                        closeTemplateModalWithSuccess("✅ Template loaded successfully!");
                 } else {
                     alert("⚠️ Template data not found!");
                 }
@@ -2105,7 +2103,7 @@
                 $.getJSON(`/Assessment/LoadTemplateData?type=history&uhid=${uhid}`, function (data) {
                     if (data.success && data.data) {
                         renderAssessmentData(data.data);
-                        closeTemplateModalWithSuccess("✅ Last assessment loaded successfully!");
+                       alert("✅ Last history loaded successfully!");
                     } else {
                         alert(data.message || "⚠️ No previous assessment found!");
                     }
@@ -2118,90 +2116,219 @@
              .on('click.useTemplate', '[data-bs-target="#templateModal"]', openTemplateModal);
             // Make close function globally available
             window.closeTemplateModalWithSuccess = closeTemplateModalWithSuccess;
-        });
 
-        //Code for load All history
-                $(function () {
-
-            // --- Open History Modal ---
-            $("#btnViewHistory").on("click", function () {
-                    const uhid = '@Model.NursingAssessment.VchUhidNo';
-                if (!uhid) {
-                    alert("⚠️ Please select a patient first!");
-                    return;
-                }
-
-                const tbody = $("#historyTable tbody");
-                tbody.html('<tr><td colspan="7" class="text-center text-muted">⏳ Loading history...</td></tr>');
-
-                $.getJSON(`/Assessment/AllHistory?uhid=${uhid}`, function (response) {
-                    const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
-                    modalInstance.show();
-
-                    if (response.success && response.data && response.data.length > 0) {
-                        tbody.empty();
-                        response.data.forEach(a => {
-                            tbody.append(`
-                                <tr>
-                                    <td>${a.createdDate}</td>
-                                    <td>${a.fkVisitNo}</td>
-                                    <td>${a.vchChiefcomplaints || ''}</td>
-                                    <td>${a.vchDiagnosis || ''}</td>
-                                    <td>${a.vchRemarks || ''}</td>
-                                    <td>${a.followUpDate}</td>
-                                    <td class="text-center">
-                                        <button class="btn btn-outline-primary btn-sm load-history-item"
-                                                data-id="${a.intId}">
-                                            <i class="bi bi-download"></i> Load
-                                        </button>
-                                    </td>
-                                </tr>
-                            `);
-                        });
+           //Code for load All history and get selected history to current assessment
+           $("#btnViewHistory").on("click", function () {
+                        const uhid = '@Model.NursingAssessment.VchUhidNo';
+                    if (!uhid) {
+                        alert("⚠️ Please select a patient first!");
+                        return;
                     }
-                    else {
-                        tbody.html(`
-                            <tr>
-                                <td colspan="7" class="text-center text-danger fw-semibold py-4">
-                                    ⚠️ No previous assessment history found for this patient.
-                                </td>
-                            </tr>
-                        `);
-                    }
-                })
-                .fail(() => {
+
                     const tbody = $("#historyTable tbody");
-                    tbody.html(`
+                    tbody.html('<tr><td colspan="7" class="text-center text-muted">⏳ Loading history...</td></tr>');
+
+                    $.getJSON(`/Assessment/AllHistory?uhid=${uhid}`, function (response) {
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
+                        modalInstance.show();
+
+            if (response.success && response.data && response.data.$values.length > 0) {
+                tbody.empty();
+                response.data.$values.forEach((a, index) => {
+                    tbody.append(`
                         <tr>
-                            <td colspan="7" class="text-center text-danger fw-semibold py-4">
-                                ❌ Unable to fetch patient history. Please try again later.
+                            <td>${index + 1}</td>
+                            <td>${a.visitno}</td>
+                            <td>${a.uhid}</td>
+                                <td>${a.hmsPatientName || 'N/A'}</td>
+                            <td>${a.vchDiagnosis || 'N/A'}</td>
+                            <td>${a.createdDate || ''}</td>
+                            <td class="text-center">
+                            <button class="btn btn-outline-primary btn-sm load-history-item"
+                                        data-id="${a.intId}">
+                                    <i class="bi bi-download"></i> Load
+                           </button>
                             </td>
                         </tr>
                     `);
-                    const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
-                    modalInstance.show();
                 });
+            }
+            else {
+                tbody.html(`
+                    <tr>
+                    <td colspan="7" class="text-center text-danger fw-semibold py-4">
+                    ⚠️ No previous assessment history found for this patient.
+                    </td>
+                    </tr>
+                    `);
+            }
+            })
+            .fail(() => {
+                const tbody = $("#historyTable tbody");
+                tbody.html(`
+                <tr>
+                <td colspan="7" class="text-center text-danger fw-semibold py-4">
+                ❌ Unable to fetch patient history. Please try again later.
+                </td>
+                </tr>
+                `);
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
+                modalInstance.show();
+              });
             });
 
-            // --- Load Selected History into Current Assessment ---
-            $(document).on("click", ".load-history-item", function () {
+              // --- Load Selected History into Current Assessment ---
+                    // --- Load Selected History into Current Assessment ---
+           $(document).on("click", ".load-history-item", function () {
                 const id = $(this).data("id");
-                if (!id) return;
+                const uhid = '@Model.NursingAssessment.VchUhidNo';
 
-                $.getJSON(`/Assessment/LoadTemplateData?type=history&id=${id}`, function (data) {
+                if (!id || !uhid) {
+                    alert("⚠️ Missing patient or record ID!");
+                    return;
+                }
+
+                // Disable button while loading
+                const btn = $(this);
+                const originalHtml = btn.html();
+                btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-1"></span>Loading...');
+
+                $.getJSON(`/Assessment/LoadTemplateData?type=selectedHistory&uhid=${uhid}&id=${id}`, function (data) {
                     if (data.success && data.data) {
+                        // ✅ Populate assessment data
                         renderAssessmentData(data.data);
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('historyModal'));
-                        modal.hide();
-                        setTimeout(() => alert("✅ History loaded successfully!"), 200);
+
+                        // ✅ Close modal safely and remove backdrop
+                        const modalEl = document.getElementById('historyModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) modalInstance.hide();
+
+                        // 🕒 Wait until modal is hidden before showing alert
+                        modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                            modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                            setTimeout(() => alert("✅ Selected history loaded successfully!"), 200);
+                        });
+
                     } else {
-                        alert("⚠️ Unable to load this record!");
+                        alert("⚠️ Unable to load this record. Please try again!");
                     }
+                })
+                .fail(() => {
+                    alert("❌ Failed to fetch history record from server.");
+                })
+                .always(() => {
+                    btn.prop("disabled", false).html(originalHtml);
                 });
             });
-        });
 
+    });
+        
+        //Code for load All history
+     //  $(function () {
+     //        // --- Open History Modal ---
+     //        $("#btnViewHistory").on("click", function () {
+     //                const uhid = '@Model.NursingAssessment.VchUhidNo';
+     //            if (!uhid) {
+     //                alert("⚠️ Please select a patient first!");
+     //                return;
+     //            }
 
+     //            const tbody = $("#historyTable tbody");
+     //            tbody.html('<tr><td colspan="7" class="text-center text-muted">⏳ Loading history...</td></tr>');
 
+     //            $.getJSON(`/Assessment/AllHistory?uhid=${uhid}`, function (response) {
+     //                const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
+     //                modalInstance.show();
+
+     //    if (response.success && response.data && response.data.$values.length > 0) {
+     //        tbody.empty();
+     //        response.data.$values.forEach((a, index) => {
+     //            tbody.append(`
+     //                <tr>
+     //                    <td>${index + 1}</td>
+     //                    <td>${a.visitno}</td>
+     //                    <td>${a.uhid}</td>
+     //                        <td>${a.hmsPatientName || 'N/A'}</td>
+     //                    <td>${a.vchDiagnosis || 'N/A'}</td>
+     //                    <td>${a.createdDate || ''}</td>
+     //                    <td class="text-center">
+     //                    <button class="btn btn-outline-primary btn-sm load-history-item"
+     //                                data-id="${a.intId}">
+     //                            <i class="bi bi-download"></i> Load
+     //                   </button>
+     //                    </td>
+     //                </tr>
+     //            `);
+     //        });
+     //    }
+     //    else {
+     //        tbody.html(`
+     //            <tr>
+     //            <td colspan="7" class="text-center text-danger fw-semibold py-4">
+     //            ⚠️ No previous assessment history found for this patient.
+     //            </td>
+     //            </tr>
+     //            `);
+     //    }
+     //    })
+     //    .fail(() => {
+     //        const tbody = $("#historyTable tbody");
+     //        tbody.html(`
+     //        <tr>
+     //        <td colspan="7" class="text-center text-danger fw-semibold py-4">
+     //        ❌ Unable to fetch patient history. Please try again later.
+     //        </td>
+     //        </tr>
+     //        `);
+     //        const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
+     //        modalInstance.show();
+     //      });
+     //    });
+         
+     //      // --- Load Selected History into Current Assessment ---
+     //            // --- Load Selected History into Current Assessment ---
+     //      $(document).on("click", ".load-history-item", function () {
+     //        const id = $(this).data("id");
+     //        const uhid = '@Model.NursingAssessment.VchUhidNo';
+
+     //        if (!id || !uhid) {
+     //            alert("⚠️ Missing patient or record ID!");
+     //            return;
+     //        }
+
+     //        // Disable button while loading
+     //        const btn = $(this);
+     //        const originalHtml = btn.html();
+     //        btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-1"></span>Loading...');
+
+     //        $.getJSON(`/Assessment/LoadTemplateData?type=selectedHistory&uhid=${uhid}&id=${id}`, function (data) {
+     //            if (data.success && data.data) {
+     //                // ✅ Populate assessment data
+     //                renderAssessmentData(data.data);
+
+     //                // ✅ Close modal safely and remove backdrop
+     //                const modalEl = document.getElementById('historyModal');
+     //                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+     //                if (modalInstance) modalInstance.hide();
+
+     //                // 🕒 Wait until modal is hidden before showing alert
+     //                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+     //                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+     //                    setTimeout(() => alert("✅ Selected history loaded successfully!"), 200);
+     //                });
+
+     //            } else {
+     //                alert("⚠️ Unable to load this record. Please try again!");
+     //            }
+     //        })
+     //        .fail(() => {
+     //            alert("❌ Failed to fetch history record from server.");
+     //        })
+     //        .always(() => {
+     //            btn.prop("disabled", false).html(originalHtml);
+     //        });
+     //    });
+
+     // });
    </script>
 }

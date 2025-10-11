@@ -1181,7 +1181,7 @@ namespace DWB.Controllers
 
         //Load selected templates in current assessment       
         [HttpGet]
-        public IActionResult LoadTemplateData(string type, int? id, string uhid)
+        public IActionResult LoadTemplateData(string type, int? id, string uhid) //visit number for loading selected history from all history)
         {
             if (type == "template")
             {
@@ -1306,7 +1306,69 @@ namespace DWB.Controllers
                 });
             }
 
-            return Json(new { success = false, message = "Invalid type parameter" });
+            else if (type == "selectedHistory")
+            {
+                // 🔹 Load Last Assessment History
+                var lastAssessment = _context.TblDoctorAssessment
+                    .Include(a => a.TblDoctorAssmntMedicine)
+                    .Include(a => a.TblDoctorAssmntLab)
+                    .Include(a => a.TblDoctorAssmntRadiology)
+                    .Include(a => a.TblDoctorAssmntProcedure)
+                    .Where(a => a.FkUhid == uhid && a.IntId==id)
+                    .OrderByDescending(a => a.DtCreated)
+                    .FirstOrDefault();
+
+                if (lastAssessment == null)
+                    return Json(new { success = false, message = "No previous assessment found" });
+
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        source = "history",
+                        VchChiefcomplaints = lastAssessment.VchChiefcomplaints,
+                        VchMedicalHistory = lastAssessment.VchMedicalHistory,
+                        VchSystemicexam = lastAssessment.VchSystemicexam,
+                        VchDiagnosis = lastAssessment.VchDiagnosis,
+                        VchRemarks = lastAssessment.VchRemarks,
+                        medicines = lastAssessment.TblDoctorAssmntMedicine.Select(m => new
+                        {
+                            m.VchMedicineName,
+                            m.VchMedicineCode,
+                            m.IntQuantity,
+                            m.VchFrequency,
+                            m.VchDuration,
+                            m.BitBbf,
+                            m.BitAbf,
+                            m.BitBl,
+                            m.BitAl,
+                            m.BitBd,
+                            m.BitAd
+                        }),
+                        labs = lastAssessment.TblDoctorAssmntLab.Select(l => new
+                        {
+                            l.VchTestCode,
+                            l.VchTestName,
+                            l.VchPriority
+                        }),
+                        radiology = lastAssessment.TblDoctorAssmntRadiology.Select(r => new
+                        {
+                            r.VchRadiologyCode,
+                            r.VchRadiologyName,
+                            r.VchPriority
+                        }),
+                        procedures = lastAssessment.TblDoctorAssmntProcedure.Select(p => new
+                        {
+                            p.VchProcedureCode,
+                            p.VchProcedureName,
+                            p.VchPriority
+                        })
+                    }
+                });
+            }
+
+            return Json(new { success = false, message = "Gistory detail not found check it again, and try!" });
         }
 
 
@@ -1376,21 +1438,33 @@ namespace DWB.Controllers
         [HttpGet]
         public IActionResult AllHistory(string uhid)
         {
-            var assessments = _context.TblDoctorAssessment
-                .Where(a => a.FkUhid == uhid)
-                .OrderByDescending(a => a.DtCreated)
-                .Select(a => new
-                {
-                    a.IntId,
-                    a.FkVisitNo,
-                    CreatedDate = a.DtCreated.Value.ToString("dd/MM/yyyy"),
-                    FollowUpDate = a.DtFollowUpDate.HasValue ? a.DtFollowUpDate.Value.ToString("dd/MM/yyyy") : "N/A",
-                    a.VchChiefcomplaints,
-                    a.VchDiagnosis,
-                    a.VchRemarks
-                })
-                .ToList();
-            return Json(new { data = assessments });
+            var assessments = (from doc in _context.TblDoctorAssessment
+                               join nur in _context.TblNsassessment
+                                   on doc.FkAssessmentId equals nur.IntAssessmentId
+                               where doc.FkUhid == uhid
+                               orderby doc.DtCreated descending
+                               select new
+                               {
+                                   doc.IntId,                                   
+                                   visitno=doc.FkVisitNo,
+                                   uhid=doc.FkUhid,
+                                   CreatedDate = doc.DtCreated.HasValue
+                                       ? doc.DtCreated.Value.ToString("dd/MM/yyyy")
+                                       : "N/A",
+                                   FollowUpDate = doc.DtFollowUpDate.HasValue
+                                       ? doc.DtFollowUpDate.Value.ToString("dd/MM/yyyy")
+                                       : "N/A",
+                                   hmsPatientName = nur.VchHmsname, // ✅ from NursingAssessment
+                                   doc.VchDiagnosis,
+                                   doc.VchRemarks
+                               })
+                       .ToList();
+
+            return Json(new
+            {
+                success = true,
+                data = assessments
+            });
         }
 
         [HttpGet]
