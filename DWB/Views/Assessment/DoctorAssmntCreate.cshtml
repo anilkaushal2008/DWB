@@ -9,8 +9,30 @@
         margin-right: 2.9px; /* space between button and label text */
         cursor: pointer;
     }</style>
-<main class="main-wrapper py-4">  
-   <div class="container-fluid">
+<main class="main-wrapper py-4">
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center justify-content-between small shadow-sm rounded-3 py-2 px-3" role="alert" style="max-width: 600px; margin: 0 auto;">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-circle-fill me-2 fs-6"></i>
+                <span>@ViewBag.Error</span>
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (ViewBag.Success != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center justify-content-between small shadow-sm rounded-3 py-2 px-3" role="alert" style="max-width: 600px; margin: 0 auto;">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2 fs-6"></i>
+                <span>@ViewBag.Success</span>
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="container-fluid">
         <h4 class="mb-4 fw-bold text-primary">
             @(Model.DoctorAssessment.IntId > 0 ? "Edit Doctor Assessment" : "New Doctor Assessment")
         </h4>
@@ -24,24 +46,26 @@
                 <span><a class="btn btn-sm btn-grd-success" data-bs-toggle="modal" data-bs-target="#templateModal">Use Template</a> </span>
             </div>
         </div>
-        <div class="card shadow-sm rounded-4">           
+       
+
+        <div class="card shadow-sm rounded-4">
             <div class="card-body">
-                
+
                 <form method="post" id="DAssessment" enctype="multipart/form-data"
-                      asp-action="@(Model.DoctorAssessment.IntId > 0 ? "DocAssmntEdit" : "DocAssmntCreate")" asp-controller="Assessment">
-                    @Html.HiddenFor(m=>m.DoctorAssessment.DtStartTime)
-                    @Html.HiddenFor(m => m.DoctorAssessment.FkUhid, new { id = "PatientId"})
+                      asp-action="@(Model.DoctorAssessment.IntId > 0 ? "DocAssmntEdit" : "DoctorAssmntCreate")" asp-controller="Assessment">
+                    @Html.HiddenFor(m => m.DoctorAssessment.DtStartTime)
+                    @Html.HiddenFor(m => m.DoctorAssessment.FkUhid, new { id = "PatientId" })
                     @Html.HiddenFor(m => m.DoctorAssessment.FkAssessmentId)
-                    @Html.HiddenFor(m => m.DoctorAssessment.FkVisitNo, new { id = "VisitNo"})
+                    @Html.HiddenFor(m => m.DoctorAssessment.FkVisitNo, new { id = "VisitNo" })
                     @Html.HiddenFor(m => m.DoctorAssessment.DtHmsentry)
-                      @Html.HiddenFor(m => m.NursingAssessment.IntAssessmentId)
+                    @Html.HiddenFor(m => m.NursingAssessment.IntAssessmentId)
                     @* for edit assessment *@
-                    @if(Model.DoctorAssessment.IntId != 0)
+                    @if (Model.DoctorAssessment.IntId != 0)
                     {
-                        @Html.HiddenFor(mbox=>Model.DoctorAssessment.IntId)
+                        @Html.HiddenFor(mbox => Model.DoctorAssessment.IntId)
                     }
 
-                    <!-- Submit -->                   
+                    <!-- Submit -->
                     <div align="right" class="text-end mt-1 my-1">
                         <button type="button" id="btnSaveTemplate" class="btn btn-warning btn-sm shadow-sm " data-bs-toggle="modal" data-bs-target="#saveTemplateModal">
                             💾 Save as Template
@@ -93,13 +117,13 @@
                             </button>
                         </li>
                     </ul>
-                   
-                        <!-- Tab Content -->
-                        <div class="tab-content" id="docAssessmentContent">
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="docAssessmentContent">
                         <!-- Patient -->
                         <hr />
-                        <div class="tab-pane fade show active" id="patient" role="tabpanel">                         
-                           <div class="row g-3">
+                        <div class="tab-pane fade show active" id="patient" role="tabpanel">
+                            <div class="row g-3">
                                 <!-- VITAL SIGNS -->
                                 <div class="col-md-6">
                                     <div class="card shadow-sm  border-top border-primary rounded-3 text-white bg-light h-100">
@@ -193,58 +217,58 @@
                                         </div>
                                         <div class="card-body p-3 small">
                                             <div class="row g-2">
-                                        <!-- Supporting Documents -->
-                                        @if (Model.NursingAssessment.TblNassessmentDoc != null && Model.NursingAssessment.TblNassessmentDoc.Any())
-                                            {
-                                                @foreach (var document in Model.NursingAssessment.TblNassessmentDoc)
+                                                <!-- Supporting Documents -->
+                                                @if (Model.NursingAssessment.TblNassessmentDoc != null && Model.NursingAssessment.TblNassessmentDoc.Any())
                                                 {
-                                                    <div class="col-auto text-center">
-                                                        <a href="@Url.Content("~/uploads/NAssessment/" + document.VchFileName)" target="_blank" title="@document.VchFileName">
-                                                            <div class="border rounded bg-white p-2 shadow-sm" style="width:70px; height:70px; display:flex; align-items:center; justify-content:center;">
-                                                                <i class="fas fa-file-alt fa-2x text-info"></i>
-                                                            </div>
-                                                            <small class="d-block text-truncate" style="max-width:70px;">@document.VchFileName</small>
-                                                        </a>
-                                                    </div>
+                                                    @foreach (var document in Model.NursingAssessment.TblNassessmentDoc)
+                                                    {
+                                                        <div class="col-auto text-center">
+                                                            <a href="@Url.Content("~/uploads/NAssessment/" + document.VchFileName)" target="_blank" title="@document.VchFileName">
+                                                                <div class="border rounded bg-white p-2 shadow-sm" style="width:70px; height:70px; display:flex; align-items:center; justify-content:center;">
+                                                                    <i class="fas fa-file-alt fa-2x text-info"></i>
+                                                                </div>
+                                                                <small class="d-block text-truncate" style="max-width:70px;">@document.VchFileName</small>
+                                                            </a>
+                                                        </div>
+                                                    }
                                                 }
-                                            }
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div> 
+                        </div>
 
                         <!-- Clinical -->
                         <div class="tab-pane fade" id="clinical" role="tabpanel">
-                        <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
-                            <div class="row g-3">
-                                <div class="col-md-6">
+                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
                                         <label class="form-label fw-bold">Chief Complaints<span class="text-danger">*</span></label>
                                         <textarea asp-for="DoctorAssessment.VchChiefcomplaints" class="form-control required-field" rows="2"></textarea>
                                         <span class="text-danger small validation-msg"></span>
-                                </div>
-                                <div class="col-md-6">
+                                    </div>
+                                    <div class="col-md-6">
                                         <label class="form-label fw-bold">Medical History<span class="text-danger">*</span></label>
                                         <textarea asp-for="DoctorAssessment.VchMedicalHistory" class="form-control required-field" rows="2"></textarea>
                                         <span class="text-danger small validation-msg"></span>
-                                </div>
-                                <div class="col-md-6">
+                                    </div>
+                                    <div class="col-md-6">
                                         <label class="form-label fw-bold">Systemic Examination<span class="text-danger">*</span></label>
                                         <textarea asp-for="DoctorAssessment.VchSystemicexam" class="form-control required-field" rows="2"></textarea>
                                         <span class="text-danger small validation-msg"></span>
-                                </div>
-                                <div class="col-md-6">
+                                    </div>
+                                    <div class="col-md-6">
                                         <label class="form-label fw-bold">Diagnosis<span class="text-danger">*</span></label>
                                         <textarea asp-for="DoctorAssessment.VchDiagnosis" class="form-control required-field" rows="2"></textarea>
                                         <span class="text-danger small validation-msg"></span>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label fw-bold">Remarks</label>
-                                    <textarea asp-for="DoctorAssessment.VchRemarks" class="form-control" rows="3"></textarea>                                       
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Remarks</label>
+                                        <textarea asp-for="DoctorAssessment.VchRemarks" class="form-control" rows="3"></textarea>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </div>
 
                         <!-- Medicines -->
@@ -287,7 +311,7 @@
                                                         <input type="number" class="form-control form-control-sm"
                                                                name="Medicines[@i].IntQuantity"
                                                                value="@Model.Medicines[i].IntQuantity"
-                                                               placeholder="Quantity" min="0" step="1" />
+                                                               placeholder="Quantity" min="0" step="1" data-val="false" />
                                                     </td>
 
                                                     <!-- Frequency -->
@@ -310,16 +334,16 @@
                                                     <td>
                                                         <div class="d-flex flex-wrap justify-content-center gap-2 small">
                                                             <!-- Breakfast -->
-                                                                <label>
-                                                                    <input type="radio" class="form-check-input"
-                                                                           name="Medicines[@i].BreakfastTiming" value="BBF"
-                                                                           @(Model.Medicines[i].BitBbf == true ? "checked" : "") /> BBF
-                                                                </label>
-                                                                <label>
-                                                                    <input type="radio" class="form-check-input scale-radio"
-                                                                           name="Medicines[@i].BreakfastTiming" value="ABF"
-                                                                           @(Model.Medicines[i].BitAbf == true ? "checked" : "") /> ABF
-                                                                </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input"
+                                                                       name="Medicines[@i].BreakfastTiming" value="BBF"
+                                                                       @(Model.Medicines[i].BitBbf == true ? "checked" : "") /> BBF
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].BreakfastTiming" value="ABF"
+                                                                       @(Model.Medicines[i].BitAbf == true ? "checked" : "") /> ABF
+                                                            </label>
 
                                                             <!-- Lunch -->
                                                             <label>
@@ -447,7 +471,7 @@
                                 </div>
                             </div>
 
-                          
+
                         </div>
 
                         <!-- Lab -->
@@ -457,12 +481,12 @@
                                     <thead class="table bg-primary text-left small">
                                         <tr>
                                             <th style="width: 50%;">Lab Test</th>
-                                            <th style="width: 30%;">Priority</th>                                            
+                                            <th style="width: 30%;">Priority</th>
                                             <th style="width: 20%;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="lab-list">
-                                     @if (Model.Labs != null && Model.Labs.Any())
+                                        @if (Model.Labs != null && Model.Labs.Any())
                                         {
                                             for (int i = 0; i < Model.Labs.Count; i++)
                                             {
@@ -470,17 +494,17 @@
                                                     <!-- Lab Test -->
                                                     <td class="position-relative">
                                                         <input type="text"
-                                                        class="form-control form-control-sm lab-autocomplete"
-                                                        name="Labs[@i].VchTestName"
-                                                        placeholder="Search Lab Test"
-                                                        autocomplete="off"
-                                                        value="@Model.Labs[i].VchTestName">
+                                                               class="form-control form-control-sm lab-autocomplete"
+                                                               name="Labs[@i].VchTestName"
+                                                               placeholder="Search Lab Test"
+                                                               autocomplete="off"
+                                                               value="@Model.Labs[i].VchTestName">
                                                         <input type="hidden"
-                                                        name="Labs[@i].VchTestCode"
-                                                        class="lab-code"
-                                                        value="@Model.Labs[i].VchTestCode">
+                                                               name="Labs[@i].VchTestCode"
+                                                               class="lab-code"
+                                                               value="@Model.Labs[i].VchTestCode">
                                                         <div class="list-group position-absolute w-100 lab-suggestions"
-                                                        style="z-index:999; display:none;"></div>
+                                                             style="z-index:999; display:none;"></div>
                                                     </td>
 
                                                     <!-- Priority -->
@@ -510,14 +534,14 @@
                                                 <!-- Lab Test -->
                                                 <td class="position-relative">
                                                     <input type="text"
-                                                    class="form-control form-control-sm lab-autocomplete"
-                                                    name="Labs[0].VchTestName"
-                                                    placeholder="Search Lab Test" autocomplete="off">
+                                                           class="form-control form-control-sm lab-autocomplete"
+                                                           name="Labs[0].VchTestName"
+                                                           placeholder="Search Lab Test" autocomplete="off">
                                                     <input type="hidden"
-                                                    name="Labs[0].VchTestCode"
-                                                    class="lab-code">
+                                                           name="Labs[0].VchTestCode"
+                                                           class="lab-code">
                                                     <div class="list-group position-absolute w-100 lab-suggestions"
-                                                    style="z-index:999; display:none;"></div>
+                                                         style="z-index:999; display:none;"></div>
                                                 </td>
 
                                                 <!-- Priority -->
@@ -543,7 +567,7 @@
                                 </table>
                             </div>
                         </div>
-                       
+
                         <!-- Radiology -->
                         <div class="tab-pane fade" id="radiology" role="tabpanel">
                             <div class="card p-3 border-top border-primary shadow rounded-3 mb-4">
@@ -556,7 +580,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="radio-list">
-                                          @if (Model.Radiology != null && Model.Radiology.Any())
+                                        @if (Model.Radiology != null && Model.Radiology.Any())
                                         {
                                             for (int i = 0; i < Model.Radiology.Count; i++)
                                             {
@@ -564,24 +588,24 @@
                                                     <!-- Radiology Test -->
                                                     <td class="position-relative">
                                                         <input type="text"
-                                                        class="form-control form-control-sm radio-autocomplete"
-                                                        name="Radiology[@i].VchRadiologyName"
-                                                        placeholder="Search Radiology Test"
-                                                        autocomplete="off"
-                                                        value="@Model.Radiology[i].VchRadiologyName">
+                                                               class="form-control form-control-sm radio-autocomplete"
+                                                               name="Radiology[@i].VchRadiologyName"
+                                                               placeholder="Search Radiology Test"
+                                                               autocomplete="off"
+                                                               value="@Model.Radiology[i].VchRadiologyName">
                                                         <input type="hidden"
-                                                        name="Radiology[@i].VchRadiologyCode"
-                                                        class="radio-code"
-                                                        value="@Model.Radiology[i].VchRadiologyCode">
+                                                               name="Radiology[@i].VchRadiologyCode"
+                                                               class="radio-code"
+                                                               value="@Model.Radiology[i].VchRadiologyCode">
                                                         <div class="list-group position-absolute w-100 radio-suggestions"
-                                                        style="z-index:999; display:none;"></div>
+                                                             style="z-index:999; display:none;"></div>
                                                     </td>
 
                                                     <!-- Priority -->
                                                     <td>
                                                         <select class="form-select form-select-sm" name="Radiology[@i].VchPriority">
                                                             <option value="">-- Select --</option>
-                                                            
+
                                                             <option value="Normal" selected="@(Model.Radiology[i].VchPriority == "Normal" ? "selected" : null)">Normal</option>
                                                             <option value="Urgent" selected="@(Model.Radiology[i].VchPriority == "Urgent" ? "selected" : null)">Urgent</option>
                                                         </select>
@@ -605,14 +629,14 @@
                                                 <!-- Radiology Test -->
                                                 <td class="position-relative">
                                                     <input type="text"
-                                                    class="form-control form-control-sm radio-autocomplete"
-                                                    name="Radiology[0].VchRadiologyName"
-                                                    placeholder="Search Radiology Test" autocomplete="off">
+                                                           class="form-control form-control-sm radio-autocomplete"
+                                                           name="Radiology[0].VchRadiologyName"
+                                                           placeholder="Search Radiology Test" autocomplete="off">
                                                     <input type="hidden"
-                                                    name="Radiology[0].VchRadiologyCode"
-                                                    class="radio-code">
+                                                           name="Radiology[0].VchRadiologyCode"
+                                                           class="radio-code">
                                                     <div class="list-group position-absolute w-100 radio-suggestions"
-                                                    style="z-index:999; display:none;"></div>
+                                                         style="z-index:999; display:none;"></div>
                                                 </td>
 
                                                 <!-- Priority -->
@@ -647,12 +671,12 @@
                                     <thead class="table bg-primary text-left small">
                                         <tr>
                                             <th style="width: 50%;">Procedure</th>
-                                            <th style="width: 30%;">Priority</th>                                          
+                                            <th style="width: 30%;">Priority</th>
                                             <th style="width: 20%;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="procedure-list">
-                                         @if (Model.Procedures != null && Model.Procedures.Any())
+                                        @if (Model.Procedures != null && Model.Procedures.Any())
                                         {
                                             for (int i = 0; i < Model.Procedures.Count; i++)
                                             {
@@ -660,27 +684,27 @@
                                                     <!-- Procedure Name -->
                                                     <td class="position-relative">
                                                         <input type="text"
-                                                        class="form-control form-control-sm procedure-autocomplete"
-                                                        name="Procedures[@i].VchProcedureName"
-                                                        placeholder="Search Procedure"
-                                                        autocomplete="off"
-                                                        value="@Model.Procedures[i].VchProcedureName">
+                                                               class="form-control form-control-sm procedure-autocomplete"
+                                                               name="Procedures[@i].VchProcedureName"
+                                                               placeholder="Search Procedure"
+                                                               autocomplete="off"
+                                                               value="@Model.Procedures[i].VchProcedureName">
                                                         <input type="hidden"
-                                                        name="Procedures[@i].VchProcedureCode"
-                                                        class="procedure-code"
-                                                        value="@Model.Procedures[i].VchProcedureCode">
+                                                               name="Procedures[@i].VchProcedureCode"
+                                                               class="procedure-code"
+                                                               value="@Model.Procedures[i].VchProcedureCode">
                                                         <div class="list-group position-absolute w-100 procedure-suggestions"
-                                                        style="z-index:999; display:none;"></div>
+                                                             style="z-index:999; display:none;"></div>
                                                     </td>
 
                                                     <!-- Priority -->
                                                     <td>
                                                         <select class="form-select form-select-sm" name="Procedures[@i].VchPriority">
-                                                            <option value="">-- Select --</option>                                                            
+                                                            <option value="">-- Select --</option>
                                                             <option value="Normal" selected="@(Model.Procedures[i].VchPriority == "Normal" ? "selected" : null)">Normal</option>
                                                             <option value="Urgent" selected="@(Model.Procedures[i].VchPriority == "Urgent" ? "selected" : null)">Urgent</option>
                                                         </select>
-                                                    </td>                                          
+                                                    </td>
 
                                                     <!-- Action -->
                                                     <td class="text-center">
@@ -700,14 +724,14 @@
                                                 <!-- Procedure Name -->
                                                 <td class="position-relative">
                                                     <input type="text"
-                                                    class="form-control form-control-sm procedure-autocomplete"
-                                                    name="Procedures[0].VchProcedureName"
-                                                    placeholder="Search Procedure" autocomplete="off">
+                                                           class="form-control form-control-sm procedure-autocomplete"
+                                                           name="Procedures[0].VchProcedureName"
+                                                           placeholder="Search Procedure" autocomplete="off">
                                                     <input type="hidden"
-                                                    name="Procedures[0].VchProcedureCode"
-                                                    class="procedure-code">
+                                                           name="Procedures[0].VchProcedureCode"
+                                                           class="procedure-code">
                                                     <div class="list-group position-absolute w-100 procedure-suggestions"
-                                                    style="z-index:999; display:none;"></div>
+                                                         style="z-index:999; display:none;"></div>
                                                 </td>
 
                                                 <!-- Priority -->
@@ -717,7 +741,7 @@
                                                         <option value="Normal">Normal</option>
                                                         <option value="Urgent">Urgent</option>
                                                     </select>
-                                                </td>                                          
+                                                </td>
 
                                                 <!-- Action -->
                                                 <td class="text-center">
@@ -739,22 +763,22 @@
                         <div class="tab-pane fade" id="followup" role="tabpanel">
                             <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
                                 <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Follow-up Date</label>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Follow-up Date</label>
                                         <input asp-for="DoctorAssessment.DtFollowUpDate" value="@(Model.DoctorAssessment.DtFollowUpDate.HasValue
-                                       ? Model.DoctorAssessment.DtFollowUpDate.Value.ToString("yyyy-MM-dd"):"")" class="form-control required-field" type="date" />
+                                                                                                                                ? Model.DoctorAssessment.DtFollowUpDate.Value.ToString("yyyy-MM-dd"):"")" class="form-control required-field" type="date" />
                                         <span class="text-danger small validation-msg"></span>
                                     </div>
-                                   @* value="@Model.DoctorAssessment.DtFollowUpDate" *@
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">Follow-up Time</label>
+                                    @* value="@Model.DoctorAssessment.DtFollowUpDate" *@
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Follow-up Time</label>
                                         <input asp-for="DoctorAssessment.FollowUpTime" value="@(Model.DoctorAssessment.FollowUpTime.HasValue
-                                      ? Model.DoctorAssessment.FollowUpTime.Value.ToString(@"hh\:mm"): "")" type="time" class="form-control required-field" />
+                                                                                                                             ? Model.DoctorAssessment.FollowUpTime.Value.ToString(@"hh\:mm"): "")" type="time" class="form-control required-field" />
                                         <span class="text-danger small validation-msg"></span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>  
-                        </div>  
+                        </div>
 
                         <!--File upload supporting document-->
                         <div class="tab-pane fade" id="files" role="tabpanel">
@@ -806,14 +830,47 @@
                                     }
                                 </div>
                             </div>
-                        </div>                       
+                        </div>
                     </div>
-                    
+
                 </form>
             </div>
         </div>
-     </div>
-     @* modal for templete loading *@
+    </div>
+    @*Modal for save template*@
+    <!-- Save as Template Modal -->
+    <div class="modal fade" id="saveTemplateModal" tabindex="-1" aria-labelledby="saveTemplateLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-sm rounded-3">
+                <div class="modal-header bg-light py-2">
+                    <h6 class="modal-title fw-semibold" id="saveTemplateLabel">
+                        <i class="bi bi-file-earmark-plus me-1"></i> Save Assessment as Template
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="TemplateName" class="form-label small fw-semibold">Template Name</label>
+                        <input type="text" id="TemplateName" class="form-control form-control-sm"
+                               placeholder="Enter template name (e.g., Fever & Cough Case)" />
+                        <div id="templateError" class="text-danger small mt-1" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancel
+                    </button>
+                    <button type="button" id="btnSaveTemplateModal" class="btn btn-primary btn-sm">
+                        <i class="bi bi-save2 me-1"></i> Save Template
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* modal for templete loading *@
     <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md">
             <!-- 🔹 Changed from modal-sm to modal-md -->
@@ -848,7 +905,7 @@
         </div>
     </div>
 
-    <!--CURENT PATIENT HISTORY MODAL-->   
+    <!--CURENT PATIENT HISTORY MODAL-->
     <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-sm rounded-3">
@@ -866,7 +923,7 @@
                             <thead class="table-light">
                                 <tr class="small text-dark text-center">
                                     <th scope="col">Sr.No.</th>
-                                    <th scope="col">Visit.No.</th>                                    
+                                    <th scope="col">Visit.No.</th>
                                     <th scope="col">UHID</th>
                                     <th scope="col">Patient Name</th>
                                     <th scope="col">Diagnosis</th>
@@ -897,8 +954,8 @@
 
 </main>
 
-
-@section scripts{
+@section scripts
+{
     <script src="/assets/js/dashboard1.js"></script>
     <script src="~/assets/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -1030,7 +1087,7 @@
                      <!-- Dosage -->
                      <td>
                          <input type="number" class="form-control form-control-sm"
-                                    name="Medicines[${index}].IntQuantity" placeholder="Quantity" min="0" step="1">
+                          name="Medicines[${index}].IntQuantity" placeholder="Quantity" min="0" step="1"  data-val="false">
                      </td>
 
                      <!-- Frequency -->
@@ -2222,113 +2279,5 @@
             });
 
     });
-        
-        //Code for load All history
-     //  $(function () {
-     //        // --- Open History Modal ---
-     //        $("#btnViewHistory").on("click", function () {
-     //                const uhid = '@Model.NursingAssessment.VchUhidNo';
-     //            if (!uhid) {
-     //                alert("⚠️ Please select a patient first!");
-     //                return;
-     //            }
-
-     //            const tbody = $("#historyTable tbody");
-     //            tbody.html('<tr><td colspan="7" class="text-center text-muted">⏳ Loading history...</td></tr>');
-
-     //            $.getJSON(`/Assessment/AllHistory?uhid=${uhid}`, function (response) {
-     //                const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
-     //                modalInstance.show();
-
-     //    if (response.success && response.data && response.data.$values.length > 0) {
-     //        tbody.empty();
-     //        response.data.$values.forEach((a, index) => {
-     //            tbody.append(`
-     //                <tr>
-     //                    <td>${index + 1}</td>
-     //                    <td>${a.visitno}</td>
-     //                    <td>${a.uhid}</td>
-     //                        <td>${a.hmsPatientName || 'N/A'}</td>
-     //                    <td>${a.vchDiagnosis || 'N/A'}</td>
-     //                    <td>${a.createdDate || ''}</td>
-     //                    <td class="text-center">
-     //                    <button class="btn btn-outline-primary btn-sm load-history-item"
-     //                                data-id="${a.intId}">
-     //                            <i class="bi bi-download"></i> Load
-     //                   </button>
-     //                    </td>
-     //                </tr>
-     //            `);
-     //        });
-     //    }
-     //    else {
-     //        tbody.html(`
-     //            <tr>
-     //            <td colspan="7" class="text-center text-danger fw-semibold py-4">
-     //            ⚠️ No previous assessment history found for this patient.
-     //            </td>
-     //            </tr>
-     //            `);
-     //    }
-     //    })
-     //    .fail(() => {
-     //        const tbody = $("#historyTable tbody");
-     //        tbody.html(`
-     //        <tr>
-     //        <td colspan="7" class="text-center text-danger fw-semibold py-4">
-     //        ❌ Unable to fetch patient history. Please try again later.
-     //        </td>
-     //        </tr>
-     //        `);
-     //        const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('historyModal'));
-     //        modalInstance.show();
-     //      });
-     //    });
-         
-     //      // --- Load Selected History into Current Assessment ---
-     //            // --- Load Selected History into Current Assessment ---
-     //      $(document).on("click", ".load-history-item", function () {
-     //        const id = $(this).data("id");
-     //        const uhid = '@Model.NursingAssessment.VchUhidNo';
-
-     //        if (!id || !uhid) {
-     //            alert("⚠️ Missing patient or record ID!");
-     //            return;
-     //        }
-
-     //        // Disable button while loading
-     //        const btn = $(this);
-     //        const originalHtml = btn.html();
-     //        btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm me-1"></span>Loading...');
-
-     //        $.getJSON(`/Assessment/LoadTemplateData?type=selectedHistory&uhid=${uhid}&id=${id}`, function (data) {
-     //            if (data.success && data.data) {
-     //                // ✅ Populate assessment data
-     //                renderAssessmentData(data.data);
-
-     //                // ✅ Close modal safely and remove backdrop
-     //                const modalEl = document.getElementById('historyModal');
-     //                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-     //                if (modalInstance) modalInstance.hide();
-
-     //                // 🕒 Wait until modal is hidden before showing alert
-     //                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-     //                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-     //                    setTimeout(() => alert("✅ Selected history loaded successfully!"), 200);
-     //                });
-
-     //            } else {
-     //                alert("⚠️ Unable to load this record. Please try again!");
-     //            }
-     //        })
-     //        .fail(() => {
-     //            alert("❌ Failed to fetch history record from server.");
-     //        })
-     //        .always(() => {
-     //            btn.prop("disabled", false).html(originalHtml);
-     //        });
-     //    });
-
-     // });
-   </script>
-}
+    </script>
+    }

@@ -22,6 +22,14 @@ using System.Reflection.Metadata;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QuestPDF.Helpers.Colors;
 
+using OpenAI;
+using OpenAI.Audio;
+using System.IO;
+using System.Threading.Tasks;
+
+using System.Net.Http.Headers;
+using System.Text.Json;
+
 namespace DWB.Controllers
 {
     public class AssessmentController : Controller
@@ -29,11 +37,13 @@ namespace DWB.Controllers
         private readonly IConfiguration _configuration;
         private readonly DWBEntity _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly OpenAIClient _openAI;
         public AssessmentController(IConfiguration configuration, DWBEntity dWBEntity, IWebHostEnvironment webHostEnvironment)
         {
             _configuration = configuration;
             _context = dWBEntity;
             _webHostEnvironment = webHostEnvironment;
+            _openAI = new OpenAIClient(configuration["OpenAI:ApiKey"]);
         }
         #region Nursing Assessment Actions ADD,EDIT,VIEW
         [Authorize(Roles = "Admin, Nursing")]
@@ -536,13 +546,43 @@ namespace DWB.Controllers
             return Json(list);
         }
 
+        private void RehydrateDoctorAssmntCreateVM(DoctorAssessmentVM model)
+        {
+            // Ensure we have keys to reload data
+            var uhid = model.DoctorAssessment?.FkUhid ?? model.NursingAssessment?.VchUhidNo;
+            var visit = model.DoctorAssessment?.FkVisitNo ?? model.NursingAssessment?.IntIhmsvisit ?? 0;
+
+            // 🔁 Re-load nursing + related data needed by the view
+            var nsg = _context.TblNsassessment
+            .Include(x => x.TblNassessmentDoc) // 🔑 load documents
+            .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == Convert.ToInt32(visit));
+
+            // 🧰 Rebuild dropdowns / lookups used by the view
+            ViewBag.TemplateList = _context.TblDocTemplateAssessment
+                .Select(t => new { t.Intid, t.VchTempleteName })
+                .ToList();
+
+            // Guard null collections so Razor loops don't break
+            model.NursingAssessment = nsg;
+            model.Medicines ??= new List<TblDoctorAssmntMedicine>();
+            model.Labs ??= new List<TblDoctorAssmntLab>();
+            model.Radiology ??= new List<TblDoctorAssmntRadiology>();
+            model.Procedures ??= new List<TblDoctorAssmntProcedure>();
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DocAssmntCreate(DoctorAssessmentVM model, IFormFile[] doctorDocs)
+        public async Task<IActionResult> DoctorAssmntCreate(DoctorAssessmentVM model, IFormFile[] doctorDocs)
         {
             if (!ModelState.IsValid)
             {
-                //return the same view with validation messages
+                var allErrors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+                ViewBag.Error = "Validation failed, model error generated, contact to admin!";
+                RehydrateDoctorAssmntCreateVM(model);   // ⬅️ critical
                 return View(model);
             }
             try
@@ -782,6 +822,9 @@ namespace DWB.Controllers
             if (!ModelState.IsValid)
             {
                 // Return same view with validation messages
+                var nursing = _context.TblNsassessment
+           .Include(x => x.TblNassessmentDoc) // 🔑 load documents
+           .FirstOrDefault(x => x.VchUhidNo == model.DoctorAssessment.FkUhid && x.IntIhmsvisit == Convert.ToInt32(model.DoctorAssessment.FkVisitNo));
                 return View(model);
             }
             try
@@ -1525,6 +1568,145 @@ namespace DWB.Controllers
             return result;
         }
 
+        #endregion
+
+        #region ai sections
+        [HttpPost]
+        public async Task<IActionResult> UploadAudio(IFormFile audioFile)
+        {
+            if (audioFile == null || audioFile.Length == 0)
+                return BadRequest(new { error = "No audio file received" });
+
+            // Save temporarily (for next step: Whisper transcription)
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(audioFile.FileName);
+            var tempPath = Path.Combine(Path.GetTempPath(), fileName);
+
+            await using (var stream = System.IO.File.Create(tempPath))
+            {
+                await audioFile.CopyToAsync(stream);
+            }
+
+            Console.WriteLine($"🎧 Audio saved to: {tempPath}");
+
+            return Ok(new
+            {
+                message = "Audio uploaded successfully",
+                path = tempPath
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TranscribeAudio([FromBody] string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath))
+                return BadRequest(new { error = "Invalid or missing audio file." });
+
+            try
+            {
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", "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");
+
+                using var form = new MultipartFormDataContent();
+                var fileStream = System.IO.File.OpenRead(filePath);
+                var streamContent = new StreamContent(fileStream);
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue("audio/webm");
+                form.Add(streamContent, "file", Path.GetFileName(filePath));
+                form.Add(new StringContent("whisper-1"), "model");
+
+                var response = await httpClient.PostAsync("https://api.openai.com/v1/audio/transcriptions", form);
+                var result = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    using var doc = JsonDocument.Parse(result);
+                    var text = doc.RootElement.GetProperty("text").GetString();
+                    return Json(new { success = true, transcription = text });
+                }
+                catch
+                {
+                    return Json(new { success = false, rawResponse = result });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // AssessmentController.cs
+
+        // Make sure to include the using statement for your Scribe models (e.g., using YourAppName.Models.EkaScribe;)
+
+        [HttpPost]
+        public IActionResult ProcessScribeNotes(EkaScribeDataModel scribeData)
+        {
+            if (scribeData == null)
+            {
+                return Json(new { success = false, message = "No data received from Scribe." });
+            }
+
+            // --- 1. Prepare the output model ---
+            // Initialize your existing VM structure
+            var assessmentVM = new DWB.Models.DoctorAssessmentVM
+            {
+                DoctorAssessment = new DWB.Models.TblDoctorAssessment(),
+                // Note: Medicine and Labs lists can be empty or null as we are skipping them
+            };
+
+            // --- 2. Map Notes and Complaints (Structural Documentation) ---
+
+            // A. Map Symptoms (Chief Complaints)
+            var chiefComplaints = scribeData.symptoms?
+               .Select(s => $"{s.name} (Since {GetSymptomDuration(s)})")
+               .ToList() ?? new List<string>();
+
+            assessmentVM.DoctorAssessment.VchChiefcomplaints = string.Join("; ", chiefComplaints);
+
+            // B. Map Examinations (Systemic Exam)
+            var systemicExam = scribeData.medicalHistory?.examinations?
+               .Select(e => $"{e.name}: {e.notes}")
+               .ToList() ?? new List<string>();
+
+            assessmentVM.DoctorAssessment.VchSystemicexam = string.Join(Environment.NewLine, systemicExam);
+
+            // C. Map Past/Medical History (Combine Vitals and Patient History)
+            var medicalHistory = new List<string>();
+
+            //// Add Vitals (from Nursing Assessment display in Step 1 of CSHTML)
+            //medicalHistory.AddRange(scribeData.medicalHistory?.vitals?
+            //   .Select(v => $"{v.name}: {v.value?.} {v.value?.unit}") ?? new List<string>());
+
+            // Add Patient History
+            //medicalHistory.Add("Past History:");
+            //medicalHistory.AddRange(scribeData.medicalHistory?.patientHistory?.patientMedicalConditions?
+            //   .Where(c => c.status != "Absent")
+            //   .Select(c => $"- {c.name}: {c.status}") ?? new List<string>());
+
+            assessmentVM.DoctorAssessment.VchMedicalHistory = string.Join(Environment.NewLine, medicalHistory);
+
+
+            // D. Map Diagnosis
+            var diagnosisList = scribeData.diagnosis?
+               .Select(d => d.name)
+               .ToList() ?? new List<string>();
+
+            assessmentVM.DoctorAssessment.VchDiagnosis = string.Join("; ", diagnosisList);
+
+            // E. Map Follow-up Notes to Remarks
+            assessmentVM.DoctorAssessment.VchRemarks = scribeData.followup?.notes;
+
+            // --- 3. Return the fully populated VM to the client ---
+            return Json(new { success = true, data = assessmentVM });
+        }
+
+        // Helper function to extract structured duration from Symptom object (adjust based on your exact model)
+        private string GetSymptomDuration(Symptom s)
+        {
+            // Requires implementation to parse the complex 'properties' JSON structure 
+            // For demonstration, returning a placeholder or simplified text
+            return "3 Days";
+        }
         #endregion
     }
 }

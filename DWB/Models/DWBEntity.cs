@@ -1298,7 +1298,6 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(250)
                 .HasColumnName("vchMedicalHistory");
             entity.Property(e => e.VchRemarks)
-                .IsRequired()
                 .HasMaxLength(250)
                 .IsUnicode(false)
                 .HasColumnName("vchRemarks");
