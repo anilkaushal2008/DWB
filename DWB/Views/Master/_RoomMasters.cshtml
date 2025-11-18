@@ -49,7 +49,7 @@
             {
                 <tr>
                     <td>@(i + 1)</td>
-                    <td>@Model[i].TblFloorMaster.VchFloor</td>
+                     <td>@Model[i].FkIntFloor.VchFloor</td>
                     <td>@Model[i].IntRoomNo</td>
                     <td>
                         @if(hasEditRoom){
@@ -86,8 +86,8 @@
                             }
                         }
                     </td>
-                </tr>
-            }  
+                </tr>           
+            }
          }
         else
         {

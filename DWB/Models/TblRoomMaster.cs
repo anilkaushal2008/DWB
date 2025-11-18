@@ -29,5 +29,5 @@ public partial class TblRoomMaster
 
     public bool BitIsDeactivated { get; set; }
 
-    public virtual TblFloorMaster TblFloorMaster { get; set; }
+    public virtual TblFloorMaster FkIntFloor { get; set; }
 }

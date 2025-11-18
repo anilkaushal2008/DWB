@@ -19,6 +19,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[DoctorWeeklySchedule]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[imaster]",
          "ObjectType": 0
       },
@@ -28,6 +32,10 @@
       },
       {
          "Name": "[dbo].[Service_master]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ShiftMaster]",
          "ObjectType": 0
       },
       {

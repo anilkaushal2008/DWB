@@ -7,8 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using QuestPDF.Infrastructure;
+using DWB.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSession();
 //for session
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDistributedMemoryCache(); // Required for storing session in memory
@@ -49,7 +52,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Home/AccessDenied"; // Redirect if access denied
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     });
-
+// --- User defined service consultant timing ---
+builder.Services.AddScoped<IDoctorScheduleService, DoctorScheduleService>();
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
 // Configure the HTTP request pipeline.

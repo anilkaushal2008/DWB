@@ -69,6 +69,25 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>	
 	<script type="text/javascript">
+$(document).on("click", "#btnManageSchedule", function () {
+			var doctorId = $(this).data("user");
+
+			$.get("/DoctorSchedule/Index", { doctorId: doctorId }, function (html) {
+
+				$("#newModal").modal("hide"); // Close user modal
+				$("#scheduleModalPlaceholder").html(html); // Load schedule modal into placeholder
+
+				const modal = $("#scheduleModalPlaceholder").find("#scheduleModal");
+				if (modal.length) {
+					modal.modal("show");
+				} else {
+					alert("Schedule modal HTML not found.");
+				}
+
+			}).fail(function () {
+				alert("Error loading schedule screen.");
+			});
+		});
 		$(document).ready(function () {
 			  $('#usersTable').DataTable({
 					   pageLength: 50,

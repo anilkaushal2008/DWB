@@ -29,6 +29,24 @@ public partial class TblUserCompany
 
     public string VchIpUpdated { get; set; }
 
+    public bool BitIsSunday { get; set; }
+
+    public bool BitIsMonday { get; set; }
+
+    public bool BitIsTuesday { get; set; }
+
+    public bool BitIsWednesday { get; set; }
+
+    public bool BitIsThursday { get; set; }
+
+    public bool BitIsFriday { get; set; }
+
+    public bool BitIsSaturday { get; set; }
+
+    public TimeOnly? TimeStartTime { get; set; }
+
+    public TimeOnly? TimeEndTime { get; set; }
+
     public virtual IndusCompanies FkIntCompany { get; set; }
 
     public virtual TblUsers FkUseri { get; set; }

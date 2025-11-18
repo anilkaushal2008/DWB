@@ -22,7 +22,7 @@ namespace DWB.Controllers
             _context = dWBEntity;
         }
 
-
+       
         [Authorize(Roles = "Admin,Nursing")]
         //GET: All Masters
         public ActionResult Masters()
@@ -52,11 +52,12 @@ namespace DWB.Controllers
             var Dietlist = _context.TblDietMaster.ToList();
             if (Dietlist.Count() != 0)
             {
+                int intUnitId = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
                 var viewModel = new MasterTabView
-                {
-                    Diets = _context.TblDietMaster.ToList(),
-                    Floors = _context.TblFloorMaster.OrderBy(m => m.VchFloor).ToList(),
-                    Rooms = _context.TblRoomMaster.OrderBy(d => d.FkIntFloorId).ToList(),
+                {                 
+                    Diets = _context.TblDietMaster.Where(e=>e.IntUnitCode==intUnitId).ToList(),
+                    Floors = _context.TblFloorMaster.Where(e => e.IntUnitCode == intUnitId).OrderBy(m => m.VchFloor).ToList(),
+                    Rooms = _context.TblRoomMaster.Where(e => e.IntUnitCode == intUnitId).OrderBy(d => d.FkIntFloorId).ToList(),
                     //AllPermissions = _context.TblPermissionMas.ToList(),
                     ModuleMas = _context.TblModules.OrderBy(d => d.VchMasterModule).ToList(),
                     RoleMas = _context.TblRoleMas.OrderBy(d => d.VchRole).ToList()
@@ -83,7 +84,8 @@ namespace DWB.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DietCreate(TblDietMaster model)
         {
-            if (_context.TblDietMaster.Any(d => d.VchDietCode == model.VchDietCode))
+            int intcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            if (_context.TblDietMaster.Where(e => e.IntUnitCode == intcode).Any(d => d.VchDietCode == model.VchDietCode))
             {
                 ModelState.AddModelError("VchDietCode", "This diet code is already used.");
             }
@@ -92,7 +94,7 @@ namespace DWB.Controllers
                 TempData["ActiveTab"] = "DietTab";
                 return PartialView("_DietCreatePartial", model);
             }
-            model.IntUnitCode = 15;
+            model.IntUnitCode = Convert.ToInt32(User.FindFirst("UnitId")?.Value); ;
             _context.TblDietMaster.Add(model);
             _context.SaveChanges();
             TempData["ActiveTab"] = "DietTab";
@@ -112,7 +114,8 @@ namespace DWB.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DietEdit(TblDietMaster model)
         {
-                if (_context.TblDietMaster.Any(d => d.VchDietCode == model.VchDietCode && d.IntId != model.IntId))
+            int intcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            if (_context.TblDietMaster.Any(d => d.VchDietCode == model.VchDietCode && d.IntId != model.IntId))
             {
                 ModelState.AddModelError("VchDietCode", "This diet code is already used.");
             }
@@ -120,7 +123,7 @@ namespace DWB.Controllers
             {
                 return PartialView("_DietCreatePartial", model);
             }
-            var dbModel = _context.TblDietMaster.FirstOrDefault(x => x.IntId == model.IntId);
+            var dbModel = _context.TblDietMaster.Where(e=>e.IntUnitCode==intcode).FirstOrDefault(x => x.IntId == model.IntId);
             if (dbModel == null)
                 return NotFound();
             dbModel.VchDietCode = model.VchDietCode;
@@ -184,7 +187,8 @@ namespace DWB.Controllers
         #region Floor Master
         public IActionResult _FloorMasters()
         {
-            var FloorList = _context.TblFloorMaster.ToList();
+            int intUnitId= Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            var FloorList = _context.TblFloorMaster.Where(e=>e.IntUnitCode==intUnitId).ToList();
             if (FloorList.Count() != 0)
             {
                 return View();
@@ -204,7 +208,9 @@ namespace DWB.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult FloorCreate(TblFloorMaster model)
         {
-            if (_context.TblFloorMaster.Any(d => d.VchFloor == model.VchFloor))
+            //get unit id
+            int intcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            if (_context.TblFloorMaster.Where(e=>e.IntUnitCode==intcode).Any(d => d.VchFloor == model.VchFloor))
             {
                 ModelState.AddModelError("VchFloor", "This floor is already in use.");
             }
@@ -215,7 +221,7 @@ namespace DWB.Controllers
             }
 
             //have eneter from session
-            model.IntUnitCode = 15;
+            model.IntUnitCode = intcode;
             _context.TblFloorMaster.Add(model);
             _context.SaveChanges();
             TempData["FloorSuccess"] = "Floor created successfully.";
@@ -233,7 +239,9 @@ namespace DWB.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult FloorEdit(TblFloorMaster model)
         {
-            if (_context.TblFloorMaster.Any(d => d.VchFloor == model.VchFloor && d.IntId != model.IntId))
+            //get unit id
+            int intcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            if (_context.TblFloorMaster.Where(e=>e.IntUnitCode==intcode).Any(d => d.VchFloor == model.VchFloor && d.IntId != model.IntId))
             {
                 ModelState.AddModelError("VchFloor", "This floor name is already in use.");
             }
@@ -297,7 +305,8 @@ namespace DWB.Controllers
         #region Room master
         public IActionResult _RoomMasters()
         {
-            var RoomList = _context.TblRoomMaster.OrderBy(m => m.FkIntFloorId).ThenBy(m => m.IntRoomNo).ToList();
+            int intUnitId = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            var RoomList = _context.TblRoomMaster.Where(m=>m.IntUnitCode==intUnitId).OrderBy(m => m.FkIntFloorId).ThenBy(m => m.IntRoomNo).ToList();
             if (RoomList.Count() != 0)
             {
                 return View(RoomList);
@@ -311,14 +320,18 @@ namespace DWB.Controllers
         [HttpGet]
         public IActionResult RoomCreate()
         {
-            ViewBag.FloorList = new SelectList(_context.TblFloorMaster.ToList(), "IntId", "VchFloor");
+            //get unit id
+            int intcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            ViewBag.FloorList = new SelectList(_context.TblFloorMaster.Where(e=>e.IntUnitCode==intcode).ToList(), "IntId", "VchFloor");
             return PartialView("_RoomCreatePartial", new TblRoomMaster());
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RoomCreate(TblRoomMaster model)
         {
-            if (_context.TblRoomMaster.Any(d => d.IntRoomNo == model.IntRoomNo && d.FkIntFloorId == model.FkIntFloorId))
+            //get unit id
+            int intcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            if (_context.TblRoomMaster.Where(e=>e.IntUnitCode==intcode).Any(d => d.IntRoomNo == model.IntRoomNo && d.FkIntFloorId == model.FkIntFloorId))
             {
                 ViewBag.FloorList = new SelectList(_context.TblFloorMaster.ToList(), "IntId", "VchFloor");
                 ModelState.AddModelError("IntRoomNo", "This room is already already in use");
@@ -328,8 +341,8 @@ namespace DWB.Controllers
                 return PartialView("_RoomCreatePartial", model);
             }
 
-            //have eneter from session
-            model.IntUnitCode = 15;
+            //have eneter from session            
+            model.IntUnitCode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
             _context.TblRoomMaster.Add(model);
             _context.SaveChanges();
             TempData["RoomSuccess"] = "Room created successfully.";
@@ -349,7 +362,9 @@ namespace DWB.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RoomEdit(TblRoomMaster model)
         {
-            if (_context.TblRoomMaster.Any(d => d.IntRoomNo == model.IntRoomNo && d.FkIntFloorId != model.FkIntFloorId))
+            //get unit id
+            int intcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            if (_context.TblRoomMaster.Where(e=>e.IntUnitCode==intcode).Any(d => d.IntRoomNo == model.IntRoomNo && d.FkIntFloorId != model.FkIntFloorId))
             {
                 ViewBag.FloorList = new SelectList(_context.TblFloorMaster.ToList(), "IntId", "VchFloor");
                 ModelState.AddModelError("IntRoomNo", "This room number already in use.");

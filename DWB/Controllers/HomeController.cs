@@ -298,10 +298,11 @@ namespace DWB.Controllers
             if (!ModelState.IsValid)
                 return PartialView("_ChangePasswordPartial", model);
 
+            //get user id
+            int UserId= Convert.ToInt32(User.FindFirst("UserId")?.Value);
             // Get logged-in username from claims
             var username = User.Identity?.Name;
-            var user = await _context.TblUsers.FirstOrDefaultAsync(u => u.VchUsername == username);
-
+            var user = await _context.TblUsers.Where(e=>e.IntUserId==UserId).FirstOrDefaultAsync(u => u.VchUsername == username);
             if (user == null)
                 return BadRequest("User not found.");
 

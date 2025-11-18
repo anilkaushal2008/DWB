@@ -6,9 +6,7 @@
     var hasDeleteFloor = User.HasClaim("Permission", "All Masters:Floor Master:Delete:True");
     var hasStatusFloor = User.HasClaim("Permission", "All Masters:Floor Master:Status:True");
 }
-@if (Model != null && Model.Any())
-{
-    if(hasAddNewFloor){
+@if(hasAddNewFloor){
     <div align="right">
         <a href="btnCreateDiet" class="btn btn-primary px-4 open-modal"
            data-url="@Url.Action("FloorCreate", "Master")"
@@ -44,6 +42,8 @@
             </tr>
         </thead>
         <tbody>
+        @if (Model != null && Model.Any())
+        {
             @for (int i = 0; i < Model.Count; i++)
             {
                 <tr>
@@ -85,17 +85,12 @@
                         }
                     </td>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+           }
+        }
 else
 {
     <a>Empty</a>
 }
-<script src="//cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript">
-         $(document).ready(function () {
-        $('#FloorTable').DataTable();
-    });
-</script>
+</tbody>
+</table>
+

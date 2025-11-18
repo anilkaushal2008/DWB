@@ -15,11 +15,15 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<CategoryPriceList> CategoryPriceList { get; set; }
 
+    public virtual DbSet<DoctorWeeklySchedule> DoctorWeeklySchedule { get; set; }
+
     public virtual DbSet<Imaster> Imaster { get; set; }
 
     public virtual DbSet<IndusCompanies> IndusCompanies { get; set; }
 
     public virtual DbSet<ServiceMaster> ServiceMaster { get; set; }
+
+    public virtual DbSet<ShiftMaster> ShiftMaster { get; set; }
 
     public virtual DbSet<TblCheifComplaintMas> TblCheifComplaintMas { get; set; }
 
@@ -148,6 +152,19 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(30)
                 .IsUnicode(false)
                 .HasColumnName("user_");
+        });
+
+        modelBuilder.Entity<DoctorWeeklySchedule>(entity =>
+        {
+            entity.HasKey(e => e.ScheduleId).HasName("PK__DoctorWe__9C8A5B4971553F57");
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.UserDoctorId).HasColumnName("user_DoctorId");
+
+            entity.HasOne(d => d.Shift).WithMany(p => p.DoctorWeeklySchedule)
+                .HasForeignKey(d => d.ShiftId)
+                .HasConstraintName("FK_DoctorWeeklySchedule_tblUsers");
         });
 
         modelBuilder.Entity<Imaster>(entity =>
@@ -803,6 +820,18 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("upc_name");
+        });
+
+        modelBuilder.Entity<ShiftMaster>(entity =>
+        {
+            entity.HasKey(e => e.ShiftId).HasName("PK__ShiftMas__C0A8388166C05785");
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ShiftName)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<TblCheifComplaintMas>(entity =>
@@ -1575,14 +1604,11 @@ public partial class DWBEntity : DbContext
 
         modelBuilder.Entity<TblFloorMaster>(entity =>
         {
-            entity.HasKey(e => new { e.IntId, e.IntUnitCode });
+            entity.HasKey(e => e.IntId);
 
             entity.ToTable("tblFloorMaster");
 
-            entity.Property(e => e.IntId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("intID");
-            entity.Property(e => e.IntUnitCode).HasColumnName("intUnitCode");
+            entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.DtCreated)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -1590,6 +1616,7 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.DtUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
+            entity.Property(e => e.IntUnitCode).HasColumnName("intUnitCode");
             entity.Property(e => e.VchCreatedBy)
                 .HasMaxLength(100)
                 .IsUnicode(false)
@@ -1980,14 +2007,11 @@ public partial class DWBEntity : DbContext
 
         modelBuilder.Entity<TblRoomMaster>(entity =>
         {
-            entity.HasKey(e => new { e.IntId, e.IntUnitCode });
+            entity.HasKey(e => e.IntId).HasName("PK_tblRoomMaster_1");
 
             entity.ToTable("tblRoomMaster");
 
-            entity.Property(e => e.IntId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("intID");
-            entity.Property(e => e.IntUnitCode).HasColumnName("intUnitCode");
+            entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.BitIsDeactivated).HasColumnName("bitIsDeactivated");
             entity.Property(e => e.DtCreated)
                 .HasDefaultValueSql("(getdate())")
@@ -2002,6 +2026,7 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("intRoomNo");
+            entity.Property(e => e.IntUnitCode).HasColumnName("intUnitCode");
             entity.Property(e => e.VchCreatedBy)
                 .HasMaxLength(50)
                 .HasColumnName("vchCreatedBy");
@@ -2015,8 +2040,8 @@ public partial class DWBEntity : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("vchUpdatedBy");
 
-            entity.HasOne(d => d.TblFloorMaster).WithMany(p => p.TblRoomMaster)
-                .HasForeignKey(d => new { d.FkIntFloorId, d.IntUnitCode })
+            entity.HasOne(d => d.FkIntFloor).WithMany(p => p.TblRoomMaster)
+                .HasForeignKey(d => d.FkIntFloorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_tblRoomMaster_tblFloorMaster");
         });

@@ -52,6 +52,61 @@
                 display: block;
             } */
 
+    /* --- Base (Light Theme) Styles --- */
+    .timing-inputs {
+        display: none;
+        margin-top: 10px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border: 1px dashed #ced4da;
+        border-radius: 8px;
+        transition: background-color 0.2s, border-color 0.2s;
+        margin-left: 10px; /* <-- THIS IS THE NEW LINE FOR ALIGNMENT */
+    }
+
+        .timing-inputs .form-label-sm,
+        .timing-inputs .form-check-label,
+        .timing-inputs .fw-bold {
+            color: #212529;
+            transition: color 0.2s;
+        }
+
+        .timing-inputs input[type="time"] {
+            background-color: #ffffff;
+            color: #212529;
+            border: 1px solid #ced4da;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+            /* Default time picker icon */
+            .timing-inputs input[type="time"]::-webkit-calendar-picker-indicator {
+                filter: invert(0);
+            }
+
+    /* --- Dark Theme Overrides --- */
+    /* This code activates when a parent element has the .dark class */
+
+    .dark .timing-inputs {
+        background-color: #2a3042;
+        border: 1px solid #404656;
+    }
+
+        .dark .timing-inputs .form-label-sm,
+        .dark .timing-inputs .form-check-label,
+        .dark .timing-inputs .fw-bold {
+            color: #e9ecef;
+        }
+
+        .dark .timing-inputs input[type="time"] {
+            background-color: #31374a;
+            color: #e9ecef;
+            border: 1px solid #404656;
+        }
+
+            /* Inverts the time picker icon to be light */
+            .dark .timing-inputs input[type="time"]::-webkit-calendar-picker-indicator {
+                filter: invert(1);
+            }
 
 </style>
 
@@ -83,6 +138,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3">
+        </div>
         <div class="row">
             <div class="col-md-6 form-group">
                 <label asp-for="VchUsername" class="form-label required-label"></label>
@@ -179,10 +236,55 @@
                             </label>
                         </div>
 
-
                         <input asp-for="UserCompanies[i].VchDoctorCode"
                                class="form-control form-control-sm doctor-code-input"
                                placeholder="Enter Doctor Code (optional)" />
+
+                        <div class="timing-inputs">
+                            <label class="form-label-sm fw-bold">Set Visiting Days & Hours:</label>
+
+                            <div class="d-flex flex-wrap mb-2">
+                                <div class="form-check day-checkbox">
+                                    <input asp-for="UserCompanies[i].IsSunday" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="UserCompanies[i].IsSunday"></label>
+                                </div>
+                                <div class="form-check day-checkbox">
+                                    <input asp-for="UserCompanies[i].IsMonday" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="UserCompanies[i].IsMonday"></label>
+                                </div>
+                                <div class="form-check day-checkbox">
+                                    <input asp-for="UserCompanies[i].IsTuesday" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="UserCompanies[i].IsTuesday"></label>
+                                </div>
+                                <div class="form-check day-checkbox">
+                                    <input asp-for="UserCompanies[i].IsWednesday" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="UserCompanies[i].IsWednesday"></label>
+                                </div>
+                                <div class="form-check day-checkbox">
+                                    <input asp-for="UserCompanies[i].IsThursday" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="UserCompanies[i].IsThursday"></label>
+                                </div>
+                                <div class="form-check day-checkbox">
+                                    <input asp-for="UserCompanies[i].IsFriday" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="UserCompanies[i].IsFriday"></label>
+                                </div>
+                                <div class="form-check day-checkbox">
+                                    <input asp-for="UserCompanies[i].IsSaturday" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="UserCompanies[i].IsSaturday"></label>
+                                </div>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label-sm" asp-for="UserCompanies[i].StartTime">Start Time</label>
+                                    <input asp-for="UserCompanies[i].StartTime" class="form-control form-control-sm" type="time" />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label-sm" asp-for="UserCompanies[i].EndTime">End Time</label>
+                                    <input asp-for="UserCompanies[i].EndTime" class="form-control form-control-sm" type="time" />
+                                </div>
+                            </div>
+                        </div>
                         <input asp-for="UserCompanies[i].CompanyId" type="hidden" name="UserCompanies[@i].CompanyId" value="@Model.UserCompanies[i].CompanyId" />
                         <input asp-for="UserCompanies[i].CompanyName" type="hidden" name="UserCompanies[@i].CompanyName" value="@Model.UserCompanies[i].CompanyName" />
                     </div>
@@ -191,13 +293,27 @@
         </div>
     </div>
 
-        <div class="modal-footer">
+        @* <div class="modal-footer">
+            <button type="submit" class="btn btn-success">@((Model.IntUserId > 0) ? "Update" : "Create")</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div> *@
+    <div class="modal-footer d-flex justify-content-between">
+        <div>
+            @if (Model.IntUserId > 0)
+            {
+                <button type="button" class="btn btn-warning" id="btnManageSchedule" data-user="@Model.IntUserId">
+                    🕑 Manage Doctor Schedule
+                </button>
+            }
+        </div>
+
+        <div>
             <button type="submit" class="btn btn-success">@((Model.IntUserId > 0) ? "Update" : "Create")</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         </div>
+    </div>
 </form>
-<script type="text/javascript">    
-
+<script type="text/javascript">     
 
     // Run immediately when partial loads
     (function () {
@@ -211,14 +327,16 @@
             toggleDoctorCode($(this));
         });
 
-        function toggleDoctorCode(checkbox) {
-            var input = checkbox.closest(".company-row").find(".doctor-code-input");
-            if (checkbox.is(":checked")) {
-                input.show();
-            } else {
-                input.hide().val("");
-            }
-        }
+        // function toggleDoctorCode(checkbox) {
+        //     var input = checkbox.closest(".company-row").find(".doctor-code-input");
+        //     var docCodeInput = row.find(".doctor-code-input");
+        //     var timingInputDiv = row.find(".timing-inputs"); // This finds your new timing box
+        //     if (checkbox.is(":checked")) {
+        //         input.show();
+        //     } else {
+        //         input.hide().val("");
+        //     }
+        // }
     })();
     //for file upload
        document.getElementById("ProfileFileInput").addEventListener("change", function(e){
@@ -230,7 +348,26 @@
         const file = e.target.files[0];
         if(file) document.getElementById("signatureImagePreview").src = URL.createObjectURL(file);
     });
+       function toggleDoctorCode(checkbox) {
+        // Find the parent .company-row
+        var row = checkbox.closest(".company-row");
 
+        // Find BOTH inputs within that row
+        var docCodeInput = row.find(".doctor-code-input");
+        var timingInputDiv = row.find(".timing-inputs"); // <-- This is the new line
+
+        if (checkbox.is(":checked")) {
+            docCodeInput.show();
+            timingInputDiv.show(); // <-- This is the new line that shows the timing
+        } else {
+            docCodeInput.hide().val("");
+
+            // Hide and clear all timing inputs
+            timingInputDiv.hide();
+            timingInputDiv.find("input[type='checkbox']").prop('checked', false);
+            timingInputDiv.find("input[type='time']").val("");
+        }
+    }
     //post function to post file to controller.
      $(function () {
             $("#userForm").submit(function (e) {

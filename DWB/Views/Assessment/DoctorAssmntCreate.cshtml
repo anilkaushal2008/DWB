@@ -951,19 +951,66 @@
             </div>
         </div>
     </div>
-
+    <br />
+    <div id="scribe-output-container">
+        <h3>EkaScribe Data Receiver</h3>
+        <pre id="scribe-data-output">Waiting for "Copy to EMR pad" click...</pre>
+    </div>
 </main>
 
 @section scripts
 {
-    <script src="/assets/js/dashboard1.js"></script>
+    <!-- jQuery (only one version) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- jQuery UI (fixes autocomplete) -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <!-- Apexcharts (only if required) -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <!-- Bootstrap (only one version) -->
     <script src="~/assets/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery Validation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
-    @* <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> *@   
+
+    <!-- DataTables (optional) -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  
     <script type="text/javascript">
-        //get cheif complaints
+        /**
+         * This is our simple test function.
+         */
+        function getScribeData(event) {
+            // 1. Log a simple message to the console
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            console.log('--- TEST SUCCEEDED: getScribeData WAS CALLED! ---');
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            console.log('Event object received:', event);
+
+            // 2. Update the page text directly
+            const outputElement = document.getElementById('scribe-data-output');
+            if (outputElement) {
+                outputElement.textContent = 'SUCCESS! The event was caught. See the F12 console for the data object.';
+                outputElement.style.color = 'green';
+                outputElement.style.fontWeight = 'bold';
+            }
+        }
+        // Wait for the page to load
+            document.addEventListener('DOMContentLoaded', function() {
+
+                console.log('EkaScribe Listener is ARMED. Waiting for event...');
+
+                // Listen for the event
+                window.addEventListener('ekascribe-complete-data', getScribeData);
+        });
+
+
+
+        //get cheif complaints not used
         $(function() {
             $("#ChiefComplaintInput").autocomplete({
                 source: function(request, response) {
@@ -995,7 +1042,7 @@
                     bypassValidation = false; // reset flag for next submit
                     return true;
                 }
-                let isValid = true;
+               // let isValid = true;
 
                 // Clear previous messages
                 $(".validation-msg").text("");
@@ -1003,15 +1050,15 @@
                 // Check required textareas
                 $(".required-field").each(function () {
                     if ($(this).val().trim() === "") {
-                        isValid = false;
+                       // isValid = false;
                         $(this).siblings(".validation-msg").text("This field is required.");
                     }
                 });
 
-                if (!isValid) {
-                    e.preventDefault(); // stop form submission
-                    alert("⚠️ Please fill all required fields, check all tabs.");
-                }
+                // if (!isValid) {
+                //     e.preventDefault(); // stop form submission
+                //     alert("⚠️ Please fill all required fields, check all tabs.");
+                // }
             });
         });
 
@@ -1658,9 +1705,9 @@
                 if ($input.val().trim() !== "" && !$hidden.val()) $input.val("");
             });
                 
-            if (!isValid) {
-                e.preventDefault(); // stop form submission
-                return;
+            // if (!isValid) {
+            //     e.preventDefault(); // stop form submission
+            //     return;
         }
 
           //Remove empty rows before submit (to set count 0 on post if empty)
@@ -1786,6 +1833,7 @@
                      suggestionBox.hide();
                  }
              });
+
 
              // Keyboard navigation
              $(document).on("keydown", ".procedure-autocomplete", function (e) {

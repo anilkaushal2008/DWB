@@ -21,6 +21,7 @@ using System.Reflection.Emit;
 using System.Reflection.Metadata;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QuestPDF.Helpers.Colors;
+using DWB.Services;
 
 using OpenAI;
 using OpenAI.Audio;
@@ -38,12 +39,14 @@ namespace DWB.Controllers
         private readonly DWBEntity _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly OpenAIClient _openAI;
-        public AssessmentController(IConfiguration configuration, DWBEntity dWBEntity, IWebHostEnvironment webHostEnvironment)
+        private readonly IDoctorScheduleService _services;
+        public AssessmentController(IConfiguration configuration, DWBEntity dWBEntity, IWebHostEnvironment webHostEnvironment, IDoctorScheduleService services)
         {
             _configuration = configuration;
             _context = dWBEntity;
             _webHostEnvironment = webHostEnvironment;
             _openAI = new OpenAIClient(configuration["OpenAI:ApiKey"]);
+            _services = services;
         }
         #region Nursing Assessment Actions ADD,EDIT,VIEW
         [Authorize(Roles = "Admin, Nursing")]
@@ -1034,10 +1037,17 @@ namespace DWB.Controllers
         }
 
         [HttpGet]
-        public IActionResult ViewDocAssessment(string uhid,string visit, string date)
+        public async Task<IActionResult> ViewDocAssessment(string uhid,string visit, string date)
         {
             //get company id
             var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
+            //get user if
+            var ConsultantID = Convert.ToInt32(User.FindFirst("UserId")?.Value);
+            string GetTiming = String.Empty;
+            if(intUnitcode!=0 && ConsultantID != 0 )
+            {
+                GetTiming = await _services.GetScheduleStringAsync(ConsultantID, intUnitcode);
+            }
             // fetch all data from DB
             var nursing = _context.TblNsassessment.FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit==Convert.ToInt32(visit));
             var doctor = _context.TblDoctorAssessment.FirstOrDefault(x => x.FkAssessmentId == nursing.IntAssessmentId);
@@ -1047,8 +1057,12 @@ namespace DWB.Controllers
             var procedures = _context.TblDoctorAssmntProcedure.Where(x => x.FkDocAsstId == doctor.IntId).ToList();
             var userData=_context.TblUsers.FirstOrDefault(x => x.IntUserId == doctor.FkUserId);
             var company = _context.IndusCompanies.FirstOrDefault(x => x.IntPk == intUnitcode);
-
-            var report = new DoctorAssessmentReport(nursing, doctor, medicines, labs, radiologies, procedures,userData,company);
+            var Timing = string.Empty;
+            if (GetTiming != null)
+            {
+                Timing = GetTiming;
+            }
+            var report = new DoctorAssessmentReport(nursing, doctor, medicines, labs, radiologies, procedures,userData,company,Timing);
 
             var pdf = report.GeneratePdf();
 
@@ -1413,8 +1427,6 @@ namespace DWB.Controllers
 
             return Json(new { success = false, message = "Gistory detail not found check it again, and try!" });
         }
-
-
 
         //public IActionResult LoadTemplateData(int id)
         //{
