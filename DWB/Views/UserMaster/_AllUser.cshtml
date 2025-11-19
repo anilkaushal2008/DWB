@@ -5,7 +5,7 @@
     var hasEditUser = User.HasClaim("Permission", "All Masters:User Master:Edit:True");
     var hasDeleteUser = User.HasClaim("Permission", "All Masters:User Master:Delete:True");
     var hasStatusUser = User.HasClaim("Permission", "All Masters:User Master:Status:True");
-    var hasTimingUser = User.HasClaim("Permission", "Doctor Timing:Timing:Edit:True");
+    //var hasTimingUser = User.HasClaim("Permission", "Doctor Timing:Timing:Edit:True");
 }
 <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
 @if(hasAddNewUser){
@@ -99,24 +99,7 @@
                                     Activate?
                                 </a>
                             }
-                        }
-                      @*   @if (hasTimingUser)
-                        {
-                            @if (Model[i].BitIsDeActivated == false)
-                            {
-                                <a class="btn btn-sm btn-warning me-1"
-                                   href="@Url.Action("Index", "DoctorSchedule", new { doctorId = Model[i].IntUserId })">
-                                    EditTiming
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="btn btn-sm btn-inverse-warning me-1"
-                                   href="@Url.Action("Index", "DoctorSchedule", new { doctorId = Model[i].IntUserId })">
-                                    AddTiming?
-                                </a>
-                            }
-                        } *@
+                        }                    
                     </td>
                 </tr>
              }

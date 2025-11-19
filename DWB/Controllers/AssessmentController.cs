@@ -445,7 +445,7 @@ namespace DWB.Controllers
         public ActionResult DoctorAssmntCreate(string uhid, string pname, string visit)
         {
             var nursing = _context.TblNsassessment
-            .Include(x => x.TblNassessmentDoc) // 🔑 load documents
+            .Include(x => x.TblNassessmentDoc) //load documents
             .FirstOrDefault(x => x.VchUhidNo == uhid && x.IntIhmsvisit == Convert.ToInt32(visit));
 
             if (nursing == null)

@@ -293,25 +293,11 @@
         </div>
     </div>
 
-        @* <div class="modal-footer">
-            <button type="submit" class="btn btn-success">@((Model.IntUserId > 0) ? "Update" : "Create")</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div> *@
-    <div class="modal-footer d-flex justify-content-between">
-        <div>
-            @if (Model.IntUserId > 0)
-            {
-                <button type="button" class="btn btn-warning" id="btnManageSchedule" data-user="@Model.IntUserId">
-                    🕑 Manage Doctor Schedule
-                </button>
-            }
-        </div>
-
-        <div>
+        <div class="modal-footer">
             <button type="submit" class="btn btn-success">@((Model.IntUserId > 0) ? "Update" : "Create")</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
         </div>
-    </div>
+   
 </form>
 <script type="text/javascript">     
 

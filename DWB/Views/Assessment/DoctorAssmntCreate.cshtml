@@ -952,18 +952,102 @@
         </div>
     </div>
     <br />
-    <div id="scribe-output-container">
-        <h3>EkaScribe Data Receiver</h3>
-        <pre id="scribe-data-output">Waiting for "Copy to EMR pad" click...</pre>
+  @*   <div class="container">
+        <h2>EkaScribe Data Import</h2>
+
+        <div class="card">
+            <h3>Patient Demographics</h3>
+            <div class="row">
+                <p><strong>Name:</strong> <span id="pName">Waiting...</span></p>
+                <p><strong>Gender:</strong> <span id="pGender">Waiting...</span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Vitals</h3>
+            <div class="vitals-grid">
+                <div class="vital-box">
+                    <label>BP (Systolic/Diastolic)</label>
+                    <span id="vBP">--</span>
+                </div>
+                <div class="vital-box">
+                    <label>Pulse (bpm)</label>
+                    <span id="vPulse">--</span>
+                </div>
+                <div class="vital-box">
+                    <label>Temperature (°F)</label>
+                    <span id="vTemp">--</span>
+                </div>
+                <div class="vital-box">
+                    <label>SPO2 (%)</label>
+                    <span id="vSpo2">--</span>
+                </div>
+                <div class="vital-box">
+                    <label>Weight (kg)</label>
+                    <span id="vWeight">--</span>
+                </div>
+                <div class="vital-box">
+                    <label>Height (cm)</label>
+                    <span id="vHeight">--</span>
+                </div>
+                <div class="vital-box">
+                    <label>Resp. Rate</label>
+                    <span id="vRR">--</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Lab Results / Plan</h3>
+            <ul id="labResultsList">
+                <li>Waiting for data...</li>
+            </ul>
+        </div>
     </div>
+
+    <style>
+        .card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .vital-box {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+            .vital-box label {
+                display: block;
+                font-size: 0.8em;
+                color: #000;
+            }
+
+            .vital-box span {
+                font-weight: bold;
+                font-size: 1.1em;
+                color: #000;
+            }
+    </style> *@
 </main>
 
 @section scripts
 {
-    <!-- jQuery (only one version) -->
+   
+  <!-- jQuery (only one version) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- jQuery UI (fixes autocomplete) -->
+    <script src="/assets/js/dashboard1.js"></script>
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+      <!-- jQuery UI (fixes autocomplete) -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
@@ -972,44 +1056,86 @@
 
     <!-- Bootstrap (only one version) -->
     <script src="~/assets/js/bootstrap.bundle.min.js"></script>
-
+    
     <!-- jQuery Validation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 
     <!-- DataTables (optional) -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> 
   
     <script type="text/javascript">
-        /**
-         * This is our simple test function.
-         */
-        function getScribeData(event) {
-            // 1. Log a simple message to the console
-            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            console.log('--- TEST SUCCEEDED: getScribeData WAS CALLED! ---');
-            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            console.log('Event object received:', event);
+                 window.addEventListener("ekascribe-complete-data", function (event) {
 
-            // 2. Update the page text directly
-            const outputElement = document.getElementById('scribe-data-output');
-            if (outputElement) {
-                outputElement.textContent = 'SUCCESS! The event was caught. See the F12 console for the data object.';
-                outputElement.style.color = 'green';
-                outputElement.style.fontWeight = 'bold';
+            console.log("EkaScribe Event Received:", event);
+            const payload = event.detail;
+
+            if (!payload || !payload.data) return;
+
+            const data = payload.data;
+
+            // --- 1. Map Demographics ---
+            if (data.patientDemographics) {
+                const p = data.patientDemographics;
+                if (p.name) document.getElementById("pName").value = p.name;
+                if (p.gender) document.getElementById("pGender").value = p.gender;
             }
-        }
-        // Wait for the page to load
-            document.addEventListener('DOMContentLoaded', function() {
 
-                console.log('EkaScribe Listener is ARMED. Waiting for event...');
+            // --- 2. Map Vitals ---
+            const vitalsArray = data.medicalHistory?.vitals || [];
 
-                // Listen for the event
-                window.addEventListener('ekascribe-complete-data', getScribeData);
+            const getVitalValue = (searchTerms) => {
+                if (!vitalsArray.length) return null;
+
+                const found = vitalsArray.find(v => {
+                    const name = (v.name || "").toLowerCase();
+                    return searchTerms.some(term => name.includes(term));
+                });
+
+                if (found && found.value) {
+                     if (typeof found.value === 'object') {
+                         return found.value.qt || found.value.value || null;
+                     }
+                     return found.value;
+                }
+                return null;
+            };
+
+            const updateIfFound = (id, terms) => {
+                const val = getVitalValue(terms);
+                if (val) document.getElementById(id).innerText = val;
+            };
+
+            updateIfFound("vBP", ["blood pressure", "bp"]);
+
+            // --- FIXED LINE BELOW: Removed "pr" to avoid matching "Blood PRessure" ---
+            updateIfFound("vPulse", ["pulse", "heart rate"]);
+
+            updateIfFound("vTemp", ["temp", "temperature"]);
+            updateIfFound("vSpo2", ["spo2", "oxygen", "sat"]);
+            updateIfFound("vWeight", ["weight"]);
+            updateIfFound("vHeight", ["height"]);
+            updateIfFound("vRR", ["respiratory", "rr"]);
+
+            // --- 3. Map Lab Results ---
+            const labs = data.labTests || data.advices || [];
+            const listContainer = document.getElementById("labResultsList");
+
+            if (listContainer && Array.isArray(labs) && labs.length > 0) {
+                listContainer.innerHTML = "";
+                labs.forEach(lab => {
+                    const li = document.createElement("li");
+                    li.innerText = typeof lab === 'object' ? (lab.name || lab.text) : lab;
+                    listContainer.appendChild(li);
+                });
+            }
         });
 
-
-
+        // Helper to safely set text
+        function setText(elementId, text) {
+            const el = document.getElementById(elementId);
+            if (el) el.innerText = text || "--";
+        }
         //get cheif complaints not used
         $(function() {
             $("#ChiefComplaintInput").autocomplete({
@@ -1708,7 +1834,7 @@
             // if (!isValid) {
             //     e.preventDefault(); // stop form submission
             //     return;
-        }
+            // }
 
           //Remove empty rows before submit (to set count 0 on post if empty)
            $("form").on("submit", function () {
@@ -1721,7 +1847,8 @@
             // Reindex remaining rows
                reIndexRadioRows();
            });
-    });
+           });
+   
 
         //Procedure
         $(document).ready(function () {
