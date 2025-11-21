@@ -245,7 +245,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Chief Complaints<span class="text-danger">*</span></label>
-                                        <textarea asp-for="DoctorAssessment.VchChiefcomplaints" class="form-control required-field" rows="2"></textarea>
+                                        <textarea asp-for="DoctorAssessment.VchChiefcomplaints" id="ChiefComplaintInput" class="form-control required-field" rows="2"></textarea>
                                         <span class="text-danger small validation-msg"></span>
                                     </div>
                                     <div class="col-md-6">
@@ -906,7 +906,7 @@
     </div>
 
     <!--CURENT PATIENT HISTORY MODAL-->
-    <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+    @* <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-sm rounded-3">
                 <!-- Header -->
@@ -950,94 +950,8 @@
                 </div>
             </div>
         </div>
-    </div>
-    <br />
-  @*   <div class="container">
-        <h2>EkaScribe Data Import</h2>
-
-        <div class="card">
-            <h3>Patient Demographics</h3>
-            <div class="row">
-                <p><strong>Name:</strong> <span id="pName">Waiting...</span></p>
-                <p><strong>Gender:</strong> <span id="pGender">Waiting...</span></p>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>Vitals</h3>
-            <div class="vitals-grid">
-                <div class="vital-box">
-                    <label>BP (Systolic/Diastolic)</label>
-                    <span id="vBP">--</span>
-                </div>
-                <div class="vital-box">
-                    <label>Pulse (bpm)</label>
-                    <span id="vPulse">--</span>
-                </div>
-                <div class="vital-box">
-                    <label>Temperature (°F)</label>
-                    <span id="vTemp">--</span>
-                </div>
-                <div class="vital-box">
-                    <label>SPO2 (%)</label>
-                    <span id="vSpo2">--</span>
-                </div>
-                <div class="vital-box">
-                    <label>Weight (kg)</label>
-                    <span id="vWeight">--</span>
-                </div>
-                <div class="vital-box">
-                    <label>Height (cm)</label>
-                    <span id="vHeight">--</span>
-                </div>
-                <div class="vital-box">
-                    <label>Resp. Rate</label>
-                    <span id="vRR">--</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>Lab Results / Plan</h3>
-            <ul id="labResultsList">
-                <li>Waiting for data...</li>
-            </ul>
-        </div>
-    </div>
-
-    <style>
-        .card {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-        }
-
-        .vitals-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-        }
-
-        .vital-box {
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #eee;
-        }
-
-            .vital-box label {
-                display: block;
-                font-size: 0.8em;
-                color: #000;
-            }
-
-            .vital-box span {
-                font-weight: bold;
-                font-size: 1.1em;
-                color: #000;
-            }
-    </style> *@
+    </div> *@
+  <br />   
 </main>
 
 @section scripts
@@ -1065,77 +979,354 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> 
   
     <script type="text/javascript">
-                 window.addEventListener("ekascribe-complete-data", function (event) {
+        // ============================================================
+        // 1. EKA SCRIBE EVENT LISTENER (Captures Data)
+        // ============================================================
+        window.addEventListener("ekascribe-complete-data", function (event) {
+            console.log("🔔 EkaScribe Data Received:", event);
 
-            console.log("EkaScribe Event Received:", event);
             const payload = event.detail;
-
             if (!payload || !payload.data) return;
-
             const data = payload.data;
 
-            // --- 1. Map Demographics ---
-            if (data.patientDemographics) {
-                const p = data.patientDemographics;
-                if (p.name) document.getElementById("pName").value = p.name;
-                if (p.gender) document.getElementById("pGender").value = p.gender;
-            }
+            // --- Helper: Parse Follow Up Date & Time ---
+            // Converts "2024-12-25T14:30:00" into "2024-12-25" and "14:30"
+            const parseFollowUpData = (rawData) => {
+                let result = { date: "", time: "" };
+                try {
+                    if (!rawData) return result;
 
-            // --- 2. Map Vitals ---
-            const vitalsArray = data.medicalHistory?.vitals || [];
+                    let dateStr = "";
+                    // Handle if Eka sends a string or an object
+                    if (typeof rawData === 'string') dateStr = rawData;
+                    else if (typeof rawData === 'object' && !Array.isArray(rawData)) dateStr = rawData.date || "";
 
-            const getVitalValue = (searchTerms) => {
-                if (!vitalsArray.length) return null;
-
-                const found = vitalsArray.find(v => {
-                    const name = (v.name || "").toLowerCase();
-                    return searchTerms.some(term => name.includes(term));
-                });
-
-                if (found && found.value) {
-                     if (typeof found.value === 'object') {
-                         return found.value.qt || found.value.value || null;
-                     }
-                     return found.value;
+                    if (dateStr) {
+                        const d = new Date(dateStr);
+                        if (!isNaN(d.getTime())) {
+                            result.date = d.toISOString().split('T')[0]; // YYYY-MM-DD
+                            const timePart = d.toTimeString().split(' ')[0];
+                            result.time = timePart.substring(0, 5);      // HH:mm
+                        }
+                    }
+                } catch (err) {
+                    console.warn("⚠️ Error parsing follow-up date:", err);
                 }
-                return null;
+                return result;
             };
 
-            const updateIfFound = (id, terms) => {
-                const val = getVitalValue(terms);
-                if (val) document.getElementById(id).innerText = val;
+            // --- Helper: Determine Quantity (Prioritizing DOSE) ---
+            function getMedicineQuantity(m) {
+                try {
+                    // 1. Priority: User said "Quantity stands for Dose"
+                    // We look for m.dose.value (e.g., "650" from "650 mg" or "1" from "1 Tablet")
+                    // Reference: Eka js file lines 2652-2654
+                    if (m.dose && typeof m.dose === 'object' && m.dose.value) {
+                        return parseFloat(m.dose.value) || 0;
+                    }
+
+                    // 2. Fallback: Check explicit Quantity fields
+                    if (m.qty || m.quantity || m.totalQuantity) {
+                        return parseFloat(m.qty || m.quantity || m.totalQuantity) || 0;
+                    }
+
+                    // 3. Last Resort: Calculate from Frequency * Duration
+                    // (Only if Dose is missing)
+                    let dailyDose = 0;
+                    if (m.frequency && Array.isArray(m.frequency.dose)) {
+                        dailyDose = m.frequency.dose.reduce((acc, val) => acc + (parseFloat(val) || 0), 0);
+                    }
+                    else if (m.frequency && typeof m.frequency.value === 'string' && m.frequency.value.includes('-')) {
+                        dailyDose = m.frequency.value.split('-').reduce((acc, val) => acc + (parseFloat(val) || 0), 0);
+                    }
+
+                    let duration = parseFloat(m.duration?.value) || 0;
+                    let unit = (m.duration?.unit || "").toLowerCase();
+                    if (unit.includes("week")) duration *= 7;
+                    if (unit.includes("month")) duration *= 30;
+
+                    if (dailyDose > 0 && duration > 0) {
+                        return Math.ceil(dailyDose * duration);
+                    }
+                } catch (e) { console.log("Qty/Dose Logic Error", e); }
+
+                return 0; // Default
+            }
+            // --- Helpers to extract text safely ---
+            const getNestedValue = (obj, path) => {
+                if (!obj || !path) return undefined;
+                const keys = path.split('.');
+                let result = obj;
+                for (const key of keys) {
+                    if (result && typeof result === 'object' && key in result) result = result[key];
+                    else return undefined;
+                }
+                return result;
             };
 
-            updateIfFound("vBP", ["blood pressure", "bp"]);
+            const parseEkaText = (fieldData) => {
+                if (!fieldData) return "";
+                if (typeof fieldData === 'string' || typeof fieldData === 'number') return String(fieldData);
+                if (Array.isArray(fieldData)) {
+                    return fieldData.map(item => {
+                        if (typeof item === 'object') return item.name || item.text || item.value || "";
+                        return item;
+                    }).filter(x => x && x.trim() !== "").join(", ");
+                }
+                if (typeof fieldData === 'object') return fieldData.name || fieldData.text || fieldData.value || "";
+                return "";
+            };
 
-            // --- FIXED LINE BELOW: Removed "pr" to avoid matching "Blood PRessure" ---
-            updateIfFound("vPulse", ["pulse", "heart rate"]);
+                //for both 3 and 4 step
+                //  Get ALL items from Eka's "labTests" or "investigations"
+                // (This usually contains a mix of Blood Tests + X-Rays)
+                const rawMixedList = getNestedValue(data, "labTests") || getNestedValue(data, "investigations.labs") || [];
+                const rawRadiology = getNestedValue(data, "radiology") || getNestedValue(data, "investigations.radiology") || [];
 
-            updateIfFound("vTemp", ["temp", "temperature"]);
-            updateIfFound("vSpo2", ["spo2", "oxygen", "sat"]);
-            updateIfFound("vWeight", ["weight"]);
-            updateIfFound("vHeight", ["height"]);
-            updateIfFound("vRR", ["respiratory", "rr"]);
+                // Combine them into one master list to sort cleanly
+                const allItems = [...rawMixedList, ...rawRadiology];
 
-            // --- 3. Map Lab Results ---
-            const labs = data.labTests || data.advices || [];
-            const listContainer = document.getElementById("labResultsList");
+                const sortedLabs = [];
+                const sortedRadiology = [];
 
-            if (listContainer && Array.isArray(labs) && labs.length > 0) {
-                listContainer.innerHTML = "";
-                labs.forEach(lab => {
-                    const li = document.createElement("li");
-                    li.innerText = typeof lab === 'object' ? (lab.name || lab.text) : lab;
-                    listContainer.appendChild(li);
+                // Define keywords that identify "Radiology"
+                const radioKeywords = ["x-ray", "xray", "ct scan", "mri", "usg", "ultrasound", "sonography", "doppler", "echo", "ct-PET"];
+
+                // Loop through every item and decide: Is it Lab or Radiology?
+                allItems.forEach(item => {
+                    // Safely get the name string
+                    let name = "";
+                    if (typeof item === 'string') name = item;
+                    else if (typeof item === 'object') name = item.name || item.testName || item.serviceName || "";
+
+                    const lowerName = name.toLowerCase();
+
+                    // CHECK: Does the name contain "x-ray", "mri", etc?
+                    const isRadio = radioKeywords.some(keyword => lowerName.includes(keyword));
+
+                    if (isRadio) {
+                        sortedRadiology.push(item); // Put in Radiology Tab
+                    } else {
+                        sortedLabs.push(item);      // Put in Lab Tab
+                    }
                 });
+            // 5. Extract Follow Up info
+            const followUpRaw = getNestedValue(data, "followup") || getNestedValue(data, "appointment.nextVisit");
+            const followUpParsed = parseFollowUpData(followUpRaw);
+               // --- MAP DATA (Clinical + Medicines) ---
+            const appModel = {
+                // 1. Clinical Data
+                vchChiefcomplaints: parseEkaText(getNestedValue(data, "symptoms") || getNestedValue(data, "patient.complaints") || getNestedValue(data, "clinicalNotes.chiefComplaint")),
+                vchMedicalHistory:  parseEkaText(getNestedValue(data, "medicalHistory.patientHistory.patientMedicalConditions") || getNestedValue(data, "kco") || getNestedValue(data, "clinicalNotes.medicalHistory")),
+                vchSystemicexam:    parseEkaText(getNestedValue(data, "medicalHistory.examinations") || getNestedValue(data, "general findings") || getNestedValue(data, "clinicalNotes.examination")),
+                vchDiagnosis:       parseEkaText(getNestedValue(data, "diagnosis") || getNestedValue(data, "clinicalNotes.diagnosis")),
+                vchRemarks:         parseEkaText(getNestedValue(data, "advices") || getNestedValue(data, "prescription.instructions") || getNestedValue(data, "clinicalNotes.remarks")),
+
+                    // 2. Medicine Data
+                medicines: (getNestedValue(data, "medications") || getNestedValue(data, "prescription.medications") || []).map(m => {
+                    const instr = (m.instruction || "").toLowerCase();
+                    let freq = m.frequency;
+                    if (typeof freq === 'object' && freq !== null) freq = freq.custom || freq.value || "";
+                    let dur = m.duration;
+                    if (typeof dur === 'object' && dur !== null) dur = (dur.value || "") + " " + (dur.unit || "");
+
+                    return {
+                        vchMedicineName: m.name || m.drugName || "",
+                        intQuantity:     getMedicineQuantity(m),                        
+                        vchFrequency:    String(freq || ""),
+                        vchDuration:     String(dur || "").trim(),
+                        bitBbf: instr.includes("before breakfast"),
+                        bitAbf: instr.includes("after breakfast"),
+                        bitBl:  instr.includes("before lunch"),
+                        bitAl:  instr.includes("after lunch"),
+                        bitBd:  instr.includes("before dinner"),
+                        bitAd:  instr.includes("after dinner") || instr.includes("after food")
+                    };
+                }),
+
+                //3. Lab Data (New)
+                labs: sortedLabs.map(l => ({
+                    vchTestName: (typeof l === 'object') ? (l.name || l.testName) : l,
+                    vchPriority: (typeof l === 'object' && l.priority) ? l.priority : "Normal",
+                    vchTestCode: "000"
+                })),
+
+                // 4. Radiology Data (Now Populated!)
+                // We use 'sortedRadiology' to ensure we catch X-Rays that were hidden in LabTests
+                radiology: sortedRadiology.map(r => ({
+                    vchRadiologyName: (typeof r === 'object') ? (r.name || r.serviceName) : r,
+                    vchPriority: (typeof r === 'object' && r.priority) ? r.priority : "Normal",
+                    vchRadiologyCode: "000"
+                })),
+                    // 2. Follow Up (New)
+                vchFollowUpDate: followUpParsed.date,
+                vchFollowUpTime: followUpParsed.time
+
+            
+            };
+
+
+            // --- EXECUTE RENDER FUNCTION ---
+            if (typeof window.renderAssessmentData === "function") {
+                window.renderAssessmentData(appModel);
+
+                // Automatically switch to Clinical Tab to show user the data
+                try {
+                    const clinicalTab = document.querySelector('#clinical-tab');
+                    if(clinicalTab) { new bootstrap.Tab(clinicalTab).show(); }
+                } catch(e) {}
+
+                alert("✅ Clinical Data Populated!");
+            } else {
+                console.error("❌ renderAssessmentData is missing!");
             }
         });
 
-        // Helper to safely set text
-        function setText(elementId, text) {
-            const el = document.getElementById(elementId);
-            if (el) el.innerText = text || "--";
-        }
+        // ============================================================
+        // 2. YOUR EXISTING JQUERY BLOCK (Keep this for other features)
+        // ============================================================
+        $(function() {
+            // Your existing autocomplete, button clicks, etc. go here...
+        });
+
+            // ============================================================
+        // 3. GLOBAL RENDER FUNCTION (Clinical + Medicine)
+        // ============================================================
+        window.renderAssessmentData = function(t) {
+            console.log("📝 Rendering Data:", t);
+
+            // --- 1. RENDER CLINICAL ---
+            $("#ChiefComplaintInput").val(t.vchChiefcomplaints || "");
+            $("textarea[name='DoctorAssessment.VchMedicalHistory']").val(t.vchMedicalHistory || "");
+            $("textarea[name='DoctorAssessment.VchSystemicexam']").val(t.vchSystemicexam || "");
+            $("textarea[name='DoctorAssessment.VchDiagnosis']").val(t.vchDiagnosis || "");
+            $("textarea[name='DoctorAssessment.VchRemarks']").val(t.vchRemarks || "");
+
+            // --- 2. RENDER MEDICINES ---
+            const $medList = $("#medicine-list");
+            $medList.empty(); // Clear existing rows
+
+            if (t.medicines && t.medicines.length > 0) {
+                t.medicines.forEach((m, i) => {
+                    // Dynamically build the table row HTML
+                    // We use ${i} to generate unique names for MVC Binding: Medicines[0], Medicines[1]...
+                    $medList.append(`
+                        <tr class="medicine-item">
+                            <td class="position-relative">
+                                <input type="text" class="form-control form-control-sm medicine-autocomplete"
+                                       name="Medicines[${i}].VchMedicineName" value="${m.vchMedicineName}" autocomplete="off" placeholder="Search Medicine">
+                                <input type="hidden" name="Medicines[${i}].VchMedicineCode" class="medicine-code" value="000">
+                                <div class="list-group position-absolute w-100 medicine-suggestions" style="z-index:999; display:none;"></div>
+                            </td>
+
+                            <td>
+                                <input type="number" class="form-control form-control-sm"
+                                       name="Medicines[${i}].IntQuantity" value="${m.intQuantity}" placeholder="Qty">
+                            </td>
+
+                            <td>
+                                <input type="text" class="form-control form-control-sm"
+                                       name="Medicines[${i}].VchFrequency" value="${m.vchFrequency}" placeholder="Freq">
+                            </td>
+
+                            <td>
+                                <input type="text" class="form-control form-control-sm"
+                                       name="Medicines[${i}].VchDuration" value="${m.vchDuration}" placeholder="Dur">
+                            </td>
+
+                            <td>
+                                <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                   <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="BBF" ${m.bitBbf ? "checked" : ""}> BBF</label>
+                                   <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="ABF" ${m.bitAbf ? "checked" : ""}> ABF</label>
+
+                                   <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="BL" ${m.bitBl ? "checked" : ""}> BL</label>
+                                   <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="AL" ${m.bitAl ? "checked" : ""}> AL</label>
+
+                                   <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="BD" ${m.bitBd ? "checked" : ""}> BD</label>
+                                   <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="AD" ${m.bitAd ? "checked" : ""}> AD</label>
+                                </div>
+                            </td>
+
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-medicine"><i class="bi bi-x-lg text-white"></i></button>
+                                <button type="button" class="btn btn-success btn-sm add-medicine-row"><i class="bi bi-plus-lg"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // --- 3. RENDER LABS (New) ---
+            const $labList = $("#lab-list");
+            $labList.empty(); // Clear existing rows
+
+            if (t.labs && t.labs.length > 0) {
+                t.labs.forEach((l, i) => {
+                    $labList.append(`
+                        <tr class="lab-item">
+                            <td class="position-relative">
+                                <input type="text" class="form-control form-control-sm lab-autocomplete"
+                                       name="Labs[${i}].VchTestName" value="${l.vchTestName}" autocomplete="off" placeholder="Search Lab Test">
+
+                                <input type="hidden" class="lab-code" name="Labs[${i}].VchTestCode" value="000">
+
+                                <div class="list-group position-absolute w-100 lab-suggestions" style="z-index:999; display:none;"></div>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm" name="Labs[${i}].VchPriority">
+                                    <option value="Normal" ${l.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                    <option value="Urgent" ${l.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-lab"><i class="bi bi-x-lg text-white"></i></button>
+                                <button type="button" class="btn btn-success btn-sm add-lab-row"><i class="bi bi-plus-lg"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // --- 4. RENDER RADIOLOGY (New) ---
+            const $radioList = $("#radio-list");
+            $radioList.empty();
+            if (t.radiology && t.radiology.length > 0) {
+                t.radiology.forEach((r, i) => {
+                    $radioList.append(`
+                        <tr class="radio-item">
+                            <td class="position-relative">
+                                <input type="text" class="form-control form-control-sm radio-autocomplete"
+                                       name="Radiology[${i}].VchRadiologyName" value="${r.vchRadiologyName}" autocomplete="off" placeholder="Search Radiology">
+                                <input type="hidden" class="radio-code" name="Radiology[${i}].VchRadiologyCode" value="000">
+                                <div class="list-group position-absolute w-100 radio-suggestions" style="z-index:999; display:none;"></div>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm" name="Radiology[${i}].VchPriority">
+                                    <option value="Normal" ${r.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                    <option value="Urgent" ${r.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-radio"><i class="bi bi-x-lg text-white"></i></button>
+                                <button type="button" class="btn btn-success btn-sm add-radio-row"><i class="bi bi-plus-lg"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // 5. Follow Up (New)
+            // We use the 'name' attribute from your HTML to target the inputs
+            $("input[name='DoctorAssessment.DtFollowUpDate']").val(t.vchFollowUpDate || "");
+            $("input[name='DoctorAssessment.FollowUpTime']").val(t.vchFollowUpTime || "");
+        };
+
+
+
+
+
+
+
         //get cheif complaints not used
         $(function() {
             $("#ChiefComplaintInput").autocomplete({
@@ -2223,7 +2414,6 @@
                                     </tr>
                                 `);
                             });
-
                             // --- Labs ---
                             const labs = t.labs?.$values || t.labs || [];
                             labs.forEach((l, i) => {
