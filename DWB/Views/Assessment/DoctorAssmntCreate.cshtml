@@ -243,6 +243,63 @@
                         <div class="tab-pane fade" id="clinical" role="tabpanel">
                             <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
                                 <div class="row g-3">
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Chief Complaints <span class="text-danger">*</span></label>
+                                        <div class="input-group input-group-sm mb-1">
+                                            <input type="text" id="searchCC" class="form-control" placeholder="Search (e.g. Fever)...">
+                                            <button class="btn btn-primary" type="button" id="btnAddCC" title="Add New">
+                                                <i class="bi bi-plus-lg"></i> Add
+                                            </button>
+                                        </div>
+                                        <textarea asp-for="DoctorAssessment.VchChiefcomplaints" id="txtCC" class="form-control required-field" rows="2"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Medical History <span class="text-danger">*</span></label>
+                                        <textarea asp-for="DoctorAssessment.VchMedicalHistory" class="form-control required-field" rows="3"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Systemic Examination <span class="text-danger">*</span></label>
+
+                                        <div class="input-group input-group-sm mb-1">
+                                            <input type="text" id="searchSys" class="form-control" placeholder="Search (e.g. Chest Clear)...">
+
+                                            <button class="btn btn-primary" type="button" id="btnAddSys">
+                                                <i class="bi bi-plus-lg"></i> Add
+                                            </button>
+                                        </div>
+
+                                        <textarea asp-for="DoctorAssessment.VchSystemicexam" id="txtSys" class="form-control required-field" rows="2"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Diagnosis <span class="text-danger">*</span></label>
+                                        <div class="input-group input-group-sm mb-1">
+                                            <input type="text" id="searchDiag" class="form-control" placeholder="Search (e.g. Viral Fever)...">
+                                            <button class="btn btn-primary" type="button" id="btnAddDiag" title="Add New">
+                                                <i class="bi bi-plus-lg"></i> Add
+                                            </button>
+                                        </div>
+                                        <textarea asp-for="DoctorAssessment.VchDiagnosis" id="txtDiag" class="form-control required-field" rows="2"></textarea>
+                                        <span class="text-danger small validation-msg"></span>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Remarks</label>
+                                        <textarea asp-for="DoctorAssessment.VchRemarks" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                       @*  <div class="tab-pane fade" id="clinical" role="tabpanel">
+                            <div class="card p-4 border-top border-primary shadow rounded-3 mb-4 bg-light">
+                                <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold">Chief Complaints<span class="text-danger">*</span></label>
                                         <textarea asp-for="DoctorAssessment.VchChiefcomplaints" id="ChiefComplaintInput" class="form-control required-field" rows="2"></textarea>
@@ -269,10 +326,205 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> *@
 
                         <!-- Medicines -->
                         <div class="tab-pane fade" id="medicine" role="tabpanel">
+                            <div class="card p-3 border-top border-primary shadow rounded-3 mb-4">
+                                <table class="table table-bordered table-sm align-middle mb-0">
+                                    <thead class="table bg-primary text-left small">
+                                        <tr>
+                                            <th style="width: 25%;">Medicine</th>
+                                            <th style="width: 10%;">Quantity</th>
+                                            <th style="width: 10%;">Frequency</th>
+                                            <th style="width: 10%;">Duration</th>
+                                            <th class="text-center" style="width: 25%;">Timings</th>
+                                            <th style="width: 10%;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="medicine-list">
+                                        @if (Model.Medicines != null && Model.Medicines.Any())
+                                        {
+                                            for (int i = 0; i < Model.Medicines.Count; i++)
+                                            {
+                                                <tr class="medicine-item">
+                                                    <td class="position-relative">
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="text"
+                                                                   class="form-control medicine-autocomplete"
+                                                                   name="Medicines[@i].VchMedicineName"
+                                                                   value="@Model.Medicines[i].VchMedicineName"
+                                                                   placeholder="Search Medicine" autocomplete="off" />
+
+                                                            <button type="button" class="btn btn-outline-primary btn-add-new-med" title="Add New Medicine to Master">
+                                                                <i class="bi bi-plus-lg"></i>
+                                                            </button>
+                                                        </div>
+                                                        <input type="hidden"
+                                                               name="Medicines[@i].VchMedicineCode"
+                                                               class="medicine-code"
+                                                               value="@Model.Medicines[i].VchMedicineCode" />
+
+                                                        <div class="list-group position-absolute w-100 medicine-suggestions"
+                                                             style="z-index:999; display:none; top: 100%;"></div>
+                                                    </td>
+
+                                                    <td>
+                                                        <input type="number" class="form-control form-control-sm"
+                                                               name="Medicines[@i].IntQuantity"
+                                                               value="@Model.Medicines[i].IntQuantity"
+                                                               placeholder="Quantity" min="0" step="1" data-val="false" />
+                                                    </td>
+
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm"
+                                                               name="Medicines[@i].VchFrequency"
+                                                               value="@Model.Medicines[i].VchFrequency"
+                                                               placeholder="Frequency" />
+                                                    </td>
+
+                                                    <td>
+                                                        <input type="text" class="form-control form-control-sm"
+                                                               name="Medicines[@i].VchDuration"
+                                                               value="@Model.Medicines[i].VchDuration"
+                                                               placeholder="Duration" />
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                                            <label>
+                                                                <input type="radio" class="form-check-input"
+                                                                       name="Medicines[@i].BreakfastTiming" value="BBF"
+                                                                       @(Model.Medicines[i].BitBbf == true ? "checked" : "") /> BBF
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].BreakfastTiming" value="ABF"
+                                                                       @(Model.Medicines[i].BitAbf == true ? "checked" : "") /> ABF
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].LunchTiming" value="BL"
+                                                                       @(Model.Medicines[i].BitBl == true ? "checked" : "") /> BL
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].LunchTiming" value="AL"
+                                                                       @(Model.Medicines[i].BitAl == true ? "checked" : "") /> AL
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].DinnerTiming" value="BD"
+                                                                       @(Model.Medicines[i].BitBd == true ? "checked" : "") /> BD
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" class="form-check-input scale-radio"
+                                                                       name="Medicines[@i].DinnerTiming" value="AD"
+                                                                       @(Model.Medicines[i].BitAd == true ? "checked" : "") /> AD
+                                                            </label>
+                                                        </div>
+                                                    </td>
+
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-danger btn-sm remove-medicine">
+                                                            <i class="bi bi-x-lg text-white"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-success btn-sm add-medicine-row">
+                                                            <i class="bi bi-plus-lg"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr class="medicine-item">
+                                                <td class="position-relative">
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="text"
+                                                               class="form-control medicine-autocomplete"
+                                                               name="Medicines[0].VchMedicineName"
+                                                               placeholder="Search Medicine" autocomplete="off">
+
+                                                        <button type="button" class="btn btn-outline-primary btn-add-new-med" title="Add New Medicine to Master">
+                                                            <i class="bi bi-plus-lg"></i>
+                                                        </button>
+                                                    </div>
+                                                    <input type="hidden"
+                                                           name="Medicines[0].VchMedicineCode"
+                                                           class="medicine-code">
+
+                                                    <div class="list-group position-absolute w-100 medicine-suggestions"
+                                                         style="z-index:999; display:none; top: 100%;"></div>
+                                                </td>
+
+                                                <td>
+                                                    <input type="number" class="form-control form-control-sm"
+                                                           name="Medicines[0].IntQuantity" placeholder="Quantity" min="0" step="1">
+                                                </td>
+
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           name="Medicines[0].VchFrequency" placeholder="Frequency">
+                                                </td>
+
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           name="Medicines[0].VchDuration" placeholder="Duration">
+                                                </td>
+
+                                                <td>
+                                                    <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].BreakfastTiming" value="BBF"> BBF
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].BreakfastTiming" value="ABF"> ABF
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].LunchTiming" value="BL"> BL
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].LunchTiming" value="AL"> AL
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].DinnerTiming" value="BD"> BD
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" class="form-check-input scale-radio"
+                                                                   name="Medicines[0].DinnerTiming" value="AD"> AD
+                                                        </label>
+                                                    </div>
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-medicine">
+                                                        <i class="bi bi-x-lg text-white"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-success btn-sm add-medicine-row">
+                                                        <i class="bi bi-plus-lg"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                                <div class="form-text mt-1" style="font-size: 0.7rem;color:orangered">
+                                    <b style="color:red">NOTE:</b> BBF = Before Breakfast, ABF = After Breakfast, BL = Before Lunch,
+                                    AL = After Lunch, BD = Before Dinner, AD = After Dinner
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                       @*  <div class="tab-pane fade" id="medicine" role="tabpanel">
                             <div class="card p-3 border-top border-primary shadow rounded-3 mb-4">
                                 <table class="table table-bordered table-sm align-middle mb-0">
                                     <thead class="table bg-primary text-left small">
@@ -472,7 +724,7 @@
                             </div>
 
 
-                        </div>
+                        </div> *@
 
                         <!-- Lab -->
                         <div class="tab-pane fade" id="lab" role="tabpanel">
@@ -1196,7 +1448,7 @@
             console.log("📝 Rendering Data:", t);
 
             // --- 1. RENDER CLINICAL ---
-            $("#ChiefComplaintInput").val(t.vchChiefcomplaints || "");
+                $("#txtCC").val(t.vchChiefcomplaints || "");
             $("textarea[name='DoctorAssessment.VchMedicalHistory']").val(t.vchMedicalHistory || "");
             $("textarea[name='DoctorAssessment.VchSystemicexam']").val(t.vchSystemicexam || "");
             $("textarea[name='DoctorAssessment.VchDiagnosis']").val(t.vchDiagnosis || "");
@@ -1319,30 +1571,7 @@
             // We use the 'name' attribute from your HTML to target the inputs
             $("input[name='DoctorAssessment.DtFollowUpDate']").val(t.vchFollowUpDate || "");
             $("input[name='DoctorAssessment.FollowUpTime']").val(t.vchFollowUpTime || "");
-        };
-
-
-
-
-
-
-
-        //get cheif complaints not used
-        $(function() {
-            $("#ChiefComplaintInput").autocomplete({
-                source: function(request, response) {
-                    $.ajax({
-                        url: '@Url.Action("GetChiefComplaints", "Assessment")',
-                        type: 'GET',
-                        data: { term: request.term },
-                        success: function(data) {
-                            response(data);
-                        }
-                    });
-                },
-                minLength: 2
-            });
-        });
+        };               
 
         //function for validation follow ups and bye pass it on save as template
         $(document).ready(function () {
@@ -1429,88 +1658,110 @@
 
         //Medicine searching / adding
         $(document).ready(function () {
-                 let medIndex = 1; // start from 1 since 0 already exists
+                let medIndex = 1; // start from 1 since 0 already exists
 
-                 // Function to generate new row
-                 function getNewRow(index) {
-                             return `
-                 <tr class="medicine-item">
-                     <!-- Medicine -->
-                     <td class="position-relative">
-                         <input type="text"
-                                class="form-control form-control-sm medicine-autocomplete"
-                                name="Medicines[${index}].VchMedicineName"
-                                placeholder="Search Medicine" autocomplete="off">
-                         <input type="hidden"
-                                name="Medicines[${index}].VchMedicineCode"
-                                class="medicine-code">
-                         <div class="list-group position-absolute w-100 medicine-suggestions"
-                              style="z-index:999; display:none;"></div>
-                     </td>
+        // Function to generate new row
+        function getNewRow(index) {
+            return `
+            <tr class="medicine-item">
+                <td class="position-relative">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control medicine-autocomplete"
+                               name="Medicines[${index}].VchMedicineName"
+                               placeholder="Search Medicine" autocomplete="off">
+                        <button type="button" class="btn btn-outline-primary btn-add-new-med" title="Add New Medicine to Master">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
 
-                     <!-- Dosage -->
-                     <td>
-                         <input type="number" class="form-control form-control-sm"
-                          name="Medicines[${index}].IntQuantity" placeholder="Quantity" min="0" step="1"  data-val="false">
-                     </td>
+                    <input type="hidden" name="Medicines[${index}].VchMedicineCode" class="medicine-code">
+                    <div class="list-group position-absolute w-100 medicine-suggestions"
+                         style="z-index:999; display:none; top: 100%;"></div>
+                </td>
 
-                     <!-- Frequency -->
-                     <td>
-                         <input type="text" class="form-control form-control-sm"
-                                name="Medicines[${index}].VchFrequency" placeholder="Frequency">
-                     </td>
+                <td><input type="number" class="form-control form-control-sm" name="Medicines[${index}].IntQuantity" placeholder="Quantity" min="0" step="1"></td>
+                <td><input type="text" class="form-control form-control-sm" name="Medicines[${index}].VchFrequency" placeholder="Frequency"></td>
+                <td><input type="text" class="form-control form-control-sm" name="Medicines[${index}].VchDuration" placeholder="Duration"></td>
+                <td>
+                    <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${index}].BreakfastTiming" value="BBF"> BBF</label>
+                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${index}].BreakfastTiming" value="ABF"> ABF</label>
+                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${index}].LunchTiming" value="BL"> BL</label>
+                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${index}].LunchTiming" value="AL"> AL</label>
+                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${index}].DinnerTiming" value="BD"> BD</label>
+                        <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${index}].DinnerTiming" value="AD"> AD</label>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-medicine"><i class="bi bi-x-lg text-white"></i></button>
+                    <button type="button" class="btn btn-success btn-sm add-medicine-row"><i class="bi bi-plus-lg"></i></button>
+                </td>
+            </tr>`;
+        }
 
-                     <!-- Duration -->
-                     <td>
-                         <input type="text" class="form-control form-control-sm"
-                                name="Medicines[${index}].VchDuration" placeholder="Duration">
-                     </td>
+        // --- LOGIC TO ADD NEW MEDICINE TO MASTER ---
+        $(document).on('click', '.btn-add-new-med', function () {
+            // 1. Identify elements in this specific row
+            const $btn = $(this);
+            const $inputGroup = $btn.closest('.input-group');
+            const $input = $inputGroup.find('.medicine-autocomplete');
+            const $hiddenCode = $inputGroup.siblings('.medicine-code'); // The hidden field for Icode
 
-                     <!-- Timings -->
-                     <td>
-                         <div class="d-flex flex-wrap justify-content-center gap-2 small">
-                             <!-- Breakfast -->
-                             <label>
-                                 <input type="radio" class="form-check-input scale-radio"
-                                        name="Medicines[${index}].BreakfastTiming" value="BBF"> BBF
-                             </label>
-                             <label>
-                                 <input type="radio" class="form-check-input scale-radio"
-                                        name="Medicines[${index}].BreakfastTiming" value="ABF"> ABF
-                             </label>
-                             <!-- Lunch -->
-                             <label>
-                                 <input type="radio" class="form-check-input scale-radio"
-                                        name="Medicines[${index}].LunchTiming" value="BL"> BL
-                             </label>
-                             <label>
-                                 <input type="radio" class="form-check-input scale-radio"
-                                        name="Medicines[${index}].LunchTiming" value="AL"> AL
-                             </label>
-                             <!-- Dinner -->
-                             <label>
-                                 <input type="radio" class="form-check-input scale-radio"
-                                        name="Medicines[${index}].DinnerTiming" value="BD"> BD
-                             </label>
-                             <label>
-                                 <input type="radio" class="form-check-input scale-radio"
-                                        name="Medicines[${index}].DinnerTiming" value="AD"> AD
-                             </label>
-                         </div>
-                     </td>
+            // 2. Get the typed name
+            const medName = $input.val().trim();
 
-                     <!-- Action -->
-                     <td class="text-center">
-                         <button type="button" class="btn btn-danger btn-sm remove-medicine">
-                             <i class="bi bi-x-lg text-white"></i>
-                         </button>
-                         <button type="button" class="btn btn-success btn-sm add-medicine-row">
-                             <i class="bi bi-plus-lg"></i>
-                         </button>
-                     </td>
-                 </tr>`;
-                 }
+            if (medName === "") {
+                alert("⚠️ Please type a medicine name first.");
+                return;
+            }
 
+            // 3. Visual Feedback (Loading)
+            const originalIcon = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+            // 4. Send to Server
+            $.ajax({
+                url: '@Url.Action("AddMedicineMaster", "Assessment")', // Call the new controller method
+                type: 'POST',
+                data: { name: medName },
+                success: function (response) {
+                    if (response.success) {
+                        // ✅ Success: Update the input and the HIDDEN CODE
+                        $input.val(response.name);       // Ensure correct casing
+                        $hiddenCode.val(response.code);  // SAVE THE GENERATED KEY (Icode)
+
+                        // Optional: Green border to indicate success
+                        $input.addClass('is-valid');
+                        setTimeout(() => $input.removeClass('is-valid'), 2000);
+
+                        // Close any suggestions that might be open
+                        $inputGroup.siblings('.medicine-suggestions').hide();
+                    } else {
+                        alert("❌ Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("❌ Server Error: Could not save medicine.");
+                },
+                complete: function () {
+                    // Reset button
+                    $btn.prop('disabled', false).html(originalIcon);
+                }
+            });
+        });
+
+        // Optional: Allow "Enter" key in medicine input to trigger the Add button
+        $(document).on('keypress', '.medicine-autocomplete', function (e) {
+            if (e.which === 13) { // Enter key
+                e.preventDefault();
+                const $suggestions = $(this).closest('td').find('.medicine-suggestions');
+
+                // Only trigger Add if suggestions are NOT visible (otherwise Enter selects a suggestion)
+                if (!$suggestions.is(':visible')) {
+                    $(this).siblings('.btn-add-new-med').click();
+                }
+            }
+        });
                  // Global add button
                  $("#addMedicine").click(function () {
                      $("#medicine-list").append(getNewRow(medIndex));
@@ -1541,126 +1792,136 @@
                  });
                  medIndex = $("#medicine-list tr.medicine-item").length; // reset counter
              }
+                 // ============================================================
+        //  MEDICINE SEARCH LOGIC (Updated for New HTML Structure)
+        // ============================================================
 
-                 // Autocomplete search medicine (same as before, with keyboard support)
-                 $(document).on("keyup", ".medicine-autocomplete", function (e) {
-                 let input = $(this);
-                 let query = input.val().trim();
-                 let suggestionBox = input.siblings(".medicine-suggestions");
-                 let hidden = input.siblings(".medicine-code");
+        // 1. Autocomplete Search (Keyup)
+        $(document).on("keyup", ".medicine-autocomplete", function (e) {
+            let $input = $(this);
+            let query = $input.val().trim();
 
-                 // Reset hidden only if typing (not Enter/Arrow keys)
-                 if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
-                     hidden.val("");
-                 }
+            // FIX: Traverse up to the cell (td) to find elements, because Input is now inside a Group div
+            let $container = $input.closest('td');
+            let $suggestionBox = $container.find(".medicine-suggestions");
+            let $hiddenCode = $container.find(".medicine-code");
 
-                 if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
+            // Reset hidden code if typing
+            if (!["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
+                $hiddenCode.val("");
+            }
 
-                 if (query.length >= 1) {
-                     $.ajax({
-                         url: "/Assessment/SearchMedicine",
-                         type: "GET",
-                         data: { term: query },
-                         success: function (data) {
-                                 let list = data?.$values || data; // 👈 Use $values if present, else fallback
-                             suggestionBox.empty();
-                                 if (data.$values && data.$values.length > 0) {
-                                     data.$values.forEach(item => {
-                                     suggestionBox.append(
-                                         `<a href="#" class="list-group-item list-group-item-action"
-                                             data-name="${item.descript}"
-                                             data-code="${item.icode}">
-                                             ${item.descript} <small class="text-muted">(${item.icode})</small>
-                                         </a>`
-                                     );
-                                 });
-                                 suggestionBox.show();
-                             } else {
-                                 suggestionBox.hide();
-                             }
-                         }
-                     });
-                 } else {
-                     suggestionBox.hide();
-                 }
-             });
+            if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) return;
 
-                 // Keyboard navigation
-                 $(document).on("keydown", ".medicine-autocomplete", function (e) {
-                 let $input = $(this);
-                 let $box = $input.siblings(".medicine-suggestions");
-                 let $items = $box.find(".list-group-item-action");
-                 let $active = $items.filter(".active");
+            if (query.length >= 1) {
+                $.ajax({
+                    url: "/Assessment/SearchMedicine", // Ensure this matches your Controller Route
+                    type: "GET",
+                    data: { term: query },
+                    success: function (data) {
+                        let list = (data && data.$values) ? data.$values : data; // Handle .NET wrapper
+                        $suggestionBox.empty();
 
-                 if (e.key === "ArrowDown") {
-                     e.preventDefault();
-                     if ($active.length === 0) $items.first().addClass("active");
-                     else {
-                         let $next = $active.removeClass("active").next();
-                         ($next.length ? $next : $items.first()).addClass("active");
-                     }
-                 }
-                 else if (e.key === "ArrowUp") {
-                     e.preventDefault();
-                     if ($active.length === 0) $items.last().addClass("active");
-                     else {
-                         let $prev = $active.removeClass("active").prev();
-                         ($prev.length ? $prev : $items.last()).addClass("active");
-                     }
-                 }
-                 else if (e.key === "Enter") {
-                     e.preventDefault(); // stop form submit
-                     e.stopPropagation();
+                        if (list && list.length > 0) {
+                            // Limit to 10 items for performance
+                            list.slice(0, 10).forEach(item => {
+                                $suggestionBox.append(
+                                    `<a href="#" class="list-group-item list-group-item-action"
+                                      data-name="${item.descript}"
+                                      data-code="${item.icode}">
+                                      ${item.descript} <small class="text-muted">(${item.icode})</small>
+                                    </a>`
+                                );
+                            });
+                            $suggestionBox.show();
+                        } else {
+                            $suggestionBox.hide();
+                        }
+                    },
+                    error: function() {
+                        $suggestionBox.hide();
+                    }
+                });
+            } else {
+                $suggestionBox.hide();
+            }
+        });
 
-                     if ($active.length) {
-                         // ✅ Directly set the text + hidden field
-                         let name = $active.data("name");
-                         let code = $active.data("code");
+        // 2. Select Medicine from List (Click)
+        $(document).on("click", ".medicine-suggestions a", function (e) {
+            e.preventDefault();
 
-                         $input.val(name);
-                         $input.siblings(".medicine-code").val(code);
+            let $selectedItem = $(this);
+            let name = $selectedItem.data("name");
+            let code = $selectedItem.data("code");
 
-                         $box.hide();
-                     }
-                 }
-             });
-                 // Select medicine
-                 $(document).on("click", ".medicine-suggestions a", function (e) {
-                     e.preventDefault();
-                     let name = $(this).data("name");
-                     let code = $(this).data("code");
+            // FIX: Find input/hidden relative to the Container (td)
+            let $container = $selectedItem.closest('td');
+            let $input = $container.find(".medicine-autocomplete");
+            let $hidden = $container.find(".medicine-code");
+            let $suggestionBox = $container.find(".medicine-suggestions");
 
-                     let $container = $(this).closest(".position-relative");
-                     let $input = $container.find(".medicine-autocomplete");
-                     let $hidden = $container.find(".medicine-code");
+            // Prevent duplicate selection
+            let isDuplicate = false;
+            $(".medicine-code").each(function () {
+                if ($(this).val() === code && $(this)[0] !== $hidden[0]) {
+                    isDuplicate = true;
+                    return false;
+                }
+            });
 
-                     // Prevent duplicate
-                     let isDuplicate = false;
-                     $(".medicine-autocomplete").each(function () {
-                         let n = $(this).val();
-                         let c = $(this).closest(".position-relative").find(".medicine-code").val();
-                         if (n === name || c === code) {
-                             isDuplicate = true;
-                             return false;
-                         }
-                     });
+            if (isDuplicate) {
+                alert("⚠️ This medicine is already selected.");
+                return;
+            }
 
-                     if (isDuplicate) {
-                         alert("⚠️ This medicine is already selected.");
-                         return;
-                     }
+            $input.val(name);
+            $hidden.val(code);
+            $suggestionBox.hide();
+        });
 
-                     $input.val(name);
-                     $hidden.val(code);
-                     $(this).closest(".medicine-suggestions").hide();
-                 });
+        // 3. Keyboard Navigation (Arrows & Enter)
+        $(document).on("keydown", ".medicine-autocomplete", function (e) {
+            let $input = $(this);
+            let $container = $input.closest('td');
+            let $box = $container.find(".medicine-suggestions");
+            let $items = $box.find(".list-group-item-action");
+            let $active = $items.filter(".active");
 
-                 // Hide suggestions if click outside
-                 $(document).click(function (e) {
-                     if (!$(e.target).closest(".medicine-autocomplete, .medicine-suggestions").length) {
-                         $(".medicine-suggestions").hide();
-                     }
-                 });
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if ($active.length === 0) $items.first().addClass("active");
+                else {
+                    let $next = $active.removeClass("active").next();
+                    if ($next.length) $next.addClass("active");
+                    else $items.first().addClass("active");
+                }
+            }
+            else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if ($active.length === 0) $items.last().addClass("active");
+                else {
+                    let $prev = $active.removeClass("active").prev();
+                    if ($prev.length) $prev.addClass("active");
+                    else $items.last().addClass("active");
+                }
+            }
+            else if (e.key === "Enter") {
+                // If dropdown is visible and item selected, choose it
+                if ($box.is(":visible") && $active.length) {
+                    e.preventDefault();
+                    $active.click(); // Trigger the click logic defined above
+                }
+                // Note: If box is NOT visible, your other script handles the "Add New" button
+            }
+        });
+
+        // 4. Hide suggestions if clicked outside
+        $(document).click(function (e) {
+            if (!$(e.target).closest(".medicine-autocomplete, .medicine-suggestions").length) {
+                $(".medicine-suggestions").hide();
+            }
+        });
              });
 
         //for medicine check boxes select unselect
@@ -2644,5 +2905,143 @@
             });
 
     });
+
+    //for clinical tab
+       
+        $(document).ready(function () {
+            console.log("✅ Clinical Master Script Loaded");
+
+            // Generate correct URLs using Razor (Server-side)
+            const searchUrl = '@Url.Action("SearchMaster", "Assessment")';
+            const addUrl = '@Url.Action("AddMasterItem", "Assessment")';
+
+             function setupClinicalMaster(config) {
+                const $searchBox = $(config.searchId);
+                const $addBtn = $(config.addBtnId);
+                const $targetArea = $(config.targetId);
+
+                $searchBox.autocomplete({
+                    appendTo: "body",
+                    minLength: 0,
+                    source: function (request, response) {
+                        $.ajax({
+                            url: searchUrl,
+                            type: 'GET',
+                            data: { term: request.term, type: config.type },
+                            success: function (data) {
+                                // 1. Get the list safely
+                                let list = (data && data.$values) ? data.$values : data;
+                                if (!Array.isArray(list)) list = [];
+
+                                // 2. DEBUG: Log the first item to see exactly what Property Name is coming
+                                if (list.length > 0) {
+                                    console.log(`First item for ${config.type}:`, list[0]);
+                                }
+
+                                // 3. ROBUST MAPPING (The Fix)
+                                let formatted = list.slice(0, 10).map(item => {
+                                    // We try every possible property name the server might send
+                                    let text = item.label || item.Label ||
+                                               item.vchCheifComplaint || item.VchCheifComplaint ||
+                                               item.vchDiagnose || item.VchDiagnose ||
+                                               item.vchSystemicExamination || item.VchSystemicExamination || // <--- The specific fix
+                                               item.value || item.Value;
+
+                                    return {
+                                        label: text,
+                                        value: text
+                                    };
+                                });
+
+                                response(formatted);
+                            },
+                            error: function () { response([]); }
+                        });
+                    },
+                    select: function (event, ui) {
+                        event.preventDefault();
+
+                        let current = $targetArea.val().trim();
+                        let toAdd = ui.item.value;
+
+                        if (current === "") {
+                            $targetArea.val(toAdd);
+                        } else if (!current.toLowerCase().includes(toAdd.toLowerCase())) {
+                            $targetArea.val(current + ", " + toAdd);
+                        }
+                        $searchBox.val('');
+                    }
+                }).on("focus", function () {
+                    $(this).autocomplete("search", "");
+                });
+
+                // Add Button Logic
+                $addBtn.on('click', function () {
+                    let val = $searchBox.val().trim();
+                    if (!val) { alert("⚠️ Please type a value to add."); return; }
+
+                    $.post(addUrl, { name: val, type: config.type }, function (res) {
+                        if (res.success) {
+                            let current = $targetArea.val().trim();
+                            if (current === "") $targetArea.val(val);
+                            else if (!current.toLowerCase().includes(val.toLowerCase())) $targetArea.val(current + ", " + val);
+                            $searchBox.val('');
+                        } else {
+                            alert("❌ Error: " + res.message);
+                        }
+                    });
+                });
+
+                // Enter Key Support
+                $searchBox.on('keypress', function(e) {
+                    if(e.which === 13) {
+                        e.preventDefault();
+                        if(!$searchBox.autocomplete("widget").is(":visible")) {
+                             $addBtn.click();
+                        }
+                    }
+                });
+            }
+
+            // Ensure this line exists and matches the IDs
+        setupClinicalMaster({ searchId: '#searchCC', addBtnId: '#btnAddCC', targetId: '#txtCC', type: 'ChiefComplaint' });
+            // <--- This string must match 'type == "Systemic"' in Controller
+        setupClinicalMaster({searchId: '#searchSys',addBtnId: '#btnAddSys', targetId: '#txtSys', type: 'Systemic'      });
+        setupClinicalMaster({ searchId: '#searchDiag', addBtnId: '#btnAddDiag', targetId: '#txtDiag', type: 'Diagnosis' });
+        }); 
+    
     </script>
+    <style>
+        /* Force Autocomplete to stay on top and be visible */
+        .ui-front {
+            z-index: 999999 !important;
+        }
+
+        .ui-autocomplete {
+            position: absolute;
+            cursor: default;
+            z-index: 999999 !important;
+            max-height: 250px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+            list-style: none;
+            padding: 0;
+        }
+
+        .ui-menu-item .ui-menu-item-wrapper {
+            padding: 8px 12px;
+            display: block;
+            cursor: pointer;
+        }
+
+            .ui-menu-item .ui-menu-item-wrapper:hover, .ui-menu-item .ui-menu-item-wrapper.ui-state-active {
+                background-color: #0d6efd;
+                color: #ffffff;
+                border: none;
+            }
+    </style>
     }

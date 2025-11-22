@@ -173,9 +173,7 @@ public partial class DWBEntity : DbContext
 
             entity.ToTable("imaster");
 
-            entity.Property(e => e.IntId)
-                .ValueGeneratedNever()
-                .HasColumnName("intID");
+            entity.Property(e => e.IntId).HasColumnName("intID");
             entity.Property(e => e.AdjustmentAccount)
                 .HasMaxLength(255)
                 .HasColumnName("adjustment_account");

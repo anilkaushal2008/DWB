@@ -487,6 +487,142 @@ namespace DWB.Controllers
             return View(vm);
         }
 
+        //for masters entry from assessment
+        [HttpGet]
+        public IActionResult SearchMaster(string term, string type)
+        {
+            // Fix: If term is null, use empty string to fetch default Top 10
+            string searchTerm = string.IsNullOrEmpty(term) ? "" : term.ToLower().Trim();
+
+            try
+            {
+                if (type == "ChiefComplaint") // Ensure you map the correct table
+                {
+                    var query = _context.TblCheifComplaintMas.AsQueryable();
+
+                    if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        query = query.Where(x => x.VchCheifComplaint != null && x.VchCheifComplaint.ToLower().Contains(searchTerm));
+                    }
+
+                    // If searchTerm is empty, this takes the first 10 alphabetical records
+                    var data = query
+                        .OrderBy(x => x.VchCheifComplaint)
+                        .Select(x => new { label = x.VchCheifComplaint, value = x.VchCheifComplaint })
+                        .Take(10)
+                        .ToList();
+
+                    return Json(data);
+                }
+                // ... (Repeat identical logic for Diagnosis and Systemic blocks)
+                else if (type == "Diagnosis") // Make sure to use TblDiagnoseMas here
+                {
+                    var query = _context.TblDiagnoseMas.AsQueryable(); // <--- Check this table!
+
+                    if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        query = query.Where(x => x.VchDiagnose != null && x.VchDiagnose.ToLower().Contains(searchTerm));
+                    }
+
+                    var data = query
+                        .OrderBy(x => x.VchDiagnose)
+                        .Select(x => new { label = x.VchDiagnose, value = x.VchDiagnose })
+                        .Take(10)
+                        .ToList();
+
+                    return Json(data);
+                }
+                // Inside SearchMaster method...
+
+                else if (type == "Systemic")  // <--- Make sure this spelling matches JS
+                {
+                    var query = _context.TblSystemicExamMas.AsQueryable();
+
+                    if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        // Ensure you are checking 'VchSystemicExamination' and NOT 'VchDiagnose'
+                        query = query.Where(x => x.VchSystemicExamination != null && x.VchSystemicExamination.ToLower().Contains(searchTerm));
+                    }
+
+                    var data = query
+                        .OrderBy(x => x.VchSystemicExamination)
+                        .Select(x => new { label = x.VchSystemicExamination, value = x.VchSystemicExamination })
+                        .Take(10)
+                        .ToList();
+
+                    return Json(data);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new List<object>());
+            }
+            return Json(new List<object>());
+        }
+
+        [HttpPost]
+        public IActionResult AddMasterItem(string name, string type)
+        {
+            if (string.IsNullOrEmpty(name)) return Json(new { success = false, message = "Name is required" });
+
+            try
+            {
+                int userId = 1; // REPLACE WITH: User.Identity.GetUserId() or similar
+                DateTime now = DateTime.Now;
+
+                if (type == "ChiefComplaint")
+                {
+                    // Check duplicate
+                    if (_context.TblCheifComplaintMas.Any(x => x.VchCheifComplaint.ToLower() == name.ToLower()))
+                        return Json(new { success = true, message = "Exists" }); // Return success so it adds to UI
+
+                    var item = new TblCheifComplaintMas
+                    {
+                        VchCheifComplaint = name,
+                        DtCreated = now,
+                        FkUserid = userId,
+                        VchCreatedBy = "Sys"
+                    };
+                    _context.TblCheifComplaintMas.Add(item);
+                }
+                else if (type == "Diagnosis")
+                {
+                    if (_context.TblDiagnoseMas.Any(x => x.VchDiagnose.ToLower() == name.ToLower()))
+                        return Json(new { success = true, message = "Exists" });
+
+                    var item = new TblDiagnoseMas
+                    {
+                        VchDiagnose = name,
+                        DtCreated = now,
+                        FkUserid = userId,
+                        VchCreatedBy = "Sys"
+                    };
+                    _context.TblDiagnoseMas.Add(item);
+                }
+                else if (type == "Systemic")
+                {
+                    if (_context.TblSystemicExamMas.Any(x => x.VchSystemicExamination.ToLower() == name.ToLower()))
+                        return Json(new { success = true, message = "Exists" });
+
+                    var item = new TblSystemicExamMas
+                    {
+                        VchSystemicExamination = name,
+                        DtCreated = now,
+                        FkUserid = userId,
+                        VchCreatedBy = "Sys"
+                    };
+                    _context.TblSystemicExamMas.Add(item);
+                }
+
+                _context.SaveChanges();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
         //Change the method signature of SearchMedicine to async Task<JsonResult>
         [HttpGet]
         public async Task<JsonResult> SearchMedicine(string term)
@@ -573,7 +709,60 @@ namespace DWB.Controllers
             model.Procedures ??= new List<TblDoctorAssmntProcedure>();
         }
 
+        [HttpPost]
+        public IActionResult AddMedicineMaster(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return Json(new { success = false, message = "Medicine Name is required" });
 
+            try
+            {
+                name = name.Trim();
+
+                // 1. Check if already exists to prevent duplicates
+                var existing = _context.Imaster
+                    .FirstOrDefault(x => x.Descript.ToLower() == name.ToLower() && x.ItemGroup == "Medicine");
+
+                if (existing != null)
+                {
+                    return Json(new { success = true, code = existing.Icode, name = existing.Descript });
+                }
+
+                // 2. Generate a Unique Icode (Key)
+                // Logic: "DOC" + Current Timestamp to ensure uniqueness. 
+                // You can change this logic if your system requires a specific number format (e.g. "000501")
+                string newCode = "DWB-" + DateTime.Now.ToString("yyMMddHHmm");
+
+                // 3. Create the new Medicine Object
+                var newMed = new Imaster
+                {
+                    Icode = newCode,
+                    Descript = name,
+                    ItemGroup = "Medicine", // Important: Categorize it correctly
+                    ItemType = "FROM-DWB",      // Default type
+                    Uom = "FROM-DWB",            // Default Unit of Measurement
+                    DtAdded = DateTime.Now,
+                    UserEntry = "Doctor",   // Track who added it
+
+                    // Set defaults for other fields to avoid null errors if your DB requires them
+                    PurRate = 0,
+                    SaleRate = 0,
+                    MinQty = 0,
+                    MaxQty = 0,
+                    IntQty = 0
+                };
+
+                _context.Imaster.Add(newMed);
+                _context.SaveChanges();
+
+                // 4. Return the new Code and Name
+                return Json(new { success = true, code = newMed.Icode, name = newMed.Descript });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error saving medicine: " + ex.Message });
+            }
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DoctorAssmntCreate(DoctorAssessmentVM model, IFormFile[] doctorDocs)
