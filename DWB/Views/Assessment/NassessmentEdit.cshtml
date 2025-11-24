@@ -73,6 +73,7 @@
                             <div class="card p-4 border-top border-secondary shadow rounded-3 mb-4 bg-light">
                                 <h5 class="mb-3 border-bottom pb-2 text-secondary">👤 Patient Details</h5>
                                 <input type="hidden" asp-for="IntAssessmentId" />
+                                <input type="hidden" id="deletedFileIds" name="deletedFileIds" value="" />
                                 <div class="row g-3">
                                     <div class="col-md-4">
                                         <label asp-for="VchUhidNo" class="form-label fw-bold">UHID No</label>
@@ -193,7 +194,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <label class="form-label fw-bold">Occupation</label>
-                                        <input asp-for="VchOccupation" type="text"  class="form-control" required="required" placeholder="Enter occupation" />
+                                        <input asp-for="VchOccupation" type="text"  class="form-control" placeholder="Enter occupation" />
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label fw-bold">Social Economic Status</label>
@@ -214,7 +215,7 @@
                                             <option value="Agitated">Agitated</option>
                                             <option value="Depressed">Depressed</option>
                                         </select>
-                                        <span asp-validation-for="VchPsychologicalStatus" class="text-danger"></span>
+                                      @*   <span asp-validation-for="VchPsychologicalStatus" class="text-danger"></span> *@
                                     </div>
                                 </div>
                             </div>
@@ -249,56 +250,97 @@
                                 <textarea asp-for="VchNurseNotes" class="form-control" rows="4" placeholder="Enter nurse notes..."></textarea>
                             </div>
                             <!-- Existing Docs -->
-                            
-                                @if(Model.TblNassessmentDoc != null && Model.TblNassessmentDoc.Any())
-{
+                            @if (Model.TblNassessmentDoc != null && Model.TblNassessmentDoc.Any())
+                            {
                                 <div class="card p-4 shadow-sm border rounded mb-4">
-                                    <label class="form-label fw-bold">
-                                        Existing Documents <span style="color:orangered;font-weight:400">
-                                            (These will deleted automatically when you upload new document other wise it will same)
+                                    <label class="form-label fw-bold text-dark">
+                                        Existing Documents
+                                        <span class="small" style="color:orangered; font-weight:400;">
+                                            (These will remain unless you remove them.)
                                         </span>
                                     </label>
-                                    <ul class="list-group">
+
+                                    <ul class="list-group" id="existing-files-list">
                                         @foreach (var doc in Model.TblNassessmentDoc)
                                         {
-                                            <li class="list-group-item">
-                                                <a>@doc.VchFileName</a>
-                                                <a class="btn btn-outline-info btn-sm" href="@Url.Content("~/uploads/NAssessment/" + doc.VchFileName)" target="_blank">                                                    
-                                                View</a>
+                                            // Determine file type for icon
+                                            var ext = System.IO.Path.GetExtension(doc.VchFileName).ToLower();
+                                            bool isImage = new[] { ".jpg", ".jpeg", ".png", ".gif" }.Contains(ext);
+                                            var fileUrl = Url.Content("~/uploads/NAssessment/" + doc.VchFileName);
+
+                                            <li class="list-group-item d-flex justify-content-between align-items-center" id="file-row-@doc.IntId">
+
+                                                <div class="d-flex align-items-center text-truncate" style="max-width: 65%;">
+                                                    <div class="me-2 text-secondary">
+                                                        @if (isImage)
+                                                        {
+                                                            <i class="fas fa-file-image text-info"></i>
+                                                            ;
+                                                        }
+                                                        else if (ext == ".pdf")
+                                                        {
+
+                                                            <i class="fas fa-file-pdf text-danger"></i>
+                                                            ;
+                                                        }
+                                                        else
+                                                        {
+
+                                                            <i class="fas fa-file-alt text-secondary"></i>
+                                                            ;
+                                                        }
+                                                    </div>
+                                                    <a href="@fileUrl" target="_blank" class="text-decoration-none text-primary fw-bold text-truncate" title="@doc.VchFileName">
+                                                        @doc.VchFileName
+                                                    </a>
+                                                </div>
+
+                                                <div class="d-flex gap-2">
+                                                    <a class="btn btn-outline-info btn-sm" href="@fileUrl" target="_blank">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="markForDeletion(@doc.IntId)">
+                                                        <i class="fas fa-trash-alt"></i> Remove
+                                                    </button>
+                                                </div>
                                             </li>
                                         }
                                     </ul>
                                 </div>
-                                }
-                                else
-                                {
+                            }
+                            else
+                            {
                                 <div class="card p-4 shadow-sm border rounded mb-4">
                                     <label class="form-label fw-bold">
-                                        Existing document <span style="color:orangered;font-weight:400">
+                                        Existing Documents
+                                        <span style="color:orangered; font-weight:400">
                                             (No supporting documents were uploaded for this assessment.)
                                         </span>
                                     </label>
                                 </div>
-                                }
-                            
-                            <!-- Integrated Drag and Drop File Upload Section -->
+                            }
+
                             <div class="mb-4 p-4 border rounded-4 shadow-sm bg-white">
-                                <label class="form-label fw-bold fs-5 text-primary mb-3">
+                                <label class="form-label fw-bold fs-5 text-info mb-3">
                                     <i class="fas fa-paperclip me-2"></i>Upload New Supporting Documents
                                 </label>
-                                <div id="drop-zone" class="border border-3 border-dashed border-info p-5 text-center bg-light rounded-4 shadow-sm" style="cursor: pointer; transition: all 0.2s ease-in-out;">
+
+                                <div id="drop-zone" class="border border-3 border-dashed border-info p-5 text-center bg-light rounded-4 shadow-sm"
+                                     style="cursor: pointer; transition: all 0.2s ease-in-out;">
+
                                     <p class="mb-3 text-info"><i class="fas fa-cloud-upload-alt fa-4x"></i></p>
                                     <p class="mb-1 fw-bold text-info fs-5">Drag & drop your files here</p>
                                     <p class="small text-info mb-0">or click to browse</p>
-                                    <!-- Hidden file input - 'name' attribute is crucial for server-side binding -->
-                                    <!-- The 'name' attribute should match the parameter name in your ASP.NET Core controller action -->
+
                                     <input type="file" name="supportDocsI" id="supportDocsInput" class="form-control d-none" accept=".jpg,.jpeg,.pdf" multiple />
                                 </div>
+
                                 <div class="mt-3 text-muted text-center" style="font-size: 0.875rem;">
-                                    Supported file types: JPG, PDF. Maximum: 5 documents.
+                                    Supported file types: JPG, PDF. Maximum: 5 documents (Total).
                                 </div>
+
                                 <div id="file-list" class="mt-4">
-                                    <!-- Selected file names will be dynamically displayed here -->
                                 </div>
                             </div>
 
@@ -316,158 +358,163 @@
 </main>
 
 @section Scripts {   
+    <script src="/assets/js/dashboard1.js"></script>
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
     <!-- Bootstrap JS Bundle (Popper included) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script>
+        // ✅ 1. GLOBAL FUNCTIONS
+        function markForDeletion(fileId) {
+            var hiddenInput = document.getElementById('deletedFileIds');
+            var currentIds = hiddenInput.value ? hiddenInput.value.split(',') : [];
+
+            if (!currentIds.includes(fileId.toString())) {
+                currentIds.push(fileId);
+                hiddenInput.value = currentIds.join(',');
+            }
+
+            var row = document.getElementById('file-row-' + fileId);
+            if (row) {
+                row.classList.add('deleted-file');
+                row.style.transition = "all 0.5s";
+                row.style.opacity = "0";
+                setTimeout(function() { row.style.display = 'none'; }, 500);
+            }
+        }
+
+        function toggleVisibility(toggleId, targetId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const target = document.getElementById(targetId);
+            const input = inputId ? document.getElementById(inputId) : null;
+
+            if (toggle && target) {
+                function update() {
+                    const show = toggle.checked;
+                    target.style.display = show ? "block" : "none";
+                    if (input) {
+                        if (show) input.setAttribute("required", "required");
+                        else input.removeAttribute("required");
+                    }
+                }
+                toggle.addEventListener("change", update);
+                update();
+            }
+        }
+
+        // ✅ 2. MAIN LOGIC
         document.addEventListener('DOMContentLoaded', function () {
-            // Get references to DOM elements
+
+            // --- Initialize Toggles ---
+            toggleVisibility("allergyToggle", "allergyRemarks");
+            toggleVisibility("fallRiskToggle", "fallRiskRemarks");
+
+            // --- Variables ---
             const dropZone = document.getElementById('drop-zone');
-            const fileInput = document.getElementById('supportDocsInput'); // Matches the ID in the HTML
+            const fileInput = document.getElementById('supportDocsInput');
             const fileListDiv = document.getElementById('file-list');
-            const form = document.getElementById('NassessmentEdit'); // Get the form by its ID
-            // Array to hold the File objects selected by the user
+            const form = document.getElementById('NassessmentEdit');
             let selectedFiles = [];
-            const maxFiles = 5; // Maximum number of files allowed
+            const maxFiles = 5;
+
             // --- Event Listeners ---
-            // Handle click on the drop zone to trigger the hidden file input
             dropZone.addEventListener('click', () => fileInput.click());
 
-
-            // Prevent default drag behaviors for the drop zone and document body
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, preventDefaults, false);
-                document.body.addEventListener(eventName, preventDefaults, false); // Prevent browser default for entire page
+                document.body.addEventListener(eventName, preventDefaults, false);
             });
 
-            // Add visual feedback when files are dragged over the drop zone
-            dropZone.addEventListener('dragover', e => {
-                dropZone.classList.add('border-primary'); // Highlight border
-                dropZone.classList.remove('border-info'); // Remove default border color
+            dropZone.addEventListener('dragover', () => {
+                dropZone.classList.add('border-primary');
+                dropZone.classList.remove('border-info');
             });
 
-
-            // Remove visual feedback when files leave the drop zone or are dropped
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.classList.remove('border-primary'); // Remove highlight
-                dropZone.classList.add('border-info'); // Revert to default border color
+            ['dragleave', 'drop'].forEach(() => {
+                dropZone.classList.remove('border-primary');
+                dropZone.classList.add('border-info');
             });
 
-            // Handle files dropped onto the drop zone
             dropZone.addEventListener('drop', e => {
                 handleNewFiles(e.dataTransfer.files);
             });
 
-            // Handle files selected via the traditional file input dialog
             fileInput.addEventListener('change', () => {
                 handleNewFiles(fileInput.files);
-                // Clear the file input's value to allow re-selection of the same file
-                // This is important for the 'change' event to fire consistently
                 fileInput.value = "";
             });
 
-            // --- Core Functions ---
-            // Prevents default browser behavior for drag-and-drop events
             function preventDefaults(e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
 
-            // Processes new files (from drop or select) and updates the selectedFiles array
             function handleNewFiles(files) {
-                const allowedTypes = ['application/pdf', 'image/jpeg'];
-                // Iterate over the new files
+                const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                const existingList = document.getElementById('existing-files-list');
+                const existingCount = existingList ? existingList.querySelectorAll('li:not(.deleted-file)').length : 0;
+
                 for (const file of files) {
-                    // Check if max file limit is reached
-                    if (selectedFiles.length >= maxFiles) {
-                        alert(`You can only upload a maximum of ${maxFiles} files.`);
-                        break; //Stop processing further files
+                    const currentTotal = existingCount + selectedFiles.length;
+
+                    if (currentTotal >= maxFiles) {
+                        alert(`⚠️ Maximum limit of ${maxFiles} documents reached.`);
+                        break;
                     }
 
-                    // Validate file type
                     if (!allowedTypes.includes(file.type)) {
-                        alert(`Invalid file type: "${file.name}". Only JPG and PDF are allowed.`);
-                        continue; //Skip this file
+                        alert(`❌ Invalid file type: "${file.name}". Only JPG/PNG/PDF allowed.`);
+                        continue;
                     }
-                    // Check for duplicate files (by name and size)
-                    if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                        selectedFiles.push(file); // Add unique and valid file
-                    } else {
-                        alert(`File "${file.name}" is already selected.`);
+
+                    if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                        alert(`⚠️ File "${file.name}" is already selected.`);
+                        continue;
                     }
+
+                    selectedFiles.push(file);
                 }
-                renderFileList(); //Update the UI display
+                renderFileList();
             }
-            //Renders the current list of selected files in the UI
+
+            // ✅ YOUR CUSTOM RENDER FUNCTION (Modified for Visibility)
             function renderFileList() {
-                fileListDiv.innerHTML = ''; //Clear existing list items
+                fileListDiv.innerHTML = '';
                 selectedFiles.forEach((file, index) => {
                     const div = document.createElement('div');
-                    div.className = 'file-list-item d-flex justify-content-between align-items-center bg-success border rounded-pill px-4 py-2 shadow-sm';
-                    div.innerHTML = `<span class="text-dark fw-bold"><i class="fas fa-file-alt me-2 text-secondary"></i>${file.name}</span>
-                        <button type="button" class="btn btn-close" aria-label="Remove" data-index="${index}"></button>`;
+
+                    // STYLE FIX: Used 'bg-light' instead of 'bg-success' so the text/button are visible
+                    // Kept 'rounded-pill' and spacing as you requested
+                    div.className = 'file-list-item d-flex justify-content-between align-items-center bg-grd-success border rounded-pill px-4 py-2 mb-2 shadow-sm';
+
+                    div.innerHTML = `
+                        <span class="text-primary fw-bold text-truncate" style="max-width: 85%;">
+                            <i class="fas fa-file-alt me-2 text-primary"></i>${file.name}
+                        </span>
+                        <button type="button" class="btn btn-close btn-danger" aria-label="Remove" data-index="${index}"></button>
+                    `;
+
                     fileListDiv.appendChild(div);
                 });
 
-                //Attach event listeners to the dynamically created remove buttons
+                // Attach listeners
                 fileListDiv.querySelectorAll('.btn-close').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const indexToRemove = e.target.getAttribute('data-index');
-                        selectedFiles.splice(indexToRemove, 1); // Remove file from array
-                        renderFileList(); // Re-render the list
+                        selectedFiles.splice(indexToRemove, 1);
+                        renderFileList();
                     });
                 });
             }
 
-
-            // --- Form Submission Logic (Non-AJAX) ---
-            // This event listener runs just before the form is submitted normally
-            // It ensures that the 'fileInput' element contains all files from 'selectedFiles'
-            if (form) { // Only attach if a form is found
+            // --- Form Submission ---
+            if (form) {
                 form.addEventListener("submit", function (e) {
-                  // Create a new DataTransfer object to hold the files
                     const dataTransfer = new DataTransfer();
-                    selectedFiles.forEach(file => {
-                        dataTransfer.items.add(file); // Add each selected file
-                    });
-                    // Assign the new FileList to the hidden file input
+                    selectedFiles.forEach(file => dataTransfer.items.add(file));
                     fileInput.files = dataTransfer.files;
-                    // The form will now submit normally with the files attached to 'fileInput'
-                    // No e.preventDefault() here, as we want the form to submit
                 });
             }
-            else {
-                console.warn("No parent <form> element found for the file upload section. Files might not be submitted correctly.");
-            }
         });
-
-
-          // Toggle visibility of remarks based on checkbox state
-           function toggleVisibility(toggleId, targetId, inputId) {
-            const toggle = document.getElementById(toggleId);
-            const target = document.getElementById(targetId);
-            const input = inputId ? document.getElementById(inputId) : null;
-            function updateVisibility() {
-                const show = toggle.checked;
-                target.style.display = show ? "block" : "none";
-                if (input) {
-                    if (show) {
-                              input.setAttribute("required", "required");
-                    }
-                    else
-                    {
-                        input.removeAttribute("required");
-                    }
-                }
-            }
-            toggle.addEventListener("change", updateVisibility);
-            updateVisibility(); // initialize on load
-        }
-        window.addEventListener("DOMContentLoaded", function () {
-            toggleVisibility("allergyToggle", "allergyRemarks");
-            toggleVisibility("fallRiskToggle", "fallRiskRemarks");
-        });
-
     </script>
-
-}
+            }

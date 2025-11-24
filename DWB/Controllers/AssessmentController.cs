@@ -232,7 +232,6 @@ namespace DWB.Controllers
                 return RedirectToAction("NursingAssessment");
             }
         }
-
         [Authorize(Roles = "Admin, Nursing")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -242,122 +241,269 @@ namespace DWB.Controllers
             {
                 return NotFound();
             }
+
             if (ModelState.IsValid)
             {
                 // --- 1. Update the main assessment data ---
-                var existingAssessmentWithDoc = await _context.TblNsassessment.Include(a => a.TblNassessmentDoc)
-                       .FirstOrDefaultAsync(a => a.IntAssessmentId == updatedModel.IntAssessmentId);
-                //check existing documents
-                var GetDocuments = await _context.TblNassessmentDoc
-                    .Where(d => d.IntFkAssId == updatedModel.IntAssessmentId)
-                    .ToListAsync();
-                if (existingAssessmentWithDoc != null)
-                {
-                    var filesToDeleteFromDb = await _context.TblNassessmentDoc.Where(d => d.IntFkAssId == updatedModel.IntAssessmentId).ToListAsync();
-                    //If there are files to delete, remove them from the database
-                    if (filesToDeleteFromDb.Count() != 0 && supportDocsI != null)
-                    {
-                        foreach (var doc in filesToDeleteFromDb)
-                        {
-                            // delete file from disk
-                            var filePath = Path.Combine("wwwroot/uploads/NAssessment", doc.VchFileName);
-                            if (System.IO.File.Exists(filePath))
-                            {
-                                System.IO.File.Delete(filePath);
-                            }
-                            // remove from database
-                            _context.TblNassessmentDoc.Remove(doc);
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-                    // Update the existing assessment with the new values
-                    existingAssessmentWithDoc.VchBloodPressure = updatedModel.VchBloodPressure;
-                    existingAssessmentWithDoc.VchPulse = updatedModel.VchPulse;
-                    existingAssessmentWithDoc.DecTemperature = updatedModel.DecTemperature;
-                    existingAssessmentWithDoc.DecSpO2 = updatedModel.DecSpO2;
-                    existingAssessmentWithDoc.DecWeight = updatedModel.DecWeight;
-                    existingAssessmentWithDoc.DecHeight = updatedModel.DecHeight;
-                    existingAssessmentWithDoc.DecRespiratoryRate = updatedModel.DecRespiratoryRate;
-                    existingAssessmentWithDoc.DecOxygenFlowRate = updatedModel.DecOxygenFlowRate;
+                var existingAssessmentWithDoc = await _context.TblNsassessment
+                        .Include(a => a.TblNassessmentDoc)
+                        .FirstOrDefaultAsync(a => a.IntAssessmentId == updatedModel.IntAssessmentId);
 
-                    existingAssessmentWithDoc.BitIsAllergical = updatedModel.BitIsAllergical;
-                    existingAssessmentWithDoc.VchAllergicalDrugs = updatedModel.VchAllergicalDrugs;
-                    existingAssessmentWithDoc.BitIsAlcoholic = updatedModel.BitIsAlcoholic;
-                    existingAssessmentWithDoc.BitIsSmoking = updatedModel.BitIsSmoking;
-                    existingAssessmentWithDoc.VchLmpForFemale = updatedModel.VchLmpForFemale;
-
-                    existingAssessmentWithDoc.BitDiabetes = updatedModel.BitDiabetes;
-                    existingAssessmentWithDoc.BitHeartDisease = updatedModel.BitHeartDisease;
-                    existingAssessmentWithDoc.BitHypertension = updatedModel.BitHypertension;
-                    existingAssessmentWithDoc.BitAsthma = updatedModel.BitAsthma;
-                    existingAssessmentWithDoc.BitCholesterol = updatedModel.BitCholesterol;
-                    existingAssessmentWithDoc.BitTuberculosis = updatedModel.BitTuberculosis;
-                    existingAssessmentWithDoc.BitSurgery = updatedModel.BitSurgery;
-                    existingAssessmentWithDoc.BitHospitalization = updatedModel.BitHospitalization;
-                    existingAssessmentWithDoc.VchOtherHistory = updatedModel.VchOtherHistory;
-
-                    existingAssessmentWithDoc.VchPsychologicalStatus = updatedModel.VchPsychologicalStatus;
-                    existingAssessmentWithDoc.VchOccupation = updatedModel.VchOccupation;
-                    existingAssessmentWithDoc.VchSocialEconomicStatus = updatedModel.VchSocialEconomicStatus;
-                    existingAssessmentWithDoc.VchFamilySupport = updatedModel.VchFamilySupport;
-
-                    existingAssessmentWithDoc.IntPainScore = updatedModel.IntPainScore;
-                    existingAssessmentWithDoc.BitFallRisk = updatedModel.BitFallRisk;
-                    existingAssessmentWithDoc.VchFallRiskRemarks = updatedModel.VchFallRiskRemarks;
-
-                    _context.Update(existingAssessmentWithDoc);
-                    await _context.SaveChangesAsync();
-                }
-                else
+                if (existingAssessmentWithDoc == null)
                 {
                     TempData["Error"] = "Nursing assessment detail not found contact to admin!";
                     return RedirectToAction("NursingAssessment");
                 }
-                // --- 3. Handle NEW files to be uploaded ---
+
+                // --- 2. Handle Selective File Deletion ---
+                // This block checks if the user specifically clicked "Remove" on any existing files
+                if (!string.IsNullOrEmpty(deletedFileIds))
+                {
+                    // Convert comma-separated string "1,2,5" into a List<int>
+                    var idsToDelete = deletedFileIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                                    .Select(id => int.TryParse(id, out int result) ? result : 0)
+                                                    .Where(id => id > 0)
+                                                    .ToList();
+
+                    if (idsToDelete.Any())
+                    {
+                        // Find specific documents that match these IDs AND belong to this assessment (for security)
+                        var filesToDelete = await _context.TblNassessmentDoc
+                                                          .Where(d => idsToDelete.Contains(d.IntId) && d.IntFkAssId == updatedModel.IntAssessmentId)
+                                                          .ToListAsync();
+
+                        foreach (var doc in filesToDelete)
+                        {
+                            // A. Delete file from physical disk
+                            // Note: Ensure 'doc.VchFileName' does not contain path traversal characters
+                            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "NAssessment", doc.VchFileName);
+                            if (System.IO.File.Exists(filePath))
+                            {
+                                System.IO.File.Delete(filePath);
+                            }
+
+                            // B. Remove record from database
+                            _context.TblNassessmentDoc.Remove(doc);
+                        }
+                    }
+                }
+
+                // --- 3. Update the existing assessment fields ---
+                existingAssessmentWithDoc.VchBloodPressure = updatedModel.VchBloodPressure;
+                existingAssessmentWithDoc.VchPulse = updatedModel.VchPulse;
+                existingAssessmentWithDoc.DecTemperature = updatedModel.DecTemperature;
+                existingAssessmentWithDoc.DecSpO2 = updatedModel.DecSpO2;
+                existingAssessmentWithDoc.DecWeight = updatedModel.DecWeight;
+                existingAssessmentWithDoc.DecHeight = updatedModel.DecHeight;
+                existingAssessmentWithDoc.DecRespiratoryRate = updatedModel.DecRespiratoryRate;
+                existingAssessmentWithDoc.DecOxygenFlowRate = updatedModel.DecOxygenFlowRate;
+
+                existingAssessmentWithDoc.BitIsAllergical = updatedModel.BitIsAllergical;
+                existingAssessmentWithDoc.VchAllergicalDrugs = updatedModel.VchAllergicalDrugs;
+                existingAssessmentWithDoc.BitIsAlcoholic = updatedModel.BitIsAlcoholic;
+                existingAssessmentWithDoc.BitIsSmoking = updatedModel.BitIsSmoking;
+                existingAssessmentWithDoc.VchLmpForFemale = updatedModel.VchLmpForFemale;
+
+                existingAssessmentWithDoc.BitDiabetes = updatedModel.BitDiabetes;
+                existingAssessmentWithDoc.BitHeartDisease = updatedModel.BitHeartDisease;
+                existingAssessmentWithDoc.BitHypertension = updatedModel.BitHypertension;
+                existingAssessmentWithDoc.BitAsthma = updatedModel.BitAsthma;
+                existingAssessmentWithDoc.BitCholesterol = updatedModel.BitCholesterol;
+                existingAssessmentWithDoc.BitTuberculosis = updatedModel.BitTuberculosis;
+                existingAssessmentWithDoc.BitSurgery = updatedModel.BitSurgery;
+                existingAssessmentWithDoc.BitHospitalization = updatedModel.BitHospitalization;
+                existingAssessmentWithDoc.VchOtherHistory = updatedModel.VchOtherHistory;
+
+                existingAssessmentWithDoc.VchPsychologicalStatus = updatedModel.VchPsychologicalStatus;
+                existingAssessmentWithDoc.VchOccupation = updatedModel.VchOccupation;
+                existingAssessmentWithDoc.VchSocialEconomicStatus = updatedModel.VchSocialEconomicStatus;
+                existingAssessmentWithDoc.VchFamilySupport = updatedModel.VchFamilySupport;
+
+                existingAssessmentWithDoc.IntPainScore = updatedModel.IntPainScore;
+                existingAssessmentWithDoc.BitFallRisk = updatedModel.BitFallRisk;
+                existingAssessmentWithDoc.VchFallRiskRemarks = updatedModel.VchFallRiskRemarks;
+                existingAssessmentWithDoc.VchNurseNotes = updatedModel.VchNurseNotes; // Added Nurse Notes update
+
+                _context.Update(existingAssessmentWithDoc);
+
+                // --- 4. Handle NEW files to be uploaded ---
                 if (supportDocsI != null && supportDocsI.Any())
                 {
                     var allowedExtensions = new[] { ".jpg", ".jpeg", ".pdf" };
                     var uploadFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "NAssessment");
+
                     if (!Directory.Exists(uploadFolderPath))
                     {
                         Directory.CreateDirectory(uploadFolderPath);
                     }
+
                     foreach (var file in supportDocsI)
                     {
                         var ext = Path.GetExtension(file.FileName).ToLower();
                         if (allowedExtensions.Contains(ext))
                         {
+                            // Use GUID to prevent overwriting files with the same name
                             var uniqueFileName = $"{Guid.NewGuid()}{ext}";
                             var filePath = Path.Combine(uploadFolderPath, uniqueFileName);
+
                             using (var stream = new FileStream(filePath, FileMode.Create))
                             {
                                 await file.CopyToAsync(stream);
                             }
+
                             var assessmentFile = new TblNassessmentDoc
                             {
-                                IntFkAssId = updatedModel.IntAssessmentId, // Link to the existing assessment
-                                VchFileName = file.FileName,
-                                VchFilePath = $"/uploads/NAssessment/{uniqueFileName}",
+                                IntFkAssId = updatedModel.IntAssessmentId,
+                                VchFileName = uniqueFileName, // Save the GUID name to disk
+                                VchFilePath = $"/uploads/NAssessment/{uniqueFileName}", // Web-relative path
                                 VchCreatedBy = User.Identity.Name,
                                 VchCreatedHost = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
                                 VchCreatedIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-                                DtCreated = DateTime.Now
+                                DtCreated = DateTime.Now,
+                                BitIsForNassessment = true // Explicitly set this flag
                             };
                             _context.TblNassessmentDoc.Add(assessmentFile);
                         }
                     }
-                    // Save all changes (updates, deletions, and new additions) in one go
-                    await _context.SaveChangesAsync();
                 }
+
+                // Save all changes (Deletes, Updates, and Inserts) in one transaction
+                await _context.SaveChangesAsync();
+
                 TempData["Success"] = "Nursing assessment updated successfully!";
                 return RedirectToAction("NursingAssessment");
             }
             else
             {
                 TempData["ErrorMessage"] = "Model error generated contact to administrator!";
-                return View(updatedModel); // Return the view with validation errors
+                return View(updatedModel);
             }
         }
+        //[Authorize(Roles = "Admin, Nursing")]
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> NAssessmentEdit(TblNsassessment updatedModel, List<IFormFile>? supportDocsI, string? deletedFileIds)
+        //{
+        //    if (updatedModel.IntAssessmentId == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    if (ModelState.IsValid)
+        //    {
+        //        // --- 1. Update the main assessment data ---
+        //        var existingAssessmentWithDoc = await _context.TblNsassessment.Include(a => a.TblNassessmentDoc)
+        //               .FirstOrDefaultAsync(a => a.IntAssessmentId == updatedModel.IntAssessmentId);
+        //        //check existing documents
+        //        var GetDocuments = await _context.TblNassessmentDoc
+        //            .Where(d => d.IntFkAssId == updatedModel.IntAssessmentId)
+        //            .ToListAsync();
+        //        if (existingAssessmentWithDoc != null)
+        //        {
+        //            var filesToDeleteFromDb = await _context.TblNassessmentDoc.Where(d => d.IntFkAssId == updatedModel.IntAssessmentId).ToListAsync();
+        //            //If there are files to delete, remove them from the database
+        //            if (filesToDeleteFromDb.Count() != 0 && supportDocsI != null)
+        //            {
+        //                foreach (var doc in filesToDeleteFromDb)
+        //                {
+        //                    // delete file from disk
+        //                    var filePath = Path.Combine("wwwroot/uploads/NAssessment", doc.VchFileName);
+        //                    if (System.IO.File.Exists(filePath))
+        //                    {
+        //                        System.IO.File.Delete(filePath);
+        //                    }
+        //                    // remove from database
+        //                    _context.TblNassessmentDoc.Remove(doc);
+        //                    await _context.SaveChangesAsync();
+        //                }
+        //            }
+        //            // Update the existing assessment with the new values
+        //            existingAssessmentWithDoc.VchBloodPressure = updatedModel.VchBloodPressure;
+        //            existingAssessmentWithDoc.VchPulse = updatedModel.VchPulse;
+        //            existingAssessmentWithDoc.DecTemperature = updatedModel.DecTemperature;
+        //            existingAssessmentWithDoc.DecSpO2 = updatedModel.DecSpO2;
+        //            existingAssessmentWithDoc.DecWeight = updatedModel.DecWeight;
+        //            existingAssessmentWithDoc.DecHeight = updatedModel.DecHeight;
+        //            existingAssessmentWithDoc.DecRespiratoryRate = updatedModel.DecRespiratoryRate;
+        //            existingAssessmentWithDoc.DecOxygenFlowRate = updatedModel.DecOxygenFlowRate;
+
+        //            existingAssessmentWithDoc.BitIsAllergical = updatedModel.BitIsAllergical;
+        //            existingAssessmentWithDoc.VchAllergicalDrugs = updatedModel.VchAllergicalDrugs;
+        //            existingAssessmentWithDoc.BitIsAlcoholic = updatedModel.BitIsAlcoholic;
+        //            existingAssessmentWithDoc.BitIsSmoking = updatedModel.BitIsSmoking;
+        //            existingAssessmentWithDoc.VchLmpForFemale = updatedModel.VchLmpForFemale;
+
+        //            existingAssessmentWithDoc.BitDiabetes = updatedModel.BitDiabetes;
+        //            existingAssessmentWithDoc.BitHeartDisease = updatedModel.BitHeartDisease;
+        //            existingAssessmentWithDoc.BitHypertension = updatedModel.BitHypertension;
+        //            existingAssessmentWithDoc.BitAsthma = updatedModel.BitAsthma;
+        //            existingAssessmentWithDoc.BitCholesterol = updatedModel.BitCholesterol;
+        //            existingAssessmentWithDoc.BitTuberculosis = updatedModel.BitTuberculosis;
+        //            existingAssessmentWithDoc.BitSurgery = updatedModel.BitSurgery;
+        //            existingAssessmentWithDoc.BitHospitalization = updatedModel.BitHospitalization;
+        //            existingAssessmentWithDoc.VchOtherHistory = updatedModel.VchOtherHistory;
+
+        //            existingAssessmentWithDoc.VchPsychologicalStatus = updatedModel.VchPsychologicalStatus;
+        //            existingAssessmentWithDoc.VchOccupation = updatedModel.VchOccupation;
+        //            existingAssessmentWithDoc.VchSocialEconomicStatus = updatedModel.VchSocialEconomicStatus;
+        //            existingAssessmentWithDoc.VchFamilySupport = updatedModel.VchFamilySupport;
+
+        //            existingAssessmentWithDoc.IntPainScore = updatedModel.IntPainScore;
+        //            existingAssessmentWithDoc.BitFallRisk = updatedModel.BitFallRisk;
+        //            existingAssessmentWithDoc.VchFallRiskRemarks = updatedModel.VchFallRiskRemarks;
+
+        //            _context.Update(existingAssessmentWithDoc);
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        else
+        //        {
+        //            TempData["Error"] = "Nursing assessment detail not found contact to admin!";
+        //            return RedirectToAction("NursingAssessment");
+        //        }
+        //        // --- 3. Handle NEW files to be uploaded ---
+        //        if (supportDocsI != null && supportDocsI.Any())
+        //        {
+        //            var allowedExtensions = new[] { ".jpg", ".jpeg", ".pdf" };
+        //            var uploadFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "NAssessment");
+        //            if (!Directory.Exists(uploadFolderPath))
+        //            {
+        //                Directory.CreateDirectory(uploadFolderPath);
+        //            }
+        //            foreach (var file in supportDocsI)
+        //            {
+        //                var ext = Path.GetExtension(file.FileName).ToLower();
+        //                if (allowedExtensions.Contains(ext))
+        //                {
+        //                    var uniqueFileName = $"{Guid.NewGuid()}{ext}";
+        //                    var filePath = Path.Combine(uploadFolderPath, uniqueFileName);
+        //                    using (var stream = new FileStream(filePath, FileMode.Create))
+        //                    {
+        //                        await file.CopyToAsync(stream);
+        //                    }
+        //                    var assessmentFile = new TblNassessmentDoc
+        //                    {
+        //                        IntFkAssId = updatedModel.IntAssessmentId, // Link to the existing assessment
+        //                        VchFileName = file.FileName,
+        //                        VchFilePath = $"/uploads/NAssessment/{uniqueFileName}",
+        //                        VchCreatedBy = User.Identity.Name,
+        //                        VchCreatedHost = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+        //                        VchCreatedIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
+        //                        DtCreated = DateTime.Now
+        //                    };
+        //                    _context.TblNassessmentDoc.Add(assessmentFile);
+        //                }
+        //            }
+        //            // Save all changes (updates, deletions, and new additions) in one go
+        //            await _context.SaveChangesAsync();
+        //        }
+        //        TempData["Success"] = "Nursing assessment updated successfully!";
+        //        return RedirectToAction("NursingAssessment");
+        //    }
+        //    else
+        //    {
+        //        TempData["ErrorMessage"] = "Model error generated contact to administrator!";
+        //        return View(updatedModel); // Return the view with validation errors
+        //    }
+        //}
 
         [Authorize(Roles = "Admin, Nursing")]
         private bool TblNsassessmentExists(int id)
