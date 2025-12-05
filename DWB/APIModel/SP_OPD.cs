@@ -7,6 +7,7 @@ namespace DWB.APIModel
         public decimal opd_rec { get; set; }
         public string pname { get; set; } = string.Empty;
         public string opdno { get; set; } = string.Empty;
+        public string opttype { get; set; } = string.Empty;
 
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateOnly jdate { get; set; }
@@ -14,7 +15,7 @@ namespace DWB.APIModel
         public string doccode { get; set; } = string.Empty;
         public string timein { get; set; } = string.Empty;
         public string age { get; set; } = string.Empty;
-        public string? sex { get; set; }
+        public string sex { get; set; }
         public int visit { get; set; }
         public string Pcategory { get; set; } = string.Empty;
         public int CompCode { get; set; }
@@ -22,6 +23,7 @@ namespace DWB.APIModel
         public Boolean bitTempNSAssComplete { get; set; } = false;
         public Boolean bitTempDOcAssComplete { get; set; } = false;
         public Boolean bitTempCounselingComplete { get; set; } = false;
+        public Boolean bitTempEmergencyComplete { get; set; } = false;
 
     }
 }

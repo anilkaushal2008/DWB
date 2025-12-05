@@ -242,56 +242,160 @@ namespace DWB.Controllers
             ViewBag.Company = new SelectList(company, "IntPk", "Descript");
             return View(model);
         }
-       
-        [Authorize(Roles ="Admin, Nursing, Billing, Consultant")]
         public async Task<IActionResult> Dashboard()
         {
-            //Get Opd Count //api format Base+opdCount?code=1
+            // 1. SETUP COMMON VARIABLES (User ID, Base URL, Dates)
+            // These are fast and needed for almost everyone, so we keep them here.
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
-            //get current ihms code
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
-            //get doctor code if available
-            string DocCode = User.FindFirst("DoctorCode")?.Value ?? String.Empty;
-            var finalURL = string.Empty;
-            if (DocCode != null)
+            string DocCode = User.FindFirst("DoctorCode")?.Value ?? "null";
+
+            DateTime Sdate = DateTime.Today;
+            string finalSdate = Sdate.ToString("dd-MM-yyyy");
+            string finalEdate = Sdate.ToString("dd-MM-yyyy");
+            var todayStr = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
+
+            // 2. DEFINE BOOLEANS FOR ROLES (For cleaner if-statements)
+            bool isAdmin = User.IsInRole("Admin");
+            bool isNursing = User.IsInRole("Nursing");
+            bool isConsultant = User.IsInRole("Consultant");
+            bool isCounselor = User.IsInRole("Counselor"); // Assuming you have this role
+            bool isEmergency = User.IsInRole("Emergency"); // Assuming you have this role
+
+            // --- LOGIC BLOCK 1: General OPD Data ---
+            // (Visible to: Admin, Nursing, Consultant)
+            if (isAdmin || isNursing || isConsultant)
             {
-                finalURL = BaseAPI + "opdCount?code=" + code + "&doccode=" + DocCode;
+                // 1. Fetch API Data
+                ViewBag.OPDCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "");
+
+                // 2. Fetch Nursing Assessment (Only needed if Admin or Nurse)
+                if (isAdmin || isNursing)
+                {
+                    var nursAssessmentCount = _context.TblNsassessment
+                        .Count(m => m.BitIsCompleted == true && m.VchHmsdtEntry == todayStr);
+                    ViewBag.NSAssessment = nursAssessmentCount.ToString();
+                }
+
+                // 3. Fetch Doctor Assessment (Only needed if Admin or Consultant)
+                if (isAdmin || isConsultant)
+                {
+                    var doctorAssessmentCount = _context.TblDoctorAssessment
+                        .Count(m => m.BitAsstCompleted == true && m.DtHmsentry == todayStr);
+                    ViewBag.DocAssessment = doctorAssessmentCount.ToString();
+                }
             }
-            else
+
+            // --- LOGIC BLOCK 2: Emergency Data ---
+            // (Visible to: Admin, Emergency Staff)
+            if (isAdmin || isEmergency)
             {
-                finalURL = BaseAPI + "opdCount?code=" + code;
-            }               
+                // Fetch API Data for Emergency
+                ViewBag.EmergencyCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "Emergency");
+
+                // Fetch Database Data for Emergency
+                // var emergencyAssessedCount = _context.TblTriage.Count(m => m.EntryDate == todayStr && m.IsAssessed == true);
+                ViewBag.EmergencyAssessed = "0"; // Placeholder
+            }
+
+            // --- LOGIC BLOCK 3: Counseling Data ---
+            // (Visible to: Admin, Counselor)
+            if (isAdmin || isCounselor)
+            {
+                var counselingCount = _context.PatientEstimateRecord.Count();
+                ViewBag.Coun = counselingCount.ToString();
+            }
+
+            return View();
+        }
+
+        // Keep the helper function exactly the same
+        private async Task<string> GetApiCount(string baseUrl, string sDate, string eDate, int hmsCode, string docCode, string opdType)
+        {
+            string countResult = "0";
+            // Check if BaseAPI is valid before calling to prevent crashes
+            if (string.IsNullOrEmpty(baseUrl)) return countResult;
+
+            string url = $"{baseUrl}opdCount?sdate={sDate}&edate={eDate}&code={hmsCode}&uhidno=null&doccode={docCode}&opdType={opdType}";
+
             using (HttpClient client = new HttpClient())
             {
                 try
                 {
-                    var response = await client.GetAsync(finalURL);
-
-                    if (!response.IsSuccessStatusCode)
+                    // Optional: Set a timeout so the dashboard doesn't hang if API is slow
+                    client.Timeout = TimeSpan.FromSeconds(3);
+                    var response = await client.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
                     {
-                        // 🚨 API is not responding
-                        return RedirectToAction("ApiDown", "Error");
+                        countResult = await response.Content.ReadAsStringAsync();
                     }
-
-                    string result = await response.Content.ReadAsStringAsync();
-                    ViewBag.OPDCount = result;
                 }
-                catch
+                catch (Exception)
                 {
-                    // 🚨 API unreachable (network error / timeout)
-                    return RedirectToAction("ApiDown", "Error");
+                    countResult = "0";
                 }
             }
-            //get Today Nursing assessment completed count
-            var aajkidate = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
-            var nursAssessmentCount = _context.TblNsassessment.Count(m => m.BitIsCompleted==true && m.VchHmsdtEntry == aajkidate);
-            var doctorAssessmentCount = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted==true && m.DtHmsentry == aajkidate);
-            var CounselingCount = _context.PatientEstimateRecord.Count();
-            ViewBag.NSAssessment = nursAssessmentCount.ToString();
-            ViewBag.DocAssessment = doctorAssessmentCount.ToString();
-            ViewBag.CounselingCount = CounselingCount.ToString();
-            return View();
+            return countResult;
         }
+
+
+
+
+        //[Authorize(Roles ="Admin, Nursing, Billing, Consultant")]
+        //public async Task<IActionResult> Dashboard()
+        //{
+        //    //Get Opd Count //api format Base+opdCount?code=1
+        //    string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
+        //    //get current ihms code
+        //    int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+        //    //get doctor code if available
+        //    string DocCode = User.FindFirst("DoctorCode")?.Value ?? String.Empty;
+        //    var finalURL = string.Empty;
+        //    var finalOpdType = string.Empty;
+        //    DateTime Sdate = DateTime.Today;
+        //    DateTime Edate = DateTime.Today;
+        //    string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
+        //    string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
+        //    if (DocCode != null)
+        //    {
+        //        finalURL = BaseAPI + "opdCount?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doccode=" + DocCode+"&opdType="+finalOpdType;
+        //    }
+        //    else
+        //    {
+        //        finalURL = BaseAPI + "opdCount?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doccode=null&opdType=" + finalOpdType;
+        //    }               
+        //    using (HttpClient client = new HttpClient())
+        //    {
+        //        try
+        //        {
+        //            var response = await client.GetAsync(finalURL);
+
+        //            if (!response.IsSuccessStatusCode)
+        //            {
+        //                // 🚨 API is not responding
+        //                return RedirectToAction("ApiDown", "Error");
+        //            }
+
+        //            string result = await response.Content.ReadAsStringAsync();
+        //            ViewBag.OPDCount = result.ToString();
+        //        }
+        //        catch(Exception e)
+        //        {
+        //            TempData["Error"] = "The error generated as :" + e.Message;
+        //            // 🚨 API unreachable (network error / timeout)
+        //            return RedirectToAction("ApiDown", "Error");
+        //        }
+        //    }
+        //    //get Today Nursing assessment completed count
+        //    var aajkidate = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
+        //    var nursAssessmentCount = _context.TblNsassessment.Count(m => m.BitIsCompleted==true && m.VchHmsdtEntry == aajkidate);
+        //    var doctorAssessmentCount = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted==true && m.DtHmsentry == aajkidate);
+        //    var CounselingCount = _context.PatientEstimateRecord.Count();
+        //    ViewBag.NSAssessment = nursAssessmentCount.ToString();
+        //    ViewBag.DocAssessment = doctorAssessmentCount.ToString();
+        //    ViewBag.CounselingCount = CounselingCount.ToString();
+        //    return View();
+        //}
 
         [HttpGet]
         public IActionResult ChangePassword()
