@@ -1,6 +1,12 @@
 $(function () {
     "use strict";
 
+    /* 1. LOAD SAVED THEME (Added this so persistence works) */
+    var savedTheme = localStorage.getItem('dwb_theme');
+    if (savedTheme) {
+        $("html").attr("data-bs-theme", savedTheme);
+    }
+
     /* scrollar */
     new PerfectScrollbar(".notify-list");
     new PerfectScrollbar(".search-content");
@@ -72,7 +78,7 @@ $(function () {
     /* switcher with persistence */
     function setTheme(themeName) {
         $("html").attr("data-bs-theme", themeName);
-        localStorage.setItem('dwb_theme', themeName); // <--- CRITICAL: SAVES TO STORAGE
+        localStorage.setItem('dwb_theme', themeName);
     }
 
     $("#BlueTheme").on("click", function () { setTheme("blue-theme") });
@@ -107,29 +113,5 @@ $(function () {
         }).addClass("").parent().addClass("mm-active"); o.is("li");) o = o.parent("").addClass("mm-show").parent("").addClass("mm-active")
     });
 
-
-    /* Modern Card Styling */
-.card {
-    border: none!important; /* Remove hard grey borders */
-    border - radius: 1rem!important; /* Softer corners (16px) */
-    box - shadow: 0 10px 30px - 12px rgba(0, 0, 0, 0.1); /* Soft, floating shadow */
-    transition: transform 0.2s ease, box - shadow 0.2s ease;
-}
-
-/* Hover Effect for interactivity */
-.card:hover {
-    transform: translateY(-3px); /* Slight lift */
-    box - shadow: 0 15px 35px - 10px rgba(0, 0, 0, 0.15);
-}
-
-/* Header cleanup */
-.card - header {
-    background - color: transparent;
-    border - bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
-}
-
-.card - body {
-    padding: 1.5rem;
-    }
 });
+// End of JS function

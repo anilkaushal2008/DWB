@@ -1,0 +1,733 @@
+﻿@using DWB.ViewModels
+@model DWB.ViewModels.CounselingViewModel
+@{
+    ViewData["Title"] = "Financial Counseling & Estimate";
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        /* ==========================================================================
+                   1. CURSOR & VISIBILITY FIXES (CRITICAL)
+                   ========================================================================== */
+
+        /* FORCE LIGHT MODE: This tells the browser to use a BLACK mouse cursor
+                   and Dark Scrollbars, even if the user's computer is in Dark Mode. */
+        :root {
+            color-scheme: light !important;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #212529; /* Ensure global text is dark */
+        }
+
+        .main-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        /* INPUTS: Enforce Black Text, Black Cursor, White Background */
+        .form-control,
+        .select2-search__field {
+            /* Double safety for the cursor */
+            color-scheme: light !important;
+            caret-color: #000 !important; /* The blinking typing line */
+            cursor: text !important; /* The I-Beam pointer */
+
+            background-color: #fff !important;
+            border: 1px solid #ced4da !important;
+            color: #212529 !important;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+            /* Hover & Focus States */
+            .form-control:hover,
+            .form-control:focus {
+                border-color: #86b7fe !important;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+                background-color: #fff !important;
+                color: #212529 !important;
+                outline: none;
+            }
+
+            .form-control:read-only {
+                background-color: #e9ecef !important;
+                cursor: not-allowed;
+                color: #495057 !important;
+            }
+
+        /* --- Select2 Styling --- */
+        .select2-container {
+            color-scheme: light !important; /* Ensure dropdown menu gets light mode cursor */
+        }
+
+            .select2-container .select2-selection--single {
+                height: 31px !important;
+                padding-top: 2px;
+                border: 1px solid #ced4da;
+                background-color: #fff !important;
+                color: #212529 !important;
+            }
+
+        .select2-container--default .select2-selection--single:hover,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #86b7fe;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 2px;
+        }
+
+        /* Dropdown Options Background */
+        .select2-dropdown {
+            background-color: #fff !important;
+            color: #212529 !important;
+            border: 1px solid #ced4da;
+        }
+
+        /* --- Layout Styles --- */
+        .section-header {
+            background-color: #f8f9fa;
+            color: #343a40;
+            padding: 12px 15px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            font-weight: 700;
+            border-left: 5px solid #0d6efd;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+        }
+
+        .card-patient-info {
+            border: 1px solid #e9ecef;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border-radius: 8px;
+        }
+
+        .table-responsive-scroll {
+            max-height: 550px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+
+        #estimatetariffTable thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #fff !important;
+            color: #495057;
+            vertical-align: middle;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #dee2e6;
+            box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+        }
+
+        #estimatetariffTable tbody td {
+            vertical-align: middle;
+        }
+
+        .btn-grd {
+            transition: all 0.2s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+            .btn-grd:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            }
+
+        .instruction-box {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            background-color: #fdfdfd;
+            border-radius: 4px;
+            color: #555;
+        }
+    </style>
+
+    <script>
+        // ==========================================
+        // 1. GLOBAL VARIABLES & DATA SOURCES
+        // ==========================================
+
+        var availableServices = @Html.Raw(Json.Serialize(ViewBag.ServiceList));
+        let dynamicRowIndex = @(Model.LineItems != null ? Model.LineItems.Count : 0);
+        let tariffModalIndex = 0;
+        let tariffUpdateUrl = '';
+
+        // ==========================================
+        // 2. DOCUMENT READY
+        // ==========================================
+        $(document).ready(function () {
+
+            getClientPublicIP();
+            calculateGrandTotal();
+
+            // Success Message Check
+            const successMessage = sessionStorage.getItem('tariffUpdateSuccess');
+            if (successMessage) {
+                displayAlert(successMessage, 'success');
+                sessionStorage.removeItem('tariffUpdateSuccess');
+            }
+
+            // --- BINDINGS ---
+            $('#btnAddNewServiceRow').click(function() { addSearchableRow(); });
+            $(document).on('click', '.clone-estimate-row', function() { addSearchableRow(); });
+
+            // Global Qty
+            $('#btnApplyGlobalQty').click(function() {
+                var qty = parseFloat($('#globalQtyInput').val());
+                if(isNaN(qty) || qty < 0) {
+                    alert("Please enter a valid quantity.");
+                    return;
+                }
+                $('#estimatetariffTable .est-quantity').each(function() {
+                    $(this).val(qty).trigger('input');
+                });
+            });
+
+            // Remove Row
+            $('#estimatetariffTable').on('click', '.remove-estimate-row', function() {
+                $(this).closest('tr').remove();
+                calculateGrandTotal();
+            });
+
+            // Calc
+            $('#estimatetariffTable').on('input', '.est-quantity', function () {
+                calculateRow($(this).data('row-index'));
+            });
+
+            // --- FORM VALIDATION ---
+            $('form').on('submit', function (e) {
+                // 1. Total Cost Check
+                const totalCost = parseFloat($('input[name="TotalEstimatedCost"]').val()) || 0;
+                if (totalCost <= 0) {
+                    e.preventDefault();
+                    alert("⚠️Total Estimated Cost cannot be zero.");
+                    return false;
+                }
+
+                // 2. Zero Qty Check
+                let hasZeroQty = false;
+                $('#estimatetariffTable .est-quantity').each(function() {
+                    if ((parseFloat($(this).val()) || 0) <= 0) {
+                        hasZeroQty = true;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+                if (hasZeroQty) {
+                    e.preventDefault();
+                    alert("⚠️ Validation Error: Remove services with 0 Quantity.");
+                    return false;
+                }
+
+                // 3. Acknowledgement Check
+                if (! $('#IsAcknowledged').is(':checked')) {
+                    e.preventDefault();
+                    alert("⚠️ Acknowledgement Required: You must agree to the terms.");
+                    $('html, body').animate({
+                        scrollTop: $("#IsAcknowledged").offset().top - 200
+                    }, 500);
+                    return false;
+                }
+        // 4.Estimate cost and total cost
+        let totalAdvance = 0;
+        $('.advance-amount').each(function() {
+            totalAdvance += parseFloat($(this).val()) || 0;
+        });
+        //validation
+        if (totalAdvance > totalCost) {
+            e.preventDefault();
+            alert(`⚠️Excessive Advance Amount.\n\nTotal Advance (₹ ${totalAdvance.toFixed(2)}) cannot be greater than the Total Estimate (₹ ${totalCost.toFixed(2)}).`);
+
+            // Highlight the fields to help the user
+            $('.advance-amount').addClass('is-invalid');
+            return false;
+        } else {
+            $('.advance-amount').removeClass('is-invalid');
+        }
+
+        // ... (Your existing check for Total Cost <= 0) ...
+        if (totalCost <= 0) {
+            e.preventDefault();
+            alert("⚠️ Validation Error: Total Estimated Cost cannot be zero.");
+            return false;
+        }
+            });
+
+            // --- MODAL EVENTS ---
+            $('#addTariffModal').on('show.bs.modal', function (e) {
+                tariffUpdateUrl = $(e.relatedTarget).data('tariff-url');
+                if ($('#tariffModalTable tbody tr').length === 0) addNewTariffModalRow();
+            });
+            $('#addTariffModal').on('hidden.bs.modal', function () {
+                $('#tariffModalTable tbody').empty();
+                tariffModalIndex = 0;
+            });
+            $('#addNewTariffRow').click(addNewTariffModalRow);
+            $(document).on('click', '#tariffModalTable .remove-row', function() { $(this).closest('tr').remove(); });
+            $(document).on('click', '#tariffModalTable .clone-row', function() { addNewTariffModalRow(); });
+
+            // Modal Submit
+            $('#tariffMasterForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: tariffUpdateUrl, type: 'POST', data: $(this).serialize(),
+                    success: function (res) {
+                         if(res.success) {
+                             sessionStorage.setItem('tariffUpdateSuccess', 'Saved successfully!');
+                             window.location.reload(true);
+                         } else { alert(res.message); }
+                    }
+                });
+            });
+        });
+
+        // ==========================================
+        // 3. MAIN FUNCTION: ADD ROW
+        // ==========================================
+        function addSearchableRow() {
+            const index = dynamicRowIndex++;
+            let servicesData = [];
+
+            // Extract Array
+            if (availableServices) {
+                if (availableServices.$values) servicesData = availableServices.$values;
+                else if (Array.isArray(availableServices)) servicesData = availableServices;
+            }
+
+            let optionsHtml = '<option value="">-- Type to Search --</option>';
+            if (servicesData && servicesData.length > 0) {
+                servicesData.forEach(function(item) {
+                    const name = item.serviceName || item.ServiceName || "Unknown";
+                    const rate = item.currentRate || item.CurrentRate || 0;
+                    const unit = item.unitType || item.UnitType || "";
+                    optionsHtml += `<option value="${name}" data-rate="${rate}" data-unit="${unit}">${name}</option>`;
+                });
+            }
+
+            const newRowHtml = `
+                <tr data-index="${index}">
+                    <td>
+                        <select class="form-control form-control-sm service-select"
+                                name="LineItems[${index}].ServiceName"
+                                id="service_select_${index}"
+                                data-row-index="${index}">
+                            ${optionsHtml}
+                        </select>
+                        <input type="hidden" name="LineItems[${index}].UnitType" class="unit-type-input" />
+                        <input type="hidden" name="LineItems[${index}].IsDefault" value="false" />
+                    </td>
+                    <td><input type="text" class="form-control-plaintext form-control-sm unit-display" readonly /></td>
+                    <td class="text-end">
+                        <span class="rate-display">0.00</span>
+                        <input type="hidden" name="LineItems[${index}].TariffRate" class="tariff-rate" value="0" />
+                    </td>
+                    <td><input type="number" name="LineItems[${index}].EstimatedQuantity" class="form-control form-control-sm est-quantity" step="0.01" min="0" value="1" data-row-index="${index}" /></td>
+                    <td class="text-end calculated-amount">
+                        <span id="amount-${index}">0.00</span>
+                        <input type="hidden" name="LineItems[${index}].CalculatedAmount" class="final-amount" value="0" />
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-estimate-row"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>`;
+
+            $('#estimateTableBody').append(newRowHtml);
+
+            $(`#service_select_${index}`).select2({
+                placeholder: "Search Service...",
+                allowClear: true,
+                width: '100%',
+                minimumResultsForSearch: 0,
+                dropdownParent: $('body')
+            });
+
+            $(`#service_select_${index}`).on('select2:select', function (e) {
+                const selected = $(this).find(':selected');
+                const val = selected.val();
+
+                let dup = false;
+                // Check New Dropdowns
+                $('#estimatetariffTable .service-select').not(this).each(function() {
+                    if($(this).val() === val) { dup = true; return false; }
+                });
+
+                // Check Existing Hidden Inputs (for saved rows)
+                if(!dup) {
+                    $('.service-name-input').each(function() {
+                        if($(this).val() === val) { dup = true; return false; }
+                    });
+                }
+
+                if(dup) {
+                    alert("⚠️ Duplicate Service!\n\nThis service is already in the list.");
+                    $(this).val(null).trigger('change');
+                    return;
+                }
+
+                const $row = $(this).closest('tr');
+                $row.find('.unit-display').val(selected.data('unit'));
+                $row.find('.unit-type-input').val(selected.data('unit'));
+                $row.find('.rate-display').text(parseFloat(selected.data('rate')).toFixed(2));
+                $row.find('.tariff-rate').val(selected.data('rate'));
+                calculateRow(index);
+            });
+        }
+
+        function calculateRow(rowIndex) {
+            const $row = $(`#estimatetariffTable tbody tr[data-index="${rowIndex}"]`);
+            const r = parseFloat($row.find('.tariff-rate').val()) || 0;
+            const q = parseFloat($row.find('.est-quantity').val()) || 0;
+            const t = r * q;
+            $row.find(`#amount-${rowIndex}`).text(t.toFixed(2));
+            $row.find('.final-amount').val(t.toFixed(2));
+            calculateGrandTotal();
+        }
+
+        function calculateGrandTotal() {
+            let total = 0;
+            $('#estimatetariffTable .final-amount').each(function() { total += parseFloat($(this).val()) || 0; });
+            $('#totalEstimatedCostDisplay').text('₹ ' + total.toFixed(2));
+            $('input[name="TotalEstimatedCost"]').val(total);
+        }
+
+        function displayAlert(msg, type) {
+            $('.main-content').prepend(`<div class="alert alert-${type} alert-dismissible fade show mt-3">${msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`);
+        }
+
+        // Modal Row
+        function addNewTariffModalRow() {
+            const i = tariffModalIndex++;
+            $('#tariffModalTable tbody').append(`<tr data-index="${i}"><td><input name="TariffItems[${i}].ServiceName" class="form-control form-control-sm" required/></td><td><input type="number" name="TariffItems[${i}].CurrentRate" class="form-control form-control-sm" value="0"/></td><td><select name="TariffItems[${i}].UnitType" class="form-control form-control-sm"><option>PER DAY</option><option>PER VISIT</option><option>PER HOUR</option><option>ACTUAL</option></select></td><td><select name="TariffItems[${i}].CalculationType" class="form-control form-control-sm"><option>FIXED</option><option>PERCENTAGE</option><option>ACTUAL</option></select></td><td class="text-center"><input type="checkbox" class="chk-active" checked/><input type="hidden" name="TariffItems[${i}].IsActive" value="true" class="val-active"/></td><td class="text-center"><input type="checkbox" class="chk-default" checked/><input type="hidden" name="TariffItems[${i}].BitIsDeafult" value="true" class="val-default"/></td><td><button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-minus"></i></button></td></tr>`);
+        }
+
+        $(document).on('change', '.chk-active', function() { $(this).siblings('.val-active').val($(this).is(':checked')); });
+        $(document).on('change', '.chk-default', function() { $(this).siblings('.val-default').val($(this).is(':checked')); });
+
+        function getClientPublicIP() {
+             $.getJSON('https://api.ipify.org?format=json', function(data) {
+                $('#clientIpInput, #modalClientIp').val(data.ip || '0.0.0.0');
+                $('#clientHostInput, #modalClientHost').val((data.ip || '0.0.0.0') + ' (Public IP)');
+            }).fail(function() {
+                $('#clientIpInput, #modalClientIp').val('127.0.0.1');
+                $('#clientHostInput, #modalClientHost').val('Local/Unknown');
+            });
+        }
+    </script>
+}
+
+<main class="main-wrapper">
+    <div class="main-content">
+
+        @* Determine Action based on ID *@
+        @{
+            string actionName = (Model.EstimateRecordId > 0) ? "UpdateEstimate" : "CreateEstimate";
+        }
+
+        <form asp-controller="Counseling" asp-action="@actionName" method="post">
+
+            @* IMPORTANT: Keep the ID so the Update Action knows which record to fix *@
+            <input type="hidden" asp-for="EstimateRecordId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="breadcrumb-title mb-4 fw-semibold text-dark">
+                    Patient Financial Estimate
+                </h4>
+                <div>
+                    @* Tariff Master Button *@
+                    <button type="button" class="btn btn-primary btn-sm btn-grd px-3"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addTariffModal"
+                            title="Add new tariff rates to the master table"
+                            data-tariff-url="@Url.Action("UpdateTariffMaster", "Counseling")">
+                        <i class="fas fa-cog me-1"></i> Tariff Master
+                    </button>
+                </div>
+            </div>
+            <hr class="mt-0" />
+
+            @* --- HIDDEN INPUTS --- *@
+            <input type="hidden" asp-for="CounselorName" />
+            <input type="hidden" asp-for="EstimateDate" />
+            <input type="hidden" asp-for="TotalEstimatedCost" />
+            <input type="hidden" asp-for="TotalAmountReceived" />
+            <input type="hidden" id="clientIpInput" asp-for="ClientIp" />
+            <input type="hidden" id="clientHostInput" asp-for="CLientHost" />
+            <input type="hidden" asp-for="VisitNo" />
+
+
+            <div class="card card-patient-info p-2 mb-3">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small fw-bold">Patient Registration ID</label>
+                        <input asp-for="PatientRegistrationID" class="form-control fw-bold" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small fw-bold">Patient Name</label>
+                        <input asp-for="PatientName" class="form-control fw-bold" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted small fw-bold">Financial Counselor</label>
+                        <input asp-for="CounselorName" class="form-control bg-light" readonly />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="section-header">Estimated / Re-Estimated Tariff Information</div>
+
+            <div class="row mb-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="text-muted small fw-bold mb-1">Global Quantity Override:</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted">Set All to:</span>
+                        <input type="number" id="globalQtyInput" class="form-control" placeholder="Qty" min="1" style="max-width: 100px;">
+                        <button class="btn btn-outline-secondary" type="button" id="btnApplyGlobalQty">
+                            <i class="fas fa-check"></i> Apply
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-success btn-grd px-4" id="btnAddNewServiceRow">
+                        <i class="fas fa-plus me-1"></i> Add Service
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive-scroll table-responsive">
+                <table class="table table-sm table-bordered table-hover mb-0" id="estimatetariffTable">
+                    <thead class="border-bottom border-2 border-primary">
+                        <tr>
+                            <th style="width: 35%;">Service Name</th>
+                            <th style="width: 15%;">Unit Type</th>
+                            <th class="text-end" style="width: 15%;">Rate (₹)</th>
+                            <th style="width: 15%;">Est. Qty</th>
+                            <th class="text-end" style="width: 15%;">Total (₹)</th>
+                            <th class="text-center" style="width: 5%;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="estimateTableBody" class="align-middle">
+                        @for (int i = 0; i < Model.LineItems.Count; i++)
+                        {
+                            <tr data-index="@i">
+                                <td>
+                                    <span class="fw-bold text-primary">@Model.LineItems[i].ServiceName</span>
+                                    <input type="hidden" class="service-name-input" asp-for="@Model.LineItems[i].ServiceName" />
+                                    <input type="hidden" class="unit-type-input" asp-for="@Model.LineItems[i].UnitType" />
+                                    <input type="hidden" asp-for="@Model.LineItems[i].bitISdeafult" />
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control-plaintext form-control-sm unit-display"
+                                           readonly value="@Model.LineItems[i].UnitType" />
+                                </td>
+                                <td class="text-end">
+                                    @Model.LineItems[i].TariffRate.ToString("N2")
+                                    <input type="hidden" asp-for="@Model.LineItems[i].TariffRate" class="tariff-rate" />
+                                </td>
+                                <td>
+                                    <input asp-for="@Model.LineItems[i].EstimatedQuantity"
+                                           class="form-control form-control-sm est-quantity"
+                                           type="number" step="0.01" min="0" data-row-index="@i" />
+                                </td>
+                                <td class="text-end calculated-amount">
+                                    <span id="amount-@i">@Model.LineItems[i].CalculatedAmount.ToString("N2")</span>
+                                    <input type="hidden" asp-for="@Model.LineItems[i].CalculatedAmount" class="final-amount" />
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm remove-estimate-row">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <td colspan="4" class="text-end fw-bold py-2">Total Estimated Cost:</td>
+                            <td class="text-end fw-bold text-primary py-2" id="totalEstimatedCostDisplay" style="font-size: 1.1em;">
+                                ₹ @Model.TotalEstimatedCost.ToString("N2")
+                            </td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="section-header">Instructions & Acknowledgement</div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="fw-bold mb-2">Hospital Instructions:</label>
+                    <div class="instruction-box bg-white">
+                        <ol start="21" class="ps-3 mb-0">
+                            <li>Bill will be on <strong>actual consumption</strong> and any deviation will be charged extra.</li>
+                            <li>For day care: < 6 hrs = hourly; 6-12 hrs = 60%; > 12 hrs = Full Day.</li>
+                            <li>Blood units issued must be <strong>replaced by donations</strong>.</li>
+                            <li>High risk/emergency charges are extra. Cross consults not included.</li>
+                            <li><strong>Packages are non-discountable.</strong> Breakup not provided.</li>
+                            <li>Service tax 18% applicable on Cosmetic Surgery.</li>
+                            <li><strong>No Cheques.</strong> Drafts in favor of "INDUS SUPER SPECIALITY HEALTHCARE PVT. LTD."</li>
+                            <li>Rooms subject to availability. Vacate if shifted to ICU.</li>
+                            <li>ID proof/PAN required on admission.</li>
+                        </ol>
+                    </div>
+
+                    <div class="alert alert-light border mt-3 d-flex align-items-start">
+                        <input type="checkbox" asp-for="IsAcknowledged" class="form-check-input mt-1 me-2" style="transform: scale(1.2);" />
+                        <div>
+                            <label class="form-check-label fw-bold text-dark" for="IsAcknowledged">
+                                I hereby confirm that I have been explained the charges and have read and agree to all terms and conditions.
+                                <span class="text-danger">*</span>
+                            </label>
+                            <span asp-validation-for="IsAcknowledged" class="text-danger d-block small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-bold mb-2">Attendant Information:</label>
+                    <div class="card p-3 bg-light border-0">
+                        <div class="form-group mb-2">
+                            <label asp-for="RelativeName" class="small text-muted"></label>
+                            <input asp-for="RelativeName" class="form-control" placeholder="Enter Name" />
+                            <span asp-validation-for="RelativeName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label asp-for="RelativeRelation" class="small text-muted"></label>
+                            <input asp-for="RelativeRelation" class="form-control" placeholder="Relation to Patient" />
+                            <span asp-validation-for="RelativeRelation" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="small text-muted">Signature Confirmation</label>
+                            <input type="text" asp-for="RelativeSignatureData" class="form-control"
+                                   placeholder="Confirmed: Attendant has physically signed the printed copy." />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="section-header">Amount Received (Advance)</div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+
+                    @* Ensure the list is never null to prevent crash *@
+                    @if (Model.Payments == null) { Model.Payments = new List<PaymentTransactionViewModel>(); }
+
+                    @for (int i = 0; i < Model.Payments.Count; i++)
+                    {
+                        <div class="row g-2 align-items-center p-3 border-bottom">
+                            <input type="hidden" asp-for="@Model.Payments[i].PaymentDate" />
+
+                            <div class="col-md-3">
+                                <label class="small text-muted mb-1">Amount</label>
+                                <input asp-for="@Model.Payments[i].AmountPaid"
+                                       class="form-control form-control-sm advance-amount"
+                                       type="number" step="0.01" min="0" data-val="false" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small text-muted mb-1">Payer Name</label>
+                                <input asp-for="@Model.Payments[i].PayerName"
+                                       class="form-control form-control-sm" data-val="false" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small text-muted mb-1">Relation</label>
+                                <input asp-for="@Model.Payments[i].PayerRelation"
+                                       class="form-control form-control-sm" data-val="false" />
+                            </div>
+                            <div class="col-md-3 text-end">
+                                @if (Model.Payments[i].AmountPaid > 0)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
+                                        <i class="fas fa-check-circle"></i> Saved
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2">
+                                        <i class="fas fa-plus-circle"></i> New Entry
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-top d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary btn-grd btn-lg px-5 shadow">
+                    <i class="fas fa-save me-2"></i> Save & Acknowledge
+                </button>
+            </div>
+
+        </form>
+    </div>
+</main>
+
+<div class="modal fade" id="addTariffModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white py-2">
+                <h6 class="modal-title mb-0"><i class="fas fa-cog"></i> Tariff Master Management</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Counseling" asp-action="UpdateTariffMaster" method="post" id="tariffMasterForm">
+                <input type="hidden" name="ClientIP" value="0.0.0.0" />
+                <input type="hidden" name="ClientHostName" value="Waiting_For_Server" />
+
+                <div class="modal-body bg-light">
+                    <div class="alert alert-warning py-2 small mb-3">
+                        <i class="fas fa-info-circle"></i> Warning: Changes here affect the global master list.
+                    </div>
+                    <div class="card shadow-sm border-0">
+                        <div class="table-responsive" style="max-height: 400px;">
+                            <table class="table table-sm table-bordered mb-0" id="tariffModalTable">
+                                <thead class="bg-white sticky-top">
+                                    <tr>
+                                        <th>Service Name</th>
+                                        <th style="width: 100px;">Rate</th>
+                                        <th>Unit</th>
+                                        <th>Calc Type</th>
+                                        <th class="text-center">Active</th>
+                                        <th class="text-center">Default</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <button type="button" id="addNewTariffRow" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add Row
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer py-1">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-sm btn-success px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

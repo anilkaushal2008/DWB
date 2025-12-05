@@ -1,0 +1,212 @@
+﻿@model DWB.Models.TriageViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /* Patient Card Styling */
+    .patient-card-header {
+        background: #fff;
+        border-left: 5px solid #0dcaf0; /* Bootstrap Info Color */
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .patient-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+        display: block;
+    }
+
+    .patient-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #212529;
+    }
+</style>
+
+<main class="main-wrapper py-4">
+    <div class="container mt-3">
+
+        <h4 class="breadcrumb-title mb-4 fw-semibold text-dark">
+            @(Model.IsEditMode ? "Edit" : "New") Pre-Triage Assessment
+        </h4>
+
+        <div class="patient-card-header">
+            <div class="row">
+                <div class="col-md-4">
+                    <span class="patient-label">Patient Name</span>
+                    <span class="patient-value">@Model.PatientName</span>
+                </div>
+                <div class="col-md-4 border-start">
+                    <span class="patient-label">MRN Number</span>
+                    <span class="patient-value">@Model.MRN_Number</span>
+                </div>
+                <div class="col-md-4 border-start">
+                    <span class="patient-label">Age / Sex</span>
+                    <span class="patient-value">@Model.Age / @Model.Sex</span>
+                </div>
+            </div>
+        </div>
+
+        <form asp-action="@(Model.IsEditMode ? "Update" : "Save")" method="post" id="triageForm">
+            @Html.HiddenFor(m => m.VisitId)
+            @Html.HiddenFor(m => m.PatientId)
+            @Html.HiddenFor(m => m.AssessmentId)
+            @Html.HiddenFor(m => m.PatientName)
+            @Html.HiddenFor(m => m.MRN_Number)
+            @Html.HiddenFor(m => m.Age)
+            @Html.HiddenFor(m => m.Sex)
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-light fw-bold">Vitals & Arrival</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label asp-for="TransportationMode" class="form-label">Transportation Mode</label>
+                            <select asp-for="TransportationMode" class="form-select">
+                                <option value="Private">Private Vehicle</option>
+                                <option value="Ambulance">Ambulance</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="TransportationMode" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="Pulse" class="form-label">Pulse (bpm)</label>
+                            <input asp-for="Pulse" class="form-control" />
+                            <span asp-validation-for="Pulse" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">BP (Sys/Dia)</label>
+                            <div class="input-group">
+                                <input asp-for="BPSystolic" class="form-control" placeholder="120" />
+                                <span class="input-group-text">/</span>
+                                <input asp-for="BPDiastolic" class="form-control" placeholder="80" />
+                            </div>
+                            <span asp-validation-for="BPSystolic" class="text-danger small d-block"></span>
+                            <span asp-validation-for="BPDiastolic" class="text-danger small d-block"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="Temperature" class="form-label">Temp (°F)</label>
+                            <input asp-for="Temperature" class="form-control" />
+                            <span asp-validation-for="Temperature" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-light fw-bold">Clinical Assessment</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="ChiefComplaint" class="form-label fw-bold">Chief Complaint / Subjective</label>
+                        <textarea asp-for="ChiefComplaint" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="ChiefComplaint" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ObjectiveNotes" class="form-label fw-bold">Objective (Exam & Tests)</label>
+                        <textarea asp-for="ObjectiveNotes" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="ObjectiveNotes" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Diagnosis" class="form-label fw-bold">Diagnosis</label>
+                        <input asp-for="Diagnosis" class="form-control" />
+                        <span asp-validation-for="Diagnosis" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Plan" class="form-label fw-bold">Treatment Plan</label>
+                        <textarea asp-for="Plan" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Plan" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3 border-primary shadow-sm">
+                <div class="card-header bg-primary text-white">Triage & Disposition</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Triage Category</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" asp-for="TriageCategory" id="t1" value="Emergent" autocomplete="off">
+                                <label class="btn btn-outline-danger" for="t1">EMERGENT</label>
+
+                                <input type="radio" class="btn-check" asp-for="TriageCategory" id="t2" value="Urgent" autocomplete="off">
+                                <label class="btn btn-outline-warning text-dark" for="t2">URGENT</label>
+
+                                <input type="radio" class="btn-check" asp-for="TriageCategory" id="t3" value="Non-Urgent" autocomplete="off">
+                                <label class="btn btn-outline-success" for="t3">NON-URGENT</label>
+                            </div>
+                            <span asp-validation-for="TriageCategory" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 border-start">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" asp-for="IsAdmissionAdvised" id="chkAdmit">
+                                <label class="form-check-label fw-bold text-danger" for="chkAdmit">Advise Admission (Skip Form)</label>
+                            </div>
+
+                            <div id="release-options">
+                                <label asp-for="ConditionUponRelease" class="form-label">Condition Upon Release</label>
+                                <select asp-for="ConditionUponRelease" class="form-select">
+                                    <option value="">-- Select --</option>
+                                    <option value="Improved">Improved</option>
+                                    <option value="Unchanged">Unchanged</option>
+                                    <option value="Deteriorated">Deteriorated</option>
+                                </select>
+                                <span asp-validation-for="ConditionUponRelease" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <button type="submit" class="btn btn-dark btn-lg">
+                    <i class="fas fa-print"></i> Save & Print Assessment
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+            // Toggle release options based on Admission checkbox
+            $('#chkAdmit').change(function() {
+                if(this.checked) {
+                    $('#release-options').slideUp();
+                } else {
+                    $('#release-options').slideDown();
+                }
+            });
+
+            // Focus on first error
+            $("#triageForm").on("submit", function () {
+                if (!$(this).valid()) {
+                    setTimeout(function() {
+                        var $firstError = $(".input-validation-error").first();
+                        if ($firstError.length) {
+                            $firstError.focus();
+                            $('html, body').animate({
+                                scrollTop: $firstError.offset().top - 100
+                            }, 500);
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+}

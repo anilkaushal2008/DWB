@@ -23,6 +23,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[EmergencyTriageAssessment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EstimateLineItem]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[imaster]",
          "ObjectType": 0
       },
@@ -31,11 +39,23 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[PatientEstimateRecord]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PaymentTransaction]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Service_master]",
          "ObjectType": 0
       },
       {
          "Name": "[dbo].[ShiftMaster]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[TariffMaster]",
          "ObjectType": 0
       },
       {

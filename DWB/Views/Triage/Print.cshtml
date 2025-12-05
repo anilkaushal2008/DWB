@@ -1,0 +1,173 @@
+﻿@model DWB.Models.EmergencyTriageAssessment
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Print Assessment</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header-table, .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+            .content-table td, .content-table th {
+                border: 1px solid #000;
+                padding: 5px;
+                vertical-align: top;
+            }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .check-box {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #000;
+            margin-right: 5px;
+        }
+
+        .checked {
+            background-color: #000;
+        }
+        @@media print {
+            .no-print
+
+        {
+            display: none;
+        }
+
+        }
+    </style>
+</head>
+<body>
+
+    <button class="no-print" onclick="window.print()" style="padding: 10px; font-size: 16px; margin-bottom: 20px;">🖨️ Print Now</button>
+
+    <table class="header-table">
+        <tr>
+            <td width="20%"><img src="/logo.png" style="height: 50px;"></td>
+            <td class="header-title">PRE TRIAGE ASSESSMENT FORM</td>
+            <td width="25%" style="border: 1px solid #000; padding: 5px;">
+                <strong>Date:</strong> @Model.ArrivalDateTime.ToString("dd-MM-yyyy")<br>
+                <strong>Time:</strong> @Model.ArrivalDateTime.ToString("HH:mm")
+            </td>
+        </tr>
+    </table>
+
+    <table class="content-table">
+        <tr>
+            <td colspan="2"><strong>Patient Name:</strong> @Model.PatientName</td>
+            <td><strong>Age/Sex:</strong> @Model.Age / @Model.Sex</td>
+            <td><strong>MRN:</strong> @Model.MrnNumber</td>
+        </tr>
+        <tr>
+            <td colspan="4"><strong>Address:</strong> @Model.Address</td>
+        </tr>
+        <tr>
+            <td width="50%">
+                <strong>Arrival:</strong> @Model.TransportationMode
+            </td>
+            <td colspan="3">
+                <strong>History Obtained From:</strong> @Model.HistoryObtainedFrom
+            </td>
+        </tr>
+    </table>
+
+    <table class="content-table">
+        <tr class="section-title"><td colspan="6">VITAL SIGNS</td></tr>
+        <tr>
+            <th>Time</th>
+            <th>Pulse</th>
+            <th>BP</th>
+            <th>Resp</th>
+            <th>Temp</th>
+            <th>Wt.</th>
+        </tr>
+        <tr>
+            <td>@Model.VitalsTime?.ToString("HH:mm")</td>
+            <td>@Model.Pulse</td>
+            <td>@Model.Bpdiastolic / @Model.Bpdiastolic</td>
+            <td>@Model.RespRate</td>
+            <td>@Model.Temperature</td>
+            <td>@Model.Weight</td>
+        </tr>
+    </table>
+
+    <table class="content-table">
+        <tr>
+            <td height="60">
+                <strong>1) Subjective data (Chief Complaint):</strong><br>
+                @Model.ChiefComplaint
+            </td>
+        </tr>
+        <tr>
+            <td height="60">
+                <strong>2) Objective data (Examination/Tests):</strong><br>
+                @Model.ObjectiveNotes
+            </td>
+        </tr>
+        <tr>
+            <td height="40">
+                <strong>3) Assessment (Diagnosis):</strong><br>
+                @Model.ProvisionalDiagnosis
+            </td>
+        </tr>
+    </table>
+
+    <div style="border: 1px solid #000; padding: 10px; margin-bottom: 10px;">
+        <strong>CATEGORY:</strong>
+        <span style="margin-left: 20px;">
+            <span class="check-box @(Model.TriageCategory == "Emergent" ? "checked" : "")"></span> EMERGENT
+        </span>
+        <span style="margin-left: 20px;">
+            <span class="check-box @(Model.TriageCategory == "Urgent" ? "checked" : "")"></span> URGENT
+        </span>
+        <span style="margin-left: 20px;">
+            <span class="check-box @(Model.TriageCategory == "Non-Urgent" ? "checked" : "")"></span> NON-URGENT
+        </span>
+    </div>
+
+    <table class="content-table">
+        <tr>
+            <td height="60">
+                <strong>4) Plan (Treatment/Procedure/Meds):</strong><br>
+                @Model.TreatmentPlan
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>Condition Upon Release:</strong> @Model.ConditionUponRelease <br><br>
+                <strong>Follow Up:</strong> @(Model.FollowUpDate.HasValue? Model.FollowUpDate.Value.ToString("dd-MM-yyyy") : "N/A")
+            </td>
+        </tr>
+    </table>
+
+    <div style="text-align: right; margin-top: 40px;">
+        ___________________________<br>
+        <strong>Signature of Provider</strong><br>
+        @Model.CreatedByDoctorName
+    </div>
+
+</body>
+</html>

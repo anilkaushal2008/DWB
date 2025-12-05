@@ -1,0 +1,58 @@
+﻿@model DWB.ViewModels.CounselingReportViewModel
+@{
+    ViewData["Title"] = "Counseling Audit Report";
+}
+
+<h2 class="text-primary"><i class="fas fa-chart-bar"></i> Counseling Activity Audit Report</h2>
+<hr />
+
+<form method="post" asp-controller="Counseling" asp-action="AuditReport" class="mb-4">
+    <div class="row align-items-end">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label asp-for="ReportMonth" class="form-label"></label>
+                <input asp-for="ReportMonth" type="month" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Generate Report</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.ReportData.Any())
+{
+    <div class="alert alert-success">
+        Report generated for: **@Model.ReportMonth.ToString("MMMM yyyy")**
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>Counselor Name</th>
+                    <th class="text-center">Total Sessions Done (KPI)</th>
+                    <th class="text-end">Total Estimated Value (₹)</th>
+                    <th class="text-end">Total Advance Collected (₹)</th>
+                    <th class="text-end">Avg. Estimate Per Session (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ReportData)
+                {
+                    <tr>
+                        <td>@item.CounselorName</td>
+                        <td class="text-center">@item.TotalSessions</td>
+                        <td class="text-end">@item.TotalEstimatedValue.ToString("N2")</td>
+                        <td class="text-end">@item.TotalAdvanceCollected.ToString("N2")</td>
+                        <td class="text-end text-success">**@item.AverageEstimatePerSession.ToString("N2")**</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">No counseling records found for the selected period.</div>
+}

@@ -1,0 +1,255 @@
+﻿@model DWB.Models.PatientEstimateRecord
+@{
+    ViewData["Title"] = "Estimate Summary";
+    Layout = null; /* We use null layout to control the full page for printing */
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Estimate_@Model.Uhid</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- GENERAL SCREEN STYLES --- */
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .invoice-container {
+            background: #fff;
+            max-width: 850px;
+            margin: 30px auto;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        /* --- PRINT MEDIA QUERY (The Magic Part) --- */
+        @@media print {
+            body
+
+        {
+            background-color: #fff;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .invoice-container {
+            box-shadow: none;
+            margin: 0;
+            padding: 0;
+            max-width: 100%;
+            width: 100%;
+            border: none;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+        /* Hides buttons during print */
+        .page-break {
+            page-break-before: always;
+        }
+
+        /* Clean up links for print */
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        }
+
+        /* Styling the Tables */
+        .table-invoice th {
+            background-color: #f8f9fa !important;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table-invoice td {
+            vertical-align: middle;
+        }
+
+        .hospital-header {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 50px;
+            padding-top: 5px;
+            width: 80%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-3 mb-3 no-print text-center">
+        <button onclick="window.print()" class="btn btn-primary btn-lg shadow">
+            <i class="fas fa-print me-2"></i> Print Estimate
+        </button>
+        <a href="@Url.Action("GetCounseling", "Counseling")" class="btn btn-secondary btn-lg ms-2">
+            <i class="fas fa-arrow-left me-2"></i> Back to List
+        </a>
+    </div>
+
+    <div class="invoice-container">
+
+        <div class="row hospital-header align-items-center">
+            <div class="col-8">
+                <h3 class="fw-bold text-black m-0 text-uppercase">
+                    @(User.FindFirst("CompName")?.Value ?? "INDUS HOSPITAL")
+                </h3>
+
+                @* Uncomment address if needed later *@
+                @* <p class="mb-0 text-muted small">Opp. Old DC Office, Phase 1, Mohali</p> *@
+
+                <p class="mb-0 text-muted small mt-1">
+                    <i class="fas fa-phone-alt me-1 text-secondary"></i> +91-12345-67890
+                    <span class="mx-2 text-secondary">|</span>
+                    <i class="fas fa-envelope me-1 text-secondary"></i> billing@indushospital.com
+                </p>
+            </div>
+
+            <div class="col-4 text-end">
+                <h5 class="fw-bold text-dark m-0 letter-spacing-1">ESTIMATE</h5>
+
+                <p class="mb-0 text-muted small mt-1">
+                    <i class="fas fa-file-invoice me-1 text-secondary"></i> <strong>#@Model.EstimateRecordId</strong>
+                    <span class="mx-2 text-secondary">|</span>
+                    <i class="fas fa-calendar-alt me-1 text-secondary"></i> @Model.EstimateDate.ToString("dd-MMM-yyyy")
+                </p>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-6">
+                <h6 class="fw-bold text-uppercase text-secondary mb-2">Patient Details</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr><td style="width:100px;" class="text-muted">Name:</td><td class="fw-bold">@Model.PatientName</td></tr>
+                    <tr><td class="text-muted">UHID:</td><td class="fw-bold">@Model.Uhid</td></tr>
+                    <tr><td class="text-muted">Visit No:</td><td>@Model.VisitNumber</td></tr>
+                </table>
+            </div>
+            <div class="col-6">
+                <h6 class="fw-bold text-uppercase text-secondary mb-2">Attendant / Payer</h6>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr><td style="width:100px;" class="text-muted">Name:</td><td>@Model.RelativeName</td></tr>
+                    <tr><td class="text-muted">Relation:</td><td>@Model.RelativeRelation</td></tr>
+                    <tr><td class="text-muted">Counselor:</td><td>@Model.CounselorName</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <h6 class="fw-bold text-uppercase bg-light p-2 border-start border-4 border-primary">Estimated Services</h6>
+        <table class="table table-bordered table-invoice table-sm mb-4">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">S.No.</th>
+                    <th style="width: 45%;">Service Name</th>
+                    <th style="width: 15%;">Unit Type</th>
+                    <th class="text-end" style="width: 10%;">Rate</th>
+                    <th class="text-center" style="width: 10%;">Qty</th>
+                    <th class="text-end" style="width: 15%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EstimateLineItem != null)
+                {
+                    int i = 1;
+                    foreach (var item in Model.EstimateLineItem)
+                    {
+                        <tr>
+                            <td>@(i++)</td>
+                            <td>@item.ServiceName</td>
+                            <td>@item.UnitType</td>
+                            <td class="text-end">@item.TariffRate.ToString("N2")</td>
+                            <td class="text-center">@item.EstimatedQuantity</td>
+                            <td class="text-end fw-bold">@item.CalculatedAmount.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr class="table-light">
+                    <td colspan="5" class="text-end fw-bold">Total Estimated Cost:</td>
+                    <td class="text-end fw-bold fs-6">₹ @Model.TotalEstimatedCost.ToString("N2")</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        @if (Model.PaymentTransaction != null && Model.PaymentTransaction.Any())
+        {
+            <h6 class="fw-bold text-uppercase bg-light p-2 border-start border-4 border-success mt-4">Advance Received (Draft)</h6>
+            <table class="table table-bordered table-sm mb-4">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Payer Name</th>
+                        <th>Mode</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pay in Model.PaymentTransaction)
+                    {
+                        <tr>
+                           @*  <td>@pay.PaymentDate.Value.ToString("dd-MMM-yyyy")</td> *@
+                            <td>@(pay.PaymentDate.HasValue? pay.PaymentDate.Value.ToString("dd-MMM-yyyy") : "-")</td>
+                            <td>@pay.PayerName</td>
+                            <td>Draft/Cash</td>
+                            <td class="text-end">@pay.AmountPaid.Value.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">Total Received:</td>
+                        <td class="text-end fw-bold text-success">₹ @Model.TotalAmountReceived.ToString("N2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+
+        <div class="mt-5">
+            <p class="small text-muted mb-1"><strong>Terms & Conditions:</strong></p>
+            <div class="border rounded p-2 bg-light mb-4" style="font-size: 0.75rem;">
+                1. This is an approximate estimate based on the current diagnosis. Actual bill may vary.<br />
+                2. In case of emergency or complications, charges will increase.<br />
+                3. Packages are non-discountable.<br />
+                4. I hereby confirm that I have been explained the charges and agree to them.
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-4">
+                    <div class="signature-line">
+                        <strong>@Model.CounselorName</strong><br />
+                        (Financial Counselor)
+                    </div>
+                </div>
+                <div class="col-4"></div>
+                <div class="col-4">
+                    <div class="signature-line">
+                        <strong>@Model.RelativeName</strong><br />
+                        (Patient/Attendant)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 text-muted small no-print">
+            <hr />
+            <p>Generated by Indus DWB Dashbaord System on @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

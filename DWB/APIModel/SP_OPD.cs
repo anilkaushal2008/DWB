@@ -21,6 +21,7 @@ namespace DWB.APIModel
         public DateTime dtEntry { get; set; }
         public Boolean bitTempNSAssComplete { get; set; } = false;
         public Boolean bitTempDOcAssComplete { get; set; } = false;
+        public Boolean bitTempCounselingComplete { get; set; } = false;
 
     }
 }

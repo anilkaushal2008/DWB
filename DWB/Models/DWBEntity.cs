@@ -17,13 +17,23 @@ public partial class DWBEntity : DbContext
 
     public virtual DbSet<DoctorWeeklySchedule> DoctorWeeklySchedule { get; set; }
 
+    public virtual DbSet<EmergencyTriageAssessment> EmergencyTriageAssessment { get; set; }
+
+    public virtual DbSet<EstimateLineItem> EstimateLineItem { get; set; }
+
     public virtual DbSet<Imaster> Imaster { get; set; }
 
     public virtual DbSet<IndusCompanies> IndusCompanies { get; set; }
 
+    public virtual DbSet<PatientEstimateRecord> PatientEstimateRecord { get; set; }
+
+    public virtual DbSet<PaymentTransaction> PaymentTransaction { get; set; }
+
     public virtual DbSet<ServiceMaster> ServiceMaster { get; set; }
 
     public virtual DbSet<ShiftMaster> ShiftMaster { get; set; }
+
+    public virtual DbSet<TariffMaster> TariffMaster { get; set; }
 
     public virtual DbSet<TblCheifComplaintMas> TblCheifComplaintMas { get; set; }
 
@@ -165,6 +175,72 @@ public partial class DWBEntity : DbContext
             entity.HasOne(d => d.Shift).WithMany(p => p.DoctorWeeklySchedule)
                 .HasForeignKey(d => d.ShiftId)
                 .HasConstraintName("FK_DoctorWeeklySchedule_tblUsers");
+        });
+
+        modelBuilder.Entity<EmergencyTriageAssessment>(entity =>
+        {
+            entity.HasKey(e => e.AssessmentId).HasName("PK__Emergenc__3D2BF81E0984CDA0");
+
+            entity.Property(e => e.Age).HasMaxLength(20);
+            entity.Property(e => e.ArrivalDateTime).HasColumnType("datetime");
+            entity.Property(e => e.BedNumber).HasMaxLength(50);
+            entity.Property(e => e.Bpdiastolic).HasColumnName("BPDiastolic");
+            entity.Property(e => e.Bpsystolic).HasColumnName("BPSystolic");
+            entity.Property(e => e.ConditionUponRelease).HasMaxLength(50);
+            entity.Property(e => e.CreatedByDoctorName).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DischargeDateTime).HasColumnType("datetime");
+            entity.Property(e => e.FollowUpDate).HasColumnType("datetime");
+            entity.Property(e => e.FollowUpTime).HasColumnType("datetime");
+            entity.Property(e => e.HistoryObtainedFrom).HasMaxLength(50);
+            entity.Property(e => e.IsAdmissionAdvised).HasDefaultValue(false);
+            entity.Property(e => e.IsCrossConsultRequired).HasDefaultValue(false);
+            entity.Property(e => e.MrnNumber)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnName("MRN_Number");
+            entity.Property(e => e.PatientName)
+                .IsRequired()
+                .HasMaxLength(200);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+            entity.Property(e => e.Pulse).HasMaxLength(20);
+            entity.Property(e => e.ReferredTo).HasMaxLength(100);
+            entity.Property(e => e.RoomWardNumber).HasMaxLength(50);
+            entity.Property(e => e.Sex).HasMaxLength(10);
+            entity.Property(e => e.SpecialistName).HasMaxLength(100);
+            entity.Property(e => e.Temperature).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.TimeSeenByProvider).HasColumnType("datetime");
+            entity.Property(e => e.TransportationMode).HasMaxLength(50);
+            entity.Property(e => e.TransportationOther).HasMaxLength(100);
+            entity.Property(e => e.TriageCategory)
+                .IsRequired()
+                .HasMaxLength(20);
+            entity.Property(e => e.VitalsTime).HasColumnType("datetime");
+            entity.Property(e => e.Weight).HasColumnType("decimal(5, 2)");
+        });
+
+        modelBuilder.Entity<EstimateLineItem>(entity =>
+        {
+            entity.HasKey(e => e.LineItemId).HasName("PK__Estimate__8A871BEE02B9731F");
+
+            entity.Property(e => e.LineItemId).HasColumnName("LineItemID");
+            entity.Property(e => e.CalculatedAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.EstimateRecordId).HasColumnName("EstimateRecordID");
+            entity.Property(e => e.EstimatedQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ServiceName)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.TariffRate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UnitType)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.HasOne(d => d.EstimateRecord).WithMany(p => p.EstimateLineItem)
+                .HasForeignKey(d => d.EstimateRecordId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__EstimateL__Estim__71BCD978");
         });
 
         modelBuilder.Entity<Imaster>(entity =>
@@ -592,6 +668,67 @@ public partial class DWBEntity : DbContext
                 .HasColumnName("vchGSTStateCode");
         });
 
+        modelBuilder.Entity<PatientEstimateRecord>(entity =>
+        {
+            entity.HasKey(e => e.EstimateRecordId).HasName("PK__PatientE__495BB9189C842ECA");
+
+            entity.Property(e => e.EstimateRecordId).HasColumnName("EstimateRecordID");
+            entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
+            entity.Property(e => e.BitIscancelled).HasColumnName("bitISCancelled");
+            entity.Property(e => e.CounselorName)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.EstimateDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IntCode).HasColumnName("intCode");
+            entity.Property(e => e.IntIhmscode).HasColumnName("intIHMSCode");
+            entity.Property(e => e.PatientName)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.RelativeName)
+                .IsRequired()
+                .HasMaxLength(500);
+            entity.Property(e => e.RelativeRelation)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.TotalAmountReceived).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalEstimatedCost).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Uhid)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnName("UHID");
+            entity.Property(e => e.VchCompletedUser)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCompletedUser");
+            entity.Property(e => e.VchHostName)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchHostName");
+        });
+
+        modelBuilder.Entity<PaymentTransaction>(entity =>
+        {
+            entity.HasKey(e => e.TransactionId).HasName("PK__PaymentT__55433A4BDEE81A21");
+
+            entity.Property(e => e.TransactionId).HasColumnName("TransactionID");
+            entity.Property(e => e.AmountPaid).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.EstimateRecordId).HasColumnName("EstimateRecordID");
+            entity.Property(e => e.PayerName).HasMaxLength(100);
+            entity.Property(e => e.PayerRelation).HasMaxLength(50);
+
+            entity.HasOne(d => d.EstimateRecord).WithMany(p => p.PaymentTransaction)
+                .HasForeignKey(d => d.EstimateRecordId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PaymentTr__Estim__758D6A5C");
+        });
+
         modelBuilder.Entity<ServiceMaster>(entity =>
         {
             entity.HasKey(e => e.IntId);
@@ -830,6 +967,38 @@ public partial class DWBEntity : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<TariffMaster>(entity =>
+        {
+            entity.HasKey(e => e.TariffMasterId).HasName("PK__TariffMa__7945473A4385467A");
+
+            entity.HasIndex(e => e.ServiceName, "UQ__TariffMa__A42B5F997FC8FA2D").IsUnique();
+
+            entity.Property(e => e.TariffMasterId).HasColumnName("TariffMasterID");
+            entity.Property(e => e.BitIsDeafult).HasColumnName("bitIsDeafult");
+            entity.Property(e => e.CalculationType)
+                .IsRequired()
+                .HasMaxLength(20);
+            entity.Property(e => e.ClientHostName).HasMaxLength(50);
+            entity.Property(e => e.ClientIp)
+                .HasMaxLength(50)
+                .HasColumnName("ClientIP");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.CurrentRate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.IntCode).HasMaxLength(50);
+            entity.Property(e => e.IntHmscode)
+                .HasMaxLength(50)
+                .HasColumnName("IntHMSCode");
+            entity.Property(e => e.ServiceName)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.UnitType)
+                .IsRequired()
+                .HasMaxLength(50);
         });
 
         modelBuilder.Entity<TblCheifComplaintMas>(entity =>

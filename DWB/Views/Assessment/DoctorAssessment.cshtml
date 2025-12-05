@@ -79,7 +79,18 @@
                                                 }
                                                 else if (p.bitTempNSAssComplete && !p.bitTempDOcAssComplete)
                                                 {
-                                                    <a class="btn btn-grd btn-grd-primary btn-sm" href="@Url.Action("DoctorAssmntCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, visit = p.visit })">Fill</a>
+                                                    <div class="d-flex gap-2">
+                                                        <a class="btn btn-grd btn-grd-primary btn-sm"
+                                                        href="@Url.Action("DoctorAssmntCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, visit = p.visit })">
+                                                            Fill
+                                                        </a>
+
+                                                        <a class="btn btn-grd btn-grd-success btn-sm"
+                                                        href="@Url.Action("", "", new { uhid = p.opdno, pname = p.pname, visit = p.visit })">
+                                                            Call
+                                                        </a>
+                                                    </div>
+
                                                 }
                                                 else if (p.bitTempDOcAssComplete)
                                                 {
@@ -102,102 +113,6 @@
         </div> <!-- row -->
     </div> <!-- main-content -->
 </main>
-
-
-
-
-@*  <main class="main-wrapper">
-    <div class="main-content">
-        <div class="row cols-12">
-            <div class="col">
-                <h4 class="mb-4">Consultant Assessment - Today's Patients</h4>
-                <hr />
-                <div class="card">
-                    <div class="card-body">
-                        @if (TempData["Success"] != null)
-                        {
-                            <br />
-                            <div class="alert alert-success border-0 bg-success alert-dismissible fade show">
-                                <div class="text-white align-content-center">@TempData["Success"]</div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        }
-                        @if (TempData["Error"] != null)
-                        {
-                            <br />
-                            <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show">
-                                <div class="text-white align-content-center">@TempData["Error"]</div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        }
-                        <form method="get" asp-action="DoctorAssessment" asp-controller="Assessment" class="row g-2 mb-3">
-                            <div class="col-md-4">
-                                <label for="daterange" class="form-label">Select Date Range</label>
-                                <input type="text" id="daterange" name="daterange" class="form-control" autocomplete="off"
-                                       value="select date range" />
-                            </div>
-                            <div class="col-md-3 align-self-end">
-                                <button type="submit" class="btn btn-success">Filter</button>
-                                <a href="@Url.Action("DoctorAssessment", "Assessment")" class="btn btn-secondary">Clear</a>
-                            </div>
-                        </form>
-                        <table id="doctorTable" class="table form-control table-responsive table-striped table-bordered " style="width:100%;font-size:90%">
-                            <thead class="bg-primary" style="font-weight:bolder">
-                                <tr>
-                                    <th>OPD No</th>
-                                    <th>Patient Name</th>
-                                    <th>OPD Date</th>
-                                    <th>Age/Gender</th>
-                                    <th>Visit</th>
-                                    <th>Patient Category</th>
-                                    <th>Consultant</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var p in Model)
-                                {
-                                    <tr>
-                                        <td>@p.opdno</td>
-                                        <td>@p.pname</td>
-                                        <td>@p.dtEntry.ToString("dd/MM/yyyy HH:mm tt")</td>
-                                        <td>@p.age/@p.sex</td>
-                                        <td>@p.visit</td>
-                                        <td>@p.Pcategory</td>
-                                        <td>@p.descript</td>
-                                        <td>
-                                            @if (p.bitTempNSAssComplete == false)
-                                            {                                                
-                                                <span class="badge rounded-pill bg-grd-primary" >Initial Pending</span>
-                                            }
-                                            else if (p.bitTempNSAssComplete == true && p.bitTempDOcAssComplete==false)
-                                            {
-                                                //give option to fill assessment to consultant
-                                                <a class="btn btn-grd btn-grd-primary btn-sm" href="@Url.Action("DoctorAssmntCreate", "Assessment", new { uhid = p.opdno, pname = p.pname, visit = p.visit})">&nbsp;Fill&nbsp;</a>
-                                            }
-                                            else if(p.bitTempDOcAssComplete==true)
-                                            {
-                                                <div class="d-inline-flex gap-2">
-                                                    <a class="btn btn-grd btn-grd-info btn-sm" onclick="loadCompletedAssessment('@p.opdno','@p.visit','@p.jdate.ToString()')">View</a>
-                                                    @{
-                                                        DateTime today = DateTime.Now.Date;
-                                                        // if (p.dtEntry.Date == today)
-                                                        // {
-                                                            <a class="btn btn-grd btn-grd-info btn-sm" href="@Url.Action("DocAssmntEdit", "Assessment", new { uhid = @p.opdno, visit = @p.visit, date = @p.jdate.ToString() })"> Edit</a>
-                                                       // }
-                                                    }
-                                                </div>
-                                            }
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</main> *@
 
 <div class="modal fade" id="viewAssessmentModal" tabindex="-1" aria-labelledby="viewAssessmentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">

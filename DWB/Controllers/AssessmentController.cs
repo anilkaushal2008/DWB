@@ -22,7 +22,6 @@ using System.Reflection.Metadata;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static QuestPDF.Helpers.Colors;
 using DWB.Services;
-
 using OpenAI;
 using OpenAI.Audio;
 using System.IO;
@@ -38,14 +37,14 @@ namespace DWB.Controllers
         private readonly IConfiguration _configuration;
         private readonly DWBEntity _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly OpenAIClient _openAI;
+        //private readonly OpenAIClient _openAI;
         private readonly IDoctorScheduleService _services;
         public AssessmentController(IConfiguration configuration, DWBEntity dWBEntity, IWebHostEnvironment webHostEnvironment, IDoctorScheduleService services)
         {
             _configuration = configuration;
             _context = dWBEntity;
             _webHostEnvironment = webHostEnvironment;
-            _openAI = new OpenAIClient(configuration["OpenAI:ApiKey"]);
+            //_openAI = new OpenAIClient(configuration["OpenAI:ApiKey"]);
             _services = services;
         }
         #region Nursing Assessment Actions ADD,EDIT,VIEW
@@ -619,17 +618,17 @@ namespace DWB.Controllers
                 Procedures = new List<TblDoctorAssmntProcedure>()
             };
             // Fetch the list of templates
-            //var templates = _context.TblDocTemplateAssessment
-            //                        .Select(t => new
-            //                        {
-            //                            TempId = t.Intid,
-            //                            TempName = t.VchTempleteName
-            //                        })
-            //                        .ToList();
+            var templates = _context.TblDocTemplateAssessment
+                                    .Select(t => new
+                                    {
+                                        TempId = t.Intid,
+                                        TempName = t.VchTempleteName
+                                    })
+                                    .ToList();
 
-            //// Store the list directly in the dynamic ViewBag object
-            //// You are storing a List<anonymous object> here.
-            //ViewBag.TemplateList = templates;
+            // Store the list directly in the dynamic ViewBag object
+            // You are storing a List<anonymous object> here.
+            ViewBag.TemplateList = templates;
             return View(vm);
         }
 

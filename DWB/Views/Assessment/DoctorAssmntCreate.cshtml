@@ -70,7 +70,7 @@
                     <a class="btn btn-sm btn-outline-danger rounded-pill" id="btnLoadHistory">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Load Last history
                     </a>
-                    <a class="btn btn-sm btn-outline-success rounded-pill" data-bs-toggle="modal" data-bs-target="#templateModal">
+                    <a class="btn btn-sm btn-outline-success rounded-pill" id="btnOpenTemplate" style="cursor: pointer;">
                         <i class="bi bi-file-earmark-text me-1"></i>Template
                     </a>
                 </div>
@@ -94,12 +94,15 @@
                     }
 
                     <!-- Submit -->
-                    <div align="right" class="text-end mt-1 my-1">
-                        <button type="button" id="btnSaveTemplate" class="btn btn-warning btn-sm shadow-sm " data-bs-toggle="modal" data-bs-target="#saveTemplateModal">
+                    <div class="text-end mt-1 my-1">
+                        <button type="button" align="left" id="btnSaveTemplate" class="btn btn-warning btn-sm shadow-sm " data-bs-toggle="modal" data-bs-target="#saveTemplateModal">
                             💾 Save as Template
                         </button> &nbsp;
-                        <button type="submit" class="btn btn-primary btn-sm shadow-sm">
+                        <button type="submit" align="right" class="btn btn-primary btn-sm shadow-sm">
                             @(Model.DoctorAssessment.IntId > 0 ? " 💾 Update Assessment" : " 💾 Save Assessment")
+                        </button>
+                        <button align="right" class="btn btn-primary btn-sm shadow-sm">
+                            💾 Save & Close Call
                         </button>
                     </div>
                     <!-- Nav Tabs -->
@@ -1476,54 +1479,139 @@
         });
 
         //Save as template modal post method
+        // $(document).ready(function () {
+        //       $("#btnSaveTemplateModal").on("click", function (e) {
+        //         e.preventDefault();
+
+        //         // 1. Get template name from modal
+        //         let templateName = $("#TemplateName").val();
+
+        //         if (!templateName || templateName.trim() === "") {
+        //             alert("⚠️ Please enter a template name.");
+        //             return;
+        //         }
+
+        //         // 2. Serialize the main assessment form
+        //         let formData = $("#DAssessment").serializeArray();
+
+        //         // Convert form data to key-value object
+        //         let assessmentObj = {};
+        //         $.each(formData, function (i, field) {
+        //             assessmentObj[field.name] = field.value;
+        //         });
+
+        //         // 3. Prepare final payload
+        //         let payload = {
+        //             TemplateName: templateName,
+        //             Assessment: assessmentObj
+        //         };
+
+        //         console.log("🚀 Payload to server: ", payload);
+
+        //         // 4. Send AJAX to your SaveTemplate action
+        //         $.ajax({
+        //             url: '/Assessment/SaveAsTemplate',
+        //             type: 'POST',
+        //             contentType: 'application/json',
+        //             data: JSON.stringify(payload),
+        //             success: function (response) {
+        //                 $("#saveTemplateModal").modal("hide");
+        //                 alert("✅ Template saved successfully!");                       
+        //             },
+        //             error: function (xhr) {
+        //                 alert("❌ Failed to save template.");
+        //                 console.error(xhr.responseText);
+        //             }
+        //         });
+        //     });
+        // });    
+
+        //Medicine searching / adding
+
         $(document).ready(function () {
-              $("#btnSaveTemplateModal").on("click", function (e) {
+            $("#btnSaveTemplateModal").on("click", function (e) {
                 e.preventDefault();
 
-                // 1. Get template name from modal
+                // 1. Get template name
                 let templateName = $("#TemplateName").val();
 
                 if (!templateName || templateName.trim() === "") {
-                    alert("⚠️ Please enter a template name.");
+                    // Show error inside the modal instead of an alert
+                    $("#templateError").text("⚠️ Please enter a template name.").show();
                     return;
+                } else {
+                    $("#templateError").hide();
                 }
 
-                // 2. Serialize the main assessment form
-                let formData = $("#DAssessment").serializeArray();
+                // 2. Visual Feedback: Disable button & show spinner
+                let $btn = $(this);
+                let originalText = $btn.html();
+                $btn.prop("disabled", true).html('<span class="spinner-border spinner-border-sm"></span> Saving...');
 
-                // Convert form data to key-value object
+                // 3. Serialize the main assessment form
+                let formData = $("#DAssessment").serializeArray();
                 let assessmentObj = {};
                 $.each(formData, function (i, field) {
-                    assessmentObj[field.name] = field.value;
+                    // Filter out RequestVerificationToken
+                    if (field.name !== "__RequestVerificationToken") {
+                        assessmentObj[field.name] = field.value;
+                    }
                 });
 
-                // 3. Prepare final payload
+                // 4. Prepare payload
                 let payload = {
                     TemplateName: templateName,
                     Assessment: assessmentObj
                 };
 
-                console.log("🚀 Payload to server: ", payload);
-
-                // 4. Send AJAX to your SaveTemplate action
+                // 5. Send AJAX
                 $.ajax({
                     url: '/Assessment/SaveAsTemplate',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(payload),
                     success: function (response) {
+                        // FIX 1: Close Modal & Force remove the backdrop (Fixes "Disabled Page")
                         $("#saveTemplateModal").modal("hide");
-                        alert("✅ Template saved successfully!");                       
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').css('overflow', 'auto');
+
+                        // FIX 2: Reset Validation Flag (if you are using the bypass logic)
+                        // bypassValidation = false;
+
+                        // FIX 3: Show Dynamic Success Message (Fixes "Message not coming")
+                        let successHtml = `
+                            <div class="alert alert-success alert-dismissible fade show shadow-sm mt-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                                    <strong>Success!</strong>&nbsp; Template saved successfully.
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`;
+
+                        // Make sure you added <div id="js-alert-container"></div> at the top of your page
+                        $("#js-alert-container").html(successHtml);
+
+                        // Auto-hide after 3 seconds
+                        setTimeout(function() {
+                            $("#js-alert-container .alert").fadeOut();
+                        }, 3000);
                     },
                     error: function (xhr) {
-                        alert("❌ Failed to save template.");
+                        let errorMsg = "Failed to save template.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alert("❌ " + errorMsg); // Fallback alert for error is okay, or use the container
                         console.error(xhr.responseText);
+                    },
+                    complete: function () {
+                        // Re-enable button
+                        $btn.prop("disabled", false).html(originalText);
                     }
                 });
             });
-        });    
-
-        //Medicine searching / adding
+        });
         $(document).ready(function () {
                 let medIndex = 1; // start from 1 since 0 already exists
 
@@ -2422,8 +2510,11 @@
         //Global modal reference
         const modalEl = document.getElementById('templateModal');
        
-        //Function for load template and Last history too
+        //Top button actions
         $(function () {
+                    $(function () {
+            // 1️⃣ DEFINITION REQUIRED HERE (Fixes ReferenceError)
+            const modalEl = document.getElementById('templateModal');
 
             // --- Load dropdown dynamically ---
             function loadTemplatesDropdown() {
@@ -2437,8 +2528,24 @@
                     cache: false,
                     success: function (data) {
                         dropdown.empty().append('<option value="">-- Select Template --</option>');
-                        if (data && data.success && data.templates && data.templates.$values) {
-                            data.templates.$values.forEach(item => {
+
+                        // 2️⃣ ROBUST DATA EXTRACTION
+                        // Checks for multiple possible JSON formats (.NET wrapper vs Standard Array)
+                        let list = [];
+                        if (data) {
+                            if (data.templates && data.templates.$values) {
+                                list = data.templates.$values;
+                            } else if (data.$values) {
+                                list = data.$values;
+                            } else if (Array.isArray(data)) {
+                                list = data;
+                            } else if (data.templates && Array.isArray(data.templates)) {
+                                list = data.templates;
+                            }
+                        }
+
+                        if (list.length > 0) {
+                            list.forEach(item => {
                                 if (item && item.value && item.text) {
                                     dropdown.append(`<option value="${item.value}">${item.text}</option>`);
                                 }
@@ -2453,12 +2560,13 @@
                 });
             }
 
-           // --- Safe modal open (for templates) ---
-           function openTemplateModal(e) {
+            // --- Safe modal open (for templates) ---
+            function openTemplateModal(e) {
                 e.preventDefault();
                 document.activeElement?.blur();
 
                 // Cleanup stuck state
+                // (Safe to use here because modalEl is now defined)
                 const existingInstance = bootstrap.Modal.getInstance(modalEl);
                 if (existingInstance) {
                     existingInstance.hide();
@@ -2474,8 +2582,9 @@
                 modalInstance.show();
             }
 
-           // --- Close modal with success message ---
-           function closeTemplateModalWithSuccess(message = "✅ Data loaded successfully!") {
+            // --- Close modal with success message ---
+            // Make this global so other scripts can call it if needed
+            window.closeTemplateModalWithSuccess = function(message = "✅ Data loaded successfully!") {
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (!modalInstance) return;
 
@@ -2483,146 +2592,384 @@
                     $('.modal-backdrop').remove();
                     $('body').removeClass('modal-open').css('overflow', 'auto');
                     modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-                    setTimeout(() => alert(message), 200);
+
+                    // Use the Alert Container if available, fallback to alert()
+                    if($("#js-alert-container").length) {
+                         let successHtml = `
+                            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i> ${message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`;
+                        $("#js-alert-container").html(successHtml);
+                        setTimeout(() => $("#js-alert-container .alert").fadeOut(), 3000);
+                    } else {
+                        setTimeout(() => alert(message), 200);
+                    }
                 });
 
                 modalInstance.hide();
             }
 
-           function renderAssessmentData(t) {
-            // Clear existing data
-            $("textarea[name^='DoctorAssessment.']").val("");
-            $("#medicine-list, #lab-list, #radio-list, #procedure-list").empty();
+            // --- Render Function ---
+            function renderAssessmentData(t) {
+                // Clear existing data
+                $("textarea[name^='DoctorAssessment.']").val("");
+                $("#medicine-list, #lab-list, #radio-list, #procedure-list").empty();
 
-            // Clinical text fields
-            const setOrClearField = (selector, value) => {
-                $(selector).val(value && value.trim() !== "" ? value : "");
-            };
-               setOrClearField("textarea[name='DoctorAssessment.VchChiefcomplaints']", t.vchChiefcomplaints);
-                            setOrClearField("textarea[name='DoctorAssessment.VchMedicalHistory']", t.vchMedicalHistory);
-                            setOrClearField("textarea[name='DoctorAssessment.VchSystemicexam']", t.vchSystemicexam);
-                            setOrClearField("textarea[name='DoctorAssessment.VchDiagnosis']", t.vchDiagnosis);
-                            setOrClearField("textarea[name='DoctorAssessment.VchRemarks']", t.vchRemarks);
+                // Clinical text fields
+                const setOrClearField = (selector, value) => {
+                    $(selector).val(value && value.trim() !== "" ? value : "");
+                };
 
-                            // --- Medicines ---
-                            const meds = t.medicines?.$values || t.medicines || [];
-                            meds.forEach((m, i) => {
-                                $("#medicine-list").append(`
-                                    <tr class="medicine-item">
-                                        <td class="position-relative">
-                                            <input type="text" class="form-control form-control-sm medicine-autocomplete"
-                                                name="Medicines[${i}].VchMedicineName"
-                                                value="${m.vchMedicineName || ''}" autocomplete="off">
-                                            <input type="hidden" name="Medicines[${i}].VchMedicineCode"
-                                                class="medicine-code" value="${m.vchMedicineCode || ''}">
-                                            <div class="list-group position-absolute w-100 medicine-suggestions"
-                                                style="z-index:999; display:none;"></div>
-                                        </td>
-                                        <td><input type="number" class="form-control form-control-sm"
-                                            name="Medicines[${i}].IntQuantity" value="${m.intQuantity || ''}"></td>
-                                        <td><input type="text" class="form-control form-control-sm"
-                                            name="Medicines[${i}].VchFrequency" value="${m.vchFrequency || ''}"></td>
-                                        <td><input type="text" class="form-control form-control-sm"
-                                            name="Medicines[${i}].VchDuration" value="${m.vchDuration || ''}"></td>
-                                                <td>
-                                        <div class="d-flex flex-wrap justify-content-center gap-2 small">
-                                            <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="BBF" ${m.bitBbf ? 'checked' : ''}> BBF</label>
-                                            <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="ABF" ${m.bitAbf ? 'checked' : ''}> ABF</label>
-                                            <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="BL" ${m.bitBl ? 'checked' : ''}> BL</label>
-                                            <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="AL" ${m.bitAl ? 'checked' : ''}> AL</label>
-                                            <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="BD" ${m.bitBd ? 'checked' : ''}> BD</label>
-                                            <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="AD" ${m.bitAd ? 'checked' : ''}> AD</label>
-                                        </div>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-medicine"><i class="bi bi-x-lg text-white"></i></button>
-                                            <button type="button" class="btn btn-success btn-sm add-medicine-row"><i class="bi bi-plus-lg"></i></button>
-                                        </td>
-                                             <!-- Timings -->
+                setOrClearField("textarea[name='DoctorAssessment.VchChiefcomplaints']", t.vchChiefcomplaints);
+                setOrClearField("textarea[name='DoctorAssessment.VchMedicalHistory']", t.vchMedicalHistory);
+                setOrClearField("textarea[name='DoctorAssessment.VchSystemicexam']", t.vchSystemicexam);
+                setOrClearField("textarea[name='DoctorAssessment.VchDiagnosis']", t.vchDiagnosis);
+                setOrClearField("textarea[name='DoctorAssessment.VchRemarks']", t.vchRemarks);
 
-                                    </tr>
-                                `);
-                            });
-                            // --- Labs ---
-                            const labs = t.labs?.$values || t.labs || [];
-                            labs.forEach((l, i) => {
-                                $("#lab-list").append(`
-                                    <tr class="lab-item">
-                                        <td class="position-relative">
-                                            <input type="text" class="form-control form-control-sm lab-autocomplete"
-                                                name="Labs[${i}].VchTestName" value="${l.vchTestName || ''}" autocomplete="off">
-                                            <input type="hidden" class="lab-code" name="Labs[${i}].VchTestCode"
-                                                value="${l.vchTestCode || ''}">
-                                            <div class="list-group position-absolute w-100 lab-suggestions" style="z-index:999;display:none;"></div>
-                                        </td>
-                                        <td>
-                                            <select class="form-select form-select-sm" name="Labs[${i}].VchPriority">
-                                                <option value="">-- Priority --</option>
-                                                <option value="Normal" ${l.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
-                                                <option value="Urgent" ${l.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
-                                            </select>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-lab"><i class="bi bi-x-lg text-white"></i></button>
-                                            <button type="button" class="btn btn-success btn-sm add-lab-row"><i class="bi bi-plus-lg"></i></button>
-                                        </td>
-                                    </tr>
-                                `);
-                            });
+                // --- Medicines ---
+                const meds = t.medicines?.$values || t.medicines || [];
+                meds.forEach((m, i) => {
+                    $("#medicine-list").append(`
+                        <tr class="medicine-item">
+                            <td class="position-relative">
+                                <input type="text" class="form-control form-control-sm medicine-autocomplete"
+                                       name="Medicines[${i}].VchMedicineName" value="${m.vchMedicineName || ''}" autocomplete="off">
+                                <input type="hidden" name="Medicines[${i}].VchMedicineCode" class="medicine-code" value="${m.vchMedicineCode || ''}">
+                                <div class="list-group position-absolute w-100 medicine-suggestions" style="z-index:999; display:none;"></div>
+                            </td>
+                            <td><input type="number" class="form-control form-control-sm" name="Medicines[${i}].IntQuantity" value="${m.intQuantity || ''}"></td>
+                            <td><input type="text" class="form-control form-control-sm" name="Medicines[${i}].VchFrequency" value="${m.vchFrequency || ''}"></td>
+                            <td><input type="text" class="form-control form-control-sm" name="Medicines[${i}].VchDuration" value="${m.vchDuration || ''}"></td>
+                            <td>
+                                <div class="d-flex flex-wrap justify-content-center gap-2 small">
+                                    <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="BBF" ${m.bitBbf ? 'checked' : ''}> BBF</label>
+                                    <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="ABF" ${m.bitAbf ? 'checked' : ''}> ABF</label>
+                                    <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="BL" ${m.bitBl ? 'checked' : ''}> BL</label>
+                                    <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="AL" ${m.bitAl ? 'checked' : ''}> AL</label>
+                                    <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="BD" ${m.bitBd ? 'checked' : ''}> BD</label>
+                                    <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="AD" ${m.bitAd ? 'checked' : ''}> AD</label>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-medicine"><i class="bi bi-x-lg text-white"></i></button>
+                                <button type="button" class="btn btn-success btn-sm add-medicine-row"><i class="bi bi-plus-lg"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
 
-                            // --- Radiology ---
-                            const radios = t.radiology?.$values || t.radiology || [];
-                            radios.forEach((r, i) => {
-                                $("#radio-list").append(`
-                                    <tr class="radio-item">
-                                        <td class="position-relative">
-                                            <input type="text" class="form-control form-control-sm radio-autocomplete"
-                                                name="Radiology[${i}].VchRadiologyName" value="${r.vchRadiologyName || ''}" autocomplete="off">
-                                            <input type="hidden" class="radio-code" name="Radiology[${i}].VchRadiologyCode"
-                                                value="${r.vchRadiologyCode || ''}">
-                                            <div class="list-group position-absolute w-100 radio-suggestions" style="z-index:999;display:none;"></div>
-                                        </td>
-                                        <td>
-                                            <select class="form-select form-select-sm" name="Radiology[${i}].VchPriority">
-                                                <option value="">-- Priority --</option>
-                                                <option value="Normal" ${r.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
-                                                <option value="Urgent" ${r.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
-                                            </select>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-radio"><i class="bi bi-x-lg text-white"></i></button>
-                                            <button type="button" class="btn btn-success btn-sm add-radio-row"><i class="bi bi-plus-lg"></i></button>
-                                        </td>
-                                    </tr>
-                                `);
-                            });
+                // --- Labs ---
+                const labs = t.labs?.$values || t.labs || [];
+                labs.forEach((l, i) => {
+                    $("#lab-list").append(`
+                        <tr class="lab-item">
+                            <td class="position-relative">
+                                <input type="text" class="form-control form-control-sm lab-autocomplete"
+                                       name="Labs[${i}].VchTestName" value="${l.vchTestName || ''}" autocomplete="off">
+                                <input type="hidden" class="lab-code" name="Labs[${i}].VchTestCode" value="${l.vchTestCode || ''}">
+                                <div class="list-group position-absolute w-100 lab-suggestions" style="z-index:999;display:none;"></div>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm" name="Labs[${i}].VchPriority">
+                                    <option value="">-- Priority --</option>
+                                    <option value="Normal" ${l.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                    <option value="Urgent" ${l.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-lab"><i class="bi bi-x-lg text-white"></i></button>
+                                <button type="button" class="btn btn-success btn-sm add-lab-row"><i class="bi bi-plus-lg"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
 
-                            // --- Procedures ---
-                            const procs = t.procedures?.$values || t.procedures || [];
-                            procs.forEach((p, i) => {
-                                $("#procedure-list").append(`
-                                    <tr class="procedure-item">
-                                        <td class="position-relative">
-                                            <input type="text" class="form-control form-control-sm procedure-autocomplete"
-                                                name="Procedures[${i}].VchProcedureName" value="${p.vchProcedureName || ''}" autocomplete="off">
-                                            <input type="hidden" class="procedure-code" name="Procedures[${i}].VchProcedureCode"
-                                                value="${p.vchProcedureCode || ''}">
-                                            <div class="list-group position-absolute w-100 procedure-suggestions" style="z-index:999;display:none;"></div>
-                                        </td>
-                                        <td>
-                                            <select class="form-select form-select-sm" name="Procedures[${i}].VchPriority">
-                                                <option value="">-- Priority --</option>
-                                                <option value="Normal" ${p.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
-                                                <option value="Urgent" ${p.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
-                                            </select>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-procedure"><i class="bi bi-x-lg text-white"></i></button>
-                                            <button type="button" class="btn btn-success btn-sm add-procedure-row"><i class="bi bi-plus-lg"></i></button>
-                                        </td>
-                                    </tr>
-                                `);
-                            });
-           }              
+                // --- Radiology ---
+                const radios = t.radiology?.$values || t.radiology || [];
+                radios.forEach((r, i) => {
+                    $("#radio-list").append(`
+                        <tr class="radio-item">
+                            <td class="position-relative">
+                                <input type="text" class="form-control form-control-sm radio-autocomplete"
+                                       name="Radiology[${i}].VchRadiologyName" value="${r.vchRadiologyName || ''}" autocomplete="off">
+                                <input type="hidden" class="radio-code" name="Radiology[${i}].VchRadiologyCode" value="${r.vchRadiologyCode || ''}">
+                                <div class="list-group position-absolute w-100 radio-suggestions" style="z-index:999;display:none;"></div>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm" name="Radiology[${i}].VchPriority">
+                                    <option value="">-- Priority --</option>
+                                    <option value="Normal" ${r.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                    <option value="Urgent" ${r.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-radio"><i class="bi bi-x-lg text-white"></i></button>
+                                <button type="button" class="btn btn-success btn-sm add-radio-row"><i class="bi bi-plus-lg"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+
+                // --- Procedures ---
+                const procs = t.procedures?.$values || t.procedures || [];
+                procs.forEach((p, i) => {
+                    $("#procedure-list").append(`
+                        <tr class="procedure-item">
+                            <td class="position-relative">
+                                <input type="text" class="form-control form-control-sm procedure-autocomplete"
+                                       name="Procedures[${i}].VchProcedureName" value="${p.vchProcedureName || ''}" autocomplete="off">
+                                <input type="hidden" class="procedure-code" name="Procedures[${i}].VchProcedureCode" value="${p.vchProcedureCode || ''}">
+                                <div class="list-group position-absolute w-100 procedure-suggestions" style="z-index:999;display:none;"></div>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm" name="Procedures[${i}].VchPriority">
+                                    <option value="">-- Priority --</option>
+                                    <option value="Normal" ${p.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+                                    <option value="Urgent" ${p.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-procedure"><i class="bi bi-x-lg text-white"></i></button>
+                                <button type="button" class="btn btn-success btn-sm add-procedure-row"><i class="bi bi-plus-lg"></i></button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // 3️⃣ BIND THE CLICK EVENT
+            // Ensure your HTML button has id="btnOpenTemplate"
+            $(document).off('click', '#btnOpenTemplate').on('click', '#btnOpenTemplate', openTemplateModal);
+
+            // 4️⃣ APPLY TEMPLATE LOGIC (With Button Loading State)
+            $("#applyTemplate").off('click').on("click", function () {
+                const templateId = $("#templateDropdown").val();
+                if (!templateId) {
+                    alert("⚠️ Please select a template first!");
+                    return;
+                }
+
+                // Disable button to prevent double clicks
+                const $btn = $(this);
+                const originalText = $btn.html();
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Applying...');
+
+                $.getJSON(`/Assessment/LoadTemplateData?type=template&id=${templateId}`, function (data) {
+                    if (data.success && data.data) {
+                        renderAssessmentData(data.data);
+                        closeTemplateModalWithSuccess("✅ Template applied successfully!");
+                    } else {
+                        alert("⚠️ Template data not found!");
+                    }
+                })
+                .fail(function() {
+                    alert("❌ Error loading template data.");
+                })
+                .always(function() {
+                    $btn.prop('disabled', false).html(originalText);
+                });
+            });
+        });
+
+           //Function for load template and Last history too
+           //  // --- Load dropdown dynamically ---
+           //  function loadTemplatesDropdown() {
+           //      const dropdown = $("#templateDropdown");
+           //      dropdown.empty().append('<option value="">-- Loading Templates... --</option>');
+           //      $.ajax({
+           //          url: "/Assessment/GetAllTemplates",
+           //          type: "GET",
+           //          dataType: "json",
+           //          cache: false,
+           //          success: function (data) {
+           //              dropdown.empty().append('<option value="">-- Select Template --</option>');
+           //              if (data && data.success && data.templates && data.templates.$values) {
+           //                  data.templates.$values.forEach(item => {
+           //                      if (item && item.value && item.text) {
+           //                          dropdown.append(`<option value="${item.value}">${item.text}</option>`);
+           //                      }
+           //                  });
+           //              } else {
+           //                  dropdown.append('<option value="">No templates found</option>');
+           //              }
+           //          },
+           //          error: function () {
+           //              dropdown.empty().append('<option value="">⚠️ Error loading templates</option>');
+           //          }
+           //      });
+           //  }
+
+           // // --- Safe modal open (for templates) ---
+           // function openTemplateModal(e) {
+           //      e.preventDefault();
+           //      document.activeElement?.blur();
+
+           //      // Cleanup stuck state
+           //      const existingInstance = bootstrap.Modal.getInstance(modalEl);
+           //      if (existingInstance) {
+           //          existingInstance.hide();
+           //          $('.modal-backdrop').remove();
+           //          $('body').removeClass('modal-open').css('overflow', 'auto');
+           //      }
+
+           //      // Reload dropdown before showing
+           //      loadTemplatesDropdown();
+
+           //      // Open modal
+           //      const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+           //      modalInstance.show();
+           //  }
+
+           // // --- Close modal with success message ---
+           // function closeTemplateModalWithSuccess(message = "✅ Data loaded successfully!") {
+           //      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+           //      if (!modalInstance) return;
+
+           //      modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+           //          $('.modal-backdrop').remove();
+           //          $('body').removeClass('modal-open').css('overflow', 'auto');
+           //          modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+           //          setTimeout(() => alert(message), 200);
+           //      });
+
+           //      modalInstance.hide();
+           //  }
+
+           // function renderAssessmentData(t) {
+           //  // Clear existing data
+           //  $("textarea[name^='DoctorAssessment.']").val("");
+           //  $("#medicine-list, #lab-list, #radio-list, #procedure-list").empty();
+
+           //  // Clinical text fields
+           //  const setOrClearField = (selector, value) => {
+           //      $(selector).val(value && value.trim() !== "" ? value : "");
+           //  };
+           //     setOrClearField("textarea[name='DoctorAssessment.VchChiefcomplaints']", t.vchChiefcomplaints);
+           //                  setOrClearField("textarea[name='DoctorAssessment.VchMedicalHistory']", t.vchMedicalHistory);
+           //                  setOrClearField("textarea[name='DoctorAssessment.VchSystemicexam']", t.vchSystemicexam);
+           //                  setOrClearField("textarea[name='DoctorAssessment.VchDiagnosis']", t.vchDiagnosis);
+           //                  setOrClearField("textarea[name='DoctorAssessment.VchRemarks']", t.vchRemarks);
+
+           //                  // --- Medicines ---
+           //                  const meds = t.medicines?.$values || t.medicines || [];
+           //                  meds.forEach((m, i) => {
+           //                      $("#medicine-list").append(`
+           //                          <tr class="medicine-item">
+           //                              <td class="position-relative">
+           //                                  <input type="text" class="form-control form-control-sm medicine-autocomplete"
+           //                                      name="Medicines[${i}].VchMedicineName"
+           //                                      value="${m.vchMedicineName || ''}" autocomplete="off">
+           //                                  <input type="hidden" name="Medicines[${i}].VchMedicineCode"
+           //                                      class="medicine-code" value="${m.vchMedicineCode || ''}">
+           //                                  <div class="list-group position-absolute w-100 medicine-suggestions"
+           //                                      style="z-index:999; display:none;"></div>
+           //                              </td>
+           //                              <td><input type="number" class="form-control form-control-sm"
+           //                                  name="Medicines[${i}].IntQuantity" value="${m.intQuantity || ''}"></td>
+           //                              <td><input type="text" class="form-control form-control-sm"
+           //                                  name="Medicines[${i}].VchFrequency" value="${m.vchFrequency || ''}"></td>
+           //                              <td><input type="text" class="form-control form-control-sm"
+           //                                  name="Medicines[${i}].VchDuration" value="${m.vchDuration || ''}"></td>
+           //                                      <td>
+           //                              <div class="d-flex flex-wrap justify-content-center gap-2 small">
+           //                                  <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="BBF" ${m.bitBbf ? 'checked' : ''}> BBF</label>
+           //                                  <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].BreakfastTiming" value="ABF" ${m.bitAbf ? 'checked' : ''}> ABF</label>
+           //                                  <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="BL" ${m.bitBl ? 'checked' : ''}> BL</label>
+           //                                  <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].LunchTiming" value="AL" ${m.bitAl ? 'checked' : ''}> AL</label>
+           //                                  <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="BD" ${m.bitBd ? 'checked' : ''}> BD</label>
+           //                                  <label><input type="radio" class="form-check-input scale-radio" name="Medicines[${i}].DinnerTiming" value="AD" ${m.bitAd ? 'checked' : ''}> AD</label>
+           //                              </div>
+           //                              <td class="text-center">
+           //                                  <button type="button" class="btn btn-danger btn-sm remove-medicine"><i class="bi bi-x-lg text-white"></i></button>
+           //                                  <button type="button" class="btn btn-success btn-sm add-medicine-row"><i class="bi bi-plus-lg"></i></button>
+           //                              </td>
+           //                                   <!-- Timings -->
+
+           //                          </tr>
+           //                      `);
+           //                  });
+           //                  // --- Labs ---
+           //                  const labs = t.labs?.$values || t.labs || [];
+           //                  labs.forEach((l, i) => {
+           //                      $("#lab-list").append(`
+           //                          <tr class="lab-item">
+           //                              <td class="position-relative">
+           //                                  <input type="text" class="form-control form-control-sm lab-autocomplete"
+           //                                      name="Labs[${i}].VchTestName" value="${l.vchTestName || ''}" autocomplete="off">
+           //                                  <input type="hidden" class="lab-code" name="Labs[${i}].VchTestCode"
+           //                                      value="${l.vchTestCode || ''}">
+           //                                  <div class="list-group position-absolute w-100 lab-suggestions" style="z-index:999;display:none;"></div>
+           //                              </td>
+           //                              <td>
+           //                                  <select class="form-select form-select-sm" name="Labs[${i}].VchPriority">
+           //                                      <option value="">-- Priority --</option>
+           //                                      <option value="Normal" ${l.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+           //                                      <option value="Urgent" ${l.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+           //                                  </select>
+           //                              </td>
+           //                              <td class="text-center">
+           //                                  <button type="button" class="btn btn-danger btn-sm remove-lab"><i class="bi bi-x-lg text-white"></i></button>
+           //                                  <button type="button" class="btn btn-success btn-sm add-lab-row"><i class="bi bi-plus-lg"></i></button>
+           //                              </td>
+           //                          </tr>
+           //                      `);
+           //                  });
+
+           //                  // --- Radiology ---
+           //                  const radios = t.radiology?.$values || t.radiology || [];
+           //                  radios.forEach((r, i) => {
+           //                      $("#radio-list").append(`
+           //                          <tr class="radio-item">
+           //                              <td class="position-relative">
+           //                                  <input type="text" class="form-control form-control-sm radio-autocomplete"
+           //                                      name="Radiology[${i}].VchRadiologyName" value="${r.vchRadiologyName || ''}" autocomplete="off">
+           //                                  <input type="hidden" class="radio-code" name="Radiology[${i}].VchRadiologyCode"
+           //                                      value="${r.vchRadiologyCode || ''}">
+           //                                  <div class="list-group position-absolute w-100 radio-suggestions" style="z-index:999;display:none;"></div>
+           //                              </td>
+           //                              <td>
+           //                                  <select class="form-select form-select-sm" name="Radiology[${i}].VchPriority">
+           //                                      <option value="">-- Priority --</option>
+           //                                      <option value="Normal" ${r.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+           //                                      <option value="Urgent" ${r.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+           //                                  </select>
+           //                              </td>
+           //                              <td class="text-center">
+           //                                  <button type="button" class="btn btn-danger btn-sm remove-radio"><i class="bi bi-x-lg text-white"></i></button>
+           //                                  <button type="button" class="btn btn-success btn-sm add-radio-row"><i class="bi bi-plus-lg"></i></button>
+           //                              </td>
+           //                          </tr>
+           //                      `);
+           //                  });
+
+           //                  // --- Procedures ---
+           //                  const procs = t.procedures?.$values || t.procedures || [];
+           //                  procs.forEach((p, i) => {
+           //                      $("#procedure-list").append(`
+           //                          <tr class="procedure-item">
+           //                              <td class="position-relative">
+           //                                  <input type="text" class="form-control form-control-sm procedure-autocomplete"
+           //                                      name="Procedures[${i}].VchProcedureName" value="${p.vchProcedureName || ''}" autocomplete="off">
+           //                                  <input type="hidden" class="procedure-code" name="Procedures[${i}].VchProcedureCode"
+           //                                      value="${p.vchProcedureCode || ''}">
+           //                                  <div class="list-group position-absolute w-100 procedure-suggestions" style="z-index:999;display:none;"></div>
+           //                              </td>
+           //                              <td>
+           //                                  <select class="form-select form-select-sm" name="Procedures[${i}].VchPriority">
+           //                                      <option value="">-- Priority --</option>
+           //                                      <option value="Normal" ${p.vchPriority === "Normal" ? "selected" : ""}>Normal</option>
+           //                                      <option value="Urgent" ${p.vchPriority === "Urgent" ? "selected" : ""}>Urgent</option>
+           //                                  </select>
+           //                              </td>
+           //                              <td class="text-center">
+           //                                  <button type="button" class="btn btn-danger btn-sm remove-procedure"><i class="bi bi-x-lg text-white"></i></button>
+           //                                  <button type="button" class="btn btn-success btn-sm add-procedure-row"><i class="bi bi-plus-lg"></i></button>
+           //                              </td>
+           //                          </tr>
+           //                      `);
+           //                  });
+           // }              
         
         // APPLY TEMPLATE button click      
         $("#applyTemplate").on("click", function () {
@@ -2759,11 +3106,9 @@
 
     });
 
-    //for clinical tab
-       
+    //for clinical tab       
         $(document).ready(function () {
             console.log("✅ Clinical Master Script Loaded");
-
             // Generate correct URLs using Razor (Server-side)
             const searchUrl = '@Url.Action("SearchMaster", "Assessment")';
             const addUrl = '@Url.Action("AddMasterItem", "Assessment")';

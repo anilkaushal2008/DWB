@@ -1,0 +1,262 @@
+﻿@model List<DWB.APIModel.SP_OPD>
+@{
+    ViewData["Title"] = "Counseling Session Patient List";
+}
+
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<main class="main-wrapper material-root">
+    <div class="main-content">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="breadcrumb-title mb-4 fw-semibold text-dark">Financial Counseling Queue</h4>               
+                <div class="card material-card">
+                    <div class="card-body">
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success material-alert alert-dismissible fade show mb-3">
+                                <span>@TempData["SuccessMessage"]</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger material-alert alert-dismissible fade show mb-3">
+                                <span>@TempData["Error"]</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+
+                        <form id="filterForm" method="get" asp-action="GetCounseling" asp-controller="Counseling" class="row g-2 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium">Select Date Range</label>
+                                <input type="text" id="daterange" name="dateRange" class="form-control material-input" autocomplete="off" placeholder="Select date range" />
+                            </div>
+
+                            <div class="col-md-3 align-self-end d-flex gap-2">
+                                <button type="submit" class="btn btn-primary material-btn">Filter</button>
+                                <a href="@Url.Action("GetCounseling", "Counseling")" class="btn btn-outline-secondary material-btn-outline">Clear</a>
+                            </div>
+                        </form>
+
+
+                        <div class="table-responsive">
+                            <table id="doctorTable" class="table material-table table-hover small mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>UHID No</th>
+                                        <th>Patient Name</th>
+                                        <th>OPD Date</th>
+                                        <th>Age/Gender</th>
+                                        <th>Visit</th>
+                                        <th>Category</th>
+                                        <th>Consultant</th>
+                                        <th style="width:150px;">Counseling Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in Model)
+                                    {
+                                        <tr>
+                                            <td>@p.opdno</td>
+                                            <td>@p.pname</td>
+                                            <td>@p.dtEntry.ToString("dd/MM/yyyy HH:mm tt")</td>
+                                            <td>@p.age/@p.sex</td>
+                                            <td>@p.visit</td>
+                                            <td>@p.Pcategory</td>
+                                            <td>@p.descript</td>
+                                            <td>
+                                                @if (!p.bitTempCounselingComplete)
+                                                {
+                                                    <a class="btn btn-sm material-chip-success"
+                                                       href="@Url.Action("CreateEstimate", "Counseling", new { uhid = p.opdno, patientName = p.pname, VisitNo=p.visit })">
+                                                        <i class="fas fa-file-invoice"></i> New
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="btn btn-sm material-chip-primary"
+                                                       href="@Url.Action("ViewEstimate", "Counseling", new { uhid = p.opdno, visit = p.visit })">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </a>
+                                                    <a class="btn btn-sm material-chip-primary"
+                                                       href="@Url.Action("EditEstimate", "Counseling", new { uhid = p.opdno, visit = p.visit })">
+                                                        <i class="fas fa-eye"></i> Edit
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<style>
+
+    /* ========= MATERIAL STYLE RESET ========= */
+    .material-root {
+        font-family: 'Inter', sans-serif;
+        max-width: 100% !important;
+    }
+
+    /* CARD (Material Elevation) */
+    .material-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.10);
+    }
+
+    /* ALERTS */
+    .material-alert {
+        border-radius: 8px;
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    /* INPUT */
+    .material-input {
+        border-radius: 6px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 10px;
+    }
+
+        .material-input:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 2px rgba(59,130,246,.3);
+        }
+
+    /* TABLE */
+    .material-table thead th {
+        background: #3b82f6;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        font-weight: 600;
+    }
+
+    /* ❌ Removed row hover effect */
+    .material-table tbody tr:hover {
+        background: inherit !important;
+    }
+
+    /* Chips (Material Buttons) */
+    .material-chip-success,
+    .material-chip-primary {
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-weight: 500;
+        transition: 0.2s ease-in-out;
+        color: #fff !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* SUCCESS CHIP */
+    .material-chip-success {
+        background: #10b981 !important;
+        box-shadow: 0 2px 5px rgba(16,185,129,0.25);
+    }
+
+        .material-chip-success:hover {
+            background: #0ea970 !important;
+            box-shadow: 0 4px 10px rgba(16,185,129,0.35);
+            transform: translateY(-2px);
+        }
+
+    /* PRIMARY CHIP */
+    .material-chip-primary {
+        background: #3b82f6 !important;
+        box-shadow: 0 2px 5px rgba(59,130,246,0.25);
+    }
+
+        .material-chip-primary:hover {
+            background: #2563eb !important;
+            box-shadow: 0 4px 10px rgba(59,130,246,0.35);
+            transform: translateY(-2px);
+        }
+
+    /* Mobile stacked view */
+    @@media(max - width: 760px)
+
+    {
+        .material-table thead
+
+    {
+        display: none;
+    }
+
+    .material-table tbody tr {
+        display: block;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
+
+    .material-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: none !important;
+    }
+
+        .material-table tbody td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #64748b;
+        }
+
+    }
+</style>
+
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            $("#doctorTable").DataTable({
+                pageLength: 50,
+                ordering: true,
+                lengthChange: true
+            });
+
+            $("#daterange").daterangepicker({
+                locale: { format: "DD/MM/YYYY" },
+                autoUpdateInput: false,
+                maxDate: moment()
+            });
+
+            $("#daterange").on("apply.daterangepicker", function (ev, picker) {
+                $(this).val(
+                    picker.startDate.format("DD/MM/YYYY") + " - " + picker.endDate.format("DD/MM/YYYY")
+                );
+            });
+
+            $("#filterForm").on("submit", function (e) {
+                if ($("#daterange").val().trim() == "") {
+                    alert("Please select a date range");
+                    return false;
+                }
+            });
+
+        });
+    </script>
+}

@@ -263,31 +263,39 @@ namespace DWB.Controllers
             }               
             using (HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri(finalURL);
-                var response = await client.GetAsync(finalURL);
-                if (response.IsSuccessStatusCode)
+                try
                 {
+                    var response = await client.GetAsync(finalURL);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        // 🚨 API is not responding
+                        return RedirectToAction("ApiDown", "Error");
+                    }
+
                     string result = await response.Content.ReadAsStringAsync();
                     ViewBag.OPDCount = result;
                 }
-                else
+                catch
                 {
-                    ViewBag.OPDCount = "Error: " + response.StatusCode;
+                    // 🚨 API unreachable (network error / timeout)
+                    return RedirectToAction("ApiDown", "Error");
                 }
             }
             //get Today Nursing assessment completed count
             var aajkidate = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
-            var nursAssessmentCount = _context.TblNsassessment.Count(m => m.BitIsCompleted && m.VchHmsdtEntry == aajkidate);
+            var nursAssessmentCount = _context.TblNsassessment.Count(m => m.BitIsCompleted==true && m.VchHmsdtEntry == aajkidate);
             var doctorAssessmentCount = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted==true && m.DtHmsentry == aajkidate);
+            var CounselingCount = _context.PatientEstimateRecord.Count();
             ViewBag.NSAssessment = nursAssessmentCount.ToString();
             ViewBag.DocAssessment = doctorAssessmentCount.ToString();
+            ViewBag.CounselingCount = CounselingCount.ToString();
             return View();
         }
 
         [HttpGet]
         public IActionResult ChangePassword()
         {
-
             return PartialView("_ChangePasswordPartial", new ChangePasswordViewModel());
         }
 

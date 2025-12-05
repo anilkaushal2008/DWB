@@ -424,6 +424,22 @@
                                     </li>
                                 </ul>
                             }
+                            if (hasDoctorAssessment)
+                            {
+                                <ul>
+                                    <li>
+                                        <a href="@Url.Action("GetCounseling", "Counseling")"><i class="material-icons-outlined">arrow_right</i>Counselling Session</a>
+                                    </li>
+                                </ul>
+                            }
+                            if (hasDoctorAssessment)
+                            {
+                                <ul>
+                                    <li>
+                                        <a href="@Url.Action("Create", "Triage")"><i class="material-icons-outlined">arrow_right</i>Emg. Assessment</a>
+                                    </li>
+                                </ul>
+                            }
 
                         }
                     </li>
@@ -512,58 +528,15 @@
                         </label>
                     </div>
                 </div>
-
-               @*  <div class="row g-3">
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="BlueTheme" checked>
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4" for="BlueTheme">
-                            <span class="material-icons-outlined">contactless</span>
-                            <span>Light</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="LightTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="LightTheme">
-                            <span class="material-icons-outlined">light_mode</span>
-                            <span>Light</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="DarkTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="DarkTheme">
-                            <span class="material-icons-outlined">dark_mode</span>
-                            <span>Dark</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="SemiDarkTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="SemiDarkTheme">
-                            <span class="material-icons-outlined">contrast</span>
-                            <span>Semi Dark</span>
-                        </label>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                        <input type="radio" class="btn-check" name="theme-options" id="BoderedTheme">
-                        <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4"
-                               for="BoderedTheme">
-                            <span class="material-icons-outlined">border_style</span>
-                            <span>Bordered</span>
-                        </label>
-                    </div>
-                </div><!--end row--> *@
-
             </div>
         </div>
     </div>
     <!--start switcher-->
-     @* <script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+    @* <script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
     <script src="~/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script> *@
     <!--bootstrap js-->
     <script src="~/assets/js/bootstrap.bundle.min.js"></script>
-   @*  <script src="~/assets/js/dashboard1.js"></script>
+    @*  <script src="~/assets/js/dashboard1.js"></script>
     <script src="~/assets/js/dashboard2.js"></script> *@
 
     <!--plugins-->
@@ -572,11 +545,10 @@
     <!--plugins-->
     <script src="~/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
     <script src="~/assets/plugins/metismenu/metisMenu.min.js"></script>
-    <script src="~/assets/plugins/apexchart/apexcharts.min.js"></script>
+    @* <script src="~/assets/plugins/apexchart/apexcharts.min.js"></script> *@
     <script src="~/assets/plugins/simplebar/js/simplebar.min.js"></script>
     <script src="~/assets/plugins/peity/jquery.peity.min.js"></script>
     <!--validation-->
-    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
@@ -587,7 +559,7 @@
     @*  <script>
         //setZoom(90); // Adjust the percentage as needed
     </script> *@
-    <script src="~/assets/js/dashboard2.js"></script>
+   @*  <script src="~/assets/js/dashboard2.js"></script> *@
     <script src="~/assets/js/main.js"></script>
     @RenderSection("Scripts", required: false)
     @* change password script *@
@@ -601,7 +573,6 @@
                 });
             });
         });
-
 
         $(document).on("submit", "#ChangePassword", function (e) {
             e.preventDefault();
