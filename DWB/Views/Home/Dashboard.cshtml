@@ -24,6 +24,7 @@
             </div>
         </div>
         <div class="row row-cols-1 row-cols-xl-3">
+
             @* --- NURSING / ADMIN CARD --- *@
             @if ((User.IsInRole("Admin")) || (User.IsInRole("Nursing")))
             {
@@ -31,29 +32,24 @@
                     <div class="card rounded-4">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3 mb-2">
-                                <div class="">
-                                    @* Use ?? 0 to handle nulls *@
-                                    <h4 class="mb-0">@(ViewBag.OPDCount ?? 0)</h4>
-                                </div>
+                                @* Added ID: opd-count *@
+                                <h4 class="mb-0" id="opd-count"><span class="spinner-border spinner-border-sm"></span></h4>
                             </div>
                             <p class="mb-0">Today's OPD patients</p>
+
                             <div class="mt-3">
-                                <a href="@Url.Action("NursingAssessment", "Assessment")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Detail</a>
+                                <a href="@Url.Action("NursingAssessment", "Assessment")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4">View Detail</a>
                             </div>
+
                             <div class="mt-4">
+                                @* Added IDs for Assessed and Total *@
                                 <p class="mb-2 d-flex align-items-center justify-content-between">
-                                    Assessed:@(ViewBag.NSAssessment ?? 0)<span class="">Total:@(ViewBag.OPDCount ?? 0)</span>
+                                    <span>Assessed: <span id="ns-assessed">0</span></span>
+                                    <span>Total: <span id="ns-total">0</span></span>
                                 </p>
-                                @{
-                                    // Safe conversion for calculations
-                                    int totalOPDCount = Convert.ToInt32(ViewBag.OPDCount ?? 0);
-                                    int totalNSACount = Convert.ToInt32(ViewBag.NSAssessment ?? 0);
-                                    double percentage = totalOPDCount > 0
-                                    ? (totalNSACount * 100.0) / totalOPDCount : 0;
-                                }
                                 <div class="progress w-100" style="height:6px;">
-                                    <div class="progress-bar bg-grd-purple" style="width: @percentage%">
-                                    </div>
+                                    @* Added ID for Progress Bar *@
+                                    <div id="ns-progress" class="progress-bar bg-grd-purple" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
@@ -68,27 +64,58 @@
                     <div class="card rounded-4">
                         <div class="card-body">
                             <div class="d-flex align-items-center gap-3 mb-2">
-                                <div class="">
-                                    @* Use ?? 0 to handle nulls *@
-                                    <h4 class="mb-0">@(ViewBag.OPDCount ?? 0)</h4>
-                                </div>
+                                @* Reuse ID opd-count-doc to ensure we can update distinct elements if needed, 
+                                but usually we can use a class or just repeat the ID if careful. 
+                                Better: use unique IDs. *@
+                                <h4 class="mb-0" id="doc-opd-count"><span class="spinner-border spinner-border-sm"></span></h4>
                             </div>
                             <p class="mb-0">Today's OPD patients</p>
                             <div class="mt-3">
-                                <a href="@Url.Action("DoctorAssessment", "Assessment")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Detail</a>
+                                <a href="@Url.Action("DoctorAssessment", "Assessment")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4">View Detail</a>
                             </div>
                             <div class="mt-4">
                                 <p class="mb-2 d-flex align-items-center justify-content-between">
-                                    Assessed:@(ViewBag.DocAssessment ?? 0)<span class="">@(ViewBag.OPDCount ?? 0)</span>
+                                    <span>Assessed: <span id="doc-assessed">0</span></span>
+                                    <span><span id="doc-total">0</span></span>
                                 </p>
-                                @{
-                                    int totalOPDCount = Convert.ToInt32(ViewBag.OPDCount ?? 0);
-                                    int totalDocCount = Convert.ToInt32(ViewBag.DocAssessment ?? 0);
-                                    double Docpercentage = totalOPDCount > 0
-                                    ? (totalDocCount * 100.0) / totalOPDCount : 0;
-                                }
                                 <div class="progress w-100" style="height: 6px;">
-                                    <div class="progress-bar bg-grd-purple" style="width: @Docpercentage%"></div>
+                                    <div id="doc-progress" class="progress-bar bg-grd-purple" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            @* --- EMERGENCY OPD PATIENTS CARD --- *@
+            @if ((User.IsInRole("Admin")) || (User.IsInRole("EMO")))
+            {
+                <div class="col">
+                    <div class="card rounded-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="">
+                                    @* ID: emg-count *@
+                                    <h4 class="mb-0" id="emg-count">
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                    </h4>
+                                </div>
+                            </div>
+                            <p class="mb-0">Emergency OPD Patients</p>
+
+                            <div class="mt-3">
+                                <a href="@Url.Action("EmergencyPatient", "Triage")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Detail</a>
+                            </div>
+
+                            <div class="mt-4">
+                                <p class="mb-2 d-flex align-items-center justify-content-between">
+                                    @* IDs: emg-assessed and emg-total *@
+                                    <span>Assessed: <span id="emg-assessed">0</span></span>
+                                    <span>Total: <span id="emg-total">0</span></span>
+                                </p>
+
+                                <div class="progress w-100" style="height: 6px;">
+                                    @* ID: emg-progress *@
+                                    <div id="emg-progress" class="progress-bar bg-grd-purple" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
@@ -96,67 +123,40 @@
                 </div>
             }
 
-            @* --- EMERGENCY OPD PATIENTS (New) --- *@
-            <div class="col">
-                <div class="card rounded-4">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3 mb-2">
-                            <div class="">
-                                @* If EmergencyCount is null, it shows 0 *@
-                                <h4 class="mb-0">@(ViewBag.EmergencyCount ?? 0)</h4>
-                            </div>
-                        </div>
-                        <p class="mb-0">Emergency OPD Patients</p>
-                        <div class="mt-3">
-                            <a href="@Url.Action("EmergencyPatient", "Triage")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Detail</a>
-                        </div>
-                        <div class="mt-4">
-                            <p class="mb-2 d-flex align-items-center justify-content-between">
-                                @* If counts are null, they show 0 *@
-                                Assessed:@(ViewBag.EmergencyAssessed ?? 0)<span class="">Total:@(ViewBag.EmergencyCount ?? 0)</span>
-                            </p>
-                            @{
-                                // Safe calculation logic
-                                int totalEmgCount = Convert.ToInt32(ViewBag.EmergencyCount ?? 0);
-                                int totalEmgAssessed = Convert.ToInt32(ViewBag.EmergencyAssessed ?? 0);
-                                double emgPercentage = totalEmgCount > 0
-                                ? (totalEmgAssessed * 100.0) / totalEmgCount : 0;
-                            }
-                            <div class="progress w-100" style="height: 6px;">
-                                <div class="progress-bar bg-grd-purple" style="width: @emgPercentage%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             @* --- COUNSELING CARD --- *@
-            <div class="col">
-                <div class="card rounded-4">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center gap-3 mb-2">
-                            <div class="">
-                                @* If Coun is null, it shows 0 *@
-                                <h4 class="mb-0">@(ViewBag.Coun ?? 0)</h4>
+            @if ((User.IsInRole("Admin")) || (User.IsInRole("Counselor")))
+            {
+                <div class="col">
+                    <div class="card rounded-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="">
+                                    @* ID: coun-count *@
+                                    <h4 class="mb-0" id="coun-count">
+                                        <span class="spinner-border spinner-border-sm"></span>
+                                    </h4>
+                                </div>
                             </div>
-                        </div>
-                        <p class="mb-0">Counseling's</p>
-                        <div class="mt-3">
-                            <a href="@Url.Action("GetCounseling", "Counseling")" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Detail</a>
-                        </div>
-                        <div class="mt-4">
-                            <p class="mb-2 d-flex align-items-center justify-content-between">
-                                #AppCount<span class="">#total2day</span>
-                            </p>
-                            <div class="progress w-100" style="height: 6px;">
-                                <div class="progress-bar bg-grd-purple" style="width: 65%"></div>
-                            </div>
-                        </div>
+                            <p class="mb-0">Counseling Sessions</p>
 
+                            <div class="mt-3">
+                                <a href="@Url.Action("GetCounseling", "Counseling", new { Type = "Counseling"})" class="btn btn-grd btn-grd-primary btn-sm rounded-4 border-0 px-4" style="transition: opacity 0.3s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=2">View Detail</a>
+                            </div>
+
+                            <div class="mt-4">
+                                <p class="mb-2 d-flex align-items-center justify-content-between">
+                                    @* IDs: emg-assessed and emg-total *@
+                                    <span>Assessed: <span id="council-assessed">0</span></span>
+                                    <span>Total: <span id="council-total">0</span></span>
+                                </p>
+                                <div class="progress w-100" style="height: 6px;">                                  
+                                    <div class="progress-bar bg-grd-purple" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            }
     </div>
 
     @* For password update *@
@@ -170,3 +170,76 @@
         </div>
     </div>
 </main>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            loadDashboardData();
+        });
+
+        function loadDashboardData() {
+            $.ajax({
+                url: '@Url.Action("GetDashboardStats", "Home")',
+                type: 'GET',
+                success: function (data) {
+
+                    // --- 1. Nursing / Admin ---
+                    $('#opd-count').text(data.opdCount);
+                    $('#ns-assessed').text(data.nsAssessment);
+                    $('#ns-total').text(data.opdCount);
+                    let opdTotal = parseInt(data.opdCount) || 0;
+                    let nsCount = parseInt(data.nsAssessment) || 0;
+                    let nsPercent = opdTotal > 0 ? (nsCount / opdTotal) * 100 : 0;
+                    $('#ns-progress').css('width', nsPercent + '%');
+
+                    // --- 2. Consultant ---
+                    if ($('#doc-opd-count').length) {
+                        $('#doc-opd-count').text(data.opdCount);
+                        $('#doc-assessed').text(data.docAssessment);
+                        $('#doc-total').text(data.opdCount);
+                        let docCount = parseInt(data.docAssessment) || 0;
+                        let docPercent = opdTotal > 0 ? (docCount / opdTotal) * 100 : 0;
+                        $('#doc-progress').css('width', docPercent + '%');
+                    }
+
+                    // --- 3. Emergency ---
+                    if ($('#emg-count').length) {
+                        $('#emg-count').text(data.emergencyCount);
+                        $('#emg-assessed').text(data.emergencyAssessed);
+                        $('#emg-total').text(data.emergencyCount);
+                        let emgTotal = parseInt(data.emergencyCount) || 0;
+                        let emgAssessed = parseInt(data.emergencyAssessed) || 0;
+                        let emgPercent = emgTotal > 0 ? (emgAssessed / emgTotal) * 100 : 0;
+                        $('#emg-progress').css('width', emgPercent + '%');
+                    }
+
+                    // --- 4. Counseling (FIXED) ---
+                    if ($('#coun-count').length) {
+                        // Main Count
+                        $('#coun-count').text(data.counselingCount);
+
+                        // Details (Assessed vs Total)
+                        // Note: IDs must match your HTML: council-assessed / council-total
+                        $('#council-assessed').text(data.counselingAssessed);
+                        $('#council-total').text(data.counselingCount);
+
+                        // Progress Bar Logic
+                        let counTotal = parseInt(data.counselingCount) || 0;
+                        let counAssessed = parseInt(data.counselingAssessed) || 0;
+                        let counPercent = counTotal > 0 ? (counAssessed / counTotal) * 100 : 0;
+
+                        // Find the progress bar inside the Counseling card
+                        // Since you didn't give the progress bar a unique ID in the HTML,
+                        // we can find it relative to the count ID, OR you should add id="coun-progress" to HTML.
+                        // For now, assuming you added id="coun-progress" to the HTML:
+                        $('#coun-progress').css('width', counPercent + '%');
+                    }
+                },
+                error: function (error) {
+                    console.log("Error loading dashboard data", error);
+                    $('#opd-count').text("0");
+                }
+            });
+        }
+    </script>
+}

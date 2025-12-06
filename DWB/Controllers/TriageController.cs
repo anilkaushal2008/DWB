@@ -18,76 +18,86 @@ namespace DoctorWorkBench.Controllers
             _context = context;
         }
 
-        //Get All EMergency patient
-        [Authorize(Roles = "Admin, Consultant ")]
+        //Get All EMergency patient     
+        [Authorize(Roles = "Admin, EMO")]
         public async Task<IActionResult> EmergencyPatient(string dateRange)
         {
-            List<SP_OPD> AllCounseling = new List<SP_OPD>();
-            //Get branch ihms code
+            List<SP_OPD> AllEmergency = new List<SP_OPD>();
+
+            // 1. SETUP DATES
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
-            //Get Deafult OPD API
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
-            string finalURL = string.Empty;
-            if (dateRange != null)
+
+            DateTime Sdate = DateTime.Today;
+            DateTime Edate = DateTime.Today;
+
+            if (!string.IsNullOrEmpty(dateRange))
             {
                 var dates = dateRange.Split(" - ");
-                DateTime Sdate = DateTime.ParseExact(dates[0], "dd/MM/yyyy", null);
-                DateTime Edate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null);
-                string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
-                string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
-                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doctorcode=null";
-                //finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
+                DateTime.TryParseExact(dates[0], "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out Sdate);
+                DateTime.TryParseExact(dates[1], "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out Edate);
+            }
 
-            }
-            else if (dateRange == null)
-            {
-                DateTime today = DateTime.Now;
-                string finalSdate = Convert.ToDateTime(today).ToString("dd-MM-yyyy");
-                //both start and ende date same
-                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalSdate + "&code=" + code + "&uhidno=null" + "&doctorcode=null";
-            }
+            string finalSdate = Sdate.ToString("dd-MM-yyyy");
+            string finalEdate = Edate.ToString("dd-MM-yyyy");
+
+            // 2. CALL API (Get Only Emergency Patients)
+            // We append &opdType=Emergency so the API filters the list for us.
+            string finalURL = $"{BaseAPI}opd?sdate={finalSdate}&edate={finalEdate}&code={code}&uhidno=null&doctorcode=null&opdType=Emergency";
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(finalURL);
-                var response = await client.GetAsync(finalURL);
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    if (!string.IsNullOrEmpty(jsonString)) // Ensure jsonString is not null or empty
+                    var response = await client.GetAsync(finalURL);
+                    if (response.IsSuccessStatusCode)
                     {
-                        AllCounseling = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>();                        
+                        var jsonString = await response.Content.ReadAsStringAsync();
+                        if (!string.IsNullOrEmpty(jsonString))
+                        {
+                            AllEmergency = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>();
+                        }
                     }
                 }
+                catch (Exception)
+                {
+                    // Ideally log the error here
+                }
             }
-            //get assessed patients
+
+            // 3. CHECK COMPLETION STATUS (Using EmergencyTriageAssessment)
             var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
             var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
-            //check and update completed status of nursing and doctor too
-            List<PatientEstimateRecord> tbllist = new List<PatientEstimateRecord>();
-            tbllist = await _context.PatientEstimateRecord
-               .Where(a => a.IntCode == intUnitcode && a.IntIhmscode == intHMScode && a.BitIsCompleted == true)
-               .ToListAsync();
-            if (tbllist.Count() != 0)
+
+            // We convert the Date to string to match your database format
+            string dbSdate = Sdate.ToString("dd/MM/yyyy");
+
+            // Query the correct table
+            var assessedList = await _context.EmergencyTriageAssessment
+                .Where(a => a.Intcode == intUnitcode
+                         && a.IntIhmscode == intHMScode
+                         && a.BitIsCompleted == true  // <--- Ensure this column exists                        
+                         )   // <--- Ensure this column exists
+                .Select(x => new { x.PatientId, x.VisitId, x.BitIsCompleted }) // Select only what we need for speed
+                .ToListAsync();
+
+            // 4. MAP STATUS TO THE LIST
+            if (assessedList.Any() && AllEmergency.Any())
             {
-                foreach (var p in AllCounseling)
+                foreach (var p in AllEmergency)
                 {
-                    var t = tbllist.FirstOrDefault(x => x.Uhid == p.opdno && x.VisitNumber == p.visit);
-                    if (t != null)
-                    {
-                        p.bitTempCounselingComplete = t != null ? t.BitIsCompleted : false;
-                    }
+                    // Check if this specific patient/visit exists in the assessed list
+                    // Note: I used p.uhid. If your API uses p.opdno, switch it back.
+                    p.bitTempCounselingComplete = assessedList.Any(x => x.BitIsCompleted==true && x.PatientId==p.opdno && x.VisitId==p.visit);
                 }
             }
-            return View(AllCounseling);
-        }
 
-        // 1. GET: Create New Assessment
+            return View(AllEmergency);
+        }
+      
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Consultant")]
+        [Authorize(Roles = "Admin, EMO")]
         public async Task<IActionResult> Create(int visitId, string uhid, string name, int age, string gender)
         {
             // TODO: Call your HMS API here to get Patient Details
@@ -112,28 +122,44 @@ namespace DoctorWorkBench.Controllers
         // 2. POST: Save Data
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin, Consultant")]
+        [Authorize(Roles = "Admin, EMO")]
         public async Task<IActionResult> Save(TriageViewModel model)
         {
             if (!ModelState.IsValid) return View("Form", model);
 
-            // LOGIC: If Admission Advised -> Skip saving form -> Go to Admission Module
             if (model.IsAdmissionAdvised)
             {
-                // You might want to log a small note here, but per your requirement:
                 return RedirectToAction("AdmitPatient", "Admission", new { visitId = model.VisitId });
             }
 
-            // Map ViewModel to Entity (Table)
+            // --- STEP 1: FIX THE SQL DATE OVERFLOW ERROR ---
+            // If the date is not selected (Year 0001), set it to NOW.
+            if (model.ArrivalDateTime < DateTime.Parse("01/01/1753"))
+            {
+                model.ArrivalDateTime = DateTime.Now;
+            }
+
+            if (model.TimeSeenByProvider < DateTime.Parse("01/01/1753"))
+            {
+                model.TimeSeenByProvider = DateTime.Now;
+            }
+
+            // --- STEP 2: GET CODES ---
+            var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value ?? "0");
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value ?? "0");
+            var userId = Convert.ToInt32(User.FindFirst("UserId")?.Value ?? "1");
+
+            // --- STEP 3: MAP ENTITY ---
             EmergencyTriageAssessment entity = new EmergencyTriageAssessment
             {
                 VisitId = model.VisitId,
                 PatientId = model.PatientId,
-                PatientName = model.PatientName, // Saving snapshot
+                PatientName = model.PatientName,
                 MrnNumber = model.MRN_Number.ToString(),
                 Age = model.Age,
                 Sex = model.Sex,
 
+                // These are now safe because of Step 1
                 ArrivalDateTime = model.ArrivalDateTime,
                 TimeSeenByProvider = model.TimeSeenByProvider,
                 TransportationMode = model.TransportationMode,
@@ -147,27 +173,37 @@ namespace DoctorWorkBench.Controllers
 
                 ChiefComplaint = model.ChiefComplaint,
                 ObjectiveNotes = model.ObjectiveNotes,
-               ProvisionalDiagnosis = model.Diagnosis,
+                ProvisionalDiagnosis = model.Diagnosis,
                 TreatmentPlan = model.Plan,
 
                 TriageCategory = model.TriageCategory,
                 ConditionUponRelease = model.ConditionUponRelease,
 
-                CreatedDate = DateTime.Now,
-                CreatedByDoctorId = 1 // Get from User.Identity
+                CreatedByDoctorId = userId,
+                Intcode = intUnitcode,
+                IntIhmscode = intHMScode,
+                BitIsCompleted = true,
+
+                // This Date is safe
+                DtCreated = DateTime.Now,
+                VchCreatedBy= User.Identity?.Name ?? "Unknown"
+
+                // --- IMPORTANT FOR DASHBOARD ---
+                // You MUST save this string date, or your Dashboard count will be 0.
+                // Assuming your column name is EntryDate or VchDate (check your table)
+                //CreatedDate = DateTime.Now.ToString("dd/MM/yyyy")
             };
 
             _context.EmergencyTriageAssessment.Add(entity);
             await _context.SaveChangesAsync();
 
-            // Redirect to Print
             return RedirectToAction("Print", new { id = entity.AssessmentId });
         }
 
         // 3. GET: Edit Existing Assessment
         [HttpGet]
-        [Authorize(Roles = "Admin, Consultant")]
-        public async Task<IActionResult> Edit(long id)
+        [Authorize(Roles = "Admin, EMO")]
+        public async Task<IActionResult> Edit(long id) //uhid,visitno to get
         {
             var entity = await _context.EmergencyTriageAssessment.FindAsync(id);
             if (entity == null) return NotFound();
@@ -201,7 +237,7 @@ namespace DoctorWorkBench.Controllers
 
         // 4. POST: Update Existing
         [HttpPost]
-        [Authorize(Roles = "Admin, Consultant")]
+        [Authorize(Roles = "Admin, EMO")]
         public async Task<IActionResult> Update(TriageViewModel model)
         {
             var entity = await _context.EmergencyTriageAssessment.FindAsync(model.AssessmentId);
@@ -221,7 +257,7 @@ namespace DoctorWorkBench.Controllers
         }
 
         // 5. GET: Print View
-        [Authorize(Roles = "Admin, Consultant")]
+        [Authorize(Roles = "Admin, EMO")]
         public async Task<IActionResult> Print(long id)
         {
             var entity = await _context.EmergencyTriageAssessment.FindAsync(id);

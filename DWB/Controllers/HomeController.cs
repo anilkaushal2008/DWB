@@ -118,7 +118,7 @@ namespace DWB.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.VchUsername),
-                    //user id
+                    //user id   
                     new Claim("UserId", user.IntUserId.ToString()),
                     //set Unit intPK
                     new Claim("UnitId", intcode),
@@ -244,8 +244,76 @@ namespace DWB.Controllers
         }
         public async Task<IActionResult> Dashboard()
         {
-            // 1. SETUP COMMON VARIABLES (User ID, Base URL, Dates)
-            // These are fast and needed for almost everyone, so we keep them here.
+            //// 1. SETUP COMMON VARIABLES (User ID, Base URL, Dates)
+            //// These are fast and needed for almost everyone, so we keep them here.
+            //string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
+            //int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            //string DocCode = User.FindFirst("DoctorCode")?.Value ?? "null";
+
+            //DateTime Sdate = DateTime.Today;
+            //string finalSdate = Sdate.ToString("dd-MM-yyyy");
+            //string finalEdate = Sdate.ToString("dd-MM-yyyy");
+            //var todayStr = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
+
+            //// 2. DEFINE BOOLEANS FOR ROLES (For cleaner if-statements)
+            //bool isAdmin = User.IsInRole("Admin");
+            //bool isNursing = User.IsInRole("Nursing");
+            //bool isConsultant = User.IsInRole("Consultant");
+            //bool isCounselor = User.IsInRole("Counselor"); // Assuming you have this role
+            //bool isEmergency = User.IsInRole("Emergency"); // Assuming you have this role
+
+            //// --- LOGIC BLOCK 1: General OPD Data ---
+            //// (Visible to: Admin, Nursing, Consultant)
+            //if (isAdmin || isNursing || isConsultant)
+            //{
+            //    // 1. Fetch API Data
+            //    ViewBag.OPDCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "");
+
+            //    // 2. Fetch Nursing Assessment (Only needed if Admin or Nurse)
+            //    if (isAdmin || isNursing)
+            //    {
+            //        var nursAssessmentCount = _context.TblNsassessment
+            //            .Count(m => m.BitIsCompleted == true && m.VchHmsdtEntry == todayStr);
+            //        ViewBag.NSAssessment = nursAssessmentCount.ToString();
+            //    }
+
+            //    // 3. Fetch Doctor Assessment (Only needed if Admin or Consultant)
+            //    if (isAdmin || isConsultant)
+            //    {
+            //        var doctorAssessmentCount = _context.TblDoctorAssessment
+            //            .Count(m => m.BitAsstCompleted == true && m.DtHmsentry == todayStr);
+            //        ViewBag.DocAssessment = doctorAssessmentCount.ToString();
+            //    }
+            //}
+
+            //// --- LOGIC BLOCK 2: Emergency Data ---
+            //// (Visible to: Admin, Emergency Staff)
+            //if (isAdmin || isEmergency)
+            //{
+            //    // Fetch API Data for Emergency
+            //    ViewBag.EmergencyCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "Emergency");
+
+            //    // Fetch Database Data for Emergency
+            //    // var emergencyAssessedCount = _context.TblTriage.Count(m => m.EntryDate == todayStr && m.IsAssessed == true);
+            //    ViewBag.EmergencyAssessed = "0"; // Placeholder
+            //}
+
+            //// --- LOGIC BLOCK 3: Counseling Data ---
+            //// (Visible to: Admin, Counselor)
+            //if (isAdmin || isCounselor)
+            //{
+            //    var counselingCount = _context.PatientEstimateRecord.Count();
+            //    ViewBag.Coun = counselingCount.ToString();
+            //}
+
+            return View();
+        }        
+
+       
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardStats()
+        {
+            // ... (Setup variables remain the same) ...
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
             string DocCode = User.FindFirst("DoctorCode")?.Value ?? "null";
@@ -253,60 +321,64 @@ namespace DWB.Controllers
             DateTime Sdate = DateTime.Today;
             string finalSdate = Sdate.ToString("dd-MM-yyyy");
             string finalEdate = Sdate.ToString("dd-MM-yyyy");
-            var todayStr = DateOnly.FromDateTime(DateTime.Now).ToString("dd/MM/yyyy");
+            var todayStr = DateTime.Now.Date;
 
-            // 2. DEFINE BOOLEANS FOR ROLES (For cleaner if-statements)
-            bool isAdmin = User.IsInRole("Admin");
-            bool isNursing = User.IsInRole("Nursing");
-            bool isConsultant = User.IsInRole("Consultant");
-            bool isCounselor = User.IsInRole("Counselor"); // Assuming you have this role
-            bool isEmergency = User.IsInRole("Emergency"); // Assuming you have this role
+            // ... (Variable initialization) ...
+            string _opdCount = "0";
+            int _nsAssessment = 0;
+            int _docAssessment = 0;
+            string _emgCount = "0";
+            int _emgAssessed = 0;
+            string _counCount = "0";
+            int _counAssessed = 0;
 
-            // --- LOGIC BLOCK 1: General OPD Data ---
-            // (Visible to: Admin, Nursing, Consultant)
-            if (isAdmin || isNursing || isConsultant)
+            // ... (Admin/Nursing/Consultant logic remains the same) ...
+            if (User.IsInRole("Admin") || User.IsInRole("Nursing") || User.IsInRole("Consultant"))
             {
-                // 1. Fetch API Data
-                ViewBag.OPDCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "");
+                _opdCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "");
 
-                // 2. Fetch Nursing Assessment (Only needed if Admin or Nurse)
-                if (isAdmin || isNursing)
+                if (User.IsInRole("Admin") || User.IsInRole("Nursing"))
                 {
-                    var nursAssessmentCount = _context.TblNsassessment
-                        .Count(m => m.BitIsCompleted == true && m.VchHmsdtEntry == todayStr);
-                    ViewBag.NSAssessment = nursAssessmentCount.ToString();
+                    _nsAssessment = _context.TblNsassessment.Count(m => m.BitIsCompleted == true && m.DtCreated >= todayStr);
                 }
-
-                // 3. Fetch Doctor Assessment (Only needed if Admin or Consultant)
-                if (isAdmin || isConsultant)
+                if (User.IsInRole("Admin") || User.IsInRole("Consultant"))
                 {
-                    var doctorAssessmentCount = _context.TblDoctorAssessment
-                        .Count(m => m.BitAsstCompleted == true && m.DtHmsentry == todayStr);
-                    ViewBag.DocAssessment = doctorAssessmentCount.ToString();
+                    _docAssessment = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted == true && m.DtCreated >= todayStr);
                 }
             }
 
-            // --- LOGIC BLOCK 2: Emergency Data ---
-            // (Visible to: Admin, Emergency Staff)
-            if (isAdmin || isEmergency)
-            {
-                // Fetch API Data for Emergency
-                ViewBag.EmergencyCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "Emergency");
-
-                // Fetch Database Data for Emergency
-                // var emergencyAssessedCount = _context.TblTriage.Count(m => m.EntryDate == todayStr && m.IsAssessed == true);
-                ViewBag.EmergencyAssessed = "0"; // Placeholder
+            // ... (Emergency logic remains the same) ...
+            if (User.IsInRole("Admin") || User.IsInRole("EMO"))
+            {                
+                _emgCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "Emergency");
+                // --- UPDATE THIS LINE WITH THE CORRECT TABLE ---
+                //_emgAssessed = _context.EmergencyTriageAssessment
+                //    .Count(m => m.c == true && m.EntryDate == todayStr);
             }
 
-            // --- LOGIC BLOCK 3: Counseling Data ---
-            // (Visible to: Admin, Counselor)
-            if (isAdmin || isCounselor)
+            // --- FIX: Counseling Logic ---
+            if (User.IsInRole("Admin") || User.IsInRole("Counselor"))
             {
-                var counselingCount = _context.PatientEstimateRecord.Count();
-                ViewBag.Coun = counselingCount.ToString();
+                // 1. Get Total Appointmnets from API
+                _counCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "Counseling");
+
+                // 2. Get Completed Assessments from DB (FILTER BY TODAY & COMPLETED)
+                // Adjust 'EntryDate' to your actual column name for the date
+                _counAssessed = _context.PatientEstimateRecord
+                    .Count(x => x.EstimateDate >= todayStr && x.BitIsCompleted == true);
             }
 
-            return View();
+            // --- FIX: Return the missing variable ---
+            return Json(new
+            {
+                opdCount = _opdCount,
+                nsAssessment = _nsAssessment,
+                docAssessment = _docAssessment,
+                emergencyCount = _emgCount,
+                emergencyAssessed = _emgAssessed,
+                counselingCount = _counCount,
+                counselingAssessed = _counAssessed // <--- YOU MISSED THIS LINE BEFORE
+            });
         }
 
         // Keep the helper function exactly the same

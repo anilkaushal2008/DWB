@@ -15,7 +15,6 @@ namespace DWB.Models
         public string MRN_Number { get; set; }
         public string Age { get; set; }
         public string Sex { get; set; }
-        public string Address { get; set; }
 
         // --- SECTION B: Logistics & Vitals ---
         [Display(Name = "Arrival Date & Time")]

@@ -362,6 +362,10 @@
                     && c.Value.Contains(":View:True"));
                     var hasDoctorAssessment = User.Claims.Any(c => c.Type == "Permission" && c.Value.StartsWith("Doctor Assessment:")
                     && c.Value.Contains(":View:True"));
+                    var hasEmgAssessment = User.Claims.Any(c => c.Type == "Permission" && c.Value.StartsWith("EMG. Assessment:")
+                    && c.Value.Contains(":View:True"));
+                    var hasCounseling = User.Claims.Any(c => c.Type == "Permission" && c.Value.StartsWith("Counseling Assessment:")
+                    && c.Value.Contains(":View:True"));
                 }
                 @if (hasMasterViewPermission)
                 {
@@ -424,7 +428,7 @@
                                     </li>
                                 </ul>
                             }
-                            if (hasDoctorAssessment)
+                            if (hasCounseling)
                             {
                                 <ul>
                                     <li>
@@ -432,11 +436,11 @@
                                     </li>
                                 </ul>
                             }
-                            if (hasDoctorAssessment)
+                            if (hasEmgAssessment)
                             {
                                 <ul>
                                     <li>
-                                        <a href="@Url.Action("Create", "Triage")"><i class="material-icons-outlined">arrow_right</i>Emg. Assessment</a>
+                                        <a href="@Url.Action("EmergencyPatient", "Triage")"><i class="material-icons-outlined">arrow_right</i>Emg. Assessment</a>
                                     </li>
                                 </ul>
                             }

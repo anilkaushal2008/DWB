@@ -29,74 +29,103 @@ namespace DWB.Controllers
             _groupcontext = groupcontext;
         }
         //get patient from HMS API
-        [Authorize(Roles = "Admin, Counsellor ")]
-        public async Task<IActionResult> GetCounseling(string dateRange)
+        [Authorize(Roles = "Admin, Counselor ")]
+        public async Task<IActionResult> GetCounseling(string dateRange, string Type)
         {
             List<SP_OPD> AllCounseling = new List<SP_OPD>();
-            //Get branch ihms code
+
+            // 1. SETUP DATES -------------------------------------------
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
-            //Get Deafult OPD API
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
-            string finalURL = string.Empty;
-            if (dateRange != null)
+
+            DateTime Sdate = DateTime.Today;
+            DateTime Edate = DateTime.Today;
+
+            if (!string.IsNullOrEmpty(dateRange))
             {
                 var dates = dateRange.Split(" - ");
-                DateTime Sdate = DateTime.ParseExact(dates[0], "dd/MM/yyyy", null);
-                DateTime Edate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null);
-                string finalSdate = Convert.ToDateTime(Sdate).ToString("dd-MM-yyyy");
-                string finalEdate = Convert.ToDateTime(Edate).ToString("dd-MM-yyyy");
-                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null" + "&doctorcode=null";
-                //finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalEdate + "&code=" + code + "&uhidno=null";
+                // Use TryParse to prevent crashing if date format is wrong
+                DateTime.TryParseExact(dates[0], "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out Sdate);
+                DateTime.TryParseExact(dates[1], "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out Edate);
+            }
 
-            }
-            else if (dateRange == null)
-            {
-                DateTime today = DateTime.Now;
-                string finalSdate = Convert.ToDateTime(today).ToString("dd-MM-yyyy");
-                //both start and ende date same
-                //format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=uhid
-                finalURL = BaseAPI + "opd?&sdate=" + finalSdate + "&edate=" + finalSdate + "&code=" + code + "&uhidno=null" + "&doctorcode=null";
-            }
+            string finalSdate = Sdate.ToString("dd-MM-yyyy");
+            string finalEdate = Edate.ToString("dd-MM-yyyy");
+
+            // 2. CALL API (Get All OPD Data) ---------------------------
+            // format = opd?sdate=12-07-2025&edate=12-07-2025&code=1&uhidno=null
+            string finalURL = $"{BaseAPI}opd?sdate={finalSdate}&edate={finalEdate}&code={code}&uhidno=null&doctorcode=null";
 
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri(finalURL);
-                var response = await client.GetAsync(finalURL);
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    if (!string.IsNullOrEmpty(jsonString)) // Ensure jsonString is not null or empty
+                    var response = await client.GetAsync(finalURL);
+                    if (response.IsSuccessStatusCode)
                     {
-                        AllCounseling = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString) ?? new List<SP_OPD>(); // Handle possible null value
-                        //filter counseling
-                       // AllCounseling = AllCounseling
-                       //.Where(p => p. != null && p.VisitType.Equals("Counseling", StringComparison.OrdinalIgnoreCase))
-                       //.ToList();
+                        var jsonString = await response.Content.ReadAsStringAsync();
+                        if (!string.IsNullOrEmpty(jsonString))
+                        {
+                            var rawList = JsonConvert.DeserializeObject<List<SP_OPD>>(jsonString);
+
+                            if (rawList != null)
+                            {
+                                // 3. FILTER FOR COUNSELING (CRITICAL FIX) ----------------
+                                // The API returns ALL OPD patients. We must filter for 'Counseling'.
+                                // Adjust "Department" or "VisitType" based on your actual API Property name.
+
+                                AllCounseling = rawList.Where(p =>
+                                    (p.opdno != null && p.opttype.Contains("Counseling", StringComparison.OrdinalIgnoreCase))
+                                    ||
+                                    (p.opdno != null && p.opttype.Contains("Counseling", StringComparison.OrdinalIgnoreCase))
+                                ).ToList();
+                            }
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    // Handle API failure (Optional: Log error)
+                }
             }
-            //get assessed patients
+
+            // 4. CHECK COMPLETION STATUS (Database) --------------------
             var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
             var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
-            //check and update completed status of nursing and doctor too
-            List<PatientEstimateRecord> tbllist = new List<PatientEstimateRecord>();
-            tbllist = await _context.PatientEstimateRecord
-               .Where(a => a.IntCode == intUnitcode && a.IntIhmscode == intHMScode && a.BitIsCompleted == true)
-               .ToListAsync();
-            if (tbllist.Count() != 0)
+
+            // OPTIMIZATION: Convert DateTime to string format if your DB stores dates as strings, 
+            // OR filter by Date object if DB uses DateTime.
+            // Assuming DB stores strings based on your previous code context:
+            string dbSdate = Sdate.ToString("dd/MM/yyyy");
+
+            // We only fetch records that match the Current Date Range to save memory
+            // Note: If your DB stores full DateTime, use: a.EntryDate >= Sdate && a.EntryDate <= Edate
+            var completedList = await _context.PatientEstimateRecord
+                .Where(a => a.IntCode == intUnitcode
+                         && a.IntIhmscode == intHMScode
+                         && a.BitIsCompleted == true
+                         && a.EstimateDate == Convert.ToDateTime(dbSdate)) // <--- ADDED DATE FILTER
+                .Select(x => new { x.Uhid, x.VisitNumber }) // <--- Select only needed columns for speed
+                .ToListAsync();
+
+            // 5. MERGE DATA --------------------------------------------
+            if (completedList.Any() && AllCounseling.Any())
             {
                 foreach (var p in AllCounseling)
                 {
-                    var t = tbllist.FirstOrDefault(x => x.Uhid == p.opdno && x.VisitNumber == p.visit);
-                    if (t != null)
-                    {
-                        p.bitTempCounselingComplete = t != null ? t.BitIsCompleted : false;                        
-                    }
+                    // Check if UHID and Visit Number match
+                    // ALERT: Check if you should compare 'p.opdno' or 'p.uhid'. 
+                    // Usually UHID matches UHID, and Visit matches Visit.
+                    bool isDone = completedList.Any(x => x.Uhid == p.opdno && x.VisitNumber == p.visit);
+
+                    p.bitTempCounselingComplete = isDone;
                 }
             }
+
             return View(AllCounseling);
         }
+
+        
 
         //File: Services/TariffService.cs (Modified Method)
         public async Task<List<EstimateLineItemViewModel>> GetActiveTariffItemsAsync()
@@ -239,7 +268,7 @@ namespace DWB.Controllers
         // Handles monthly audit reports for accreditation.
         [HttpGet]
         [HttpPost] // Allows the month filter form to post back to the same action
-        [Authorize(Roles = "Admin, Billing, Audit")] // Example roles for accessing financial reports
+        [Authorize(Roles = "Admin, Counseling")] // Example roles for accessing financial reports
         public async Task<IActionResult> AuditReport(CounselingReportViewModel? viewModel = null)
         {
             if (viewModel == null || viewModel.ReportMonth == default)
@@ -597,7 +626,7 @@ namespace DWB.Controllers
         // File: Controllers/CounselingController.cs
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Counsellor")]
+        [Authorize(Roles = "Admin, Counseling")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateTariffMaster(TariffUpdateViewModel model)
         {

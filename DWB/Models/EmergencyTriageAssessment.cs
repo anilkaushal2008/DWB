@@ -11,9 +11,9 @@ public partial class EmergencyTriageAssessment
 
     public long VisitId { get; set; }
 
-    public string? PatientId { get; set; }
+    public string PatientId { get; set; }
 
-    public DateTime? CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
 
     public long CreatedByDoctorId { get; set; }
 
@@ -98,4 +98,18 @@ public partial class EmergencyTriageAssessment
     public string PatientInstructions { get; set; }
 
     public string Remarks { get; set; }
+
+    public bool BitIsCompleted { get; set; }
+
+    public int Intcode { get; set; }
+
+    public DateTime DtCreated { get; set; }
+
+    public string VchCreatedBy { get; set; }
+
+    public DateTime? DtUpdated { get; set; }
+
+    public string VchUpdatedBy { get; set; }
+
+    public int IntIhmscode { get; set; }
 }

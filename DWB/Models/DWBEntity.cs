@@ -184,6 +184,7 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.Age).HasMaxLength(20);
             entity.Property(e => e.ArrivalDateTime).HasColumnType("datetime");
             entity.Property(e => e.BedNumber).HasMaxLength(50);
+            entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
             entity.Property(e => e.Bpdiastolic).HasColumnName("BPDiastolic");
             entity.Property(e => e.Bpsystolic).HasColumnName("BPSystolic");
             entity.Property(e => e.ConditionUponRelease).HasMaxLength(50);
@@ -192,15 +193,27 @@ public partial class DWBEntity : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DischargeDateTime).HasColumnType("datetime");
+            entity.Property(e => e.DtCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreated");
+            entity.Property(e => e.DtUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("dtUpdated");
             entity.Property(e => e.FollowUpDate).HasColumnType("datetime");
             entity.Property(e => e.FollowUpTime).HasColumnType("datetime");
             entity.Property(e => e.HistoryObtainedFrom).HasMaxLength(50);
+            entity.Property(e => e.IntIhmscode).HasColumnName("intIHMSCode");
+            entity.Property(e => e.Intcode).HasColumnName("intcode");
             entity.Property(e => e.IsAdmissionAdvised).HasDefaultValue(false);
             entity.Property(e => e.IsCrossConsultRequired).HasDefaultValue(false);
             entity.Property(e => e.MrnNumber)
                 .IsRequired()
                 .HasMaxLength(50)
                 .HasColumnName("MRN_Number");
+            entity.Property(e => e.PatientId)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.PatientName)
                 .IsRequired()
                 .HasMaxLength(200);
@@ -217,6 +230,15 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.TriageCategory)
                 .IsRequired()
                 .HasMaxLength(20);
+            entity.Property(e => e.VchCreatedBy)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchUpdatedBy)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchUpdatedBy");
             entity.Property(e => e.VitalsTime).HasColumnType("datetime");
             entity.Property(e => e.Weight).HasColumnType("decimal(5, 2)");
         });
