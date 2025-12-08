@@ -1,11 +1,13 @@
 ﻿using DWB.APIModel;
 using DWB.Models; // Your EF Models
 using DWB.ViewModels;
+using FluentAssertions.Equivalency;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using System.Data;
 
 namespace DoctorWorkBench.Controllers
 {
@@ -199,7 +201,11 @@ namespace DoctorWorkBench.Controllers
             _context.EmergencyTriageAssessment.Add(entity);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Print", new { uhid = entity.PatientId, visit = entity.VisitId });
+            // Pass the ID of the record you just saved
+            ViewBag.AssessmentId = entity.AssessmentId;
+
+            // Return the intermediate view that handles the popup
+            return View("PrintSuccess");
         }
 
         // 3. GET: Edit Existing Assessment
@@ -231,6 +237,7 @@ namespace DoctorWorkBench.Controllers
                 Plan = entity.TreatmentPlan ?? "",                 // Maps to TreatmentPlan
                 TriageCategory = entity.TriageCategory ?? "",
                 ConditionUponRelease = entity.ConditionUponRelease ?? "",
+                IsAdmissionAdvised=entity.IsAdmissionAdvised??false,
                
 
                 // Map Vitals...
@@ -258,32 +265,70 @@ namespace DoctorWorkBench.Controllers
             entity.TriageCategory = model.TriageCategory;
             entity.ConditionUponRelease = model.ConditionUponRelease;
             entity.Pulse = model.Pulse;
-            // ... update other fields as needed
+
+            entity.TransportationMode = model.TransportationMode;
+            entity.Pulse = model.Pulse;
+            entity.Bpsystolic = model.BPSystolic;
+            entity.Bpdiastolic = model.BPDiastolic;
+            entity.RespRate = model.RespRate;
+            entity.Temperature = model.Temperature;
+            entity.Weight = model.Weight;
+
+            entity.TriageCategory = model.TriageCategory;
+            entity.ConditionUponRelease = model.ConditionUponRelease;
+
             entity.DtUpdated = DateTime.Now;
             entity.VchUpdatedBy = User.Identity?.Name ?? "Unknown";
             entity.IsAdmissionAdvised = model.IsAdmissionAdvised;
             //entity.in
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Print", new { uhid=entity.PatientId, visit=entity.VisitId});
+            //return RedirectToAction("Print", new { uhid=entity.PatientId, visit=entity.VisitId});
+            // Pass the ID of the record you just saved
+            ViewBag.AssessmentId = entity.AssessmentId;
+
+            // Return the intermediate view that handles the popup
+            return View("PrintSuccess");
         }
 
         //5. print  
         [HttpGet]
         [Authorize(Roles = "Admin, EMO")]
-        public async Task<IActionResult> Print(string uhid, int visit)
+        public async Task<IActionResult> Print(int id)
         {
-            if (uhid ==null&& visit==0) return BadRequest("Invalid detail");
+            if (id ==0) return BadRequest("Invalid detail");
 
             var obj = _context.EmergencyTriageAssessment
-                    .FirstOrDefault(e => e.PatientId == uhid &&                         
-                         e.VisitId == visit); // Fixed comparison
+                    .FirstOrDefault(e => e.AssessmentId==id); // Fixed comparison
+            // FIX: If ID is wrong or record deleted, show 404 instead of crashing
+            if (obj == null)
+            {
+                return NotFound($"Assessment with ID {id} not found.");
+            }
+
+            return View(obj);
+        }
+        //5. print  
+        [HttpGet]
+        [Authorize(Roles = "Admin, EMO")]
+        public async Task<IActionResult> APIPrint(string uhid, int visit)
+        {
+            if (uhid ==null && visit == 0) return BadRequest("Invalid detail");
+
+            var obj = _context.EmergencyTriageAssessment
+                    .FirstOrDefault(e => e.PatientId==uhid && e.VisitId==visit); // Fixed comparison
             // FIX: If ID is wrong or record deleted, show 404 instead of crashing
             if (obj == null)
             {
                 return NotFound($"Assessment with ID {uhid} not found.");
             }
-
+            ////Use the CreatedByDoctorId to find the specific user who saved this form
+            //var creatorSignature = await _context.TblUsers // <--- Adjust table name if needed (e.g. TblUser)
+            //    .Where(u => u.VchUsername == obj.VchCreatedBy) // Match the ID
+            //    .Select(u => u.VchSignFileName) // Select only the filename column
+            //    .FirstOrDefaultAsync();
+            // Pass it to the view securely
+            //ViewBag.ProviderSignature = creatorSignature;
             return View(obj);
         }
 
