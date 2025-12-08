@@ -1,0 +1,194 @@
+﻿@model List<DWB.Models.EmergencyTriageAssessment>
+@{
+    ViewData["Title"] = "Master Triage Register";
+    // Get Company Name from Session, default to "Indus Healthcare" if missing
+    string companyName = User.FindFirst("CompName")?.Value ?? "INDUS HEALTHCARE";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+
+<main class="main-wrapper">
+    <div class="main-content">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold text-dark mb-0">
+                <i class="fas fa-clipboard-list me-2"></i> Master Triage Register
+            </h4>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white shadow-sm border-0">
+                    <div class="card-body p-3">
+                        <h6 class="mb-1">Total Assessed</h6>
+                        <h3 class="mb-0 fw-bold">@ViewBag.TotalPatients</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white shadow-sm border-0">
+                    <div class="card-body p-3">
+                        <h6 class="mb-1">Critical (Emergent)</h6>
+                        <h3 class="mb-0 fw-bold">@ViewBag.TotalEmergent</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white shadow-sm border-0">
+                    <div class="card-body p-3">
+                        <h6 class="mb-1">Advised to IPD</h6>
+                        <h3 class="mb-0 fw-bold">@ViewBag.TotalAdmissions</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm rounded-4 border-0">
+            <div class="card-body">
+
+                <form method="get" asp-action="AllTriageReport" class="row g-3 mb-4 align-items-end bg-light p-3 rounded">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted">DATE RANGE</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fas fa-calendar-alt"></i></span>
+                            <input type="text" id="daterange" name="dateRange" class="form-control"
+                                   value="@ViewBag.DateRange" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-dark w-100">
+                            <i class="fas fa-search me-1"></i> Search
+                        </button>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table id="masterTable" class="table table-hover table-bordered align-middle small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>UHID</th>
+                                <th>Patient Name</th>
+                                <th>Age/Sex</th>
+                                <th>Category</th>
+                                <th>Diagnosis</th>
+                                <th>Outcome</th>
+                                <th>User</th>
+                                @* <th>Action</th> *@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td data-sort="@item.ArrivalDateTime.ToString("yyyyMMddHHmm")">
+                                            @item.ArrivalDateTime.ToString("dd-MMM-yyyy")<br />
+                                            <span class="text-muted">@item.ArrivalDateTime.ToString("hh:mm tt")</span>
+                                        </td>
+                                        <td>@item.MrnNumber</td>
+                                        <td><span class="fw-bold">@item.PatientName</span></td>
+                                        <td>@item.Age / @item.Sex</td>
+                                        <td>
+                                            @if (item.TriageCategory == "Emergent")
+                                            {
+                                                <span class="badge bg-danger">Emergent</span>
+                                            }
+                                            else if (item.TriageCategory == "Urgent")
+                                            {
+
+                                                <span class="badge bg-warning text-dark">Urgent</span>
+                                            }
+                                            else
+                                            {
+
+                                                <span class="badge bg-success">Non-Urgent</span>
+                                            }
+                                        </td>
+                                        <td class="text-truncate" style="max-width: 150px;" title="@item.ProvisionalDiagnosis">
+                                            @item.ProvisionalDiagnosis
+                                        </td>
+                                        <td>
+                                            @if (item.IsAdmissionAdvised == true)
+                                            {
+                                                <span class="badge bg-primary"><i class="fas fa-bed me-1"></i> Admission</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Discharge / Stable</span>
+                                            }
+                                        </td>
+                                        <td>@item.VchCreatedBy</td>
+                                        @* <td>
+                                            <a href="@Url.Action("Print", "Triage", new { id = item.AssessmentId })"
+                                               target="_blank" class="btn btn-sm btn-outline-dark" title="Print Record">
+                                                <i class="fas fa-print"></i>
+                                            </a>
+                                        </td> *@
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // 1. Date Range
+            $("#daterange").daterangepicker({
+                locale: { format: "DD/MM/YYYY" },
+                autoUpdateInput: true
+            });
+
+            // 2. DataTables with Excel Export
+            $('#masterTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fas fa-file-excel"></i> Export Excel',
+                        className: 'btn btn-success btn-sm',
+                        title: 'Master Triage Register - @ViewBag.DateRange'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> Print List',
+                        className: 'btn btn-secondary btn-sm',
+                        title:'@companyName.ToString()',
+                        messageTop: '<div style="text-align:center; font-size:13px; font-weight:bold; margin-bottom:15px; margin-top:-5px;">Triage Report</div>',
+                        customize: function (win) {
+                            $(win.document.body).find('h1')
+                            .css('font-size', '16px')       
+                            .css('font-weight', 'bold')
+                            .css('text-align', 'center')
+                            .css('margin-bottom', '5px');
+
+                    }
+                    }
+                ],
+                pageLength: 50,
+                order: [[0, 'desc']], // Sort by Date Descending
+                language: {
+                    search: "Search Records:"
+                }
+            });
+        });
+    </script>
+}

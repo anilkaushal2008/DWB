@@ -23,7 +23,6 @@ namespace DoctorWorkBench.Controllers
         public async Task<IActionResult> EmergencyPatient(string dateRange)
         {
             List<SP_OPD> AllEmergency = new List<SP_OPD>();
-
             // 1. SETUP DATES
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
@@ -89,6 +88,7 @@ namespace DoctorWorkBench.Controllers
                     // Check if this specific patient/visit exists in the assessed list
                     // Note: I used p.uhid. If your API uses p.opdno, switch it back.
                     p.bitTempCounselingComplete = assessedList.Any(x => x.BitIsCompleted==true && x.PatientId==p.opdno && x.VisitId==p.visit);
+                    p.CompCode = code;
                 }
             }
 
@@ -127,10 +127,11 @@ namespace DoctorWorkBench.Controllers
         {
             if (!ModelState.IsValid) return View("Form", model);
 
-            if (model.IsAdmissionAdvised)
-            {
-                return RedirectToAction("AdmitPatient", "Admission", new { visitId = model.VisitId });
-            }
+            //for transferring to admission if advised
+            //if (model.IsAdmissionAdvised)
+            //{
+            //    return RedirectToAction("AdmitPatient", "Admission", new { visitId = model.VisitId });
+            //}
 
             // --- STEP 1: FIX THE SQL DATE OVERFLOW ERROR ---
             // If the date is not selected (Year 0001), set it to NOW.
@@ -178,6 +179,7 @@ namespace DoctorWorkBench.Controllers
 
                 TriageCategory = model.TriageCategory,
                 ConditionUponRelease = model.ConditionUponRelease,
+                IsAdmissionAdvised=model.IsAdmissionAdvised,
 
                 CreatedByDoctorId = userId,
                 Intcode = intUnitcode,
@@ -197,16 +199,19 @@ namespace DoctorWorkBench.Controllers
             _context.EmergencyTriageAssessment.Add(entity);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Print", new { id = entity.AssessmentId });
+            return RedirectToAction("Print", new { uhid = entity.PatientId, visit = entity.VisitId });
         }
 
         // 3. GET: Edit Existing Assessment
         [HttpGet]
         [Authorize(Roles = "Admin, EMO")]
-        public async Task<IActionResult> Edit(long id) //uhid,visitno to get
+        public async Task<IActionResult> Edit(string uhid, int visit)
         {
-            var entity = await _context.EmergencyTriageAssessment.FindAsync(id);
-            if (entity == null) return NotFound();
+            // 1. FIND THE RECORD using the specific columns
+            // We use FirstOrDefaultAsync because we are searching by non-primary keys
+            var entity = await _context.EmergencyTriageAssessment
+                .FirstOrDefaultAsync(e => e.PatientId == uhid &&
+                                          e.VisitId == visit ); // Check exact capitalization of IntCode in your model
 
             // Map Entity back to ViewModel
             var triageViewModel = new TriageViewModel
@@ -218,12 +223,15 @@ namespace DoctorWorkBench.Controllers
                 MRN_Number = entity.MrnNumber,
                 Age = entity.Age,
                 Sex = entity.Sex,
-
-                ChiefComplaint = entity.ChiefComplaint,
-                Diagnosis = entity.ProvisionalDiagnosis,
-                Plan = entity.TreatmentPlan,
-                TriageCategory = entity.TriageCategory,
-                ConditionUponRelease = entity.ConditionUponRelease,
+                Temperature = entity.Temperature,
+                BPDiastolic = entity.Bpdiastolic,
+                ChiefComplaint = entity.ChiefComplaint ?? "",
+                ObjectiveNotes = entity.ObjectiveNotes ?? "",
+                Diagnosis = entity.ProvisionalDiagnosis ?? "",     // Maps to Diagnosis
+                Plan = entity.TreatmentPlan ?? "",                 // Maps to TreatmentPlan
+                TriageCategory = entity.TriageCategory ?? "",
+                ConditionUponRelease = entity.ConditionUponRelease ?? "",
+               
 
                 // Map Vitals...
                 Pulse = entity.Pulse,
@@ -251,17 +259,71 @@ namespace DoctorWorkBench.Controllers
             entity.ConditionUponRelease = model.ConditionUponRelease;
             entity.Pulse = model.Pulse;
             // ... update other fields as needed
+            entity.DtUpdated = DateTime.Now;
+            entity.VchUpdatedBy = User.Identity?.Name ?? "Unknown";
+            entity.IsAdmissionAdvised = model.IsAdmissionAdvised;
+            //entity.in
 
             await _context.SaveChangesAsync();
-            return RedirectToAction("Print", new { id = entity.AssessmentId });
+            return RedirectToAction("Print", new { uhid=entity.PatientId, visit=entity.VisitId});
         }
 
-        // 5. GET: Print View
+        //5. print  
+        [HttpGet]
         [Authorize(Roles = "Admin, EMO")]
-        public async Task<IActionResult> Print(long id)
+        public async Task<IActionResult> Print(string uhid, int visit)
         {
-            var entity = await _context.EmergencyTriageAssessment.FindAsync(id);
-            return View(entity);
+            if (uhid ==null&& visit==0) return BadRequest("Invalid detail");
+
+            var obj = _context.EmergencyTriageAssessment
+                    .FirstOrDefault(e => e.PatientId == uhid &&                         
+                         e.VisitId == visit); // Fixed comparison
+            // FIX: If ID is wrong or record deleted, show 404 instead of crashing
+            if (obj == null)
+            {
+                return NotFound($"Assessment with ID {uhid} not found.");
+            }
+
+            return View(obj);
+        }
+
+        [Authorize(Roles = "Admin, EMO")]
+        public async Task<IActionResult> AllTriageReport(string dateRange)
+        {
+            // 1. DEFAULT DATES (Today)
+            DateTime Sdate = DateTime.Today;
+            DateTime Edate = DateTime.Today;
+
+            if (!string.IsNullOrEmpty(dateRange))
+            {
+                var dates = dateRange.Split(" - ");
+                if (dates.Length == 2)
+                {
+                    DateTime.TryParseExact(dates[0], "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out Sdate);
+                    DateTime.TryParseExact(dates[1], "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out Edate);
+                }
+            }
+
+            // 2. FETCH DATA (All records for the date range)
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value ?? "0");
+
+            var allRecords = await _context.EmergencyTriageAssessment
+                .Where(x => x.Intcode == intUnitcode
+                         && x.ArrivalDateTime.Date >= Sdate
+                         && x.ArrivalDateTime.Date <= Edate
+                         && x.BitIsCompleted == true) // Only completed assessments
+                .OrderByDescending(x => x.ArrivalDateTime)
+                .ToListAsync();
+
+            // 3. PASS DATES FOR UI
+            ViewBag.DateRange = $"{Sdate:dd/MM/yyyy} - {Edate:dd/MM/yyyy}";
+
+            // 4. CALCULATE SUMMARY STATS (Optional but useful for "All Usage")
+            ViewBag.TotalPatients = allRecords.Count;
+            ViewBag.TotalAdmissions = allRecords.Count(x => x.IsAdmissionAdvised == true);
+            ViewBag.TotalEmergent = allRecords.Count(x => x.TriageCategory == "Emergent");
+
+            return View(allRecords);
         }
     }
 }

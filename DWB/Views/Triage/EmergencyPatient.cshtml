@@ -1,6 +1,6 @@
 ﻿@model List<DWB.APIModel.SP_OPD>
 @{
-    ViewData["Title"] = "Counseling Session Patient List";
+    ViewData["Title"] = "Emergency Patient List";
 }
 
 <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
@@ -40,7 +40,7 @@
                             </div>
                         }
 
-                        <form id="filterForm" method="get" asp-action="GetCounseling" asp-controller="Counseling" class="row g-2 mb-4">
+                        <form id="filterForm" method="get" asp-action="EmergencyPatient" asp-controller="Triage" class="row g-2 mb-4">
                             <div class="col-md-4">
                                 <label class="form-label fw-medium">Select Date Range</label>
                                 <input type="text" id="daterange" name="dateRange" class="form-control material-input" autocomplete="off" placeholder="Select date range" />
@@ -48,7 +48,7 @@
 
                             <div class="col-md-3 align-self-end d-flex gap-2">
                                 <button type="submit" class="btn btn-primary material-btn">Filter</button>
-                                <a href="@Url.Action("GetCounseling", "Counseling")" class="btn btn-outline-secondary material-btn-outline">Clear</a>
+                                <a href="@Url.Action("EmergencyPatient", "Triage")" class="btn btn-outline-secondary material-btn-outline">Clear</a>
                             </div>
                         </form>
 
@@ -89,11 +89,11 @@
                                                 else
                                                 {
                                                     <a class="btn btn-sm material-chip-primary"
-                                                       href="@Url.Action("Print", "Triage", new { uhid = p.opdno, visit = p.visit })">
+                                                       href="@Url.Action("Print", "Triage", new { uhid = p.opdno, visit = p.visit })" target="_blank">
                                                         <i class="fas fa-eye"></i> View
                                                     </a>
                                                     <a class="btn btn-sm material-chip-primary"
-                                                       href="@Url.Action("Edit", "Triage", new { uhid = p.opdno, visit = p.visit })">
+                                                       href="@Url.Action("Edit", "Triage", new { uhid = p.opdno, visit = p.visit, intcode=p.CompCode })">
                                                         <i class="fas fa-eye"></i> Edit
                                                     </a>
                                                 }

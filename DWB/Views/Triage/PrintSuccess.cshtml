@@ -1,0 +1,29 @@
+﻿@{
+    Layout = null;
+    // This View receives the IDs from the Controller AFTER saving
+    var printUrl = Url.Action("Print", "Triage", new { id = ViewBag.AssessmentId });
+    var listUrl = Url.Action("EmergencyPatient", "Triage");
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Processing...</title>
+    <script>
+        window.onload = function () {
+            // 1. Open the Print Page in a NEW TAB
+            window.open('@printUrl', '_blank');
+
+            // 2. Redirect the CURRENT tab back to the Patient List
+            window.location.href = '@listUrl';
+        };
+    </script>
+</head>
+<body>
+    <div style="text-align:center; padding-top: 50px; font-family: sans-serif;">
+        <h2 style="color: green;">Assessment Saved!</h2>
+        <p>Opening print window...</p>
+        <p>If nothing happens, <a href="@printUrl" target="_blank">Click Here to Print</a></p>
+    </div>
+</body>
+</html>

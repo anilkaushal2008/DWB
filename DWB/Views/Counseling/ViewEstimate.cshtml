@@ -1,7 +1,7 @@
 ﻿@model DWB.Models.PatientEstimateRecord
 @{
     ViewData["Title"] = "Estimate Summary";
-    Layout = null; /* We use null layout to control the full page for printing */
+    Layout = null; 
 }
 
 <!DOCTYPE html>
@@ -12,10 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* --- GENERAL SCREEN STYLES --- */
+        /* --- GENERAL STYLES --- */
         body {
             background-color: #f4f6f9;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #000;
         }
 
         .invoice-container {
@@ -27,59 +28,87 @@
             border-radius: 8px;
         }
 
-        /* --- PRINT MEDIA QUERY (The Magic Part) --- */
+        /* --- PRINT OPTIMIZATION (THE FIX) --- */
         @@media print {
-            body
+            @@page {
+                size: A4;
+                margin: 5mm; /* Very small printer margins to use full paper */
+            }
 
-        {
-            background-color: #fff;
-            -webkit-print-color-adjust: exact;
+            body {
+                background-color: #fff;
+                -webkit-print-color-adjust: exact;
+                font-size: 11px; /* Smaller base font for print */
+            }
+
+            .invoice-container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0; /* Remove container padding */
+                max-width: 100%;
+                width: 100%;
+                border: none;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            /* Tighten the header */
+            .hospital-header {
+                padding-bottom: 5px !important;
+                margin-bottom: 10px !important;
+                border-bottom: 1px solid #0d6efd;
+            }
+            .hospital-header h3 {
+                font-size: 1.4rem !important; /* Smaller Hospital Name */
+            }
+            .hospital-header h5 {
+                font-size: 1rem !important;
+            }
+
+            /* Tighten the table rows significantly */
+            .table-invoice th, 
+            .table-invoice td {
+                padding: 2px 4px !important; /* Very tight padding */
+                font-size: 10px !important;  /* Small font for list items */
+                height: 20px !important;
+            }
+
+            /* Reduce space between sections */
+            .row.mb-4 {
+                margin-bottom: 10px !important;
+            }
+            h6 {
+                font-size: 11px !important;
+                margin-bottom: 4px !important;
+                padding: 4px !important;
+            }
+
+            /* Compact Terms & Conditions */
+            .terms-box {
+                font-size: 9px !important;
+                padding: 4px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .signature-line {
+                margin-top: 20px !important; /* Pull signatures up */
+            }
         }
 
-        .invoice-container {
-            box-shadow: none;
-            margin: 0;
-            padding: 0;
-            max-width: 100%;
-            width: 100%;
-            border: none;
-        }
-
-        .no-print {
-            display: none !important;
-        }
-        /* Hides buttons during print */
-        .page-break {
-            page-break-before: always;
-        }
-
-        /* Clean up links for print */
-        a {
-            text-decoration: none;
-            color: #000;
-        }
-
-        }
-
-        /* Styling the Tables */
+        /* --- SCREEN STYLES (Keep readable on screen) --- */
         .table-invoice th {
             background-color: #f8f9fa !important;
             text-transform: uppercase;
             font-size: 0.85rem;
-            letter-spacing: 0.5px;
             border-bottom: 2px solid #dee2e6;
         }
-
-        .table-invoice td {
-            vertical-align: middle;
-        }
-
         .hospital-header {
             border-bottom: 2px solid #0d6efd;
             padding-bottom: 15px;
             margin-bottom: 20px;
         }
-
         .signature-line {
             border-top: 1px solid #000;
             margin-top: 50px;
@@ -107,50 +136,39 @@
                 <h3 class="fw-bold text-black m-0 text-uppercase">
                     @(User.FindFirst("CompName")?.Value ?? "INDUS HOSPITAL")
                 </h3>
-
-                @* Uncomment address if needed later *@
-                @* <p class="mb-0 text-muted small">Opp. Old DC Office, Phase 1, Mohali</p> *@
-
                 <p class="mb-0 text-muted small mt-1">
-                    <i class="fas fa-phone-alt me-1 text-secondary"></i> +91-12345-67890
-                    <span class="mx-2 text-secondary">|</span>
-                    <i class="fas fa-envelope me-1 text-secondary"></i> billing@indushospital.com
+                    <i class="fas fa-phone-alt me-1 text-secondary"></i> +91-12345-67890 | billing@indushospital.com
                 </p>
             </div>
-
             <div class="col-4 text-end">
                 <h5 class="fw-bold text-dark m-0 letter-spacing-1">ESTIMATE</h5>
-
                 <p class="mb-0 text-muted small mt-1">
-                    <i class="fas fa-file-invoice me-1 text-secondary"></i> <strong>#@Model.EstimateRecordId</strong>
-                    <span class="mx-2 text-secondary">|</span>
-                    <i class="fas fa-calendar-alt me-1 text-secondary"></i> @Model.EstimateDate.ToString("dd-MMM-yyyy")
+                    <strong>#@Model.EstimateRecordId</strong> | @Model.EstimateDate.ToString("dd-MMM-yyyy")
                 </p>
             </div>
         </div>
 
         <div class="row mb-4">
             <div class="col-6">
-                <h6 class="fw-bold text-uppercase text-secondary mb-2">Patient Details</h6>
-                <table class="table table-sm table-borderless mb-0">
-                    <tr><td style="width:100px;" class="text-muted">Name:</td><td class="fw-bold">@Model.PatientName</td></tr>
-                    <tr><td class="text-muted">UHID:</td><td class="fw-bold">@Model.Uhid</td></tr>
-                    <tr><td class="text-muted">Visit No:</td><td>@Model.VisitNumber</td></tr>
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom">Patient Details</h6>
+                <table class="table table-sm table-borderless mb-0" style="font-size: 12px;">
+                    <tr><td style="width:80px;" class="text-muted p-0">Name:</td><td class="fw-bold p-0">@Model.PatientName</td></tr>
+                    <tr><td class="text-muted p-0">UHID:</td><td class="fw-bold p-0">@Model.Uhid</td></tr>
+                    <tr><td class="text-muted p-0">Visit No:</td><td class="p-0">@Model.VisitNumber</td></tr>
                 </table>
             </div>
             <div class="col-6">
-                <h6 class="fw-bold text-uppercase text-secondary mb-2">Attendant / Payer</h6>
-                <table class="table table-sm table-borderless mb-0">
-                    <tr><td style="width:100px;" class="text-muted">Name:</td><td>@Model.RelativeName</td></tr>
-                    <tr><td class="text-muted">Relation:</td><td>@Model.RelativeRelation</td></tr>
-                    <tr><td class="text-muted">Counselor:</td><td>@Model.CounselorName</td></tr>
+                <h6 class="fw-bold text-uppercase text-secondary border-bottom">Attendant / Payer</h6>
+                <table class="table table-sm table-borderless mb-0" style="font-size: 12px;">
+                    <tr><td style="width:80px;" class="text-muted p-0">Name:</td><td class="p-0">@Model.RelativeName</td></tr>
+                    <tr><td class="text-muted p-0">Relation:</td><td class="p-0">@Model.RelativeRelation</td></tr>
+                    <tr><td class="text-muted p-0">Counselor:</td><td class="p-0">@Model.CounselorName</td></tr>
                 </table>
             </div>
         </div>
 
         <h6 class="fw-bold text-uppercase bg-light p-2 border-start border-4 border-primary">Estimated Services</h6>
-        <table class="table table-bordered table-invoice table-sm mb-4">
-            <thead>
+        <table class="table table-bordered table-invoice table-sm mb-2"> <thead>
                 <tr>
                     <th style="width: 5%;">S.No.</th>
                     <th style="width: 45%;">Service Name</th>
@@ -168,9 +186,9 @@
                     {
                         <tr>
                             <td>@(i++)</td>
-                            <td>@item.ServiceName</td>
+                            <td class="text-truncate" style="max-width: 250px;">@item.ServiceName</td>
                             <td>@item.UnitType</td>
-                            <td class="text-end">@item.TariffRate.ToString("N2")</td>
+                            <td class="text-end">@item.TariffRate.ToString("0.##")</td>
                             <td class="text-center">@item.EstimatedQuantity</td>
                             <td class="text-end fw-bold">@item.CalculatedAmount.ToString("N2")</td>
                         </tr>
@@ -187,13 +205,12 @@
 
         @if (Model.PaymentTransaction != null && Model.PaymentTransaction.Any())
         {
-            <h6 class="fw-bold text-uppercase bg-light p-2 border-start border-4 border-success mt-4">Advance Received (Draft)</h6>
-            <table class="table table-bordered table-sm mb-4">
+            <h6 class="fw-bold text-uppercase bg-light p-1 border-start border-4 border-success mt-2">Advance Received</h6>
+            <table class="table table-bordered table-sm mb-2 table-invoice">
                 <thead>
                     <tr>
                         <th>Date</th>
                         <th>Payer Name</th>
-                        <th>Mode</th>
                         <th class="text-end">Amount</th>
                     </tr>
                 </thead>
@@ -201,52 +218,49 @@
                     @foreach (var pay in Model.PaymentTransaction)
                     {
                         <tr>
-                           @*  <td>@pay.PaymentDate.Value.ToString("dd-MMM-yyyy")</td> *@
-                            <td>@(pay.PaymentDate.HasValue? pay.PaymentDate.Value.ToString("dd-MMM-yyyy") : "-")</td>
+                            <td>@(pay.PaymentDate.HasValue ? pay.PaymentDate.Value.ToString("dd-MMM-yyyy") : "-")</td>
                             <td>@pay.PayerName</td>
-                            <td>Draft/Cash</td>
                             <td class="text-end">@pay.AmountPaid.Value.ToString("N2")</td>
                         </tr>
                     }
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-end fw-bold">Total Received:</td>
+                        <td colspan="2" class="text-end fw-bold">Total Received:</td>
                         <td class="text-end fw-bold text-success">₹ @Model.TotalAmountReceived.ToString("N2")</td>
                     </tr>
                 </tfoot>
             </table>
         }
 
-        <div class="mt-5">
-            <p class="small text-muted mb-1"><strong>Terms & Conditions:</strong></p>
-            <div class="border rounded p-2 bg-light mb-4" style="font-size: 0.75rem;">
+        <div class="mt-3">
+            <p class="small text-muted mb-0" style="font-size: 9px;"><strong>Terms & Conditions:</strong></p>
+            <div class="border rounded p-1 bg-light mb-3 terms-box" style="font-size: 9px;">
                 1. This is an approximate estimate based on the current diagnosis. Actual bill may vary.<br />
                 2. In case of emergency or complications, charges will increase.<br />
-                3. Packages are non-discountable.<br />
-                4. I hereby confirm that I have been explained the charges and agree to them.
+                3. Packages are non-discountable. I hereby confirm that I have been explained the charges and agree to them.
             </div>
 
-            <div class="row mt-5">
-                <div class="col-4">
+            <div class="row mt-4">
+                <div class="col-4 text-center">
                     <div class="signature-line">
                         <strong>@Model.CounselorName</strong><br />
-                        (Financial Counselor)
+                        <span style="font-size: 10px;">(Financial Counselor)</span>
                     </div>
                 </div>
                 <div class="col-4"></div>
-                <div class="col-4">
+                <div class="col-4 text-center">
                     <div class="signature-line">
                         <strong>@Model.RelativeName</strong><br />
-                        (Patient/Attendant)
+                        <span style="font-size: 10px;">(Patient/Attendant)</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="text-center mt-4 text-muted small no-print">
+        <div class="text-center mt-2 text-muted small no-print">
             <hr />
-            <p>Generated by Indus DWB Dashbaord System on @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</p>
+            <p>Generated by Indus DWB Dashboard on @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")</p>
         </div>
 
     </div>

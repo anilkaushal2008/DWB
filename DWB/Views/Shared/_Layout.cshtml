@@ -366,6 +366,7 @@
                     && c.Value.Contains(":View:True"));
                     var hasCounseling = User.Claims.Any(c => c.Type == "Permission" && c.Value.StartsWith("Counseling Assessment:")
                     && c.Value.Contains(":View:True"));
+
                 }
                 @if (hasMasterViewPermission)
                 {
@@ -448,15 +449,50 @@
                         }
                     </li>
                 }
-                @*<li class="menu-label">UI Elements</li>
-            <li>
-                <a href="cards.html">
-                    <div class="parent-icon">
-                        <i class="material-icons-outlined">inventory_2</i>
-                    </div>
-                    <div class="menu-title">Cards</div>
-                </a>
-            </li>*@
+                @if (hasEmgAssessment || User.IsInRole("Admin"))
+                {
+                    <li>
+                        <a class="has-arrow" href="javascript:;">
+                            <div class="parent-icon">
+                                <i class="material-icons-outlined">summarize</i>
+                            </div>
+                            <div class="menu-title">Reporting</div>
+                        </a>
+                        <ul>
+                            @* 1. CONSULTANT REPORT *@
+                            @if (hasDoctorAssessment || User.IsInRole("Admin"))
+                            {
+                                <li>
+                                    <a href="@Url.Action("DoctorAssessment", "Assessment")">
+                                        <i class="material-icons-outlined">arrow_right</i>Consultant Report
+                                    </a>
+                                </li>
+                            }
+
+                            @* 2. TRIAGE REPORT (Links to the Master Register we built) *@
+                            @if (hasEmgAssessment || User.IsInRole("Admin"))
+                            {
+                                <li>
+                                    @* This links to the All Usage/Master Triage Report *@
+                                    <a href="@Url.Action("AllTriageReport", "Triage")">
+                                        <i class="material-icons-outlined">arrow_right</i>Triage Report
+                                    </a>
+                                </li>
+                            }
+
+                            @* 3. COUNSELING REPORT *@
+                            @if (hasCounseling || User.IsInRole("Admin"))
+                            {
+                                <li>
+                                    <a href="@Url.Action("GetCounseling", "Counseling", new { Type = "Counseling" })">
+                                        <i class="material-icons-outlined">arrow_right</i>Counseling Report
+                                    </a>
+                                </li>
+                            }
+
+                        </ul>
+                    </li>
+                }
             </ul>
             <!--end navigation-->
         </div>

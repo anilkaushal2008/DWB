@@ -3,32 +3,50 @@
     Layout = null;
 }
 
+@* --- SAFETY CHECK --- *@
+@if (Model == null)
+{
+    <div style="padding: 20px; color: red; text-align: center;">
+        <h2>⚠️ Error Loading Assessment</h2>
+        <button onclick="window.history.back()">Go Back</button>
+    </div>
+    return;
+}
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Print Assessment</title>
+    <title>Assessment_@Model.MrnNumber</title>
     <style>
+        /* --- BASE STYLES --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 12px;
+            font-size: 12px; /* Standard for screen */
             margin: 0;
             padding: 20px;
+            color: #000;
         }
 
         .header-table, .content-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 8px; /* Reduced gap between tables */
         }
 
-            .content-table td, .content-table th {
-                border: 1px solid #000;
-                padding: 5px;
-                vertical-align: top;
-            }
+        .content-table td, .content-table th {
+            border: 1px solid #000;
+            padding: 4px 6px; /* Tighter padding */
+            vertical-align: top;
+        }
+
+        .content-table th {
+            background-color: #f2f2f2;
+            text-align: left;
+            font-weight: 600;
+        }
 
         .header-title {
-            font-size: 18px;
+            font-size: 16px; /* Slightly smaller title */
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
@@ -36,137 +54,181 @@
 
         .section-title {
             font-weight: bold;
-            background-color: #f0f0f0;
+            background-color: #e0e0e0 !important;
+            text-transform: uppercase;
+            padding: 3px 6px;
+            font-size: 11px;
         }
 
+        /* Checkbox Styles */
         .check-box {
             display: inline-block;
             width: 12px;
             height: 12px;
             border: 1px solid #000;
-            margin-right: 5px;
+            margin-right: 4px;
+            vertical-align: middle;
+            position: relative;
+        }
+        .checked { background-color: #000; }
+        .checked::after {
+            content: '✓'; color: white; position: absolute; top: -3px; left: 1px; font-size: 10px;
         }
 
-        .checked {
-            background-color: #000;
-        }
+        /* --- PRINT OPTIMIZATION (COMPACT MODE) --- */
         @@media print {
-            .no-print
+            .no-print { display: none !important; }
+            
+            @@page {
+                size: A4;
+                margin: 5mm; /* Small margins to use full paper */
+            }
 
-        {
-            display: none;
-        }
+            body {
+                padding: 0;
+                font-size: 11px; /* Smaller font for print */
+                -webkit-print-color-adjust: exact;
+            }
 
+            .content-table td, .content-table th {
+                padding: 2px 4px !important; /* Very tight cells */
+            }
+
+            /* Ensure sections don't break awkwardly */
+            tr { page-break-inside: avoid; }
+            
+            /* Hide URL/Footer added by browser */
+            html { height: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <button class="no-print" onclick="window.print()" style="padding: 10px; font-size: 16px; margin-bottom: 20px;">🖨️ Print Now</button>
+    <div class="no-print" style="margin-bottom: 15px; text-align: right; background: #f8f9fa; padding: 10px; border-bottom: 1px solid #ddd;">
+        <button onclick="window.print()" style="padding: 8px 16px; background-color: #0d6efd; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;">
+            🖨️ Print Page
+        </button>
+        <button onclick="window.close()" style="padding: 8px 16px; background-color: #6c757d; color: white; border: none; cursor: pointer; border-radius: 4px; margin-left: 8px;">
+            Close
+        </button>
+    </div>
 
     <table class="header-table">
         <tr>
-            <td width="20%"><img src="/logo.png" style="height: 50px;"></td>
-            <td class="header-title">PRE TRIAGE ASSESSMENT FORM</td>
-            <td width="25%" style="border: 1px solid #000; padding: 5px;">
-                <strong>Date:</strong> @Model.ArrivalDateTime.ToString("dd-MM-yyyy")<br>
-                <strong>Time:</strong> @Model.ArrivalDateTime.ToString("HH:mm")
+            <td width="20%">
+                <img src="~/images/logo.png" style="height: 45px; max-width: 150px;" alt="Logo" onerror="this.style.display='none'">
+            </td>
+            <td class="header-title">
+                EMERGENCY TRIAGE ASSESSMENT
+            </td>
+            <td width="25%" style="border: 1px solid #000; padding: 5px; font-size: 11px;">
+                <strong>Date:</strong> @Model.ArrivalDateTime.ToString("dd-MMM-yyyy")<br>
+                <strong>Time:</strong> @Model.ArrivalDateTime.ToString("hh:mm tt")
             </td>
         </tr>
     </table>
 
     <table class="content-table">
         <tr>
-            <td colspan="2"><strong>Patient Name:</strong> @Model.PatientName</td>
-            <td><strong>Age/Sex:</strong> @Model.Age / @Model.Sex</td>
-            <td><strong>MRN:</strong> @Model.MrnNumber</td>
+            <td colspan="2"><strong>Name:</strong> @(Model.PatientName ?? "N/A")</td>
+            <td><strong>Age/Sex:</strong> @(Model.Age ?? "-") / @(Model.Sex ?? "-")</td>
+            <td><strong>MRN:</strong> @(Model.MrnNumber ?? "-")</td>
         </tr>
         <tr>
-            <td colspan="4"><strong>Address:</strong> @Model.Address</td>
+            <td colspan="4"><strong>Address:</strong> @(Model.Address ?? "N/A")</td>
         </tr>
         <tr>
-            <td width="50%">
-                <strong>Arrival:</strong> @Model.TransportationMode
-            </td>
-            <td colspan="3">
-                <strong>History Obtained From:</strong> @Model.HistoryObtainedFrom
-            </td>
+            <td width="50%"><strong>Arrival Mode:</strong> @(Model.TransportationMode ?? "-")</td>
+            <td colspan="3"><strong>History From:</strong> @(Model.HistoryObtainedFrom ?? "Patient")</td>
         </tr>
     </table>
 
-    <table class="content-table">
-        <tr class="section-title"><td colspan="6">VITAL SIGNS</td></tr>
-        <tr>
+    <table class="content-table" style="text-align: center;">
+        <tr class="section-title">
+            <td colspan="6" style="text-align: left;">VITAL SIGNS</td>
+        </tr>
+        <tr style="background: #f9f9f9;">
             <th>Time</th>
             <th>Pulse</th>
             <th>BP</th>
             <th>Resp</th>
             <th>Temp</th>
-            <th>Wt.</th>
+            <th>Wt (kg)</th>
         </tr>
         <tr>
-            <td>@Model.VitalsTime?.ToString("HH:mm")</td>
-            <td>@Model.Pulse</td>
-            <td>@Model.Bpdiastolic / @Model.Bpdiastolic</td>
-            <td>@Model.RespRate</td>
-            <td>@Model.Temperature</td>
-            <td>@Model.Weight</td>
+            <td>@(Model.VitalsTime?.ToString("hh:mm tt") ?? "-")</td>
+            <td>@(Model.Pulse ?? "-")</td>
+            <td>@(Model.Bpsystolic?.ToString() ?? "-") / @(Model.Bpdiastolic?.ToString() ?? "-")</td>
+            <td>@(Model.RespRate?.ToString() ?? "-")</td>
+            <td>@(Model.Temperature?.ToString() ?? "-")</td>
+            <td>@(Model.Weight?.ToString() ?? "-")</td>
         </tr>
     </table>
 
-    <table class="content-table">
-        <tr>
-            <td height="60">
-                <strong>1) Subjective data (Chief Complaint):</strong><br>
-                @Model.ChiefComplaint
-            </td>
-        </tr>
-        <tr>
-            <td height="60">
-                <strong>2) Objective data (Examination/Tests):</strong><br>
-                @Model.ObjectiveNotes
-            </td>
-        </tr>
-        <tr>
-            <td height="40">
-                <strong>3) Assessment (Diagnosis):</strong><br>
-                @Model.ProvisionalDiagnosis
-            </td>
-        </tr>
-    </table>
-
-    <div style="border: 1px solid #000; padding: 10px; margin-bottom: 10px;">
-        <strong>CATEGORY:</strong>
+    <div style="border: 1px solid #000; padding: 6px; margin-bottom: 8px; font-size: 11px; background: #fdfdfd;">
+        <strong>TRIAGE CATEGORY:</strong>
         <span style="margin-left: 20px;">
-            <span class="check-box @(Model.TriageCategory == "Emergent" ? "checked" : "")"></span> EMERGENT
+            <span class="check-box @(Model.TriageCategory == "Emergent" ? "checked" : "")"></span> <strong>EMERGENT</strong>
         </span>
         <span style="margin-left: 20px;">
-            <span class="check-box @(Model.TriageCategory == "Urgent" ? "checked" : "")"></span> URGENT
+            <span class="check-box @(Model.TriageCategory == "Urgent" ? "checked" : "")"></span> <strong>URGENT</strong>
         </span>
         <span style="margin-left: 20px;">
-            <span class="check-box @(Model.TriageCategory == "Non-Urgent" ? "checked" : "")"></span> NON-URGENT
+            <span class="check-box @(Model.TriageCategory == "Non-Urgent" ? "checked" : "")"></span> <strong>NON-URGENT</strong>
         </span>
     </div>
 
     <table class="content-table">
         <tr>
-            <td height="60">
-                <strong>4) Plan (Treatment/Procedure/Meds):</strong><br>
-                @Model.TreatmentPlan
+            <td style="height: 50px;">
+                <strong>1. Chief Complaint:</strong><br>
+                <span style="display:block; margin-top:3px;">@Html.Raw(Model.ChiefComplaint?.Replace("\n", "<br>") ?? "-")</span>
             </td>
         </tr>
         <tr>
-            <td>
-                <strong>Condition Upon Release:</strong> @Model.ConditionUponRelease <br><br>
-                <strong>Follow Up:</strong> @(Model.FollowUpDate.HasValue? Model.FollowUpDate.Value.ToString("dd-MM-yyyy") : "N/A")
+            <td style="height: 70px;">
+                <strong>2. Objective Findings / Exam:</strong><br>
+                <span style="display:block; margin-top:3px;">@Html.Raw(Model.ObjectiveNotes?.Replace("\n", "<br>") ?? "-")</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="height: 40px;">
+                <strong>3. Provisional Diagnosis:</strong><br>
+                <span style="display:block; margin-top:3px;">@Html.Raw(Model.ProvisionalDiagnosis?.Replace("\n", "<br>") ?? "-")</span>
+            </td>
+        </tr>
+        <tr>
+            <td style="height: 70px;">
+                <strong>4. Plan / Treatment / Medication:</strong><br>
+                <span style="display:block; margin-top:3px;">@Html.Raw(Model.TreatmentPlan?.Replace("\n", "<br>") ?? "-")</span>
             </td>
         </tr>
     </table>
 
-    <div style="text-align: right; margin-top: 40px;">
-        ___________________________<br>
-        <strong>Signature of Provider</strong><br>
-        @Model.CreatedByDoctorName
+    <table class="content-table">
+        <tr>
+            <td>
+                <div style="display: flex; justify-content: space-between;">
+                    <span><strong>Condition Upon Release:</strong> @(Model.ConditionUponRelease ?? "Stable")</span>
+                    <span><strong>Follow Up:</strong> @(Model.FollowUpDate.HasValue ? Model.FollowUpDate.Value.ToString("dd-MMM-yyyy") : "N/A")</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div style="font-size: 9px; color: #555;">
+            Generated: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")
+        </div>
+
+        <div style="text-align: center; min-width: 180px;">
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px;">
+                @(string.IsNullOrEmpty(Model.CreatedByDoctorName) ? " " : Model.CreatedByDoctorName)
+            </div>
+            <div style="border-top: 1px solid #000; padding-top: 2px;">
+                <strong>Provider Signature</strong>
+            </div>
+        </div>
     </div>
 
 </body>

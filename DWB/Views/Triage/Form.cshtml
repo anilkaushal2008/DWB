@@ -1,6 +1,6 @@
 ﻿@model DWB.Models.TriageViewModel
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";  
 }
 
 <style>
@@ -185,13 +185,13 @@
     <script>
         $(document).ready(function () {
             // Toggle release options based on Admission checkbox
-            $('#chkAdmit').change(function() {
-                if(this.checked) {
-                    $('#release-options').slideUp();
-                } else {
-                    $('#release-options').slideDown();
-                }
-            });
+            // $('#chkAdmit').change(function() {
+            //     if(this.checked) {
+            //         $('#release-options').slideUp();
+            //     } else {
+            //         $('#release-options').slideDown();
+            //     }
+            // });
 
             // Focus on first error
             $("#triageForm").on("submit", function () {

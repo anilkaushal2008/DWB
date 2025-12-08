@@ -181,6 +181,7 @@
             $.ajax({
                 url: '@Url.Action("GetDashboardStats", "Home")',
                 type: 'GET',
+                 cache: false, 
                 success: function (data) {
 
                     // --- 1. Nursing / Admin ---
