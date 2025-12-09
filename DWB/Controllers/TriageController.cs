@@ -160,8 +160,7 @@ namespace DoctorWorkBench.Controllers
                 PatientName = model.PatientName,
                 MrnNumber = model.MRN_Number.ToString(),
                 Age = model.Age,
-                Sex = model.Sex,
-
+                Sex = model.Sex,                             
                 // These are now safe because of Step 1
                 ArrivalDateTime = model.ArrivalDateTime,
                 TimeSeenByProvider = model.TimeSeenByProvider,
@@ -183,6 +182,8 @@ namespace DoctorWorkBench.Controllers
                 ConditionUponRelease = model.ConditionUponRelease,
                 IsAdmissionAdvised=model.IsAdmissionAdvised,
 
+                //user detail
+                CreatedByDoctorName = User.Identity?.Name ?? "Unknown",
                 CreatedByDoctorId = userId,
                 Intcode = intUnitcode,
                 IntIhmscode = intHMScode,
@@ -192,9 +193,9 @@ namespace DoctorWorkBench.Controllers
                 DtCreated = DateTime.Now,
                 VchCreatedBy= User.Identity?.Name ?? "Unknown"
 
-                // --- IMPORTANT FOR DASHBOARD ---
-                // You MUST save this string date, or your Dashboard count will be 0.
-                // Assuming your column name is EntryDate or VchDate (check your table)
+                //--- IMPORTANT FOR DASHBOARD ---
+                //You MUST save this string date, or your Dashboard count will be 0.
+                //Assuming your column name is EntryDate or VchDate (check your table)
                 //CreatedDate = DateTime.Now.ToString("dd/MM/yyyy")
             };
 
@@ -299,8 +300,15 @@ namespace DoctorWorkBench.Controllers
             if (id ==0) return BadRequest("Invalid detail");
 
             var obj = _context.EmergencyTriageAssessment
-                    .FirstOrDefault(e => e.AssessmentId==id); // Fixed comparison
-            // FIX: If ID is wrong or record deleted, show 404 instead of crashing
+                    .FirstOrDefault(e => e.AssessmentId==id); 
+                                                              
+            var creatorSignature = await _context.TblUsers 
+                .Where(u => u.VchUsername == obj.VchCreatedBy) 
+                .FirstOrDefaultAsync();
+            //Pass it to the view securely
+            ViewBag.ProviderSignature = creatorSignature.VchSignFileName.ToString();
+            ViewBag.ProviderFullName = creatorSignature.VchFullName.ToString();                   
+
             if (obj == null)
             {
                 return NotFound($"Assessment with ID {id} not found.");
@@ -322,13 +330,13 @@ namespace DoctorWorkBench.Controllers
             {
                 return NotFound($"Assessment with ID {uhid} not found.");
             }
-            ////Use the CreatedByDoctorId to find the specific user who saved this form
-            //var creatorSignature = await _context.TblUsers // <--- Adjust table name if needed (e.g. TblUser)
-            //    .Where(u => u.VchUsername == obj.VchCreatedBy) // Match the ID
-            //    .Select(u => u.VchSignFileName) // Select only the filename column
-            //    .FirstOrDefaultAsync();
-            // Pass it to the view securely
-            //ViewBag.ProviderSignature = creatorSignature;
+            //Use the CreatedByDoctorId to find the specific user who saved this form
+            var creatorSignature = await _context.TblUsers // <--- Adjust table name if needed (e.g. TblUser)
+                .Where(u => u.VchUsername == obj.VchCreatedBy) // Match the ID
+                .FirstOrDefaultAsync();
+            //Pass it to the view securely
+            ViewBag.ProviderSignature = creatorSignature.VchSignFileName.ToString();
+            ViewBag.ProviderFullName = creatorSignature.VchFullName.ToString();
             return View(obj);
         }
 

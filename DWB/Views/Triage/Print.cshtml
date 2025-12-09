@@ -1,6 +1,14 @@
 ﻿@model DWB.Models.EmergencyTriageAssessment
 @{
     Layout = null;
+    // START: Placeholder Logic for Logo and Signature
+    var logoPath = "~/assets/images/LogoI2.png";
+    var logoUrl = Url.Content(logoPath);
+    var rawPath = "~/uploads/Signature/" + ViewBag.ProviderSignature;
+    var signatureUrl = Url.Content(rawPath);
+    // --- COMPANY NAME ---
+    var compClaim = User.Claims.FirstOrDefault(c => c.Type == "CompName");
+    var companyName = compClaim?.Value ?? "Indus Healthcare"; // Provide a fallback text
 }
 
 @* --- SAFETY CHECK --- *@
@@ -19,6 +27,22 @@
     <title>Assessment_@Model.MrnNumber</title>
     <style>
         /* --- BASE STYLES --- */
+        .header-title {
+            font-size: 16px; /* Main Title size */
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+
+        /* NEW STYLE FOR COMPANY HEADING */
+        .company-heading {
+            font-size: 14px; /* Slightly smaller */
+            font-weight: 600; /* Less bold */
+            margin-bottom: 2px; /* Space above main title */
+            text-transform: uppercase;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 12px; /* Standard for screen */
@@ -33,17 +57,17 @@
             margin-bottom: 8px; /* Reduced gap between tables */
         }
 
-        .content-table td, .content-table th {
-            border: 1px solid #000;
-            padding: 4px 6px; /* Tighter padding */
-            vertical-align: top;
-        }
+            .content-table td, .content-table th {
+                border: 1px solid #000;
+                padding: 4px 6px; /* Tighter padding */
+                vertical-align: top;
+            }
 
-        .content-table th {
-            background-color: #f2f2f2;
-            text-align: left;
-            font-weight: 600;
-        }
+            .content-table th {
+                background-color: #f2f2f2;
+                text-align: left;
+                font-weight: 600;
+            }
 
         .header-title {
             font-size: 16px; /* Slightly smaller title */
@@ -70,15 +94,26 @@
             vertical-align: middle;
             position: relative;
         }
-        .checked { background-color: #000; }
-        .checked::after {
-            content: '✓'; color: white; position: absolute; top: -3px; left: 1px; font-size: 10px;
+
+        .checked {
+            background-color: #000;
         }
+
+            .checked::after {
+                content: '✓';
+                color: white;
+                position: absolute;
+                top: -3px;
+                left: 1px;
+                font-size: 10px;
+            }
 
         /* --- PRINT OPTIMIZATION (COMPACT MODE) --- */
         @@media print {
-            .no-print { display: none !important; }
-            
+            .no-print {
+                display: none !important;
+            }
+
             @@page {
                 size: A4;
                 margin: 5mm; /* Small margins to use full paper */
@@ -93,12 +128,14 @@
             .content-table td, .content-table th {
                 padding: 2px 4px !important; /* Very tight cells */
             }
-
             /* Ensure sections don't break awkwardly */
-            tr { page-break-inside: avoid; }
-            
+            tr {
+                page-break-inside: avoid;
+            }
             /* Hide URL/Footer added by browser */
-            html { height: 100%; }
+            html {
+                height: 100%;
+            }
         }
     </style>
 </head>
@@ -115,10 +152,13 @@
 
     <table class="header-table">
         <tr>
-            <td width="20%">
-                <img src="~/images/logo.png" style="height: 45px; max-width: 150px;" alt="Logo" onerror="this.style.display='none'">
+            <td width="20%" style="vertical-align: middle;">
+                <img src="@logoUrl" style="height: 50px; max-width: 150px; object-fit: contain;" alt="Hospital Logo" onerror="this.style.display='none'">
             </td>
             <td class="header-title">
+                <div class="company-heading">
+                    @companyName
+                </div>
                 EMERGENCY TRIAGE ASSESSMENT
             </td>
             <td width="25%" style="border: 1px solid #000; padding: 5px; font-size: 11px;">
@@ -210,24 +250,34 @@
             <td>
                 <div style="display: flex; justify-content: space-between;">
                     <span><strong>Condition Upon Release:</strong> @(Model.ConditionUponRelease ?? "Stable")</span>
-                    <span><strong>Follow Up:</strong> @(Model.FollowUpDate.HasValue ? Model.FollowUpDate.Value.ToString("dd-MMM-yyyy") : "N/A")</span>
+                    <span><strong>Follow Up:</strong> @(Model.FollowUpDate.HasValue? Model.FollowUpDate.Value.ToString("dd-MMM-yyyy") : "N/A")</span>
                 </div>
             </td>
         </tr>
     </table>
 
-    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
-        <div style="font-size: 9px; color: #555;">
-            Generated: @DateTime.Now.ToString("dd-MMM-yyyy HH:mm")
+    <div style="text-align: center; min-width: 180px;">
+        <div style="margin-bottom: 2px; min-height: 40px; display: flex; align-items: flex-end; justify-content: center;">
+            @if (!string.IsNullOrEmpty(signatureUrl))
+            {
+                <img src="@signatureUrl" style="max-height: 50px; max-width: 150px;" alt="Signature" />
+            }
+            else
+            {
+                <span style="color: #ccc; font-size: 10px;">(Digitally Signed)</span>
+            }
         </div>
 
-        <div style="text-align: center; min-width: 180px;">
-            <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px;">
-                @(string.IsNullOrEmpty(Model.CreatedByDoctorName) ? " " : Model.CreatedByDoctorName)
-            </div>
-            <div style="border-top: 1px solid #000; padding-top: 2px;">
-                <strong>Provider Signature</strong>
-            </div>
+        <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px;">
+            @(string.IsNullOrEmpty(Model.CreatedByDoctorName) ? " " : Model.CreatedByDoctorName)
+        </div>
+        <div style="border-top: 1px solid #000; padding-top: 2px;">
+            @if (@ViewBag.ProviderFullName != null)
+            {
+                <strong>@ViewBag.ProviderFullName</strong>
+            }
+
+
         </div>
     </div>
 
