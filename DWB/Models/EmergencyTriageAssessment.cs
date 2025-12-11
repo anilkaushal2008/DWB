@@ -7,101 +7,103 @@ namespace DWB.Models;
 
 public partial class EmergencyTriageAssessment
 {
-    public long AssessmentId { get; set; }
+    public long BigintAssessmentId { get; set; }
 
-    public long VisitId { get; set; }
+    public long BigintVisitId { get; set; }
 
-    public string PatientId { get; set; }
+    public string VchPatientId { get; set; }
 
-    public DateTime CreatedDate { get; set; }
+    public DateTime DtCreatedDate { get; set; }
 
-    public long CreatedByDoctorId { get; set; }
+    public long BigintCreatedByDoctorId { get; set; }
 
-    public string CreatedByDoctorName { get; set; }
+    public string VchCreatedByDoctorName { get; set; }
 
-    public string PatientName { get; set; }
+    public string VchDoctorCode { get; set; }
 
-    public string MrnNumber { get; set; }
+    public string VchPatientName { get; set; }
 
-    public string Age { get; set; }
+    public string VchUhidNo { get; set; }
 
-    public string Sex { get; set; }
+    public string VchAge { get; set; }
 
-    public string PhoneNumber { get; set; }
+    public string VchSex { get; set; }
 
-    public string Address { get; set; }
+    public string VchPhoneNumber { get; set; }
 
-    public string RoomWardNumber { get; set; }
+    public string VchAddress { get; set; }
 
-    public string BedNumber { get; set; }
+    public string VchRoomWardNumber { get; set; }
 
-    public DateTime ArrivalDateTime { get; set; }
+    public string VchBedNumber { get; set; }
 
-    public DateTime TimeSeenByProvider { get; set; }
+    public DateTime DtArrivalDateTime { get; set; }
 
-    public string TransportationMode { get; set; }
+    public DateTime DtTimeSeenByProvider { get; set; }
 
-    public string TransportationOther { get; set; }
+    public string VchTransportationMode { get; set; }
 
-    public string HistoryObtainedFrom { get; set; }
+    public string VchTransportationOther { get; set; }
 
-    public DateTime? VitalsTime { get; set; }
+    public string VchHistoryObtainedFrom { get; set; }
 
-    public string Pulse { get; set; }
+    public DateTime? DtVitalsTime { get; set; }
 
-    public int? Bpsystolic { get; set; }
+    public string VchPulse { get; set; }
 
-    public int? Bpdiastolic { get; set; }
+    public int? IntBpsystolic { get; set; }
 
-    public int? RespRate { get; set; }
+    public int? IntBpdiastolic { get; set; }
 
-    public decimal? Temperature { get; set; }
+    public int? IntRespRate { get; set; }
 
-    public decimal? Weight { get; set; }
+    public decimal? DecTemperature { get; set; }
 
-    public string ChiefComplaint { get; set; }
+    public decimal? DecWeight { get; set; }
 
-    public string CurrentMedication { get; set; }
+    public string VchChiefComplaint { get; set; }
 
-    public string Allergies { get; set; }
+    public string VchCurrentMedication { get; set; }
 
-    public string SubjectiveNotes { get; set; }
+    public string VchAllergies { get; set; }
 
-    public string ObjectiveNotes { get; set; }
+    public string VchSubjectiveNotes { get; set; }
 
-    public string InvestigationsOrdered { get; set; }
+    public string VchObjectiveNotes { get; set; }
 
-    public string ProvisionalDiagnosis { get; set; }
+    public string VchInvestigationsOrdered { get; set; }
 
-    public string TreatmentPlan { get; set; }
+    public string VchProvisionalDiagnosis { get; set; }
 
-    public string TriageCategory { get; set; }
+    public string VchTreatmentPlan { get; set; }
 
-    public string ConditionUponRelease { get; set; }
+    public string VchTriageCategory { get; set; }
 
-    public DateTime? DischargeDateTime { get; set; }
+    public string VchConditionUponRelease { get; set; }
 
-    public bool? IsAdmissionAdvised { get; set; }
+    public DateTime? DtDischargeDateTime { get; set; }
 
-    public string AdmissionRefusalReason { get; set; }
+    public bool? BitIsAdmissionAdvised { get; set; }
 
-    public bool? IsCrossConsultRequired { get; set; }
+    public string VchAdmissionRefusalReason { get; set; }
 
-    public string SpecialistName { get; set; }
+    public bool? BitIsCrossConsultRequired { get; set; }
 
-    public string ReferredTo { get; set; }
+    public string VchSpecialistName { get; set; }
 
-    public DateTime? FollowUpDate { get; set; }
+    public string VchReferredTo { get; set; }
 
-    public DateTime? FollowUpTime { get; set; }
+    public DateTime? DtFollowUpDate { get; set; }
 
-    public string PatientInstructions { get; set; }
+    public DateTime? DtFollowUpTime { get; set; }
 
-    public string Remarks { get; set; }
+    public string VchPatientInstructions { get; set; }
+
+    public string VchRemarks { get; set; }
 
     public bool BitIsCompleted { get; set; }
 
-    public int Intcode { get; set; }
+    public int IntCode { get; set; }
 
     public DateTime DtCreated { get; set; }
 
@@ -112,4 +114,10 @@ public partial class EmergencyTriageAssessment
     public string VchUpdatedBy { get; set; }
 
     public int IntIhmscode { get; set; }
+
+    public string Vchdocname { get; set; }
+
+    public string VchCatCode { get; set; }
+
+    public string VchCategory { get; set; }
 }

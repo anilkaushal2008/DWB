@@ -441,7 +441,20 @@
                             {
                                 <ul>
                                     <li>
-                                        <a href="@Url.Action("EmergencyPatient", "Triage")"><i class="material-icons-outlined">arrow_right</i>Emg. Assessment</a>
+                                        <a href="javascript:;"><i class="material-icons-outlined">arrow_right</i>Emg. Assessment</a>
+                                        <ul>
+                                            <li>
+                                                <a href="@Url.Action("EmergencyPatient", "Triage")">
+                                                    <i class="material-icons-outlined">arrow_right</i> Assigned
+                                                </a>
+                                            </li>
+
+                                            <li>
+                                                <a href="@Url.Action("EmergencyAssessed", "Triage")">
+                                                    <i class="material-icons-outlined">arrow_right</i> Assessed
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                 </ul>
                             }

@@ -166,7 +166,7 @@ public partial class DWBEntity : DbContext
 
         modelBuilder.Entity<DoctorWeeklySchedule>(entity =>
         {
-            entity.HasKey(e => e.ScheduleId).HasName("PK__DoctorWe__9C8A5B4971553F57");
+            entity.HasKey(e => e.ScheduleId).HasName("PK__DoctorWe__9C8A5B492771F4B3");
 
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -179,73 +179,149 @@ public partial class DWBEntity : DbContext
 
         modelBuilder.Entity<EmergencyTriageAssessment>(entity =>
         {
-            entity.HasKey(e => e.AssessmentId).HasName("PK__Emergenc__3D2BF81E0984CDA0");
+            entity.HasKey(e => e.BigintAssessmentId).HasName("PK__Emergenc__58FB4C60B4753412");
 
-            entity.Property(e => e.Age).HasMaxLength(20);
-            entity.Property(e => e.ArrivalDateTime).HasColumnType("datetime");
-            entity.Property(e => e.BedNumber).HasMaxLength(50);
+            entity.Property(e => e.BigintAssessmentId).HasColumnName("bigintAssessmentId");
+            entity.Property(e => e.BigintCreatedByDoctorId).HasColumnName("bigintCreatedByDoctorId");
+            entity.Property(e => e.BigintVisitId).HasColumnName("bigintVisitId");
+            entity.Property(e => e.BitIsAdmissionAdvised).HasColumnName("bitIsAdmissionAdvised");
             entity.Property(e => e.BitIsCompleted).HasColumnName("bitIsCompleted");
-            entity.Property(e => e.Bpdiastolic).HasColumnName("BPDiastolic");
-            entity.Property(e => e.Bpsystolic).HasColumnName("BPSystolic");
-            entity.Property(e => e.ConditionUponRelease).HasMaxLength(50);
-            entity.Property(e => e.CreatedByDoctorName).HasMaxLength(100);
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DischargeDateTime).HasColumnType("datetime");
+            entity.Property(e => e.BitIsCrossConsultRequired).HasColumnName("bitIsCrossConsultRequired");
+            entity.Property(e => e.DecTemperature)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("decTemperature");
+            entity.Property(e => e.DecWeight)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("decWeight");
+            entity.Property(e => e.DtArrivalDateTime)
+                .HasColumnType("datetime")
+                .HasColumnName("dtArrivalDateTime");
             entity.Property(e => e.DtCreated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtCreated");
+            entity.Property(e => e.DtCreatedDate)
+                .HasColumnType("datetime")
+                .HasColumnName("dtCreatedDate");
+            entity.Property(e => e.DtDischargeDateTime)
+                .HasColumnType("datetime")
+                .HasColumnName("dtDischargeDateTime");
+            entity.Property(e => e.DtFollowUpDate)
+                .HasColumnType("datetime")
+                .HasColumnName("dtFollowUpDate");
+            entity.Property(e => e.DtFollowUpTime)
+                .HasColumnType("datetime")
+                .HasColumnName("dtFollowUpTime");
+            entity.Property(e => e.DtTimeSeenByProvider)
+                .HasColumnType("datetime")
+                .HasColumnName("dtTimeSeenByProvider");
             entity.Property(e => e.DtUpdated)
                 .HasColumnType("datetime")
                 .HasColumnName("dtUpdated");
-            entity.Property(e => e.FollowUpDate).HasColumnType("datetime");
-            entity.Property(e => e.FollowUpTime).HasColumnType("datetime");
-            entity.Property(e => e.HistoryObtainedFrom).HasMaxLength(50);
+            entity.Property(e => e.DtVitalsTime)
+                .HasColumnType("datetime")
+                .HasColumnName("dtVitalsTime");
+            entity.Property(e => e.IntBpdiastolic).HasColumnName("intBPDiastolic");
+            entity.Property(e => e.IntBpsystolic).HasColumnName("intBPSystolic");
+            entity.Property(e => e.IntCode).HasColumnName("intCode");
             entity.Property(e => e.IntIhmscode).HasColumnName("intIHMSCode");
-            entity.Property(e => e.Intcode).HasColumnName("intcode");
-            entity.Property(e => e.IsAdmissionAdvised).HasDefaultValue(false);
-            entity.Property(e => e.IsCrossConsultRequired).HasDefaultValue(false);
-            entity.Property(e => e.MrnNumber)
-                .IsRequired()
+            entity.Property(e => e.IntRespRate).HasColumnName("intRespRate");
+            entity.Property(e => e.VchAddress).HasColumnName("vchAddress");
+            entity.Property(e => e.VchAdmissionRefusalReason).HasColumnName("vchAdmissionRefusalReason");
+            entity.Property(e => e.VchAge)
+                .HasMaxLength(20)
+                .HasColumnName("vchAge");
+            entity.Property(e => e.VchAllergies).HasColumnName("vchAllergies");
+            entity.Property(e => e.VchBedNumber)
                 .HasMaxLength(50)
-                .HasColumnName("MRN_Number");
-            entity.Property(e => e.PatientId)
-                .IsRequired()
+                .HasColumnName("vchBedNumber");
+            entity.Property(e => e.VchCatCode)
                 .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.PatientName)
-                .IsRequired()
-                .HasMaxLength(200);
-            entity.Property(e => e.PhoneNumber).HasMaxLength(20);
-            entity.Property(e => e.Pulse).HasMaxLength(20);
-            entity.Property(e => e.ReferredTo).HasMaxLength(100);
-            entity.Property(e => e.RoomWardNumber).HasMaxLength(50);
-            entity.Property(e => e.Sex).HasMaxLength(10);
-            entity.Property(e => e.SpecialistName).HasMaxLength(100);
-            entity.Property(e => e.Temperature).HasColumnType("decimal(5, 2)");
-            entity.Property(e => e.TimeSeenByProvider).HasColumnType("datetime");
-            entity.Property(e => e.TransportationMode).HasMaxLength(50);
-            entity.Property(e => e.TransportationOther).HasMaxLength(100);
-            entity.Property(e => e.TriageCategory)
-                .IsRequired()
-                .HasMaxLength(20);
+                .IsUnicode(false)
+                .HasColumnName("vchCatCode");
+            entity.Property(e => e.VchCategory)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchCategory");
+            entity.Property(e => e.VchChiefComplaint).HasColumnName("vchChiefComplaint");
+            entity.Property(e => e.VchConditionUponRelease)
+                .HasMaxLength(50)
+                .HasColumnName("vchConditionUponRelease");
             entity.Property(e => e.VchCreatedBy)
                 .IsRequired()
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("vchCreatedBy");
+            entity.Property(e => e.VchCreatedByDoctorName)
+                .HasMaxLength(100)
+                .HasColumnName("vchCreatedByDoctorName");
+            entity.Property(e => e.VchCurrentMedication).HasColumnName("vchCurrentMedication");
+            entity.Property(e => e.VchDoctorCode)
+                .HasMaxLength(10)
+                .HasColumnName("vchDoctorCode");
+            entity.Property(e => e.VchHistoryObtainedFrom)
+                .HasMaxLength(50)
+                .HasColumnName("vchHistoryObtainedFrom");
+            entity.Property(e => e.VchInvestigationsOrdered).HasColumnName("vchInvestigationsOrdered");
+            entity.Property(e => e.VchObjectiveNotes).HasColumnName("vchObjectiveNotes");
+            entity.Property(e => e.VchPatientId)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("vchPatientId");
+            entity.Property(e => e.VchPatientInstructions).HasColumnName("vchPatientInstructions");
+            entity.Property(e => e.VchPatientName)
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasColumnName("vchPatientName");
+            entity.Property(e => e.VchPhoneNumber)
+                .HasMaxLength(20)
+                .HasColumnName("vchPhoneNumber");
+            entity.Property(e => e.VchProvisionalDiagnosis).HasColumnName("vchProvisionalDiagnosis");
+            entity.Property(e => e.VchPulse)
+                .HasMaxLength(20)
+                .HasColumnName("vchPulse");
+            entity.Property(e => e.VchReferredTo)
+                .HasMaxLength(100)
+                .HasColumnName("vchReferredTo");
+            entity.Property(e => e.VchRemarks).HasColumnName("vchRemarks");
+            entity.Property(e => e.VchRoomWardNumber)
+                .HasMaxLength(50)
+                .HasColumnName("vchRoomWardNumber");
+            entity.Property(e => e.VchSex)
+                .HasMaxLength(10)
+                .HasColumnName("vchSex");
+            entity.Property(e => e.VchSpecialistName)
+                .HasMaxLength(100)
+                .HasColumnName("vchSpecialistName");
+            entity.Property(e => e.VchSubjectiveNotes).HasColumnName("vchSubjectiveNotes");
+            entity.Property(e => e.VchTransportationMode)
+                .HasMaxLength(50)
+                .HasColumnName("vchTransportationMode");
+            entity.Property(e => e.VchTransportationOther)
+                .HasMaxLength(100)
+                .HasColumnName("vchTransportationOther");
+            entity.Property(e => e.VchTreatmentPlan).HasColumnName("vchTreatmentPlan");
+            entity.Property(e => e.VchTriageCategory)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasColumnName("vchTriageCategory");
+            entity.Property(e => e.VchUhidNo)
+                .IsRequired()
+                .HasMaxLength(50)
+                .HasColumnName("vchUhidNo");
             entity.Property(e => e.VchUpdatedBy)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("vchUpdatedBy");
-            entity.Property(e => e.VitalsTime).HasColumnType("datetime");
-            entity.Property(e => e.Weight).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.Vchdocname)
+                .HasMaxLength(150)
+                .IsUnicode(false)
+                .HasColumnName("vchdocname");
         });
 
         modelBuilder.Entity<EstimateLineItem>(entity =>
         {
-            entity.HasKey(e => e.LineItemId).HasName("PK__Estimate__8A871BEE02B9731F");
+            entity.HasKey(e => e.LineItemId).HasName("PK__Estimate__8A871BEEA8C69FF3");
 
             entity.Property(e => e.LineItemId).HasColumnName("LineItemID");
             entity.Property(e => e.CalculatedAmount).HasColumnType("decimal(18, 2)");
@@ -981,7 +1057,7 @@ public partial class DWBEntity : DbContext
 
         modelBuilder.Entity<ShiftMaster>(entity =>
         {
-            entity.HasKey(e => e.ShiftId).HasName("PK__ShiftMas__C0A8388166C05785");
+            entity.HasKey(e => e.ShiftId).HasName("PK__ShiftMas__C0A83881FD40CED7");
 
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -993,9 +1069,9 @@ public partial class DWBEntity : DbContext
 
         modelBuilder.Entity<TariffMaster>(entity =>
         {
-            entity.HasKey(e => e.TariffMasterId).HasName("PK__TariffMa__7945473A4385467A");
+            entity.HasKey(e => e.TariffMasterId).HasName("PK__TariffMa__7945473ABEC0409C");
 
-            entity.HasIndex(e => e.ServiceName, "UQ__TariffMa__A42B5F997FC8FA2D").IsUnique();
+            entity.HasIndex(e => e.ServiceName, "UQ__TariffMa__A42B5F990983353E").IsUnique();
 
             entity.Property(e => e.TariffMasterId).HasColumnName("TariffMasterID");
             entity.Property(e => e.BitIsDeafult).HasColumnName("bitIsDeafult");

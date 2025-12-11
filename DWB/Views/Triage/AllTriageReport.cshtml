@@ -85,19 +85,19 @@
                                 foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td data-sort="@item.ArrivalDateTime.ToString("yyyyMMddHHmm")">
-                                            @item.ArrivalDateTime.ToString("dd-MMM-yyyy")<br />
-                                            <span class="text-muted">@item.ArrivalDateTime.ToString("hh:mm tt")</span>
+                                        <td data-sort="@item.DtArrivalDateTime.ToString("yyyyMMddHHmm")">
+                                            @item.DtArrivalDateTime.ToString("dd-MMM-yyyy")<br />
+                                            <span class="text-muted">@item.DtArrivalDateTime.ToString("hh:mm tt")</span>
                                         </td>
-                                        <td>@item.MrnNumber</td>
-                                        <td><span class="fw-bold">@item.PatientName</span></td>
-                                        <td>@item.Age / @item.Sex</td>
+                                        <td>@item.VchUhidNo</td>
+                                        <td><span class="fw-bold">@item.VchPatientName</span></td>
+                                        <td>@item.VchAge / @item.VchSex</td>
                                         <td>
-                                            @if (item.TriageCategory == "Emergent")
+                                            @if (item.VchTriageCategory == "Emergent")
                                             {
                                                 <span class="badge bg-danger">Emergent</span>
                                             }
-                                            else if (item.TriageCategory == "Urgent")
+                                            else if (item.VchTriageCategory == "Urgent")
                                             {
 
                                                 <span class="badge bg-warning text-dark">Urgent</span>
@@ -108,11 +108,11 @@
                                                 <span class="badge bg-success">Non-Urgent</span>
                                             }
                                         </td>
-                                        <td class="text-truncate" style="max-width: 150px;" title="@item.ProvisionalDiagnosis">
-                                            @item.ProvisionalDiagnosis
+                                        <td class="text-truncate" style="max-width: 150px;" title="@item.VchProvisionalDiagnosis">
+                                            @item.VchProvisionalDiagnosis
                                         </td>
                                         <td>
-                                            @if (item.IsAdmissionAdvised == true)
+                                            @if (item.BitIsAdmissionAdvised == true)
                                             {
                                                 <span class="badge bg-primary"><i class="fas fa-bed me-1"></i> Admission</span>
                                             }

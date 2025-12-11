@@ -8,7 +8,7 @@ namespace DWB.Models
         public string? CompanyName { get; set; }
         public bool IsSelected { get; set; }
 
-        // Optional doctor code
+        // Optional doctor code       
         public string? VchDoctorCode { get; set; }
 
        

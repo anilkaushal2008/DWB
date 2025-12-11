@@ -1,0 +1,178 @@
+﻿@model List<DWB.Models.EmergencyTriageAssessment>
+@{
+    ViewData["Title"] = "Triage Assessment List";
+}
+
+<link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<main class="main-wrapper material-root">
+    <div class="main-content">
+
+        <h4 class="breadcrumb-title mb-4 fw-semibold text-dark">Triage Assessment List</h4>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-warning material-alert fade show mb-3" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> No triage records found for the selected date.
+            </div>
+        }
+
+        <div class="card material-card">
+            <div class="card-body">
+
+                <form id="filterForm" method="get" asp-action="EmergencyPatient" asp-controller="Triage" class="row g-2 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Select Date Range</label>
+                        <input type="text" id="daterange" name="dateRange" class="form-control material-input" autocomplete="off" placeholder="Select date range" />
+                    </div>
+
+                    <div class="col-md-3 align-self-end d-flex gap-2">
+                        <button type="submit" class="btn btn-primary material-btn">Filter</button>
+                        <a href="@Url.Action("EmergencyPatient", "Triage")" class="btn btn-outline-secondary material-btn-outline">Clear</a>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table id="triageTable" class="table material-table table-hover small mb-0">
+                        <thead>
+                            <tr>
+                                <th>UHID No</th>
+                                <th>Patient Name</th>
+                                <th>OPD Date</th>
+                                <th>Age/Gender</th>
+                                <th>Visit</th>
+                                <th>Category</th>
+                                <th>Consultant</th>
+                                <th style="width:150px;">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var row in Model ?? new List<DWB.Models.EmergencyTriageAssessment>())
+                            {
+                                <tr>
+                                    <td>@row.VchUhidNo</td>
+                                    <td>@row.VchPatientName</td>
+                                    <td>@row.DtArrivalDateTime.ToString("dd/MM/yyyy hh:mm tt")</td>
+                                    <td>@row.VchAge / @row.VchSex</td>
+                                    <td>@row.BigintVisitId</td>
+                                    <td>@row.VchCategory</td>
+                                    <td>@row.Vchdocname</td>
+
+                                    <td>
+                                        <!-- PRINT BUTTON -->
+                                        <a class="btn btn-sm material-chip-primary"
+                                           href="@Url.Action("Print", "Triage", new { id = row.BigintAssessmentId })"
+                                           target="_blank">
+                                            <i class="fas fa-print"></i> Print
+                                        </a>
+
+                                        <!-- EDIT BUTTON -->
+                                        <a class="btn btn-sm material-chip-success mt-1"
+                                           href="@Url.Action("Edit", "Triage", new { uhid = row.VchUhidNo, visit = row.BigintVisitId })">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<style>
+    .material-root {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .material-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.10);
+    }
+
+    .material-input {
+        border-radius: 6px !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 10px;
+    }
+
+        .material-input:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 2px rgba(59,130,246,.3);
+        }
+
+    .material-table thead th {
+        background: #3b82f6;
+        color: #fff;
+        border: none;
+        padding: 10px;
+        font-weight: 600;
+    }
+
+    .material-chip-primary,
+    .material-chip-success {
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #fff !important;
+        text-decoration: none;
+        transition: 0.15s ease-in-out;
+    }
+
+    .material-chip-primary {
+        background: #3b82f6;
+    }
+
+    .material-chip-success {
+        background: #10b981;
+    }
+
+    .material-chip-primary:hover {
+        background: #2563eb;
+        transform: translateY(-2px);
+    }
+
+    .material-chip-success:hover {
+        background: #0ea970;
+        transform: translateY(-2px);
+    }
+</style>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            $("#triageTable").DataTable({
+                pageLength: 50,
+                ordering: true,
+                lengthChange: true,
+                language: { emptyTable: "No triage assessments found" }
+            });
+
+            $("#daterange").daterangepicker({
+                locale: { format: "DD/MM/YYYY" },
+                autoUpdateInput: false,
+                maxDate: moment()
+            });
+
+            $("#daterange").on("apply.daterangepicker", function (ev, picker) {
+                $(this).val(picker.startDate.format("DD/MM/YYYY") + " - " + picker.endDate.format("DD/MM/YYYY"));
+            });
+        });
+    </script>
+}

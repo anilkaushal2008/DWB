@@ -163,10 +163,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[GetDoctorAssmtReportPrint]",
-         "ObjectType": 1
-      },
-      {
          "Name": "[dbo].[spGetLabTest]",
          "ObjectType": 1
       },

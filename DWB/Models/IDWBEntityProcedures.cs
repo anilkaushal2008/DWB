@@ -13,7 +13,6 @@ namespace DWB.Models
 {
     public partial interface IDWBEntityProcedures
     {
-        Task<List<GetDoctorAssmtReportPrintResult>> GetDoctorAssmtReportPrintAsync(int? nasstId, int? docAsstId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<spGetLabTestResult>> spGetLabTestAsync(string term, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<spGetRadioProcedureResult>> spGetRadioProcedureAsync(string type, string search, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<spSearchMedicinesResult>> spSearchMedicinesAsync(string searchTerm, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);

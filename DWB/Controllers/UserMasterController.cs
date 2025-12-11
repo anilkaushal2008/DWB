@@ -90,6 +90,7 @@ namespace DWB.Controllers
             var GetUser = _context.TblUsers.Find(id);
             if (GetUser != null)
             {
+                GetUser.BitIsDeActivated = true;
                 _context.SaveChanges();
                 TempData["ActiveTab"] = "UserTab";
                 TempData["userSuccess"] = "User Deactivated successfully.";
@@ -108,6 +109,7 @@ namespace DWB.Controllers
             var GetUser = _context.TblUsers.Find(id);
             if (GetUser != null)
             {
+                GetUser.BitIsDeActivated = false;
                 _context.SaveChanges();
                 TempData["ActiveTab"] = "UserTab";
                 TempData["userSuccess"] = "User Activated successfully.";

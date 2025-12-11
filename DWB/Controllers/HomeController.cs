@@ -68,6 +68,13 @@ namespace DWB.Controllers
                     ModelState.AddModelError("Username", "Invalid username or company selection.");
                     return View(model);
                 }
+                else if (user.BitIsDeActivated == true)
+                {
+                    var company1 = _groupcontext.IndusCompanies.Where(m => new[] { 2, 3, 4, 14, 15, 21, 22, 23, 24, 25 }.Contains(m.IntPk)).ToList();
+                    ViewBag.Company = new SelectList(company1, "IntPk", "Descript");
+                    ModelState.AddModelError("Username", "User not active, contact to administrator!");
+                    return View(model);
+                }
                 else
                 {
                     //check password  
@@ -316,8 +323,8 @@ namespace DWB.Controllers
             // ... (Setup variables remain the same) ...
             string BaseAPI = (User.FindFirst("BaseAPI")?.Value ?? string.Empty).Replace("\n", "").Replace("\r", "").Trim();
             int code = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
-            string DocCode = User.FindFirst("DoctorCode")?.Value ?? "null";
-
+            string DocCode = User.FindFirst("DoctorCode")?.Value ?? "";
+            //DocCode = string.IsNullOrWhiteSpace(DocCode) ? "NahiHai" : DocCode;
             DateTime Sdate = DateTime.Today;
             string finalSdate = Sdate.ToString("dd-MM-yyyy");
             string finalEdate = Sdate.ToString("dd-MM-yyyy");
@@ -333,18 +340,23 @@ namespace DWB.Controllers
             int _counAssessed = 0;
 
             // ... (Admin/Nursing/Consultant logic remains the same) ...
-            if (User.IsInRole("Admin") || User.IsInRole("Nursing") || User.IsInRole("Consultant"))
+            if (User.IsInRole("Admin") || User.IsInRole("Nursing"))
             {
-                _opdCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "");
+                _opdCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, "", "");
 
                 if (User.IsInRole("Admin") || User.IsInRole("Nursing"))
                 {
                     _nsAssessment = _context.TblNsassessment.Count(m => m.BitIsCompleted == true && m.DtCreated >= todayStr);
                 }
-                if (User.IsInRole("Admin") || User.IsInRole("Consultant"))
-                {
-                    _docAssessment = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted == true && m.DtCreated >= todayStr);
-                }
+                //if (User.IsInRole("Admin") || User.IsInRole("Consultant"))
+                //{
+                //    _docAssessment = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted == true && m.DtCreated >= todayStr);
+                //}
+            }
+            if (User.IsInRole("Consultant"))
+            {
+                _opdCount = await GetApiCount(BaseAPI, finalSdate, finalEdate, code, DocCode, "");
+                _docAssessment = _context.TblDoctorAssessment.Count(m => m.BitAsstCompleted == true && m.DtCreated >= todayStr);
             }
 
             // ... (Emergency logic remains the same) ...
