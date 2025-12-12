@@ -1,1 +1,323 @@
-﻿
+﻿@model DWB.Models.EmergencyTriageAssessment
+@{
+    Layout = null;
+
+    var logoUrl = Url.Content("~/assets/images/LogoI2.png");
+    var companyName = User.Claims.FirstOrDefault(c => c.Type == "CompName")?.Value ?? "Indus Healthcare";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assessment_@Model.VchUhidNo</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-size: 12px;
+            padding: 20px;
+            margin: 0;
+            color: #000;
+        }
+
+        /* ===========================
+                       HEADER (Perfect Center)
+                       =========================== */
+        .header-info {
+            text-align: right;
+        }
+
+        .header-info {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 11px;
+            padding: 6px;
+            width: 180px;
+            text-align: right;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+            .header-info * {
+                border: none !important;
+            }
+
+        .header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .header-logo {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+            .header-logo img {
+                height: 55px;
+                object-fit: contain;
+            }
+
+        .header-info {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 11px;
+            border: 1px solid #777;
+            padding: 6px;
+            width: 180px;
+        }
+
+        .header-title {
+            text-align: center;
+            width: 100%;
+        }
+
+            .header-title .comp {
+                font-size: 14px;
+                text-transform: uppercase;
+                font-weight: 600;
+                color: #004f9e;
+            }
+
+            .header-title .main {
+                font-size: 18px;
+                font-weight: bold;
+                color: #000;
+            }
+
+        /* ===========================
+                       SECTION TITLE
+                       =========================== */
+        .section-title {
+            background: #d9eaff;
+            color: #003d80;
+            padding: 4px 8px;
+            font-weight: bold;
+            font-size: 12px;
+            border: 1px solid #a7c8f2;
+            margin-top: 12px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        /* ===========================
+                       TABLE STYLES
+                       =========================== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 6px;
+        }
+
+        td, th {
+            border: 1px solid #c7c7c7;
+            padding: 4px 6px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #f3f8ff;
+            font-weight: 600;
+        }
+
+        /* ===========================
+                       CHECKBOX (Printed)
+                       =========================== */
+        .chk {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #333;
+            margin-right: 4px;
+        }
+
+        .checked {
+            background: #003d80;
+            position: relative;
+        }
+
+            .checked::after {
+                content: '✓';
+                color: #fff;
+                font-size: 10px;
+                position: absolute;
+                top: -2px;
+                left: 1px;
+            }
+
+        .vitals-table td,
+        .vitals-table th {
+            text-align: left !important;
+        }
+
+        /* ===========================
+                       PRINT RULES
+                       =========================== */
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
+
+            @@page {
+                margin: 6mm;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="no-print" style="text-align:right; margin-bottom:10px;">
+        <button onclick="window.print()">Print</button>
+        <button onclick="window.close()">Close</button>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-logo">
+            <img src="@logoUrl" />
+        </div>
+
+        <div class="header-title">
+            <div class="comp">@companyName</div>
+            <div class="main">EMERGENCY TRIAGE ASSESSMENT</div>
+        </div>
+
+        <div class="header-info">
+            <strong>Date:</strong> @Model.DtArrivalDateTime.ToString("dd-MMM-yyyy")<br />
+            <strong>Time:</strong> @Model.DtArrivalDateTime.ToString("hh:mm tt")
+        </div>
+    </div>
+
+    <!-- PATIENT DETAILS -->
+    <div class="section-title">Patient Information</div>
+    <table>
+        <tr>
+            <td><strong>Name:</strong> @Model.VchPatientName</td>
+            <td><strong>Age/Sex:</strong> @Model.VchAge / @Model.VchSex</td>
+            <td><strong>UHID:</strong> @Model.VchUhidNo</td>
+        </tr>
+        <tr>
+            <td><strong>Room / Ward Number:</strong>@Model.VchRoomWardNumber</td>
+            <td><strong>Bed Number:</strong>@Model.VchBedNumber</td>
+            <td></td>
+        </tr>
+        @*  <tr>
+            <td colspan="3"><strong>Address:</strong> @Model.VchAddress</td>
+        </tr> *@
+        <tr>
+            <td><strong>Arrival Mode:</strong> @Model.VchTransportationMode</td>
+            <td colspan="2"><strong>History From:</strong> @Model.VchHistoryObtainedFrom</td>
+        </tr>
+    </table>
+
+    <!-- VITALS -->
+    <div class="section-title">Vitals</div>
+    <table class="vitals-table">
+        <tr>
+            <th>Time</th>
+            <th>Pulse</th>
+            <th>BP</th>
+            <th>Resp</th>
+            <th>Temp (°F)</th>
+            <th>Weight (kg)</th>
+        </tr>
+        <tr>
+            <td>@(Model.DtVitalsTime?.ToString("hh:mm tt") ?? "-")</td>
+            <td>@Model.VchPulse</td>
+            <td>@($"{Model.IntBpsystolic ?? 0}/{Model.IntBpdiastolic ?? 0}")</td>
+            <td>@Model.IntRespRate</td>
+            <td>@Model.DecTemperature?.ToString("0.0")</td>
+            <td>@Model.DecWeight?.ToString("0.0")</td>
+        </tr>
+    </table>
+
+    <!-- TRIAGE CATEGORY -->
+    <div class="section-title">Triage Category</div>
+    <table>
+        <tr>
+            <td><span class="chk @(Model.VchTriageCategory == "Emergent" ? "checked" : "")"></span> EMERGENT</td>
+            <td><span class="chk @(Model.VchTriageCategory == "Urgent" ? "checked" : "")"></span> URGENT</td>
+            <td><span class="chk @(Model.VchTriageCategory == "Non-Urgent" ? "checked" : "")"></span> NON-URGENT</td>
+        </tr>
+    </table>
+
+    <!-- CLINICAL DETAILS -->
+    <div class="section-title">Clinical Notes</div>
+    <table>
+        <tr><td><strong>Chief Complaint:</strong><br />@Html.Raw(Model.VchChiefComplaint?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Subjective Notes:</strong><br />@Html.Raw(Model.VchSubjectiveNotes?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Objective Notes:</strong><br />@Html.Raw(Model.VchObjectiveNotes?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Provisional Diagnosis:</strong><br />@Html.Raw(Model.VchProvisionalDiagnosis?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Treatment Plan:</strong><br />@Html.Raw(Model.VchTreatmentPlan?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Current Medication:</strong><br />@Html.Raw(Model.VchCurrentMedication?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Allergies:</strong><br />@Html.Raw(Model.VchAllergies?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Investigations Ordered:</strong><br />@Html.Raw(Model.VchInvestigationsOrdered?.Replace("\n", "<br>") ?? "-")</td></tr>
+    </table>
+
+    <!-- DISPOSITION -->
+    <div class="section-title">Disposition</div>
+    <table>
+        <tr>
+            <td><strong>Condition Upon Release:</strong> @Model.VchConditionUponRelease</td>
+        </tr>
+
+        <tr>
+            <td><strong>Time of Release:</strong> @(Model.DtDischargeDateTime?.ToString("dd-MMM-yyyy hh:mm tt") ?? "-")</td>
+        </tr>
+
+        <tr>
+            <td><strong>Admission Advised:</strong> @((Model.BitIsAdmissionAdvised == true) ? "Yes" : "No")</td>
+        </tr>
+
+        @if (Model.BitIsAdmissionAdvised == true)
+        {
+            <tr>
+                <td>
+                    <strong>Suggested Doctor:</strong> @(!string.IsNullOrEmpty(Model.OtherDoctorName) ? Model.OtherDoctorName : "-")
+
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <strong>Admission Refusal Reason:</strong><br />
+                    @Html.Raw(Model.VchAdmissionRefusalReason?.Replace("\n", "<br>") ?? "-")
+                </td>
+            </tr>
+        }
+    </table>
+
+    <!-- CROSS CONSULTATION -->
+    <div class="section-title">Cross Consultation</div>
+    <table>
+        <tr>
+            <td><strong>Cross Consult Required:</strong> @((Model.BitIsCrossConsultRequired == true) ? "Yes" : "No")</td>
+        </tr>
+
+        @if (Model.BitIsCrossConsultRequired == true)
+        {
+            <tr><td><strong>Specialist Name:</strong> @Model.VchSpecialistName</td></tr>
+            <tr><td><strong>Referred To:</strong> @Model.VchReferredTo</td></tr>
+        }
+    </table>
+
+    <!-- FOLLOW UP -->
+    <div class="section-title">Follow-Up</div>
+    <table>
+        <tr><td><strong>Follow-up Date:</strong> @(Model.DtFollowUpDate?.ToString("dd-MMM-yyyy") ?? "-")</td></tr>
+        <tr><td><strong>Follow-up Time:</strong> @(Model.DtFollowUpTime?.ToString("hh:mm tt") ?? "-")</td></tr>
+        <tr><td><strong>Patient Instructions:</strong><br />@Html.Raw(Model.VchPatientInstructions?.Replace("\n", "<br>") ?? "-")</td></tr>
+        <tr><td><strong>Remarks:</strong><br />@Html.Raw(Model.VchRemarks?.Replace("\n", "<br>") ?? "-")</td></tr>
+    </table>
+
+</body>
+</html>

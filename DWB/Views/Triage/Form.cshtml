@@ -72,9 +72,7 @@
             @Html.HiddenFor(m => m.Age)
             @Html.HiddenFor(m => m.Sex)
             @Html.HiddenFor(m => m.PhoneNo)
-            @Html.HiddenFor(m => m.PatientAddress)
-            @Html.HiddenFor(m => m.RoomWardNumber)
-            @Html.HiddenFor(m => m.BedNumber)
+            @Html.HiddenFor(m => m.PatientAddress)            
             @Html.HiddenFor(m => m.BitIsCompleted)
             @Html.HiddenFor(m => m.doccode)
             @Html.HiddenFor(m => m.docname)
@@ -591,30 +589,27 @@
         });
 
          //Room options
-        function toggleRoomBed() {
-            if ($('#chkRoomBed').is(':checked')) {
-                $('#roomBedBox').show();
+         $(document).ready(function () {
 
-                addRequired('#RoomWardNumber', 'Please enter room/ward number.');
-                addRequired('#BedNumber', 'Please enter bed number.');
-            } else {
-                $('#roomBedBox').hide();
+            let room = $("#RoomWardNumber").val();
+            let bed = $("#BedNumber").val();
 
-                $('#RoomWardNumber').val('');
-                $('#BedNumber').val('');
-
-                removeRequired('#RoomWardNumber');
-                removeRequired('#BedNumber');
+            // If editing and room/bed already exists → show the section
+            if (room !== "" || bed !== "") {
+                $("#chkRoomBed").prop("checked", true);
+                $("#roomBedBox").show();
             }
 
-            $.validator.unobtrusive.parse('#triageForm');
-            refreshValidation();
-        }
+            // Toggle on checkbox click
+            $("#chkRoomBed").change(function () {
+                if ($(this).is(":checked")) {
+                    $("#roomBedBox").slideDown();
+                } else {
+                    $("#roomBedBox").slideUp();
+                }
+            });
 
-        $('#chkRoomBed').change(toggleRoomBed);
-
-        // Initialize on load
-        toggleRoomBed();
+        });
     </script>
 
 }

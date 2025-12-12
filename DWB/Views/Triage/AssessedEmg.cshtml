@@ -174,5 +174,15 @@
                 $(this).val(picker.startDate.format("DD/MM/YYYY") + " - " + picker.endDate.format("DD/MM/YYYY"));
             });
         });
+      
+
     </script>
+    @if (TempData["PrintId"] != null)
+    {
+        <script>
+            setTimeout(function () {
+                window.open('/Triage/Print/@TempData["PrintId"]', '_blank');
+            }, 500);
+        </script>
+    }
 }

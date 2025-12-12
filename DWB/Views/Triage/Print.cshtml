@@ -20,45 +20,80 @@
             color: #000;
         }
 
-        /* Header */
+        /* ===========================
+               HEADER (Perfect Center)
+               =========================== */
+        .header-info {
+            text-align: right;
+        }
+
+        .header-info {
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 11px;
+            padding: 6px;
+            width: 180px;
+            text-align: right;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+            .header-info * {
+                border: none !important;
+            }
         .header {
             width: 100%;
             display: flex;
             align-items: center;
+            justify-content: center;
+            position: relative;
             margin-bottom: 10px;
         }
 
-        .header-logo img {
-            height: 55px;
-            object-fit: contain;
+        .header-logo {
+            position: absolute;
+            left: 0;
+            top: 0;
         }
 
-        .header-title {
-            flex: 1;
-            text-align: center;
-        }
-
-        .header-title .comp {
-            font-size: 14px;
-            text-transform: uppercase;
-            font-weight: 600;
-            color: #004f9e;
-        }
-
-        .header-title .main {
-            font-size: 18px;
-            font-weight: bold;
-            color: #000;
-        }
+            .header-logo img {
+                height: 55px;
+                object-fit: contain;
+            }
 
         .header-info {
+            position: absolute;
+            right: 0;
+            top: 0;
             font-size: 11px;
             border: 1px solid #777;
             padding: 6px;
             width: 180px;
         }
 
-        /* Section Title */
+        .header-title {
+            text-align: center;
+            width: 100%;
+        }
+
+            .header-title .comp {
+                font-size: 14px;
+                text-transform: uppercase;
+                font-weight: 600;
+                color: #004f9e;
+            }
+
+            .header-title .main {
+                font-size: 18px;
+                font-weight: bold;
+                color: #000;
+            }
+
+        /* ===========================
+               SECTION TITLE
+               =========================== */
         .section-title {
             background: #d9eaff;
             color: #003d80;
@@ -71,7 +106,9 @@
             text-transform: uppercase;
         }
 
-        /* Content Tables */
+        /* ===========================
+               TABLE STYLES
+               =========================== */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -89,7 +126,9 @@
             font-weight: 600;
         }
 
-        /* Checkbox style */
+        /* ===========================
+               CHECKBOX (Printed)
+               =========================== */
         .chk {
             display: inline-block;
             width: 12px;
@@ -103,20 +142,34 @@
             position: relative;
         }
 
-        .checked::after {
-            content: '✓';
-            color: #fff;
-            font-size: 10px;
-            position: absolute;
-            top: -2px;
-            left: 1px;
-        }
+            .checked::after {
+                content: '✓';
+                color: #fff;
+                font-size: 10px;
+                position: absolute;
+                top: -2px;
+                left: 1px;
+            }
 
+        .vitals-table td,
+        .vitals-table th {
+            text-align: left !important;
+        }
+        
+        /* ===========================
+               PRINT RULES
+               =========================== */
         @@media print {
-            .no-print { display: none !important; }
-            @@page { margin: 6mm; }
+            .no-print {
+                display: none !important;
+            }
+
+            @@page {
+                margin: 6mm;
+            }
         }
     </style>
+
 </head>
 
 <body>
@@ -149,11 +202,16 @@
         <tr>
             <td><strong>Name:</strong> @Model.VchPatientName</td>
             <td><strong>Age/Sex:</strong> @Model.VchAge / @Model.VchSex</td>
-            <td><strong>MRN:</strong> @Model.VchUhidNo</td>
+            <td><strong>UHID:</strong> @Model.VchUhidNo</td>
         </tr>
         <tr>
+            <td><strong>Room / Ward Number:</strong>@Model.VchRoomWardNumber</td>
+            <td><strong>Bed Number:</strong>@Model.VchBedNumber</td>
+            <td></td>
+        </tr>       
+       @*  <tr>
             <td colspan="3"><strong>Address:</strong> @Model.VchAddress</td>
-        </tr>
+        </tr> *@
         <tr>
             <td><strong>Arrival Mode:</strong> @Model.VchTransportationMode</td>
             <td colspan="2"><strong>History From:</strong> @Model.VchHistoryObtainedFrom</td>
@@ -162,7 +220,7 @@
 
     <!-- VITALS -->
     <div class="section-title">Vitals</div>
-    <table>
+    <table class="vitals-table">
         <tr>
             <th>Time</th>
             <th>Pulse</th>
@@ -205,14 +263,16 @@
     </table>
 
     <!-- DISPOSITION -->
-    <div class="section-title">Disposition</div>
+    <div class="section-title">Disposition</div>    
     <table>
         <tr>
             <td><strong>Condition Upon Release:</strong> @Model.VchConditionUponRelease</td>
         </tr>
+
         <tr>
             <td><strong>Time of Release:</strong> @(Model.DtDischargeDateTime?.ToString("dd-MMM-yyyy hh:mm tt") ?? "-")</td>
         </tr>
+
         <tr>
             <td><strong>Admission Advised:</strong> @((Model.BitIsAdmissionAdvised == true) ? "Yes" : "No")</td>
         </tr>
@@ -220,7 +280,17 @@
         @if (Model.BitIsAdmissionAdvised == true)
         {
             <tr>
-                <td><strong>Admission Refusal Reason:</strong><br />@Html.Raw(Model.VchAdmissionRefusalReason?.Replace("\n","<br>") ?? "-")</td>
+                <td>
+                    <strong>Suggested Doctor:</strong> @(!string.IsNullOrEmpty(Model.OtherDoctorName) ? Model.OtherDoctorName : "-")
+
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <strong>Admission Refusal Reason:</strong><br />
+                    @Html.Raw(Model.VchAdmissionRefusalReason?.Replace("\n", "<br>") ?? "-")
+                </td>
             </tr>
         }
     </table>

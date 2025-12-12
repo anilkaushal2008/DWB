@@ -187,9 +187,7 @@ namespace DoctorWorkBench.Controllers
                     VchAge = model.Age ?? "",
                     VchSex = model.Sex ?? "",
                     VchPhoneNumber = model.PhoneNo ?? "",
-                    VchAddress = model.PatientAddress ?? "",
-                    VchRoomWardNumber = model.RoomWardNumber ?? "",
-                    VchBedNumber = model.BedNumber ?? "",
+                    VchAddress = model.PatientAddress ?? "",                   
 
                     // Arrival & provider
                     DtArrivalDateTime = model.ArrivalDateTime,
@@ -230,6 +228,11 @@ namespace DoctorWorkBench.Controllers
                     VchConditionUponRelease = model.ConditionUponRelease ?? "",
                     DtDischargeDateTime = model.TimeOfRelease,
 
+                    //room and bed no
+                    VchRoomWardNumber=model.RoomWardNumber ?? "",
+                    VchBedNumber=model.BedNumber ?? "",
+
+                    //indoor advice
                     BitIsAdmissionAdvised = model.IsAdmissionAdvised,
                     VchAdmissionRefusalReason = model.AdmissionRefusalReason ?? "",                    
                     BitIsCrossConsultRequired = model.IsCrossConsultRequired,
@@ -263,7 +266,9 @@ namespace DoctorWorkBench.Controllers
                 _logger.LogInformation("Created triage assessment {Id} for Visit {VisitId}", entity.BigintAssessmentId, model.VisitId);
 
                 // redirect to Print action (Post-redirect-get)
-                return JavaScriptRedirect(entity.BigintAssessmentId);
+                //return JavaScriptRedirect(entity.BigintAssessmentId);
+                TempData["PrintId"] = entity.BigintAssessmentId.ToString();
+                return RedirectToAction("EmergencyPatient");
             }
             catch (Exception ex)
             {
@@ -298,7 +303,6 @@ namespace DoctorWorkBench.Controllers
                             e.VchDoctorCode == doctorCode)
                 .OrderByDescending(e => e.DtCreated)
                 .ToListAsync();
-
             return View(doctorEmg);
         }
 
@@ -311,6 +315,7 @@ namespace DoctorWorkBench.Controllers
             var entity = await _context.EmergencyTriageAssessment
                     .FirstOrDefaultAsync(e => e.BigintAssessmentId == assmentID);            
             if (entity == null) return NotFound("No triage assessment found for this patient & visit.");
+           
 
             var model = new TriageViewModel
             {
@@ -325,7 +330,9 @@ namespace DoctorWorkBench.Controllers
                 PatientAddress = entity.VchAddress,
                 RoomWardNumber = entity.VchRoomWardNumber,
                 BedNumber = entity.VchBedNumber,
-
+                //enable room/bed
+                EnableRoomBed = !(string.IsNullOrEmpty(entity.VchRoomWardNumber) &&
+                          string.IsNullOrEmpty(entity.VchBedNumber)),
                 ArrivalDateTime = entity.DtArrivalDateTime,
                 TimeSeenByProvider = entity.DtTimeSeenByProvider,
 
@@ -348,11 +355,11 @@ namespace DoctorWorkBench.Controllers
                 ObjectiveNotes = entity.VchObjectiveNotes,
                 InvestigationsOrdered = entity.VchInvestigationsOrdered,
                 Diagnosis = entity.VchProvisionalDiagnosis,
-                Plan = entity.VchTreatmentPlan,
+                Plan = entity.VchTreatmentPlan,                
 
                 TriageCategory = entity.VchTriageCategory,
                 ConditionUponRelease = entity.VchConditionUponRelease,
-                TimeOfRelease = entity.DtDischargeDateTime,
+                TimeOfRelease = entity.DtDischargeDateTime,               
 
                 IsAdmissionAdvised = entity.BitIsAdmissionAdvised ?? false,
                 AdmissionRefusalReason = entity.VchAdmissionRefusalReason,
@@ -397,7 +404,7 @@ namespace DoctorWorkBench.Controllers
             try
             {
                 if (model == null) return BadRequest("Invalid submission.");
-                if (!ModelState.IsValid) return View("Form", model);
+                //if (!ModelState.IsValid) return View("Form", model);
 
                 var entity = await _context.EmergencyTriageAssessment.FindAsync(model.AssessmentId);
                 if (entity == null) return NotFound($"Assessment with ID {model.AssessmentId} not found.");
@@ -428,8 +435,8 @@ namespace DoctorWorkBench.Controllers
                 entity.DecWeight = model.Weight;
 
                 //refer doctor
-                entity.ConsultantDoctorId = model.ConsultantDoctorId;
-                entity.OtherDoctorName = model.OtherDoctorName;
+                entity.ConsultantDoctorId = model.ConsultantDoctorId??entity.ConsultantDoctorId;
+                entity.OtherDoctorName = model.OtherDoctorName??entity.OtherDoctorName;
 
                 entity.VchChiefComplaint = model.ChiefComplaint ?? entity.VchChiefComplaint;
                 entity.VchCurrentMedication = model.CurrentMedication ?? entity.VchCurrentMedication;
@@ -464,8 +471,8 @@ namespace DoctorWorkBench.Controllers
 
                 await _context.SaveChangesAsync();
 
-                ViewBag.AssessmentId = entity.BigintAssessmentId;
-                return RedirectToAction("Print", new { id = entity.BigintAssessmentId });
+                TempData["PrintId"] = entity.BigintAssessmentId.ToString();
+                return RedirectToAction("AssessedEmg");
             }
             catch (Exception ex)
             {
@@ -476,6 +483,7 @@ namespace DoctorWorkBench.Controllers
         }
 
         // GET: Print
+        [Authorize(Roles = "Admin, EMO")]
         [HttpGet]
         public async Task<IActionResult> Print(long id)
         {
@@ -491,18 +499,24 @@ namespace DoctorWorkBench.Controllers
 
             return View("Print", obj);
         }
-        private ContentResult JavaScriptRedirect(long id)
+
+        // GET: Print
+        [Authorize(Roles = "Admin, EMO")]
+        [HttpGet]
+        public async Task<IActionResult> APIPrint(string uhid, int visiNo)
         {
-            string script = $@"
-        <script>
-            // Open print in new tab
-            window.open('/Triage/Print/{id}', '_blank');
+            if (uhid == null && visiNo!=0) return BadRequest("Invalid assessment id.");
 
-            // Redirect main window back to list
-            window.location.href = '/Triage/EmergencyPatient';
-        </script>";
+            var obj = await _context.EmergencyTriageAssessment.FirstOrDefaultAsync(e => e.VchUhidNo == uhid && e.BigintVisitId==visiNo);
+            if (obj == null) return NotFound($"Assessment with ID {uhid} not found.");
 
-            return Content(script, "text/html");
+            // Get creator signature/name if present
+            var creator = await _context.TblUsers.FirstOrDefaultAsync(u => u.VchUsername == obj.VchCreatedBy);
+            ViewBag.ProviderSignature = creator?.VchSignFileName ?? string.Empty;
+            ViewBag.ProviderFullName = creator?.VchFullName ?? obj.VchCreatedByDoctorName;
+
+            return View("Print", obj);
         }
+
     }
 }

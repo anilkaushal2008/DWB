@@ -40,6 +40,7 @@ namespace DWB.Models
         [StringLength(250)]
         public string? PatientAddress { get; set; }
 
+        public bool EnableRoomBed { get; set; }
         [StringLength(50)]
         public string? RoomWardNumber { get; set; }
 
