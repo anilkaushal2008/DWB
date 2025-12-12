@@ -27,7 +27,9 @@ namespace DWB.Models
         public string doccode { get; set; }
         public string docname{ get; set; }
 
-
+        //referal doctor
+        public int? ConsultantDoctorId { get; set; }
+        public string? OtherDoctorName { get; set; }
 
         public string? Age { get; set; }
         public string? Sex { get; set; }
@@ -128,9 +130,7 @@ namespace DWB.Models
         public string? ConditionUponRelease { get; set; }
 
         public DateTime? TimeOfRelease { get; set; }
-
-        public int? ConsultantDoctorId { get; set; }
-        public string? OtherDoctorName { get; set; }
+       
         public bool IsAdmissionAdvised { get; set; }
 
 

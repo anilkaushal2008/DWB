@@ -225,6 +225,7 @@ public partial class DWBEntity : DbContext
             entity.Property(e => e.IntCode).HasColumnName("intCode");
             entity.Property(e => e.IntIhmscode).HasColumnName("intIHMSCode");
             entity.Property(e => e.IntRespRate).HasColumnName("intRespRate");
+            entity.Property(e => e.OtherDoctorName).HasMaxLength(150);
             entity.Property(e => e.VchAddress).HasColumnName("vchAddress");
             entity.Property(e => e.VchAdmissionRefusalReason).HasColumnName("vchAdmissionRefusalReason");
             entity.Property(e => e.VchAge)

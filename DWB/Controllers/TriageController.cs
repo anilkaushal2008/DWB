@@ -127,7 +127,7 @@ namespace DoctorWorkBench.Controllers
                 Sex = gender ?? string.Empty,
                 IsEditMode = false,
                 doccode = doccode,
-                CategoryCode=catcode,
+                CategoryCode = catcode,
                 docname=docname,
                 Category=catname               
             };
@@ -168,6 +168,15 @@ namespace DoctorWorkBench.Controllers
                 var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value ?? "0");
                 var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value ?? "0");
                 var userId = Convert.ToInt32(User.FindFirst("UserId")?.Value ?? "1");
+                string ReferedDOctor = string.Empty;
+                if(model.ConsultantDoctorId!=0 && model.ConsultantDoctorId != null)
+                {
+                    var getDocUser = (from e in _context.TblUsers where e.IntUserId == model.ConsultantDoctorId select e).FirstOrDefault();
+                    if (getDocUser != null)
+                    {
+                        ReferedDOctor=getDocUser.VchFullName.ToString();
+                    }
+                }
 
                 var entity = new EmergencyTriageAssessment
                 {
@@ -222,10 +231,14 @@ namespace DoctorWorkBench.Controllers
                     DtDischargeDateTime = model.TimeOfRelease,
 
                     BitIsAdmissionAdvised = model.IsAdmissionAdvised,
-                    VchAdmissionRefusalReason = model.AdmissionRefusalReason ?? "",
+                    VchAdmissionRefusalReason = model.AdmissionRefusalReason ?? "",                    
                     BitIsCrossConsultRequired = model.IsCrossConsultRequired,
                     VchSpecialistName = model.SpecialistName ?? "",
                     VchReferredTo = model.ReferredTo ?? "",
+
+                    // refered doctor
+                    ConsultantDoctorId = model.ConsultantDoctorId,                    
+                    OtherDoctorName = ReferedDOctor,
 
                     DtFollowUpDate = model.FollowUpDate,
                     DtFollowUpTime = model.FollowUpTime,
@@ -292,13 +305,11 @@ namespace DoctorWorkBench.Controllers
 
         //GET: Edit existing assessment
         [HttpGet]
-        public async Task<IActionResult> Edit(string uhid, long visit)
+        public async Task<IActionResult> Edit(int assmentID)
         {
-            if (string.IsNullOrWhiteSpace(uhid) || visit <= 0) return BadRequest("Invalid input.");
-
+            
             var entity = await _context.EmergencyTriageAssessment
-                .FirstOrDefaultAsync(e => e.VchPatientId == uhid && e.BigintVisitId == visit);
-
+                    .FirstOrDefaultAsync(e => e.BigintAssessmentId == assmentID);            
             if (entity == null) return NotFound("No triage assessment found for this patient & visit.");
 
             var model = new TriageViewModel
@@ -354,10 +365,27 @@ namespace DoctorWorkBench.Controllers
                 PatientInstructions = entity.VchPatientInstructions,
                 Remarks = entity.VchRemarks,
 
-                BitIsCompleted = entity.BitIsCompleted
+                BitIsCompleted = entity.BitIsCompleted,
+                IsEditMode = true
             };
+            model.ConsultantList = _context.TblUsers
+    .Where(u => u.FkRole.VchRole == "Consultant" && u.BitIsDeActivated == false)
+    .Select(u => new SelectListItem
+    {
+        Value = u.IntUserId.ToString(),
+        Text = $"{u.VchFullName}",
 
-            model.IsEditMode = true;
+        // 👇 FIX 2: Compare Current User (u) with Entity Value
+        Selected = u.IntUserId == entity.ConsultantDoctorId
+    })
+    .ToList();
+            // ⭐ ADD OTHER OPTION AT END
+            model.ConsultantList.Add(new SelectListItem
+            {
+                Value = "0",
+                Text = "Other (Specify Doctor)"
+            });
+            
             return View("Form", model);
         }
 
@@ -398,6 +426,10 @@ namespace DoctorWorkBench.Controllers
                 entity.IntRespRate = model.RespRate;
                 entity.DecTemperature = model.Temperature;
                 entity.DecWeight = model.Weight;
+
+                //refer doctor
+                entity.ConsultantDoctorId = model.ConsultantDoctorId;
+                entity.OtherDoctorName = model.OtherDoctorName;
 
                 entity.VchChiefComplaint = model.ChiefComplaint ?? entity.VchChiefComplaint;
                 entity.VchCurrentMedication = model.CurrentMedication ?? entity.VchCurrentMedication;

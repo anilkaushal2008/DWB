@@ -120,4 +120,8 @@ public partial class EmergencyTriageAssessment
     public string VchCatCode { get; set; }
 
     public string VchCategory { get; set; }
+
+    public int? ConsultantDoctorId { get; set; }
+
+    public string OtherDoctorName { get; set; }
 }

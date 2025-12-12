@@ -450,7 +450,7 @@
                                             </li>
 
                                             <li>
-                                                <a href="@Url.Action("EmergencyAssessed", "Triage")">
+                                                <a href="@Url.Action("AssessedEmg", "Triage")">
                                                     <i class="material-icons-outlined">arrow_right</i> Assessed
                                                 </a>
                                             </li>
@@ -584,36 +584,33 @@
             </div>
         </div>
     </div>
-    <!--start switcher-->
-    @* <script src="~/assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
-    <script src="~/assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script> *@
-    <!--bootstrap js-->
-    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
-    @*  <script src="~/assets/js/dashboard1.js"></script>
-    <script src="~/assets/js/dashboard2.js"></script> *@
-
-    <!--plugins-->
+    <!-- jQuery MUST load first (only load once) -->
     <script src="~/assets/js/jquery.min.js"></script>
+
+    
+    <!-- Bootstrap bundle (depends on jQuery for some plugins) -->
+    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+
+    <!-- App / theme plugins (order OK after jQuery) -->
     <script src="~/assets/js/pace.min.js"></script>
-    <!--plugins-->
     <script src="~/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
     <script src="~/assets/plugins/metismenu/metisMenu.min.js"></script>
-    @* <script src="~/assets/plugins/apexchart/apexcharts.min.js"></script> *@
     <script src="~/assets/plugins/simplebar/js/simplebar.min.js"></script>
     <script src="~/assets/plugins/peity/jquery.peity.min.js"></script>
-    <!--validation-->
+
+    <!-- jQuery Validation (must load AFTER jQuery) -->
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
-
+    <!-- small inline init that depends on loaded plugins -->
     <script>
-        $(".data-attributes span").peity("donut")
+        $(".data-attributes span").peity("donut");
     </script>
-    @*  <script>
+    @*<script>
         //setZoom(90); // Adjust the percentage as needed
-    </script> *@
-   @*  <script src="~/assets/js/dashboard2.js"></script> *@
-    <script src="~/assets/js/main.js"></script>
+    </script>*@
+   @*<script src="~/assets/js/dashboard2.js"></script>*@
+   @*  <script src="~/assets/js/main.js"></script> *@
     @RenderSection("Scripts", required: false)
     @* change password script *@
     <script type="text/javascript">

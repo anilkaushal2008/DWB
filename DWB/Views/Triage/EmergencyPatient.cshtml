@@ -82,7 +82,7 @@
                                                 @if (!p.bitTempCounselingComplete)
                                                 {
                                                     <a class="btn btn-sm material-chip-success"
-                                                       href="@Url.Action("Create", "Triage", new { uhid = p.opdno.ToString(), name = p.pname, visitId = p.visit, age=p.age,gender=p.sex,doccode=p.doccode,catcode=p.Pcategory,docname=p.descript,catname=p.descript })">
+                                                       href="@Url.Action("Create", "Triage", new { uhid = p.opdno.ToString(), name = p.pname, visitId = p.visit, age = p.age, gender = p.sex, doccode = p.doccode, catname = p.Pcategory, docname = p.descript, catcode = p.CategoryCode })">
                                                         <i class="fas fa-file-invoice"></i> Fill
                                                     </a>
                                                 }

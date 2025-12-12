@@ -80,6 +80,7 @@
             @Html.HiddenFor(m => m.docname)
             @Html.HiddenFor(m => m.CategoryCode)
             @Html.HiddenFor(m => m.Category)
+            @Html.HiddenFor(m => m.IsEditMode)
 
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
@@ -257,7 +258,43 @@
                     <span asp-validation-for="TriageCategory" class="text-danger"></span>
                 </div>
             </div>
+            <!-- ROOM & BED (Optional) -->
+            <div class="card mb-3 shadow-sm">
+                <div class="card-header bg-light fw-bold">Room / Bed Assignment (Optional)</div>
+                <div class="card-body">
 
+                    <div class="form-check form-switch mb-2">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               id="chkRoomBed"
+                               name="EnableRoomBed"
+                               value="true" />
+                        <input type="hidden" name="EnableRoomBed" value="false" />
+                        <label for="chkRoomBed" class="form-check-label fw-bold">Assign Room & Bed?</label>
+                    </div>
+
+                    <div id="roomBedBox" style="display:none;">
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <label asp-for="RoomWardNumber" class="form-label">
+                                    Room / Ward Number <span class="required-star">*</span>
+                                </label>
+                                <input asp-for="RoomWardNumber" id="RoomWardNumber" class="form-control" />
+                                <span asp-validation-for="RoomWardNumber" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="BedNumber" class="form-label">
+                                    Bed Number <span class="required-star">*</span>
+                                </label>
+                                <input asp-for="BedNumber" id="BedNumber" class="form-control" />
+                                <span asp-validation-for="BedNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
             <!-- DISPOSITION -->
             <div class="card mb-3 shadow-sm">
                 <div class="card-header bg-light fw-bold">Disposition</div>
@@ -384,9 +421,21 @@
     </div>
 </main>
 
+<!-- jQuery first -->
+<script src="~/assets/js/jquery.min.js"></script>
+
+<!-- THEN validation plugins -->
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+           function refreshValidation() {
+            var form = $("#triageForm");
+            form.removeData("validator");
+            form.removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse(form);
+        }
         $(document).ready(function () {
 
             // helper functions for dynamic validation
@@ -424,6 +473,7 @@
                     $('#TransportationOther').val('');
                 }
                 $.validator.unobtrusive.parse('#triageForm');
+                refreshValidation();   
             });
 
             // ==========================
@@ -455,6 +505,7 @@
                 }
 
                 $.validator.unobtrusive.parse('#triageForm');
+                refreshValidation();
             }
 
             // Checkbox click event
@@ -472,6 +523,7 @@
                     $('#FollowUpTime').val('');
                 }
                 $.validator.unobtrusive.parse('#triageForm');
+                 refreshValidation();
             });
 
             // 5) Admission advised -> show consultant box
@@ -490,6 +542,7 @@
                 }
 
                 $.validator.unobtrusive.parse('#triageForm');
+                 refreshValidation();
             }
 
             $('#chkAdmit').change(function () {
@@ -508,6 +561,7 @@
                     removeRequired('#OtherDoctorName');
                 }
                 $.validator.unobtrusive.parse('#triageForm');
+                 refreshValidation();
             });
 
             // 7) On page load: initialize everything
@@ -533,7 +587,34 @@
 
             // Re-parse all dynamic validation attributes
             $.validator.unobtrusive.parse('#triageForm');
+            refreshValidation();
         });
+
+         //Room options
+        function toggleRoomBed() {
+            if ($('#chkRoomBed').is(':checked')) {
+                $('#roomBedBox').show();
+
+                addRequired('#RoomWardNumber', 'Please enter room/ward number.');
+                addRequired('#BedNumber', 'Please enter bed number.');
+            } else {
+                $('#roomBedBox').hide();
+
+                $('#RoomWardNumber').val('');
+                $('#BedNumber').val('');
+
+                removeRequired('#RoomWardNumber');
+                removeRequired('#BedNumber');
+            }
+
+            $.validator.unobtrusive.parse('#triageForm');
+            refreshValidation();
+        }
+
+        $('#chkRoomBed').change(toggleRoomBed);
+
+        // Initialize on load
+        toggleRoomBed();
     </script>
 
 }
