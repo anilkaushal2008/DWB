@@ -1,5 +1,4 @@
-﻿﻿
-<!doctype html>
+﻿<!doctype html>
 <html lang="en" data-bs-theme="light">
 
 <head>
@@ -7,26 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Indus Healthcare</title>
     <!--favicon-->
-    <link rel="icon" href="~/assets/images/LogoIndus.jpeg" type="image/png">
+    <link rel="icon" href="/assets/images/LogoIndus.jpeg" type="image/png">
     <!-- loader-->
-    <link href="~/assets/css/pace.min.css" rel="stylesheet">
+    <link href="/assets/css/pace.min.css" rel="stylesheet">
     <!--plugins-->
-    <link href="~/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="~/assets/plugins/metismenu/metisMenu.min.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/plugins/metismenu/mm-vertical.css">
-    <link rel="stylesheet" type="text/css" href="~/assets/plugins/simplebar/css/simplebar.css">
+    <link href="/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/assets/plugins/metismenu/metisMenu.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/plugins/metismenu/mm-vertical.css">
+    <link rel="stylesheet" type="text/css" href="/assets/plugins/simplebar/css/simplebar.css">
     <!--bootstrap css-->
-    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
     <!--main css-->
-    <link href="~/assets/css/bootstrap-extended.css" rel="stylesheet">
-    <link href="~/sass/main.css" rel="stylesheet">
-    <link href="~/sass/dark-theme.css" rel="stylesheet">
-    <link href="~/sass/blue-theme.css" rel="stylesheet">
-    <link href="~/sass/semi-dark.css" rel="stylesheet">
-    <link href="~/sass/bordered-theme.css" rel="stylesheet">
-    <link href="~/sass/responsive.css" rel="stylesheet">
+    <link href="/assets/css/bootstrap-extended.css" rel="stylesheet">
+    <link href="/sass/main.css" rel="stylesheet">
+    <link href="/sass/dark-theme.css" rel="stylesheet">
+    <link href="/sass/blue-theme.css" rel="stylesheet">
+    <link href="/sass/semi-dark.css" rel="stylesheet">
+    <link href="/sass/bordered-theme.css" rel="stylesheet">
+    <link href="/sass/responsive.css" rel="stylesheet">
     <script>
             (function () {
             // --- Configuration ---
@@ -80,7 +79,6 @@
 
 <body>
 
-    <!--start header-->
     <header class="top-header">
         <nav class="navbar navbar-expand align-items-center gap-4">
             <div class="btn-toggle">
@@ -108,9 +106,8 @@
                         <i class="material-icons-outlined">search</i>
                     </a>
                 </li>
-                <!--change unit drop dowan -->
                 @* <li class="dropdown">
-                  COMPANY</li> *@
+                    COMPANY</li> *@
                 <li class="dropdown dropdown-item">
                     @await Component.InvokeAsync("CompanyDropdown")
                 </li>
@@ -151,8 +148,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div><!--end row-->
-                            <div class="row row-cols-3 g-0 border-bottom">
+                            </div><div class="row row-cols-3 g-0 border-bottom">
                                 <div class="col border-end">
                                     <div class="app-wrapper d-flex flex-column gap-2 text-center">
                                         <div class="app-icon">
@@ -183,8 +179,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div><!--end row-->
-                            <div class="row row-cols-3 g-0 border-bottom">
+                            </div><div class="row row-cols-3 g-0 border-bottom">
                                 <div class="col border-end">
                                     <div class="app-wrapper d-flex flex-column gap-2 text-center">
                                         <div class="app-icon">
@@ -215,8 +210,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div><!--end row-->
-                            <div class="row row-cols-3 g-0 border-bottom">
+                            </div><div class="row row-cols-3 g-0 border-bottom">
                                 <div class="col border-end">
                                     <div class="app-wrapper d-flex flex-column gap-2 text-center">
                                         <div class="app-icon">
@@ -247,16 +241,16 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div><!--end row-->
+                            </div>
                         </div>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                     @*<a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" data-bs-auto-close="outside"
-            data-bs-toggle="" href="javascript:;"> *@
+                data-bs-toggle="" href="javascript:;"> *@
                     @*<i class="material-icons-outlined">notifications</i> *@
-                    @*<span class="badge-notify">5</span></a>*@       
-          <div class="dropdown-menu dropdown-notify dropdown-menu-end shadow">
+                    @*<span class="badge-notify">5</span></a>*@
+                    <div class="dropdown-menu dropdown-notify dropdown-menu-end shadow">
                         @*< div class="px-3 py-1 d-flex align-items-center justify-content-between border-bottom"> *@
                         @* <h5 class="notiy-title mb-0">Notifications</h5> *@
                         <div class="dropdown">
@@ -293,25 +287,25 @@
                             <div class="text-center">
                                 <img src="@profileUrl" class="rounded-circle p-1 shadow mb-3" width="90" height="90"
                                      alt="">
-                                <h5 class="user-name mb-0 fw-bold">@(User.Identity.IsAuthenticated ? "Hello " + User.Identity.Name : "Please log in")   </h5>
+                                <h5 class="user-name mb-0 fw-bold">@(User.Identity.IsAuthenticated ? "Hello " + User.Identity.Name : "Please log in")    </h5>
                             </div>
                         </a>
                         <hr class="dropdown-divider">
                         @*<a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">person_outline</i>Profile</a> *@
+                            class="material-icons-outlined">person_outline</i>Profile</a> *@
                         <a class="dropdown-item d-flex align-items-center gap-2 py-2"
                            href="javascript:void(0);"
                            id="openChangePassword">
                             <i class="material-icons-outlined">person_outline</i> Change Password
                         </a>
                         @*<a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">local_bar</i>Setting</a>*@
+                            class="material-icons-outlined">local_bar</i>Setting</a>*@
                         @*<a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">dashboard</i>Dashboard</a>
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">account_balance</i>Earning</a>
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                class="material-icons-outlined">cloud_download</i>Downloads</a>*@
+                            class="material-icons-outlined">dashboard</i>Dashboard</a>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
+                    class="material-icons-outlined">account_balance</i>Earning</a>
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
+                        class="material-icons-outlined">cloud_download</i>Downloads</a>*@
                         <hr class="dropdown-divider">
                         <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="@Url.Action("Logout", "Home")">
                             <i class="material-icons-outlined">power_settings_new</i>Logout
@@ -333,9 +327,7 @@
                 <span class="material-icons-outlined">close</span>
             </div>
         </div>
-        <!--start sidebar-->
         <div class="sidebar-nav">
-            <!--navigation-->
             <ul class="metismenu" id="sidenav">
                 <hr />
                 <li>
@@ -388,7 +380,7 @@
                                     <a href="@Url.Action("Masters", "Master")"><i class="material-icons-outlined">arrow_right</i>All Masters</a>
                                 </li>
                             }
-                           @*  @if (hasUserUserMastersPermission)
+                            @* @if (hasUserUserMastersPermission)
                             {
                                 <li>
                                     <a href="@Url.Action("Index", "DoctorSchedule")"><i class="material-icons-outlined">arrow_right</i>Scheduling Master</a>
@@ -412,56 +404,59 @@
                             </div>
                             <div class="menu-title">OPD Corner</div>
                         </a>
-                        @{
-                            if (hasNursingAssessment)
-                            {
-                                <ul>
-                                    <li>
-                                        <a href="@Url.Action("Nursingassessment", "Assessment")"><i class="material-icons-outlined">arrow_right</i>Initial Assessment</a>
-                                    </li>
-                                </ul>
-                            }
-                            if (hasDoctorAssessment)
-                            {
-                                <ul>
-                                    <li>
-                                        <a href="@Url.Action("Doctorassessment", "Assessment")"><i class="material-icons-outlined">arrow_right</i>Doctor Assessment</a>
-                                    </li>
-                                </ul>
-                            }
-                            if (hasCounseling)
-                            {
-                                <ul>
-                                    <li>
-                                        <a href="@Url.Action("GetCounseling", "Counseling")"><i class="material-icons-outlined">arrow_right</i>Counselling Session</a>
-                                    </li>
-                                </ul>
-                            }
-                            if (hasEmgAssessment)
-                            {
-                                <ul>
-                                    <li>
-                                        <a href="javascript:;"><i class="material-icons-outlined">arrow_right</i>Emg. Assessment</a>
-                                        <ul>
-                                            <li>
-                                                <a href="@Url.Action("EmergencyPatient", "Triage")">
-                                                    <i class="material-icons-outlined">arrow_right</i> Assigned
-                                                </a>
-                                            </li>
 
-                                            <li>
-                                                <a href="@Url.Action("AssessedEmg", "Triage")">
-                                                    <i class="material-icons-outlined">arrow_right</i> Assessed
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
+                        <ul>
+                            @if (hasNursingAssessment)
+                            {
+                                <li>
+                                    <a href="@Url.Action("Nursingassessment", "Assessment")">
+                                        <i class="material-icons-outlined">arrow_right</i> Initial Assessment
+                                    </a>
+                                </li>
                             }
 
-                        }
+                            @if (hasDoctorAssessment)
+                            {
+                                <li>
+                                    <a href="@Url.Action("Doctorassessment", "Assessment")">
+                                        <i class="material-icons-outlined">arrow_right</i> Doctor Assessment
+                                    </a>
+                                </li>
+                            }
+
+                            @if (hasCounseling)
+                            {
+                                <li>
+                                    <a href="@Url.Action("GetCounseling", "Counseling")">
+                                        <i class="material-icons-outlined">arrow_right</i> Counselling Session
+                                    </a>
+                                </li>
+                            }
+
+                            @if (hasEmgAssessment)
+                            {
+                                <li>
+                                    <a class="has-arrow" href="javascript:;">
+                                        <i class="material-icons-outlined">arrow_right</i> Emg. Assessment
+                                    </a>
+                                    <ul>
+                                        <li>
+                                            <a href="@Url.Action("EmergencyPatient", "Triage")">
+                                                Assigned
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="@Url.Action("AssessedEmg", "Triage")">
+                                                Assessed
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
                     </li>
                 }
+
                 @if (hasEmgAssessment || User.IsInRole("Admin"))
                 {
                     <li>
@@ -507,25 +502,15 @@
                     </li>
                 }
             </ul>
-            <!--end navigation-->
         </div>
     </aside>
-    <!--end sidebar-->
-    <!--end sidebar-->
-    <!--start overlay-->
     <div class="overlay btn-toggle"></div>
     <main class="page-content">
         @RenderBody()
     </main>
-    <!--end overlay-->
-    <!--start footer-->
     <footer class="page-footer">
         <p class="mb-0">Copyright © 2025. All right reserved.</p>
     </footer>
-    <!--end footer-->
-    <!--start cart-->
-    <!--end cart-->
-    <!--start switcher-->
     <button class="btn btn-grd btn-grd-primary position-fixed bottom-0 end-0 m-3 d-flex align-items-center gap-2" type="button"
             data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop">
         <i class="material-icons-outlined">tune</i>Customize
@@ -576,109 +561,54 @@
                     <div class="col-12 col-xl-6">
                         <input type="radio" class="btn-check" name="theme-options" id="BoderedTheme">
                         <label class="btn btn-outline-secondary d-flex flex-column gap-1 align-items-center justify-content-center p-4" for="BoderedTheme">
-                            <span class="material-icons-outlined">border_style</span>
-                            <span>Bordered</span>
+                            <span class="material-icons-outlined">
+                                <i class="material-icons-outlined">check_box_outline_blank</i>
+                            </span>
+                            <span>Bodered</span>
                         </label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- jQuery MUST load first (only load once) -->
-    <script src="~/assets/js/jquery.min.js"></script>
+    <<!--start switcher-->
+    <!--bootstrap js-->
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
 
-    
-    <!-- Bootstrap bundle (depends on jQuery for some plugins) -->
-    <script src="~/assets/js/bootstrap.bundle.min.js"></script>
+    <!--plugins-->
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/js/pace.min.js"></script>
+    <!--plugins-->
+    <script src="/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+    <script src="/assets/plugins/metismenu/metisMenu.min.js"></script>
+    <script src="/assets/plugins/simplebar/js/simplebar.min.js"></script>
+    <script src="/assets/plugins/peity/jquery.peity.min.js"></script>
+    <!--validation-->
+    <script src="/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
-    <!-- App / theme plugins (order OK after jQuery) -->
-    <script src="~/assets/js/pace.min.js"></script>
-    <script src="~/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
-    <script src="~/assets/plugins/metismenu/metisMenu.min.js"></script>
-    <script src="~/assets/plugins/simplebar/js/simplebar.min.js"></script>
-    <script src="~/assets/plugins/peity/jquery.peity.min.js"></script>
 
-    <!-- jQuery Validation (must load AFTER jQuery) -->
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-
-    <!-- small inline init that depends on loaded plugins -->
     <script>
-        $(".data-attributes span").peity("donut");
+        $(".data-attributes span").peity("donut")
     </script>
-    @*<script>
-        //setZoom(90); // Adjust the percentage as needed
-    </script>*@
-   @*<script src="~/assets/js/dashboard2.js"></script>*@
-   @*  <script src="~/assets/js/main.js"></script> *@
+
+    @* <script src="~/properties/wwwroot/assets/js/main.js"></script> *@
+
+    <script>
+        $(document).ready(function () {
+            // 1. Initialize MetisMenu for the multi-level sidebar navigation
+            $('#sidenav').metisMenu();
+
+            // 2. Sidebar Toggle/Collapse Logic (The fix for the header button)
+            $('.btn-toggle').on('click', function () {
+                $('body').toggleClass('sidebar-collapsed');
+            });
+            // 3. SimpleBar initialization (If needed, some themes auto-initialize with data-simplebar attribute)
+            // If the scrolling isn't working, uncomment the line below or refer to your theme's docs for SimpleBar init.
+            // new SimpleBar(document.querySelector('.sidebar-wrapper'));
+        });
+    </script>
+
     @RenderSection("Scripts", required: false)
-    @* change password script *@
-    <script type="text/javascript">
-            $(document).ready(function () {
-            $('#openChangePassword').on('click', function () {
-                $.get('@Url.Action("ChangePassword", "Home")', function (html) {
-                    $('#changePasswordModalContent').html(html);
-                    $.validator.unobtrusive.parse('#ChangePassword');
-                    $('#changePasswordModal').modal('show');
-                });
-            });
-        });
-
-        $(document).on("submit", "#ChangePassword", function (e) {
-            e.preventDefault();
-            var form = $(this);
-            if (!form.valid()) return;
-
-            $.ajax({
-                url: form.attr("action"),
-                method: "POST",
-                data: form.serialize(),
-                success: function (res) {
-                    if (res.success) {
-                        $('#changePasswordModal').modal('hide');
-                         alert(res.message);
-                          window.location.href = '/Home/Logout'
-                    } else {
-                        //$('#modal-content-placeholder').html(res);
-                         $('#changePasswordModalContent').html(res);
-                        $.validator.unobtrusive.parse('#ChangePassword');
-                    }
-                },
-                error: function () {
-                    alert("Something went wrong.");
-                }
-            });
-        });
-    </script>
-    @* change password modal *@
-    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-
-                <div class="modal-header bg-primary text-white rounded-top-4">
-                    <h5 class="modal-title">
-                        <i class="material-icons-outlined me-2">lock</i> Change Password
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body p-4" id="changePasswordModalContent">
-                    <div id="modal-content-placeholder"></div>
-                    <!-- AJAX partial view will load here -->
-                    <div class="text-center py-5 text-muted">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <div class="mt-2">Loading form...</div>
-                    </div>
-                </div>
-
-                <div class="modal-footer bg-light rounded-bottom-4 d-none">
-                    <!-- Optionally insert buttons via JS or inside partial -->
-                </div>
-
-            </div>
-        </div>
-    </div>
 </body>
 </html>

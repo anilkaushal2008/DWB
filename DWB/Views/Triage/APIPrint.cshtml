@@ -318,6 +318,17 @@
         <tr><td><strong>Patient Instructions:</strong><br />@Html.Raw(Model.VchPatientInstructions?.Replace("\n", "<br>") ?? "-")</td></tr>
         <tr><td><strong>Remarks:</strong><br />@Html.Raw(Model.VchRemarks?.Replace("\n", "<br>") ?? "-")</td></tr>
     </table>
-
+    <!-- SIGNATURE / PROVIDER STAMP -->
+    <table>
+        <tr>
+            <td style="width:50%; height:60px; vertical-align:bottom;">
+                <b>Signature of Provider</b><br />
+                <span style="font-size:10px;">(With Date & Time)</span>
+            </td>
+            <td style="width:50%; height:60px; vertical-align:bottom;">
+                <b>Provider Name / Stamp</b>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

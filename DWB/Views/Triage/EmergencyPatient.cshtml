@@ -92,10 +92,10 @@
                                                        href="@Url.Action("APIPrint", "Triage", new { uhid = p.opdno.ToString(), visiNo=p.visit })" target="_blank">
                                                         <i class="fas fa-eye"></i> View
                                                     </a>
-                                                    <a class="btn btn-sm material-chip-primary"
+                                                    @* <a class="btn btn-sm material-chip-primary"
                                                        href="@Url.Action("Edit", "Triage", new { uhid = p.opdno, visit = p.visit, intcode=p.CompCode })">
                                                         <i class="fas fa-eye"></i> Edit
-                                                    </a>
+                                                    </a> *@
                                                 }
                                             </td>
                                         </tr>

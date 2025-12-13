@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel.Design;
 using System.Data;
 
 namespace DoctorWorkBench.Controllers
@@ -87,26 +88,29 @@ namespace DoctorWorkBench.Controllers
             string dbSdate = Sdate.ToString("dd/MM/yyyy");
 
             // Query the correct table
-            var assessedList = await _context.EmergencyTriageAssessment
-                .Where(a => a.IntCode == intUnitcode
-                         && a.IntIhmscode == intHMScode
-                         && a.BitIsCompleted == true  // <--- Ensure this column exists                        
-                         )   // <--- Ensure this column exists
-                .Select(x => new { x.VchUhidNo, x.BigintVisitId, x.BitIsCompleted }) // Select only what we need for speed
-                .ToListAsync();
+             var assessedList = await _context.EmergencyTriageAssessment
+                                .Where(a => a.IntCode == intUnitcode
+                                         && a.IntIhmscode == intHMScode
+                                         && a.BitIsCompleted == true  //Ensure this column exists                        
+                                         )   //Ensure this column exists
+                                .Select(x => new { x.VchUhidNo, x.BigintVisitId, x.BitIsCompleted, x.VchDoctorCode }) // Select only what we need for speed
+                                .ToListAsync();           
 
-            // 4. MAP STATUS TO THE LIST
+            //4. MAP STATUS TO THE LIST
             if (assessedList.Any() && AllEmergency.Any())
             {
                 foreach (var p in AllEmergency)
                 {
-                    // Check if this specific patient/visit exists in the assessed list
-                    // Note: I used p.uhid. If your API uses p.opdno, switch it back.
-                    p.bitTempCounselingComplete = assessedList.Any(x => x.BitIsCompleted==true && x.VchUhidNo==p.opdno && x.BigintVisitId==p.visit);
+                    // Check if this specific patient/visit exists in the assessed list                   
+                    p.bitTempCounselingComplete = assessedList.Any(x => x.BitIsCompleted == true && x.VchUhidNo == p.opdno && x.BigintVisitId == p.visit);
                     p.CompCode = code;
                 }
             }
-
+            //filter according to doctor code
+            if (doccode != "" && isAdmin == false)
+            {
+                AllEmergency = AllEmergency.Where(a => a.doccode == doccode).ToList();
+            }
             return View(AllEmergency);
         }
 
@@ -115,6 +119,8 @@ namespace DoctorWorkBench.Controllers
         [HttpGet]
         public IActionResult Create(long visitId, string uhid, string name, int age = 0, string gender = "", string doccode="", string catcode="", string docname="", string catname="")
         {
+            var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value);
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value);
             var model = new TriageViewModel
             {
                 VisitId = visitId,
@@ -132,13 +138,19 @@ namespace DoctorWorkBench.Controllers
                 Category=catname               
             };
             model.ConsultantList = _context.TblUsers
-            .Where(u => u.FkRole.VchRole == "Consultant" && u.BitIsDeActivated == false)
-            .Select(u => new SelectListItem
-            {
-              Value = u.IntUserId.ToString(),
-             Text = $"{u.VchFullName}"
-             })
-        .ToList();
+            .Where(u => u.FkRole.VchRole == "Consultant" &&
+            u.BitIsDeActivated == false &&
+            _context.TblUserCompany.Any(uc =>
+            uc.FkUseriId == u.IntUserId &&
+            uc.FkIntCompanyId == intUnitcode
+        )
+        )
+    .Select(u => new SelectListItem
+    {
+        Value = u.IntUserId.ToString(),
+        Text = u.VchFullName
+    })
+    .ToList();
             // ⭐ ADD OTHER OPTION AT END
             model.ConsultantList.Add(new SelectListItem
             {
@@ -281,11 +293,14 @@ namespace DoctorWorkBench.Controllers
         [Authorize(Roles = "Admin, EMO")]
         public async Task<IActionResult> AssessedEmg()
         {
+            //get unit code and hms code
+            var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value ?? "0");
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value ?? "0");
             // Admin → View ALL records
             if (User.IsInRole("Admin"))
             {
                 var allEmg = await _context.EmergencyTriageAssessment
-                    .Where(e => e.BitIsCompleted == true)
+                    .Where(e => e.BitIsCompleted == true && e.IntCode==intUnitcode && e.IntIhmscode==intHMScode)
                     .OrderByDescending(e => e.DtCreated)
                     .ToListAsync();
 
@@ -300,7 +315,7 @@ namespace DoctorWorkBench.Controllers
 
             var doctorEmg = await _context.EmergencyTriageAssessment
                 .Where(e => e.BitIsCompleted == true &&
-                            e.VchDoctorCode == doctorCode)
+                            e.VchDoctorCode == doctorCode && e.IntCode==intUnitcode && e.IntIhmscode==intHMScode)
                 .OrderByDescending(e => e.DtCreated)
                 .ToListAsync();
             return View(doctorEmg);
@@ -311,7 +326,9 @@ namespace DoctorWorkBench.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int assmentID)
         {
-            
+            //get unit code and hms code
+            var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value ?? "0");
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value ?? "0");
             var entity = await _context.EmergencyTriageAssessment
                     .FirstOrDefaultAsync(e => e.BigintAssessmentId == assmentID);            
             if (entity == null) return NotFound("No triage assessment found for this patient & visit.");
@@ -376,16 +393,19 @@ namespace DoctorWorkBench.Controllers
                 IsEditMode = true
             };
             model.ConsultantList = _context.TblUsers
-    .Where(u => u.FkRole.VchRole == "Consultant" && u.BitIsDeActivated == false)
-    .Select(u => new SelectListItem
-    {
-        Value = u.IntUserId.ToString(),
-        Text = $"{u.VchFullName}",
-
-        // 👇 FIX 2: Compare Current User (u) with Entity Value
-        Selected = u.IntUserId == entity.ConsultantDoctorId
-    })
-    .ToList();
+             .Where(u => u.FkRole.VchRole == "Consultant" &&
+             u.BitIsDeActivated == false &&
+             _context.TblUserCompany.Any(uc =>
+             uc.FkUseriId == u.IntUserId &&
+             uc.FkIntCompanyId == intUnitcode
+         )
+         )
+        .Select(u => new SelectListItem
+        {
+            Value = u.IntUserId.ToString(),
+            Text = u.VchFullName
+         })
+         .ToList();
             // ⭐ ADD OTHER OPTION AT END
             model.ConsultantList.Add(new SelectListItem
             {
@@ -518,5 +538,66 @@ namespace DoctorWorkBench.Controllers
             return View("Print", obj);
         }
 
+
+        [Authorize(Roles = "Admin,EMO,Doctor")]
+        public async Task<IActionResult> AllTriageReport(string dateRange, string doctorCode)
+        {
+            var intHMScode = Convert.ToInt32(User.FindFirst("HMScode")?.Value ?? "0");
+            var intUnitcode = Convert.ToInt32(User.FindFirst("UnitId")?.Value ?? "0");
+            string loggedDoctorCode = User.FindFirst("DoctorCode")?.Value;
+
+            bool isAdmin = User.IsInRole("Admin");
+
+            var query = _context.EmergencyTriageAssessment
+                .Where(x =>
+                    x.IntCode == intUnitcode &&
+                    x.IntIhmscode == intHMScode &&
+                    x.BitIsCompleted == true
+                );
+
+            // 🔐 Doctor visibility
+            if (!isAdmin)
+            {
+                query = query.Where(x => x.VchDoctorCode == loggedDoctorCode);
+            }
+            else if (!string.IsNullOrEmpty(doctorCode))
+            {
+                query = query.Where(x => x.VchDoctorCode == doctorCode);
+            }
+
+            // 📅 Date range filter
+            if (!string.IsNullOrEmpty(dateRange))
+            {
+                var dates = dateRange.Split(" - ");
+                var fromDate = DateTime.ParseExact(dates[0], "dd/MM/yyyy", null);
+                var toDate = DateTime.ParseExact(dates[1], "dd/MM/yyyy", null).AddDays(1);
+
+                query = query.Where(x =>
+                    x.DtArrivalDateTime >= fromDate &&
+                    x.DtArrivalDateTime < toDate
+                );
+            }
+
+            var model = await query
+                .OrderByDescending(x => x.DtArrivalDateTime)
+                .ToListAsync();
+
+            // 🔽 Doctor dropdown (Admin only)
+            ViewBag.DoctorList = await _context.EmergencyTriageAssessment
+                .Where(x => x.IntCode == intUnitcode && x.IntIhmscode == intHMScode)
+                .Select(x => new { x.VchDoctorCode, x.VchCreatedByDoctorName })
+                .Distinct()
+                .OrderBy(x => x.VchCreatedByDoctorName)
+                .ToListAsync();
+
+            // 📊 Cards
+            ViewBag.TotalPatients = model.Count;
+            ViewBag.TotalEmergent = model.Count(x => x.VchTriageCategory == "Emergent");
+            ViewBag.TotalAdmissions = model.Count(x => x.BitIsAdmissionAdvised == true);
+            ViewBag.DateRange = dateRange;
+            ViewBag.SelectedDoctor = doctorCode;
+
+            return View(model);
+        }
     }
 }
